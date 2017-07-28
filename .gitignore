@@ -1,0 +1,15 @@
+
+
+# DEPENDENCIES
+node_modules/**/*
+.expo/**/*
+
+# OSX
+.DS_Store
+
+# NODE
+npm-debug.*
+yarn-error.log
+
+# SECRET
+.env.production

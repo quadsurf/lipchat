@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "LipChat",
+    "description": "Browse & Claim Lip Colors",
+    "slug": "lips",
+    "privacy": "unlisted",
+    "sdkVersion": "19.0.0",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "primaryColor": "#371A85",
+    "icon": "./assets/icons/icon.png",
+    "notification": {
+      "icon": "./assets/icons/icon.png",
+      "color": "#371A85"
+    },
+    "loading": {
+      "backgroundColor": "#371A85",
+      "hideExponentText": true,
+      "loadingIndicatorStyleExperimental": "light"
+    },
+    "packagerOpts": {
+      "assetExts": ["ttf","mp4"]
+    },
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}
