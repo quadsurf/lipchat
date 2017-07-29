@@ -1,16 +1,18 @@
 
 
 import React from 'react'
-import { Platform,View,AsyncStorage } from 'react-native'
+import { View,AsyncStorage } from 'react-native'
 import { Asset, Font } from 'expo'
 
-// LIBS
+//LIBS
+import { ApolloProvider } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // COMPONENTS
 import RootNav from './nav/RootNav'
 
 // LOCALS
+import client from './api/ApolloClient'
 import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err,Modals,clearIdentifiers } from './utils/Helpers'
@@ -87,7 +89,7 @@ export default class App extends React.Component {
   render() {
     if (!this.state.assetsAreLoaded && !this.props.skipLoadingScreen && this.state.localStorage === null) {
       return (
-        <View style={{backgroundColor:Colors.purple,...Views.middle}}>
+        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
           <MyStatusBar hidden={true} />
           <DotsLoader
             size={15}
@@ -98,10 +100,12 @@ export default class App extends React.Component {
       )
     } else {
       return (
-        <View style={{backgroundColor:Colors.purple,...Views.middle}}>
-          <MyStatusBar hidden={true} />
-          <RootNav localStorage={this.state.localStorage}/>
-        </View>
+        <ApolloProvider client={client}>
+          <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
+            <MyStatusBar hidden={true} />
+            <RootNav localStorage={this.state.localStorage}/>
+          </View>
+        </ApolloProvider>
       )
     }
   }

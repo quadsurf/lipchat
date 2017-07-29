@@ -9,12 +9,14 @@ import {
 class TabNav extends Component {
 
   render() {
-    console.log(this.props.navigation);
+    let { user } = this.props.navigation.state.params
     return (
       <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:'green'}}>
         <Text>TabNav</Text>
-        <Text>{this.props.navigation.state.params.user.name}</Text>
-        <Text>ID: {this.props.navigation.state.params.user.id}</Text>
+        <Text>{user.fbkFirstName} {user.fbkLastName}</Text>
+        <Text>ID: {user.id}</Text>
+        <Text>Less Friends:</Text>
+        { user.fbkFriends.map( friend => <Text key={friend.id}>- {friend.name}</Text> ) }
       </View>
     )
   }
