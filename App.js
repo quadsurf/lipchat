@@ -4,18 +4,21 @@ import React from 'react'
 import { View,AsyncStorage } from 'react-native'
 import { Asset, Font } from 'expo'
 
+console.ignoredYellowBox = ['Warning: checkPropTypes']
+
 //LIBS
 import { ApolloProvider } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // COMPONENTS
 import RootNav from './nav/RootNav'
+import TabNav from './nav/TabNav'
 
 // LOCALS
 import client from './api/ApolloClient'
 import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
-import { err,Modals,clearIdentifiers } from './utils/Helpers'
+import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
 
 export default class App extends React.Component {
@@ -59,35 +62,8 @@ export default class App extends React.Component {
     })
   }
 
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
-  showModal(modalType,title,description,message=''){
-    if (modalType && title) {
-      this.setState({modalType,modalContent:{
-        title,description,message
-      }},()=>{
-        this.setState({isModalOpen:true})
-      })
-    } else {
-      this.setState({modalType},()=>{
-        this.setState({isModalOpen:true})
-      })
-    }
-  }
-
-  renderModal(){
-    return (
-      <Modals
-        isOpen={this.state.isModalOpen}
-        close={() => this.setState({ isModalOpen: false })}
-        type={this.state.modalType}
-        content={this.state.modalContent}/>
-    )
-  }
-
   render() {
-    if (!this.state.assetsAreLoaded && !this.props.skipLoadingScreen && this.state.localStorage === null) {
+    if (!this.state.assetsAreLoaded && !this.props.skipLoadingScreen) {
       return (
         <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
           <MyStatusBar hidden={true} />
@@ -95,18 +71,29 @@ export default class App extends React.Component {
             size={15}
             color={Colors.pink}
             frequency={5000}/>
-          {this.renderModal()}
         </View>
       )
     } else {
-      return (
-        <ApolloProvider client={client}>
+      if (this.state.localStorage !== null) {
+        return (
+          <ApolloProvider client={client}>
+            <View style={{flex:1}}>
+              <MyStatusBar hidden={true} />
+              <RootNav localStorage={this.state.localStorage}/>
+            </View>
+          </ApolloProvider>
+        )
+      } else {
+        return (
           <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
             <MyStatusBar hidden={true} />
-            <RootNav localStorage={this.state.localStorage}/>
+            <DotsLoader
+              size={15}
+              color={Colors.pink}
+              frequency={5000}/>
           </View>
-        </ApolloProvider>
-      )
+        )
+      }
     }
   }
 

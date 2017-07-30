@@ -32,7 +32,7 @@ class AuthState extends Component {
           },
           userUpdatedCount: this.state.userUpdatedCount + 1
         },()=>{
-          console.log(this.state.user)
+          // console.log(this.state.user)
           if (this.state.userUpdatedCount < 2) {
             this.compareFbkFriends()
           } else {
@@ -147,7 +147,7 @@ class AuthState extends Component {
 
   render() {
     return (
-      <View style={{...Views.middle,backgroundColor:'transparent'}}>
+      <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <DotsLoader
           size={15}
           color={Colors.blue}

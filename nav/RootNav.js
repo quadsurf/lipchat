@@ -30,7 +30,9 @@ const LoggedInStack = StackNavigator(
     TabNav: { screen:TabNav }
   },
   {
-    headerMode: 'none'
+    headerMode: 'none',
+    mode: 'modal',
+    direction: 'topTopBottom'
   }
 )
 
@@ -73,8 +75,8 @@ export default class RootNav extends React.Component {
   }
 
   _handleNotification = ({ origin, data }) => {
-    console.log(
-      `Push notification ${origin} with data: ${JSON.stringify(data)}`
-    )
+    // console.log(
+    //   `Push notification ${origin} with data: ${JSON.stringify(data)}`
+    // )
   }
 }
