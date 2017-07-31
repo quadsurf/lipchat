@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 
 //LIBS
-import { NavigationActions } from 'react-navigation'
+
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -67,11 +67,12 @@ class You extends Component {
   }
 
   renderMainContent(){
+    let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
     return (
       <View style={{...Views.middle}}>
         <Image
-          style={{width:300,height:300,borderRadius:150}} source={{uri:`https://graph.facebook.com/${this.state.user.fbkUserId}/picture?width=300&height=300`}}/>
-        <FontPoiret text="You" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+          style={{width:300,height:300,borderRadius:150}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=300&height=300`}}/>
+        <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
           <Text onPress={() => this.logOut()} style={{...Texts.large,color:Colors.blue}}>
             logout
           </Text>
@@ -94,21 +95,15 @@ class You extends Component {
       this.showModal('processing')
       clearIdentifiers()
     } catch(e) {
-      this.setState({ isModalOpen: false },()=>{
+      this.setState({ isModalOpen:false },()=>{
         this.showModal('error','Profile','We tried to log you out, but your subsconsciousness stopped us.',e.message)
       })
     } finally {
       setTimeout(()=>{
-        this.setState({ isModalOpen: false },()=>{
-          let resetAction = NavigationActions.reset({
-            index: 0,
-            actions: [
-              NavigationActions.navigate({ routeName: 'Root'})
-            ]
-          })
-          this.props.navigation.dispatch(resetAction)
+        this.setState({ isModalOpen:false },()=>{
+          this.props.nav.navigate('Root')
         })
-      },2500)
+      },2400)
     }
   }
 

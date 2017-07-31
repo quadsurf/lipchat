@@ -105,6 +105,8 @@ class AuthState extends Component {
   }
 
   async determineAuthStatus(){
+    this.goTo('LoggedIn')
+    return
     try {
       let { fbkToken,gcToken } = this.state.localStorage
       if (fbkToken !== null) {
@@ -112,7 +114,7 @@ class AuthState extends Component {
         if (tokenStatus) {
           if (tokenStatus.expires_in) {
             if (tokenStatus.expires_in > 259200 && gcToken !== null && this.state.user) {
-              this.goTo('LoggedIn',this.state.user)
+              this.goTo('LoggedIn')
             } else {
               clearIdentifiers()
               this.goTo('LoggedOut')
@@ -141,7 +143,11 @@ class AuthState extends Component {
     return res
   }
 
-  goTo(screen,passProps={}){
+  goTo(screen){
+    let passProps = {
+      user: this.state.user || {},
+      rootKey: this.props.navigation.state.key
+    }
     this.props.navigation.navigate(screen,passProps)
   }
 

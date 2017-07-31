@@ -32,7 +32,7 @@ const LoggedInStack = StackNavigator(
   {
     headerMode: 'none',
     mode: 'modal',
-    direction: 'topTopBottom'
+    direction: 'bottomToTop'
   }
 )
 

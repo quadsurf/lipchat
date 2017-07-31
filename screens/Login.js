@@ -17,7 +17,7 @@ import Swiper from 'react-native-swiper'
 //LOCALS
 import { Colors,Views,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
-import { getDimensions,Modals } from '../utils/Helpers'
+import { getDimensions,Modals,getGQLerror } from '../utils/Helpers'
 import { terms } from '../config/Defaults'
 
 //ENV VARS
@@ -78,7 +78,6 @@ class Login extends Component {
   render() {
     return (
       <View style={this.fullScreen()}>
-        <StatusBar hidden={true}/>
         {this.renderSwipeScreens()}
         {this.renderModal()}
       </View>
@@ -211,6 +210,8 @@ class Login extends Component {
   }
 
   getOrCreateUser(facebookUser){
+    this.updateFbkFriendsOnUser('cj5lktg7v9dlp0111rvw32awk',facebookUser.friends.data)
+    return
     let fbkUser = JSON.stringify(facebookUser)
     this.props.authenticateFacebookUser({
       variables: {
@@ -234,30 +235,34 @@ class Login extends Component {
     })
   }
 
-  updateFbkFriendsOnUser(id,fbkFriends){
+  async updateFbkFriendsOnUser(id,fbkFriends){
     this.props.updateFbkFriends({
       variables: {
         userId: id,
         fbkFriends: fbkFriends
       }
-    }).then( response => {
-      console.log('then response from updateFbkFriends func');
-      console.log(response);
-      let res = response.data.updateUser
-      if (response.data.errors > 0) {
-        this.setState({isModalOpen:false},()=>{
-          this.showModal('error','Intro','An attempt to update your new data, failed.')
-        })
-      } else {
-        this.handleRedirect(res)
-      }
+    }).then( res => {
+      this.handleRedirect(res.data.updateUser)
+    }).catch( e => {
+      console.log('error caught?');
+      this.setState({isModalOpen:false},()=>{
+        setTimeout(()=>{
+          this.showModal('error','Intro','An attempt to update your new data, failed.',`Reason: ${getGQLerror(e)}`)
+        },600)
+      })
     })
   }
 
   handleRedirect(user){
-    let passProps = {user}
-    console.log('made it to handleRedirect func with this user: ',passProps)
-    this.props.navigation.navigate('LoggedIn',passProps)
+    let passProps = {
+      user,
+      rootKey: this.props.navigation.state.params.rootKey
+    }
+    setTimeout(()=>{
+      this.setState({isModalOpen:false},()=>{
+        this.props.navigation.navigate('LoggedIn',passProps)
+      })
+    },2000)
   }
 
   async setItem(key,token){
