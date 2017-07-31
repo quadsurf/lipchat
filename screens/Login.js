@@ -210,8 +210,6 @@ class Login extends Component {
   }
 
   getOrCreateUser(facebookUser){
-    this.updateFbkFriendsOnUser('cj5lktg7v9dlp0111rvw32awk',facebookUser.friends.data)
-    return
     let fbkUser = JSON.stringify(facebookUser)
     this.props.authenticateFacebookUser({
       variables: {

@@ -9,7 +9,8 @@ import { DotsLoader } from 'react-native-indicator'
 
 // LOCALS
 import { Views,Colors } from '../css/Styles'
-import { clearIdentifiers } from '../utils/Helpers'
+import { err,clearIdentifiers,getGQLerror } from '../utils/Helpers'
+import { AppName } from '../config/Defaults'
 
 //GQL
 import { GetUser } from '../api/db/queries'
@@ -39,13 +40,12 @@ class AuthState extends Component {
             this.determineAuthStatus()
           }
         })
-      } else if (newProps.getUser.variables.userId === null) {
-        this.goTo('LoggedOut')
       } else if (newProps.getUser.error) {
-        // err('Loading',`there was insufficient permission to access this account. You may need to log in to ${AppName} again. If that doesn't work, please force quit ${AppName} and re-open.`)
+        console.log('loggedout8');
         this.goTo('LoggedOut')
       } else {
         // err('Loading',`You may need to log in to ${AppName} again.`)
+        console.log('loggedout9');
         this.goTo('LoggedOut')
       }
     }
@@ -86,6 +86,7 @@ class AuthState extends Component {
         this.determineAuthStatus()
       }
     } else {
+      console.log('loggedout10');
       this.goTo('LoggedOut')
     }
   }
@@ -97,16 +98,15 @@ class AuthState extends Component {
         fbkFriends: fbkFriends
       }
     }).then( res => {
-      // not needed
+      console.log('res from updateFbkFriends func');
+      console.log(res);
     }).catch( e => {
-      // err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`,e.message)
+      err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`,`Reason: ${getGQLerror(e)}`)
       this.determineAuthStatus()
     })
   }
 
   async determineAuthStatus(){
-    this.goTo('LoggedIn')
-    return
     try {
       let { fbkToken,gcToken } = this.state.localStorage
       if (fbkToken !== null) {
@@ -114,25 +114,32 @@ class AuthState extends Component {
         if (tokenStatus) {
           if (tokenStatus.expires_in) {
             if (tokenStatus.expires_in > 259200 && gcToken !== null && this.state.user) {
+              console.log('LoggedIn Redirect');
               this.goTo('LoggedIn')
             } else {
               clearIdentifiers()
+              console.log('loggedout1');
               this.goTo('LoggedOut')
             }
           } else if (tokenStatus.error) {
+            console.log('loggedout2');
             this.goTo('LoggedOut')
           } else {
+            console.log('loggedout3');
             this.goTo('LoggedOut')
           }
         } else {
           clearIdentifiers()
+          console.log('loggedout4');
           this.goTo('LoggedOut')
         }
       } else {
+        console.log('loggedout5');
         this.goTo('LoggedOut')
       }
     } catch (e) {
       // err('Loading',`${AppName} is having a hard time either loading your content, or determining whether you're logged in or not. Please force quit ${AppName} and re-open, or try logging in again.`,e.message)
+      console.log('loggedout6');
       this.goTo('LoggedOut')
     }
   }
@@ -148,7 +155,9 @@ class AuthState extends Component {
       user: this.state.user || {},
       rootKey: this.props.navigation.state.key
     }
-    this.props.navigation.navigate(screen,passProps)
+    setTimeout(()=>{
+      this.props.navigation.navigate(screen,passProps)
+    },2000)
   }
 
   render() {
@@ -161,6 +170,7 @@ class AuthState extends Component {
       </View>
     )
   }
+
 }
 
 export default compose(
