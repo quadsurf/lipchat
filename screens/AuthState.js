@@ -16,77 +16,90 @@ import { AppName } from '../config/Defaults'
 import { GetUser } from '../api/db/queries'
 import { UpdateFbkFriends } from '../api/db/mutations'
 
+const debugging = false
+
 class AuthState extends Component {
 
   state = {
     localStorage: this.props.screenProps.localStorage,
     user: null,
-    userUpdatedCount: 0
+    userUpdatedCount: 0,
+    newPropsErrorCount: 0,
+    newPropsElseCount: 0
   }
 
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
-      if (newProps.getUser.User && newProps.getUser.User !== this.state.user) {
-        this.setState({
-          user: {
-            user: newProps.getUser.User
-          },
-          userUpdatedCount: this.state.userUpdatedCount + 1
-        },()=>{
-          // console.log(this.state.user)
-          if (this.state.userUpdatedCount < 2) {
-            this.compareFbkFriends()
-          } else {
+      if (newProps.getUser.User) {
+        if (newProps.getUser.User !== this.state.user) {
+          this.setState({
+            user: newProps.getUser.User,
+            userUpdatedCount: this.state.userUpdatedCount + 1
+          },()=>{
+            if (this.state.userUpdatedCount < 2) {
+              this.compareFbkFriends()
+            } else {
+              this.determineAuthStatus()
+            }
+          })
+        }
+      } else if (newProps.getUser.error) {
+        if (debugging) {console.log('loggedout8')}
+        this.setState({newPropsErrorCount: this.state.newPropsErrorCount + 1},()=>{
+          if (this.state.newPropsErrorCount < 2) {
             this.determineAuthStatus()
           }
         })
-      } else if (newProps.getUser.error) {
-        console.log('loggedout8');
-        this.goTo('LoggedOut')
       } else {
-        // err('Loading',`You may need to log in to ${AppName} again.`)
-        console.log('loggedout9');
-        this.goTo('LoggedOut')
+        if (debugging) {console.log('loggedout9')}
+        this.setState({newPropsElseCount: this.state.newPropsElseCount + 1},()=>{
+          if (this.state.newPropsElseCount < 2) {
+            this.determineAuthStatus()
+          }
+        })
       }
     }
   }
 
   async compareFbkFriends(){
-    const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
-    let fetchedFbkFriends = await response.json()
-    let { id,fbkUserId } = this.state.user.user
-    let localFbkFriends = this.state.user.user.fbkFriends
-    let count = 0
-    await fetchedFbkFriends.friends.data.forEach( fetchedFbkFriend => {
-      if (
-        localFbkFriends.find( localFbkFriend => {
-          return localFbkFriend.id === fetchedFbkFriend.id
-        })
-      ) {
-        return
-      } else {
-        return count++
-      }
-    })
-    await localFbkFriends.forEach( localFbkFriend => {
-      if (
-        fetchedFbkFriends.friends.data.find( fetchedFbkFriend => {
-          return fetchedFbkFriend.id === localFbkFriend.id
-        })
-      ) {
-        return
-      } else {
-        return count++
-      }
-    })
-    if (fetchedFbkFriends.id === fbkUserId) {
-      if (count > 0) {
-        this.syncFbkFriends(id,fetchedFbkFriends.friends.data)
-      } else {
-        this.determineAuthStatus()
+    if (this.state.localStorage.fbkToken) {
+      const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
+      let fetchedFbkFriends = await response.json()
+      let { id,fbkUserId } = this.state.user
+      let localFbkFriends = this.state.user.fbkFriends
+      let count = 0
+      await fetchedFbkFriends.friends.data.forEach( fetchedFbkFriend => {
+        if (
+          localFbkFriends.find( localFbkFriend => {
+            return localFbkFriend.id === fetchedFbkFriend.id
+          })
+        ) {
+          return
+        } else {
+          return count++
+        }
+      })
+      await localFbkFriends.forEach( localFbkFriend => {
+        if (
+          fetchedFbkFriends.friends.data.find( fetchedFbkFriend => {
+            return fetchedFbkFriend.id === localFbkFriend.id
+          })
+        ) {
+          return
+        } else {
+          return count++
+        }
+      })
+      if (fetchedFbkFriends.id === fbkUserId) {
+        if (count > 0) {
+          this.syncFbkFriends(id,fetchedFbkFriends.friends.data)
+        } else {
+          this.determineAuthStatus()
+        }
       }
     } else {
-      console.log('loggedout10');
+      if (debugging) {console.log('loggedout10')}
+      await clearIdentifiers()
       this.goTo('LoggedOut')
     }
   }
@@ -98,8 +111,7 @@ class AuthState extends Component {
         fbkFriends: fbkFriends
       }
     }).then( res => {
-      console.log('res from updateFbkFriends func');
-      console.log(res);
+      //
     }).catch( e => {
       err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`,`Reason: ${getGQLerror(e)}`)
       this.determineAuthStatus()
@@ -107,39 +119,44 @@ class AuthState extends Component {
   }
 
   async determineAuthStatus(){
-    try {
-      let { fbkToken,gcToken } = this.state.localStorage
-      if (fbkToken !== null) {
-        let tokenStatus = await this.isExpired(fbkToken)
-        if (tokenStatus) {
-          if (tokenStatus.expires_in) {
-            if (tokenStatus.expires_in > 259200 && gcToken !== null && this.state.user) {
-              console.log('LoggedIn Redirect');
-              this.goTo('LoggedIn')
+    if (this.state.localStorage && this.state.user) {
+      try {
+        let { fbkToken,gcToken } = this.state.localStorage
+        if (fbkToken !== null && gcToken !== null) {
+          let tokenStatus = await this.isExpired(fbkToken)
+          if (tokenStatus) {
+            if (tokenStatus.expires_in) {
+              if (tokenStatus.expires_in > 259200) {
+                if (debugging) {console.log('LoggedIn Redirect')}
+                this.goTo('LoggedIn')
+              } else {
+                await clearIdentifiers()
+                if (debugging) {console.log('loggedout1')}
+                this.goTo('LoggedOut')
+              }
+            } else if (tokenStatus.error) {
+              if (debugging) {console.log('loggedout2')}
+              this.goTo('LoggedOut')
             } else {
-              clearIdentifiers()
-              console.log('loggedout1');
+              if (debugging) {console.log('loggedout3')}
               this.goTo('LoggedOut')
             }
-          } else if (tokenStatus.error) {
-            console.log('loggedout2');
-            this.goTo('LoggedOut')
           } else {
-            console.log('loggedout3');
+            await clearIdentifiers()
+            if (debugging) {console.log('loggedout4')}
             this.goTo('LoggedOut')
           }
         } else {
-          clearIdentifiers()
-          console.log('loggedout4');
+          if (debugging) {console.log('loggedout5')}
           this.goTo('LoggedOut')
         }
-      } else {
-        console.log('loggedout5');
+      } catch (e) {
+        if (debugging) {console.log('loggedout6')}
         this.goTo('LoggedOut')
       }
-    } catch (e) {
-      // err('Loading',`${AppName} is having a hard time either loading your content, or determining whether you're logged in or not. Please force quit ${AppName} and re-open, or try logging in again.`,e.message)
-      console.log('loggedout6');
+    } else {
+      if (debugging) {console.log('loggedout7')}
+      await clearIdentifiers()
       this.goTo('LoggedOut')
     }
   }

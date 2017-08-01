@@ -35,11 +35,6 @@ class Login extends Component {
       modalContent: {}
   }
 
-  componentWillReceiveProps(newProps){
-    console.log('newProps received');
-    console.log(newProps)
-  }
-
   fullScreen() {
     return {
       ...Views.middle,
@@ -48,20 +43,42 @@ class Login extends Component {
     }
   }
 
+  componentWillReceiveProps(newProps){
+    //
+  }
+
   // if modalType='error', then pass at least the first 3 params below
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
-    if (modalType && title) {
-      this.setState({modalType,modalContent:{
-        title,description,message
-      }},()=>{
-        this.setState({isModalOpen:true})
+    if (this.state.isModalOpen) {
+      this.setState({isModalOpen:false},()=>{
+        setTimeout(()=>{
+          if (modalType && title) {
+            this.setState({modalType,modalContent:{
+              title,description,message
+            }},()=>{
+              this.setState({isModalOpen:true})
+            })
+          } else {
+            this.setState({modalType},()=>{
+              this.setState({isModalOpen:true})
+            })
+          }
+        },600)
       })
     } else {
-      this.setState({modalType},()=>{
-        this.setState({isModalOpen:true})
-      })
+      if (modalType && title) {
+        this.setState({modalType,modalContent:{
+          title,description,message
+        }},()=>{
+          this.setState({isModalOpen:true})
+        })
+      } else {
+        this.setState({modalType},()=>{
+          this.setState({isModalOpen:true})
+        })
+      }
     }
   }
 
@@ -170,7 +187,7 @@ class Login extends Component {
             borderRadius:4,
             backgroundColor:Colors.purple
           }}
-          underlayColor={Colors.black}
+          underlayColor={Colors.purpleText}
           onPress={() => this.logIn()}>
           <Text style={{
               color:Colors.bluergba,
@@ -199,9 +216,7 @@ class Login extends Component {
         if (fbkUser) {
           this.getOrCreateUser(fbkUser)
         } else {
-          this.setState({ isModalOpen: false },()=>{
-            this.showModal('error','Intro',"We couldn't retrieve or save your Facebook details.")
-          })
+          this.showModal('error','Intro',"We couldn't retrieve or save your Facebook details.")
         }
       }
     } else if (type === 'cancel') {
@@ -218,9 +233,7 @@ class Login extends Component {
     }).then( response => {
       let res = response.data.authenticateFacebookUser
       if (response.data.errors > 0) {
-        this.setState({isModalOpen:false},()=>{
-          this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
-        })
+        this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
       } else {
         let gcToken = res.token.gctoken
         let userId = res.token.user.id
@@ -242,25 +255,17 @@ class Login extends Component {
     }).then( res => {
       this.handleRedirect(res.data.updateUser)
     }).catch( e => {
-      console.log('error caught?');
-      this.setState({isModalOpen:false},()=>{
-        setTimeout(()=>{
-          this.showModal('error','Intro','An attempt to update your new data, failed.',`Reason: ${getGQLerror(e)}`)
-        },600)
-      })
+      this.showModal('error','Intro','An attempt to update your new data, failed.',`Reason: ${e.message}`)
     })
   }
 
   handleRedirect(user){
-    let passProps = {
-      user,
-      rootKey: this.props.navigation.state.params.rootKey
-    }
+    let passProps = {user}
     setTimeout(()=>{
       this.setState({isModalOpen:false},()=>{
         this.props.navigation.navigate('LoggedIn',passProps)
       })
-    },2000)
+    },1000)
   }
 
   async setItem(key,token){
@@ -268,9 +273,7 @@ class Login extends Component {
     try {
       await AsyncStorage.setItem(key,token)
     } catch (e) {
-      this.setState({ isModalOpen: false },()=>{
-        this.showModal('error','Intro',`We tried to add your ${infoType} info into a delicious cookie, but forgot the recipe!`,e.message)
-      })
+      this.showModal('error','Intro',`We tried to add your ${infoType} info into a delicious cookie, but forgot the recipe!`,e.message)
       return false
     } finally {
       return true

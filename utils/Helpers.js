@@ -147,8 +147,10 @@ const clearIdentifiers = () => {
   })
 }
 
-const getGQLerror = errorsFromCatch => {
-  const errors = errorsFromCatch.graphQLErrors[0]
+const getGQLerror = e => {
+  console.log('e',e);
+  const errors = e.graphQLErrors[0]
+  console.log('e array',errors);
   const messages = []
 
   if (errors.hasOwnProperty('functionError')) {

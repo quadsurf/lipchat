@@ -93,17 +93,21 @@ class You extends Component {
   async logOut(){
     try {
       this.showModal('processing')
-      clearIdentifiers()
+      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
+        if (e) {
+          //
+        } else {
+          setTimeout(()=>{
+            this.setState({ isModalOpen:false },()=>{
+              this.props.nav.navigate('LoggedOut')
+            })
+          },2000)
+        }
+      })
     } catch(e) {
       this.setState({ isModalOpen:false },()=>{
         this.showModal('error','Profile','We tried to log you out, but your subsconsciousness stopped us.',e.message)
       })
-    } finally {
-      setTimeout(()=>{
-        this.setState({ isModalOpen:false },()=>{
-          this.props.nav.navigate('Root')
-        })
-      },2400)
     }
   }
 
