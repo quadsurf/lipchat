@@ -38,10 +38,16 @@ class FontMatilde extends Component {
     return (
       <Text
         {...this.props}
-        style={[this.props.style, { fontFamily: 'Matilde' }]}
-        allowFontScaling={false}
-      />
-    );
+        style={[this.props.style, {
+          fontFamily: 'Matilde',
+          fontSize:this.props.size || Texts.xlarge.fontSize,
+          color:this.props.color || Colors.blue,
+          textDecorationLine:this.props.underline ? 'underline' : 'none'
+        }]}
+        allowFontScaling={false}>
+        {this.props.text}
+      </Text>
+    )
   }
 }
 
@@ -54,17 +60,18 @@ class FontPoiret extends Component {
           fontFamily: 'Poiret',
           fontSize:this.props.size || Texts.xlarge.fontSize,
           color:this.props.color || Colors.blue,
-          textDecorationLine:this.props.underline ? 'underline' : 'none'
+          textDecorationLine:this.props.underline ? 'underline' : 'none',
+          paddingVertical: this.props.vspace || 0
         }]}
         allowFontScaling={false}>
         {this.props.text}
       </Text>
-    );
+    )
   }
 }
 
 export {
-  FontLato,FontMatilde,FontPoiret
+  FontMatilde,FontPoiret
 }
 
 // class FontBalqis extends Component {

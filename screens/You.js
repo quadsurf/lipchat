@@ -5,17 +5,19 @@ import {
   Text,
   View,
   AsyncStorage,
-  Image
+  Image,
+  ScrollView,
+  TextInput
 } from 'react-native'
 
 //LIBS
-
+import KeyboardSpacer from 'react-native-keyboard-spacer'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals,clearIdentifiers } from '../utils/Helpers'
+import { err,Modals,getDimensions } from '../utils/Helpers'
 
 class You extends Component {
 
@@ -23,7 +25,8 @@ class You extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    user: this.props.user
+    user: this.props.user,
+    text: 'go pro now'
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -36,6 +39,7 @@ class You extends Component {
     if (this.state.isModalOpen !== nextState.isModalOpen) {
       return true
     }
+    if (this.state.text !== nextState.text) {return true}
     return false
   }
 
@@ -43,16 +47,34 @@ class You extends Component {
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
-    if (modalType && title) {
-      this.setState({modalType,modalContent:{
-        title,description,message
-      }},()=>{
-        this.setState({isModalOpen:true})
+    if (this.state.isModalOpen) {
+      this.setState({isModalOpen:false},()=>{
+        setTimeout(()=>{
+          if (modalType && title) {
+            this.setState({modalType,modalContent:{
+              title,description,message
+            }},()=>{
+              this.setState({isModalOpen:true})
+            })
+          } else {
+            this.setState({modalType},()=>{
+              this.setState({isModalOpen:true})
+            })
+          }
+        },600)
       })
     } else {
-      this.setState({modalType},()=>{
-        this.setState({isModalOpen:true})
-      })
+      if (modalType && title) {
+        this.setState({modalType,modalContent:{
+          title,description,message
+        }},()=>{
+          this.setState({isModalOpen:true})
+        })
+      } else {
+        this.setState({modalType},()=>{
+          this.setState({isModalOpen:true})
+        })
+      }
     }
   }
 
@@ -67,16 +89,32 @@ class You extends Component {
   }
 
   renderMainContent(){
-    let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
+    // dynamic image sizing | vertical spacing | ScrollView | keypad lib
+    let imageWidth = 280
+    let vspace = 20
+    let large = Texts.large.fontSize
+    let { fbkFirstName,fbkLastName,fbkUserId,cellPhone } = this.state.user
+    let textInputStyle = {fontFamily:'Poiret',backgroundColor:Colors.bgColor,fontSize:large,color:Colors.blue}
+    console.log('cellPhone',cellPhone);
     return (
-      <View style={{...Views.middle}}>
-        <Image
-          style={{width:300,height:300,borderRadius:150}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=300&height=300`}}/>
-        <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
-          <Text onPress={() => this.logOut()} style={{...Texts.large,color:Colors.blue}}>
-            logout
-          </Text>
-      </View>
+        <View style={{...Views.middle}}>
+          <ScrollView contentContainerStyle={{width:getDimensions().width}}>
+            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:15}}>
+              <Image
+                style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
+              <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} size={40} vspace={vspace}/>
+              <FontPoiret text={ cellPhone ? cellphone : 'add cell phone' } size={large} vspace={vspace} onPress={() => this.updateCellPhone()}/>
+              <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
+              <TextInput value={this.state.text} placeholder={this.state.text} style={textInputStyle}
+                onChangeText={(text) => this.setState({text})}
+                keyboardType="numeric"
+                onSubmitEditing={() => this.updateCellPhone()}
+                selectTextOnFocus={true}
+                returnKeyType="done"/>
+            </View>
+          </ScrollView>
+          <KeyboardSpacer/>
+        </View>
     )
   }
 
@@ -109,6 +147,10 @@ class You extends Component {
         this.showModal('error','Profile','We tried to log you out, but your subsconsciousness stopped us.',e.message)
       })
     }
+  }
+
+  updateCellPhone(){
+    console.log('updateCellPhone func called');
   }
 
 }

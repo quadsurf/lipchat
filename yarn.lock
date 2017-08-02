@@ -3392,6 +3392,10 @@ react-native-indicator@^0.6.7:
   version "0.6.7"
   resolved "https://registry.yarnpkg.com/react-native-indicator/-/react-native-indicator-0.6.7.tgz#7efd38494679e4a7d530c891f6c0ca39a5c3086b"
 
+react-native-keyboard-spacer@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-spacer/-/react-native-keyboard-spacer-0.3.1.tgz#9580297ebfd078202dc4c65303d29cda35de67f1"
+
 react-native-maps@0.15.3:
   version "0.15.3"
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.15.3.tgz#5d9e0a8e30ecc51dc755b7a3b9d6b6ed5e2dd08c"

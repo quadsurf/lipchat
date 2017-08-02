@@ -1,7 +1,7 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
+import { View,AsyncStorage } from 'react-native'
 
 // LIBS
 import {  compose,graphql } from 'react-apollo'
@@ -26,6 +26,13 @@ class AuthState extends Component {
     userUpdatedCount: 0,
     newPropsErrorCount: 0,
     newPropsElseCount: 0
+  }
+
+  componentWillMount(){
+    AsyncStorage.setItem('rootKey',this.props.navigation.state.key)
+      .catch( (e) => {
+        if (debugging) {console.log(e)}
+      })
   }
 
   componentWillReceiveProps(newProps){
@@ -169,8 +176,7 @@ class AuthState extends Component {
 
   goTo(screen){
     let passProps = {
-      user: this.state.user || {},
-      rootKey: this.props.navigation.state.key
+      user: this.state.user || {}
     }
     setTimeout(()=>{
       this.props.navigation.navigate(screen,passProps)

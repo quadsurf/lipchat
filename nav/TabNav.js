@@ -43,7 +43,7 @@ type State = NavigationState<Route>;
 export default class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 2,
+      index: 4,
       routes: [
         { key: '0', title: 'LIKES', icon: 'ios-heart' },
         { key: '1', title: 'CHAT', icon: 'chat' },
@@ -136,7 +136,7 @@ export default class TabNav extends PureComponent<void, *, State> {
   // })
 
   renderScene = ({ route,focused }) => {
-    let { user,rootKey } = this.props.navigation.state.params
+    let { user } = this.props.navigation.state.params
     let { navigation } = this.props
     switch (route.key) {
       case '0':
@@ -187,7 +187,6 @@ export default class TabNav extends PureComponent<void, *, State> {
             tabRoute={route}
             user={user}
             nav={navigation}
-            rootKey={rootKey}
           />
         )
       default:
