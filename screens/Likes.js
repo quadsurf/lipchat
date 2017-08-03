@@ -3,7 +3,11 @@
 import React, { Component } from 'react'
 import {
   Text,
-  View
+  View,
+  AsyncStorage,
+  Image,
+  ScrollView,
+  TextInput
 } from 'react-native'
 
 //LIBS
@@ -13,7 +17,7 @@ import {
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals } from '../utils/Helpers'
+import { err,Modals,getDimensions } from '../utils/Helpers'
 
 class Likes extends Component {
 
@@ -31,6 +35,7 @@ class Likes extends Component {
     // if (this.state !== nextState) {
     //   return true
     // }
+    if (this.state.isModalOpen !== nextState.isModalOpen) {return true}
     return false
   }
 
@@ -38,16 +43,34 @@ class Likes extends Component {
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
-    if (modalType && title) {
-      this.setState({modalType,modalContent:{
-        title,description,message
-      }},()=>{
-        this.setState({isModalOpen:true})
+    if (this.state.isModalOpen) {
+      this.setState({isModalOpen:false},()=>{
+        setTimeout(()=>{
+          if (modalType && title) {
+            this.setState({modalType,modalContent:{
+              title,description,message
+            }},()=>{
+              this.setState({isModalOpen:true})
+            })
+          } else {
+            this.setState({modalType},()=>{
+              this.setState({isModalOpen:true})
+            })
+          }
+        },600)
       })
     } else {
-      this.setState({modalType},()=>{
-        this.setState({isModalOpen:true})
-      })
+      if (modalType && title) {
+        this.setState({modalType,modalContent:{
+          title,description,message
+        }},()=>{
+          this.setState({isModalOpen:true})
+        })
+      } else {
+        this.setState({modalType},()=>{
+          this.setState({isModalOpen:true})
+        })
+      }
     }
   }
 
@@ -62,10 +85,22 @@ class Likes extends Component {
   }
 
   renderMainContent(){
+    // dynamic image sizing | vertical spacing | ScrollView | keypad lib
+    let imageWidth = 280
+    let vspace = 20
+    let large = Texts.large.fontSize
+    let xlarge = Texts.xlarge.fontSize
+    let { fbkFirstName,fbkLastName,fbkUserId,cellPhone } = this.state.user
+    let textInputStyle = {fontFamily:'Poiret',backgroundColor:Colors.bgColor,fontSize:large,color:Colors.blue}
+    console.log('cellPhone',cellPhone);
     return (
-      <View style={{...Views.middle}}>
-        <FontPoiret text="Likes" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
-      </View>
+        <View style={{...Views.middle}}>
+          <ScrollView contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
+            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:15}}>
+              <FontPoiret text="Likes" size={xlarge} vspace={vspace}/>
+            </View>
+          </ScrollView>
+        </View>
     )
   }
 
@@ -82,3 +117,4 @@ class Likes extends Component {
 }
 
 export default Likes
+// 10000048005

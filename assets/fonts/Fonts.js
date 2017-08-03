@@ -44,7 +44,8 @@ class FontMatilde extends Component {
           color:this.props.color || Colors.blue,
           textDecorationLine:this.props.underline ? 'underline' : 'none'
         }]}
-        allowFontScaling={false}>
+        allowFontScaling={false}
+        selectable={true}>
         {this.props.text}
       </Text>
     )
@@ -63,7 +64,8 @@ class FontPoiret extends Component {
           textDecorationLine:this.props.underline ? 'underline' : 'none',
           paddingVertical: this.props.vspace || 0
         }]}
-        allowFontScaling={false}>
+        allowFontScaling={false}
+        selectable={true}>
         {this.props.text}
       </Text>
     )

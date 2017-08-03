@@ -70,6 +70,7 @@ class Selfie extends Component {
   }
 
   render(){
+    console.log('Selfie Render Returned');
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
