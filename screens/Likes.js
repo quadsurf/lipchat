@@ -85,14 +85,12 @@ class Likes extends Component {
   }
 
   renderMainContent(){
-    // dynamic image sizing | vertical spacing | ScrollView | keypad lib
     let imageWidth = 280
     let vspace = 20
     let large = Texts.large.fontSize
     let xlarge = Texts.xlarge.fontSize
     let { fbkFirstName,fbkLastName,fbkUserId,cellPhone } = this.state.user
     let textInputStyle = {fontFamily:'Poiret',backgroundColor:Colors.bgColor,fontSize:large,color:Colors.blue}
-    console.log('cellPhone',cellPhone);
     return (
         <View style={{...Views.middle}}>
           <ScrollView contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>

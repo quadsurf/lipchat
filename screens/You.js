@@ -13,6 +13,10 @@ import {
 
 //LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { compose,graphql } from 'react-apollo'
+
+// GQL
+import { UpdateCellPhone } from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -101,7 +105,7 @@ class You extends Component {
     let textInputStyle = {fontFamily:'Poiret',backgroundColor:'transparent',fontSize:large,color:Colors.blue,height:32}
     return (
         <View style={{...Views.middle}}>
-          <KeyboardAwareScrollView contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
+          <KeyboardAwareScrollView viewIsInsideTabBar={true} contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:15}}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
@@ -150,18 +154,33 @@ class You extends Component {
         }
       })
     } catch(e) {
-      this.setState({ isModalOpen:false },()=>{
-        this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
-      })
+      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
     }
   }
 
-  cellButtonDisabled = () => {
-    console.log('cellButtonDisabled func');
-  }
+  cellButtonDisabled = () => null
 
   cellButtonEnabled = () => {
-    console.log('cellButtonEnabled func, ready to updateCellInDb');
+    let { tempCell } = this.state
+    let { id } = this.state.user
+    let cellPhone = tempCell.replace(/\s/g,"")
+    this.props.updateCellPhone({
+      variables: {
+        userId: id,
+        cellPhone
+      }
+    }).then( res => {
+      this.setState({
+        cellPhone: res.data.updateUser.cellPhone,
+        tempCell: '',
+        cellButton: this.cellButtonDisabled,
+        cellButtonColor: Colors.blue,
+        cellButtonBgColor: 'transparent'
+      })
+    })
+    .catch( e => {
+      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
+    })
   }
 
   renderNumericKeypadCell(op,num){
@@ -169,8 +188,16 @@ class You extends Component {
       return (
         <TouchableHighlight
           onPress={this.state.cellButton}
-          underlayColor={Colors.blue}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:this.state.cellButtonBgColor,margin:10,borderRadius:6}}>
+          underlayColor={Colors.purpleText}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:this.state.cellButtonBgColor,margin:10,borderRadius:6}}>
           <Text style={{fontFamily:'Poiret',fontSize:Texts.large.fontSize,color:this.state.cellButtonColor}}>{num}</Text>
+        </TouchableHighlight>
+      )
+    } else if (op === '-') {
+      return (
+        <TouchableHighlight
+          onPress={() => this.updateCellString(op,num)}
+          underlayColor={Colors.purpleText}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:'transparent',margin:10,borderRadius:6}}>
+          <Text style={{fontFamily:'Poiret',fontSize:Texts.large.fontSize,color:Colors.blue}}>{num}</Text>
         </TouchableHighlight>
       )
     } else {
@@ -188,7 +215,7 @@ class You extends Component {
     if (this.state.isNumericKeyPadOpen) {
       let keypadWidth = this.state.screen.width-30
       // let keypadCell = keypadWidth*.333
-      let tempCell = this.state.tempCell || this.state.cellPhone
+      // let tempCell = this.state.tempCell || this.state.cellPhone
       return (
         <View style={{width:keypadWidth,backgroundColor:Colors.purple}}>
           <View style={{...Views.middle,height:50,paddingVertical:30}}>
@@ -253,15 +280,10 @@ class You extends Component {
           cellButton:this.cellButtonEnabled,
           cellButtonColor: Colors.purple,
           cellButtonBgColor: Colors.blue
-        },()=>{
-          console.log('cellButton');
-          console.log(typeof this.state.cellButton);
-          console.log(this.state.cellButton);
         })
       } else {
         let {cellButton} = this.state
         if (JSON.stringify(cellButton) === JSON.stringify(this.cellButtonEnabled)) {
-          console.log('<16 and buttons are equal');
           this.setState({
             tempCell,
             cellButton: this.cellButtonDisabled,
@@ -285,5 +307,9 @@ class You extends Component {
 
 }
 
-export default You
+export default compose(
+  graphql(UpdateCellPhone,{
+    name: 'updateCellPhone'
+  })
+)(You)
 // 10000048005

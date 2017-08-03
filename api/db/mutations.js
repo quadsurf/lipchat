@@ -2,6 +2,7 @@
 
 import gql from 'graphql-tag'
 
+// LOGIN
 const AuthenticateFacebookUser = gql`
 mutation AuthenticateFacebookUser(
   $fbkUser: String!
@@ -13,6 +14,7 @@ mutation AuthenticateFacebookUser(
   }
 }`
 
+// LOGIN
 const UpdateFbkFriends = gql`
 mutation UpdateFbkFriends(
   $userId: ID!,
@@ -37,6 +39,20 @@ mutation UpdateFbkFriends(
   }
 }`
 
+// YOU TAB
+const UpdateCellPhone = gql`
+mutation UpdateCellPhone(
+  $userId: ID!,
+  $cellPhone: String!
+){
+  updateUser(
+    id: $userId,
+    cellPhone: $cellPhone
+  ){
+    cellPhone
+  }
+}`
+
 export {
-  AuthenticateFacebookUser,UpdateFbkFriends
+  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone
 }
