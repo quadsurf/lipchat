@@ -122,6 +122,39 @@ class Modals extends Component {
           </TouchableHighlight>
         </View>
       )
+    } else if (type === 'submit') {
+      let { title } = this.props.content
+      return (
+        <View
+          onPress={this.props.close}
+          style={{
+            ...Views.middleNoFlex,
+            width:.85*getDimensions().width,
+            backgroundColor: Colors.purple,
+            borderRadius: 15,
+            padding: 20,
+            maxHeight: 400
+          }}>
+          <ScrollView style={{marginTop:10}}>
+            {title}
+          </ScrollView>
+          <TouchableHighlight
+            style={{
+              width: 100,
+              height: 50,
+              position: 'absolute',
+              bottom: -50,
+              backgroundColor: Colors.purple,
+              borderBottomLeftRadius: 50,
+              borderBottomRightRadius: 50,
+              ...Views.middleNoFlex
+            }}
+            onPress={this.props.close}
+            underlayColor={Colors.purple}>
+            <Entypo name="check" size={32} color={Colors.blue} />
+          </TouchableHighlight>
+        </View>
+      )
     }
   }
 

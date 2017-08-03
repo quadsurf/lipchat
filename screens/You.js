@@ -14,6 +14,8 @@ import {
 //LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
+import Modal from 'react-native-modal'
+import { EvilIcons,Entypo } from '@expo/vector-icons'
 
 // GQL
 import { UpdateCellPhone } from '../api/db/mutations'
@@ -38,7 +40,8 @@ class You extends Component {
     isNumericKeyPadOpen: false,
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
-    cellButtonColor: Colors.blue
+    cellButtonColor: Colors.blue,
+    isSubmitModalOpen: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -112,10 +115,10 @@ class You extends Component {
               <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} size={40} vspace={vspace}/>
               {
                 cellPhone ?
-                <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.updateCellPhone()}/> :
-                <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.updateCellPhone()}/>
+                <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/> :
+                <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
               }
-              {this.renderNumericKeypad()}
+              {this.renderSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
               <TextInput value={this.state.text} placeholder={this.state.text} style={textInputStyle}
                 onChangeText={(text) => this.setState({text})}
@@ -126,6 +129,19 @@ class You extends Component {
             </View>
           </KeyboardAwareScrollView>
         </View>
+    )
+  }
+
+  renderSubmitModal(){
+    return(
+      <Modal
+        isVisible={this.state.isSubmitModalOpen}
+        backdropColor={Colors.blue}
+        backdropOpacity={0.7}>
+          <View style={{...Views.middle}}>
+            {this.renderNumericKeypad()}
+          </View>
+      </Modal>
     )
   }
 
@@ -184,68 +200,74 @@ class You extends Component {
   }
 
   renderNumericKeypadCell(op,num){
-    if (op === 'submit') {
-      return (
-        <TouchableHighlight
-          onPress={this.state.cellButton}
-          underlayColor={Colors.purpleText}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:this.state.cellButtonBgColor,margin:10,borderRadius:6}}>
-          <Text style={{fontFamily:'Poiret',fontSize:Texts.large.fontSize,color:this.state.cellButtonColor}}>{num}</Text>
-        </TouchableHighlight>
-      )
-    } else if (op === '-') {
-      return (
-        <TouchableHighlight
-          onPress={() => this.updateCellString(op,num)}
-          underlayColor={Colors.purpleText}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:'transparent',margin:10,borderRadius:6}}>
-          <Text style={{fontFamily:'Poiret',fontSize:Texts.large.fontSize,color:Colors.blue}}>{num}</Text>
-        </TouchableHighlight>
-      )
-    } else {
-      return (
-        <TouchableHighlight
-          onPress={() => this.updateCellString(op,num)}
-          underlayColor={Colors.blue}  style={{flex:1,height:50,justifyContent:'center',alignItems:'center',backgroundColor:Colors.purpleText,margin:10,borderRadius:6}}>
-          <Text style={{fontFamily:'Poiret',fontSize:Texts.large.fontSize,color:Colors.purple}}>{num}</Text>
-        </TouchableHighlight>
-      )
-    }
+    let keyPadView = {flex:1,height:50,justifyContent:'center',alignItems:'center',margin:10,borderRadius:6}
+    let keypadText = {fontFamily:'Poiret',fontSize:Texts.large.fontSize}
+    return (
+      <TouchableHighlight
+        onPress={ op === 'submit' ? this.state.cellButton : () => this.updateCellString(op,num) }
+        underlayColor={ op === '+' ? Colors.blue : Colors.purpleText } style={{...keyPadView,backgroundColor: op === 'submit' ? this.state.cellButtonBgColor : op === '-' ? 'transparent' : Colors.purpleText }}>
+        <Text style={{...keypadText,color: op === 'submit' ? this.state.cellButtonColor : op === '-' ? Colors.blue : Colors.purple }}>{num}</Text>
+      </TouchableHighlight>
+    )
   }
 
   renderNumericKeypad(){
-    if (this.state.isNumericKeyPadOpen) {
-      let keypadWidth = this.state.screen.width-30
-      // let keypadCell = keypadWidth*.333
-      // let tempCell = this.state.tempCell || this.state.cellPhone
-      return (
-        <View style={{width:keypadWidth,backgroundColor:Colors.purple}}>
-          <View style={{...Views.middle,height:50,paddingVertical:30}}>
-            <FontPoiret text={this.state.tempCell || '- -'} size={30}/>
+    //this.state.isNumericKeyPadOpen
+    let keypadWidth = this.state.screen.width-30
+    return (
+      <View
+        style={{
+          ...Views.middleNoFlex,
+          width:.85*getDimensions().width,
+          backgroundColor: Colors.purple,
+          borderRadius: 15,
+          padding: 20,
+          maxHeight: 400
+        }}>
+        <ScrollView style={{marginTop:10}}>
+          <View style={{width:keypadWidth,backgroundColor:Colors.purple}}>
+            <View style={{...Views.middle,height:50,paddingVertical:30}}>
+              <FontPoiret text={this.state.tempCell || '- -'} size={30}/>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              {this.renderNumericKeypadCell('+','1')}
+              {this.renderNumericKeypadCell('+','2')}
+              {this.renderNumericKeypadCell('+','3')}
+            </View>
+            <View style={{flexDirection:'row'}}>
+              {this.renderNumericKeypadCell('+','4')}
+              {this.renderNumericKeypadCell('+','5')}
+              {this.renderNumericKeypadCell('+','6')}
+            </View>
+            <View style={{flexDirection:'row'}}>
+              {this.renderNumericKeypadCell('+','7')}
+              {this.renderNumericKeypadCell('+','8')}
+              {this.renderNumericKeypadCell('+','9')}
+            </View>
+            <View style={{flexDirection:'row'}}>
+              {this.renderNumericKeypadCell('-','del')}
+              {this.renderNumericKeypadCell('+','0')}
+              {this.renderNumericKeypadCell('submit','save')}
+            </View>
           </View>
-          <View style={{flexDirection:'row'}}>
-            {this.renderNumericKeypadCell('+','1')}
-            {this.renderNumericKeypadCell('+','2')}
-            {this.renderNumericKeypadCell('+','3')}
-          </View>
-          <View style={{flexDirection:'row'}}>
-            {this.renderNumericKeypadCell('+','4')}
-            {this.renderNumericKeypadCell('+','5')}
-            {this.renderNumericKeypadCell('+','6')}
-          </View>
-          <View style={{flexDirection:'row'}}>
-            {this.renderNumericKeypadCell('+','7')}
-            {this.renderNumericKeypadCell('+','8')}
-            {this.renderNumericKeypadCell('+','9')}
-          </View>
-          <View style={{flexDirection:'row'}}>
-            {this.renderNumericKeypadCell('-','del')}
-            {this.renderNumericKeypadCell('+','0')}
-            {this.renderNumericKeypadCell('submit','save')}
-          </View>
-        </View>
-      )
-    } else {
-      return null
-    }
+        </ScrollView>
+        <TouchableHighlight
+          style={{
+            width: 100,
+            height: 50,
+            position: 'absolute',
+            bottom: -50,
+            backgroundColor: Colors.purple,
+            borderBottomLeftRadius: 50,
+            borderBottomRightRadius: 50,
+            ...Views.middleNoFlex
+          }}
+          onPress={this.props.close}
+          underlayColor={Colors.purple}>
+          <Entypo name="check" size={32} color={Colors.blue} />
+        </TouchableHighlight>
+      </View>
+    )
   }
 
   updateCellString(op,num){
