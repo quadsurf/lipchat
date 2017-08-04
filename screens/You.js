@@ -15,10 +15,10 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
 import Modal from 'react-native-modal'
-import { EvilIcons,Entypo } from '@expo/vector-icons'
+import { EvilIcons } from '@expo/vector-icons'
 
 // GQL
-import { UpdateCellPhone } from '../api/db/mutations'
+import { UpdateCellPhone,UpdateName } from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -35,6 +35,8 @@ class You extends Component {
     user: this.props.user,
     cellPhone: this.props.user.cellPhone,
     tempCell: '',
+    name: `${this.props.user.fbkFirstName} ${this.props.user.fbkLastName}`,
+    tempName: '',
     screen: getDimensions(),
     text: 'go pro now',
     isNumericKeyPadOpen: false,
@@ -103,21 +105,28 @@ class You extends Component {
     let imageWidth = 280
     let vspace = 20
     let large = Texts.large.fontSize
+    let screenPadding = 15
+    let screenPaddingHorizontal =  2*screenPadding
     let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
-    let { cellPhone } = this.state
     let textInputStyle = {fontFamily:'Poiret',backgroundColor:'transparent',fontSize:large,color:Colors.blue,height:32}
+    let textInputStyleLarge = {
+      fontFamily:'Poiret',backgroundColor:'transparent',fontSize:40,color:Colors.blue,
+      height:100,width:this.state.screen.width-screenPaddingHorizontal,textAlign:'center'
+    }
     return (
         <View style={{...Views.middle}}>
           <KeyboardAwareScrollView viewIsInsideTabBar={true} contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
-            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:15}}>
+            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:screenPadding}}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
+              <TextInput value={this.state.name} placeholder="add your full name" style={textInputStyleLarge}
+                onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
+                keyboardType="default"
+                onSubmitEditing={() => this.updateNameInDb()}
+                blurOnSubmit={true}
+                returnKeyType="send"/>
               <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} size={40} vspace={vspace}/>
-              {
-                cellPhone ?
-                <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/> :
-                <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
-              }
+              {this.renderCellPhone()}
               {this.renderSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
               <TextInput value={this.state.text} placeholder={this.state.text} style={textInputStyle}
@@ -130,6 +139,17 @@ class You extends Component {
           </KeyboardAwareScrollView>
         </View>
     )
+  }
+
+  renderCellPhone(){
+    let { cellPhone } = this.state
+    let vspace = 20
+    let large = Texts.large.fontSize
+    if (cellPhone) {
+      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
+    } else {
+      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
+    }
   }
 
   renderSubmitModal(){
@@ -174,9 +194,48 @@ class You extends Component {
     }
   }
 
+  updateNameInDb(){
+    let { name } = this.state
+    let nameArray = name.split(' ')
+    if (nameArray.length > 0 && nameArray.length < 3) {
+      let fbkFirstName,fbkLastName
+      if (nameArray.length === 2) {
+        fbkFirstName = nameArray[0]
+        fbkLastName = nameArray[1]
+      } else {
+        fbkFirstName = nameArray[0]
+        fbkLastName = ''
+      }
+      this.props.updateName({
+        variables: {
+          userId: this.state.user.id,
+          fbkFirstName,fbkLastName
+        }
+      }).then( res => {
+        if (res) {
+          let { fbkFirstName,fbkLastName } = res.data.updateUser
+          this.setState({
+            name: `${fbkFirstName} ${fbkLastName}`,
+            user: {
+              ...this.state.user,
+              fbkFirstName,fbkLastName
+            }
+          },()=>{
+            console.log(`${this.state.user.fbkFirstName} ${this.state.user.fbkLastName} vs ${this.state.name}`)
+          })
+        }
+      }).catch( e => {
+        this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
+      })
+    } else {
+      this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
+    }
+  }
+
   cellButtonDisabled = () => null
 
   cellButtonEnabled = () => {
+    this.showModal('processing')
     let { tempCell } = this.state
     let { id } = this.state.user
     let cellPhone = tempCell.replace(/\s/g,"")
@@ -188,14 +247,19 @@ class You extends Component {
     }).then( res => {
       this.setState({
         cellPhone: res.data.updateUser.cellPhone,
+        user: {
+          ...this.state.user,
+          cellPhone: res.data.updateUser.cellPhone
+        },
         tempCell: '',
         cellButton: this.cellButtonDisabled,
         cellButtonColor: Colors.blue,
-        cellButtonBgColor: 'transparent'
+        cellButtonBgColor: 'transparent',
+        isSubmitModalOpen:false
       })
     })
     .catch( e => {
-      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
+      this.showModal('error','Profile','Apologies, but something prevented us from updating your cell phone. We were notified of this error, and will be working on a fix for it.')
     })
   }
 
@@ -212,22 +276,18 @@ class You extends Component {
   }
 
   renderNumericKeypad(){
-    //this.state.isNumericKeyPadOpen
-    let keypadWidth = this.state.screen.width-30
     return (
       <View
         style={{
           ...Views.middleNoFlex,
-          width:.85*getDimensions().width,
+          width:.85*this.state.screen.width,
           backgroundColor: Colors.purple,
           borderRadius: 15,
           padding: 20,
           maxHeight: 400
         }}>
-        <ScrollView style={{marginTop:10}}>
-          <View style={{width:keypadWidth,backgroundColor:Colors.purple}}>
             <View style={{...Views.middle,height:50,paddingVertical:30}}>
-              <FontPoiret text={this.state.tempCell || '- -'} size={30}/>
+              <FontPoiret text={this.state.tempCell || '( _ _ _ ) _ _ _ - _ _ _ _'} size={30}/>
             </View>
             <View style={{flexDirection:'row'}}>
               {this.renderNumericKeypadCell('+','1')}
@@ -249,8 +309,6 @@ class You extends Component {
               {this.renderNumericKeypadCell('+','0')}
               {this.renderNumericKeypadCell('submit','save')}
             </View>
-          </View>
-        </ScrollView>
         <TouchableHighlight
           style={{
             width: 100,
@@ -262,9 +320,9 @@ class You extends Component {
             borderBottomRightRadius: 50,
             ...Views.middleNoFlex
           }}
-          onPress={this.props.close}
+          onPress={() => this.setState({isSubmitModalOpen:false})}
           underlayColor={Colors.purple}>
-          <Entypo name="check" size={32} color={Colors.blue} />
+          <EvilIcons name="close" size={32} color={Colors.blue} />
         </TouchableHighlight>
       </View>
     )
@@ -319,19 +377,14 @@ class You extends Component {
     }
   }
 
-  updateCellPhone(){
-    if (!this.state.isNumericKeyPadOpen) {
-      this.setState({isNumericKeyPadOpen:true})
-    } else {
-      this.setState({isNumericKeyPadOpen:false})
-    }
-  }
-
 }
 
 export default compose(
   graphql(UpdateCellPhone,{
     name: 'updateCellPhone'
+  }),
+  graphql(UpdateName,{
+    name: 'updateName'
   })
 )(You)
 // 10000048005

@@ -53,6 +53,22 @@ mutation UpdateCellPhone(
   }
 }`
 
+const UpdateName = gql`
+mutation UpdateName(
+  $userId: ID!,
+  $fbkFirstName: String!,
+  $fbkLastName: String!
+){
+  updateUser(
+    id: $userId,
+    fbkFirstName: $fbkFirstName,
+    fbkLastName: $fbkLastName
+  ){
+    fbkFirstName
+    fbkLastName
+  }
+}`
+
 export {
-  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone
+  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName
 }
