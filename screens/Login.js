@@ -231,10 +231,8 @@ class Login extends Component {
         fbkUser
       }
     }).then( response => {
-      let res = response.data.authenticateFacebookUser
-      if (response.data.errors > 0) {
-        this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
-      } else {
+      let res = response.data.authenticateFacebookUser || {}
+      if (res) {
         let gcToken = res.token.gctoken
         let userId = res.token.user.id
         if (this.setItem('gcToken',gcToken)) {
@@ -242,7 +240,11 @@ class Login extends Component {
             this.updateFbkFriendsOnUser(userId,facebookUser.friends.data)
           }
         }
+      } else {
+        this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
       }
+    }).catch( e => {
+      this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
     })
   }
 
@@ -252,10 +254,15 @@ class Login extends Component {
         userId: id,
         fbkFriends: fbkFriends
       }
-    }).then( res => {
-      this.handleRedirect(res.data.updateUser)
+    }).then( response => {
+      let res = response.data.updateUser || {}
+      if (res) {
+        this.handleRedirect(res)
+      } else {
+        this.showModal('error','Intro','An attempt to update your new data, failed.')
+      }
     }).catch( e => {
-      this.showModal('error','Intro','An attempt to update your new data, failed.',`Reason: ${e.message}`)
+      this.showModal('error','Intro','An attempt to update your new data, failed.')
     })
   }
 

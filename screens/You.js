@@ -35,7 +35,7 @@ class You extends Component {
     user: this.props.user,
     cellPhone: this.props.user.cellPhone,
     tempCell: '',
-    name: `${this.props.user.fbkFirstName} ${this.props.user.fbkLastName}`,
+    name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
     tempName: '',
     screen: getDimensions(),
     text: 'go pro now',
@@ -125,16 +125,9 @@ class You extends Component {
                 onSubmitEditing={() => this.updateNameInDb()}
                 blurOnSubmit={true}
                 returnKeyType="send"/>
-              <FontPoiret text={`${fbkFirstName} ${fbkLastName}`} size={40} vspace={vspace}/>
               {this.renderCellPhone()}
               {this.renderSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
-              <TextInput value={this.state.text} placeholder={this.state.text} style={textInputStyle}
-                onChangeText={(text) => this.setState({text})}
-                keyboardType="default"
-                onSubmitEditing={() => this.updateCellPhone()}
-                selectTextOnFocus={true}
-                returnKeyType="done"/>
             </View>
           </KeyboardAwareScrollView>
         </View>
@@ -196,7 +189,8 @@ class You extends Component {
 
   updateNameInDb(){
     let { name } = this.state
-    let nameArray = name.split(' ')
+    let trimmedName = name.trim()
+    let nameArray = trimmedName.split(' ')
     if (nameArray.length > 0 && nameArray.length < 3) {
       let fbkFirstName,fbkLastName
       if (nameArray.length === 2) {
@@ -220,8 +214,6 @@ class You extends Component {
               ...this.state.user,
               fbkFirstName,fbkLastName
             }
-          },()=>{
-            console.log(`${this.state.user.fbkFirstName} ${this.state.user.fbkLastName} vs ${this.state.name}`)
           })
         }
       }).catch( e => {
