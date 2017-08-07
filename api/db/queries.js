@@ -21,6 +21,7 @@ query GetUser(
     fbkPhotoUri
     fbkUserId
     fbkVerified
+    type
   }
 }`
 

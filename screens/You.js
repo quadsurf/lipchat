@@ -8,14 +8,15 @@ import {
   Image,
   ScrollView,
   TextInput,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableOpacity
 } from 'react-native'
 
 //LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
 import Modal from 'react-native-modal'
-import { EvilIcons } from '@expo/vector-icons'
+import { EvilIcons,MaterialCommunityIcons } from '@expo/vector-icons'
 
 // GQL
 import { UpdateCellPhone,UpdateName } from '../api/db/mutations'
@@ -36,14 +37,15 @@ class You extends Component {
     cellPhone: this.props.user.cellPhone,
     tempCell: '',
     name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-    tempName: '',
+    userType: this.props.user.type,
     screen: getDimensions(),
-    text: 'go pro now',
+    large: Texts.large.fontSize,
     isNumericKeyPadOpen: false,
+    isUserTypeSubmitModalOpen: false,
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    isSubmitModalOpen: false
+    isCellSubmitModalOpen: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -104,9 +106,9 @@ class You extends Component {
   renderMainContent(){
     let imageWidth = 280
     let vspace = 20
-    let large = Texts.large.fontSize
     let screenPadding = 15
     let screenPaddingHorizontal =  2*screenPadding
+    let { large } = this.state
     let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
     let textInputStyle = {fontFamily:'Poiret',backgroundColor:'transparent',fontSize:large,color:Colors.blue,height:32}
     let textInputStyleLarge = {
@@ -125,8 +127,9 @@ class You extends Component {
                 onSubmitEditing={() => this.updateNameInDb()}
                 blurOnSubmit={true}
                 returnKeyType="send"/>
+              {this.renderUserType()}
               {this.renderCellPhone()}
-              {this.renderSubmitModal()}
+              {this.renderCellSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
             </View>
           </KeyboardAwareScrollView>
@@ -134,25 +137,66 @@ class You extends Component {
     )
   }
 
+  renderUserType(){
+    let { large } = this.state
+    let { type } = this.state.user
+    return (
+      <TouchableOpacity onPress={() => this.showModal()} style={{flexDirection:'row'}}>
+        <FontPoiret text="shopper" size={large}/>
+        <MaterialCommunityIcons name={this.state.userType === "DIST" ? 'ray-start-arrow' : 'ray-end-arrow' } color={Colors.purpleText} size={40} style={{marginHorizontal:10}}/>
+        <FontPoiret text="distributor" size={large}/>
+      </TouchableOpacity>
+    )
+  }
+
+  updateUserTypeInDb(){
+    let { id } = this.state.user.id
+    let type
+    if (this.state.userType === "DIST") {
+      type = 'SHOPPER'
+    } else {
+      type = 'DIST'
+    }
+    this.props.updateUserType({
+      variables: {
+        userId: id,
+        type
+      }
+    }).then().catch()
+  }
+
   renderCellPhone(){
     let { cellPhone } = this.state
     let vspace = 20
     let large = Texts.large.fontSize
     if (cellPhone) {
-      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
+      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
     } else {
-      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isSubmitModalOpen:true})}/>
+      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
     }
   }
 
-  renderSubmitModal(){
+  renderCellSubmitModal(){
     return(
       <Modal
-        isVisible={this.state.isSubmitModalOpen}
+        isVisible={this.state.isCellSubmitModalOpen}
         backdropColor={Colors.blue}
         backdropOpacity={0.7}>
           <View style={{...Views.middle}}>
             {this.renderNumericKeypad()}
+          </View>
+      </Modal>
+    )
+  }
+
+  renderUserTypeSubmitModal(){
+    return(
+      <Modal
+        isVisible={this.state.isUserTypeSubmitModalOpen}
+        backdropColor={Colors.blue}
+        backdropOpacity={0.7}>
+          <View style={{...Views.middle}}>
+            {this.renderUserTypeContent()}
           </View>
       </Modal>
     )
@@ -215,6 +259,8 @@ class You extends Component {
               fbkFirstName,fbkLastName
             }
           })
+        } else {
+          this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
         }
       }).catch( e => {
         this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
@@ -247,7 +293,7 @@ class You extends Component {
         cellButton: this.cellButtonDisabled,
         cellButtonColor: Colors.blue,
         cellButtonBgColor: 'transparent',
-        isSubmitModalOpen:false
+        isCellSubmitModalOpen:false
       })
     })
     .catch( e => {
@@ -312,7 +358,45 @@ class You extends Component {
             borderBottomRightRadius: 50,
             ...Views.middleNoFlex
           }}
-          onPress={() => this.setState({isSubmitModalOpen:false})}
+          onPress={() => this.setState({isCellSubmitModalOpen:false})}
+          underlayColor={Colors.purple}>
+          <EvilIcons name="close" size={32} color={Colors.blue} />
+        </TouchableHighlight>
+      </View>
+    )
+  }
+
+  renderUserTypeContent(){
+    return (
+      <View
+        style={{
+          ...Views.middleNoFlex,
+          width:.85*this.state.screen.width,
+          backgroundColor: Colors.purple,
+          borderRadius: 15,
+          padding: 20,
+          maxHeight: 400
+        }}>
+          <FontPoiret text="about that account type..." size={Texts.large.fontSize} color={Colors.blue}/>
+          <ScrollView style={{marginTop:10}}>
+            <Text
+              style={{color: Colors.transparentWhite,...Texts.medium}}>
+              SHOPPERS{`\n`}
+              With a distributor account, you can manage your customers with tools like inventory tracking, chat, and lite order tracking. You can provide your customers (and prospective customers too) with your distributor ID so that when they use {AppName} and express interest in a lip color, only you will be able to engage them in chat, or place a direct phone call to them via the app to help convert lip color interest, into a completed sale!
+            </Text>
+          </ScrollView>
+        <TouchableHighlight
+          style={{
+            width: 100,
+            height: 50,
+            position: 'absolute',
+            bottom: -50,
+            backgroundColor: Colors.purple,
+            borderBottomLeftRadius: 50,
+            borderBottomRightRadius: 50,
+            ...Views.middleNoFlex
+          }}
+          onPress={() => this.setState({isCellSubmitModalOpen:false})}
           underlayColor={Colors.purple}>
           <EvilIcons name="close" size={32} color={Colors.blue} />
         </TouchableHighlight>

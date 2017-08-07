@@ -36,6 +36,7 @@ mutation UpdateFbkFriends(
     fbkPhotoUri
     fbkUserId
     fbkVerified
+    type
   }
 }`
 

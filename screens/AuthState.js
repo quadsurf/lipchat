@@ -28,12 +28,12 @@ class AuthState extends Component {
     newPropsElseCount: 0
   }
 
-  componentWillMount(){
-    AsyncStorage.setItem('rootKey',this.props.navigation.state.key)
-      .catch( (e) => {
-        if (debugging) {console.log(e)}
-      })
-  }
+  // componentWillMount(){
+  //   AsyncStorage.setItem('rootKey',this.props.navigation.state.key)
+  //     .catch( (e) => {
+  //       if (debugging) {console.log(e)}
+  //     })
+  // }
 
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
@@ -71,38 +71,18 @@ class AuthState extends Component {
   async compareFbkFriends(){
     if (this.state.localStorage.fbkToken) {
       const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
-      let fetchedFbkFriends = await response.json()
+      let fetchedFacebookFriends = await response.json()
+      let fetchedFbkFriends = fetchedFacebookFriends.friends.data || []
       let { id,fbkUserId } = this.state.user
       let localFbkFriends = this.state.user.fbkFriends
-      let count = 0
-      await fetchedFbkFriends.friends.data.forEach( fetchedFbkFriend => {
-        if (
-          localFbkFriends.find( localFbkFriend => {
-            return localFbkFriend.id === fetchedFbkFriend.id
-          })
-        ) {
-          return
-        } else {
-          return count++
-        }
-      })
-      await localFbkFriends.forEach( localFbkFriend => {
-        if (
-          fetchedFbkFriends.friends.data.find( fetchedFbkFriend => {
-            return fetchedFbkFriend.id === localFbkFriend.id
-          })
-        ) {
-          return
-        } else {
-          return count++
-        }
-      })
-      if (fetchedFbkFriends.id === fbkUserId) {
-        if (count > 0) {
-          this.syncFbkFriends(id,fetchedFbkFriends.friends.data)
+      if (fetchedFacebookFriends.id === fbkUserId) {
+        if (this.compareArrays(fetchedFbkFriends,localFbkFriends)) {
+          this.syncFbkFriends(id,fetchedFbkFriends)
         } else {
           this.determineAuthStatus()
         }
+      } else {
+        this.determineAuthStatus()
       }
     } else {
       if (debugging) {console.log('loggedout10')}
@@ -120,9 +100,36 @@ class AuthState extends Component {
     }).then( res => {
       //
     }).catch( e => {
-      err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`,`Reason: ${getGQLerror(e)}`)
+      err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`)
       this.determineAuthStatus()
     })
+  }
+
+  compareArrays(arr1,arr2){
+    let count = 0
+    arr1.forEach( arr1element => {
+      if (
+        arr2.find( arr2element => {
+          return arr2element.id === arr1element.id
+        })
+      ) {
+        return
+      } else {
+        return count++
+      }
+    })
+    arr2.forEach( arr2element => {
+      if (
+        arr1.find( arr1element => {
+          return arr1element.id === arr2element.id
+        })
+      ) {
+        return
+      } else {
+        return count++
+      }
+    })
+    return count > 0 ? true : false
   }
 
   async determineAuthStatus(){
