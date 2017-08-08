@@ -70,6 +70,20 @@ mutation UpdateName(
   }
 }`
 
+const UpdateUserType = gql`
+mutation UpdateUserType(
+  $userId: ID!,
+  $type: USER_TYPE!
+){
+  updateUser(
+    id: $userId,
+    type: $type
+  ){
+    type
+  }
+}`
+
 export {
-  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName
+  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,
+  UpdateUserType
 }

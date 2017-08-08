@@ -175,7 +175,7 @@ class Modals extends Component {
 const clearIdentifiers = () => {
   AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
     if (e) {
-      err('Loading',`${AppName} is having a hard time clearing old data. Please force quit ${AppName} and re-open.`,e.message)
+      err('Loading',`${AppName} is having a hard time clearing old data. Please force quit ${AppName} and re-open.`)
     }
   })
 }

@@ -1,5 +1,7 @@
 
 
+// refactoring to-dos: centralize button styling
+
 import React, { Component } from 'react'
 import {
   Text,
@@ -19,13 +21,14 @@ import Modal from 'react-native-modal'
 import { EvilIcons,MaterialCommunityIcons } from '@expo/vector-icons'
 
 // GQL
-import { UpdateCellPhone,UpdateName } from '../api/db/mutations'
+import { UpdateCellPhone,UpdateName,UpdateUserType } from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
 import { err,Modals,getDimensions } from '../utils/Helpers'
+import { AppName } from '../config/Defaults'
 
 class You extends Component {
 
@@ -46,6 +49,12 @@ class You extends Component {
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
     isCellSubmitModalOpen: false
+  }
+
+  componentWillMount(){
+    // let rgb = '110,250,253'
+    // let b = `rgba(${rgb},.7)`
+    // console.log('b',b);
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -130,6 +139,7 @@ class You extends Component {
               {this.renderUserType()}
               {this.renderCellPhone()}
               {this.renderCellSubmitModal()}
+              {this.renderUserTypeSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
             </View>
           </KeyboardAwareScrollView>
@@ -141,28 +151,12 @@ class You extends Component {
     let { large } = this.state
     let { type } = this.state.user
     return (
-      <TouchableOpacity onPress={() => this.showModal()} style={{flexDirection:'row'}}>
+      <TouchableOpacity onPress={() => this.setState({isUserTypeSubmitModalOpen:true})} style={{flexDirection:'row'}}>
         <FontPoiret text="shopper" size={large}/>
         <MaterialCommunityIcons name={this.state.userType === "DIST" ? 'ray-start-arrow' : 'ray-end-arrow' } color={Colors.purpleText} size={40} style={{marginHorizontal:10}}/>
         <FontPoiret text="distributor" size={large}/>
       </TouchableOpacity>
     )
-  }
-
-  updateUserTypeInDb(){
-    let { id } = this.state.user.id
-    let type
-    if (this.state.userType === "DIST") {
-      type = 'SHOPPER'
-    } else {
-      type = 'DIST'
-    }
-    this.props.updateUserType({
-      variables: {
-        userId: id,
-        type
-      }
-    }).then().catch()
   }
 
   renderCellPhone(){
@@ -228,45 +222,6 @@ class You extends Component {
       })
     } catch(e) {
       this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
-    }
-  }
-
-  updateNameInDb(){
-    let { name } = this.state
-    let trimmedName = name.trim()
-    let nameArray = trimmedName.split(' ')
-    if (nameArray.length > 0 && nameArray.length < 3) {
-      let fbkFirstName,fbkLastName
-      if (nameArray.length === 2) {
-        fbkFirstName = nameArray[0]
-        fbkLastName = nameArray[1]
-      } else {
-        fbkFirstName = nameArray[0]
-        fbkLastName = ''
-      }
-      this.props.updateName({
-        variables: {
-          userId: this.state.user.id,
-          fbkFirstName,fbkLastName
-        }
-      }).then( res => {
-        if (res) {
-          let { fbkFirstName,fbkLastName } = res.data.updateUser
-          this.setState({
-            name: `${fbkFirstName} ${fbkLastName}`,
-            user: {
-              ...this.state.user,
-              fbkFirstName,fbkLastName
-            }
-          })
-        } else {
-          this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
-        }
-      }).catch( e => {
-        this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
-      })
-    } else {
-      this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
     }
   }
 
@@ -367,24 +322,39 @@ class You extends Component {
   }
 
   renderUserTypeContent(){
+    let userType
+    if (this.state.userType === "DIST") {userType = 'SHOPPER'} else {userType = 'DIST'}
+    let modalWidth = this.state.screen.width*.85
+    let modalHeight = this.state.screen.height*.75
+    let button = {
+      width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.transparentWhite
+    }
+    let buttonText = {fontFamily:'Poiret',fontSize:this.state.large}
     return (
       <View
         style={{
           ...Views.middleNoFlex,
-          width:.85*this.state.screen.width,
+          width: modalWidth,
           backgroundColor: Colors.purple,
           borderRadius: 15,
           padding: 20,
-          maxHeight: 400
+          maxHeight: modalHeight
         }}>
-          <FontPoiret text="about that account type..." size={Texts.large.fontSize} color={Colors.blue}/>
-          <ScrollView style={{marginTop:10}}>
+          <FontPoiret text="about that account type..." size={this.state.large} color={Colors.blue}/>
+          <ScrollView style={{marginVertical:10}}>
             <Text
               style={{color: Colors.transparentWhite,...Texts.medium}}>
-              SHOPPERS{`\n`}
-              With a distributor account, you can manage your customers with tools like inventory tracking, chat, and lite order tracking. You can provide your customers (and prospective customers too) with your distributor ID so that when they use {AppName} and express interest in a lip color, only you will be able to engage them in chat, or place a direct phone call to them via the app to help convert lip color interest, into a completed sale!
+              {`\n`}SHOPPER ACCOUNT{`\n`}
+              With a shopper account, you can find a distributor, browse lip colors and test how they look on your lips. When you find colors that look great on you, like or thumbs up them, and your distributor will be automatically notified to reach out to you via chat or by phone.{`\n\n`}
+              DISTRIBUTOR ACCOUNT{`\n`}
+              With a distributor account, marketing to your customers and prospective customers has never been so awesome. Manage your customers with tools like inventory tracking, chat, and lite order tracking. Provide your customers with your distributor ID so that when they use {AppName} and express interest in a lip color, only you their distributor will be able to engage them in chat (or phone call) to help convert their lip color interests, into a completed sale! After your customer has paid for their lip colors outside of the app (which keeps you in compliance with Senegence), labeling those lip colors as an officially "claimed" or "requested" lip color, will automatically update your inventory so it always stays in sync with your order fulfillment practices outside of {AppName}.
             </Text>
           </ScrollView>
+          <TouchableHighlight
+            onPress={() => this.updateUserTypeInDb(userType)}
+            underlayColor={Colors.blue} style={{...button}}>
+            <Text style={{...buttonText,color:Colors.purple}}>switch to {userType === 'DIST' ? 'distributor' : 'shopper'}</Text>
+          </TouchableHighlight>
         <TouchableHighlight
           style={{
             width: 100,
@@ -396,7 +366,7 @@ class You extends Component {
             borderBottomRightRadius: 50,
             ...Views.middleNoFlex
           }}
-          onPress={() => this.setState({isCellSubmitModalOpen:false})}
+          onPress={() => this.setState({isUserTypeSubmitModalOpen:false})}
           underlayColor={Colors.purple}>
           <EvilIcons name="close" size={32} color={Colors.blue} />
         </TouchableHighlight>
@@ -453,6 +423,64 @@ class You extends Component {
     }
   }
 
+  updateNameInDb(){
+    let { name } = this.state
+    let trimmedName = name.trim()
+    let nameArray = trimmedName.split(' ')
+    if (nameArray.length > 0 && nameArray.length < 3) {
+      let fbkFirstName,fbkLastName
+      if (nameArray.length === 2) {
+        fbkFirstName = nameArray[0]
+        fbkLastName = nameArray[1]
+      } else {
+        fbkFirstName = nameArray[0]
+        fbkLastName = ''
+      }
+      this.props.updateName({
+        variables: {
+          userId: this.state.user.id,
+          fbkFirstName,fbkLastName
+        }
+      }).then( res => {
+        if (res) {
+          let { fbkFirstName,fbkLastName } = res.data.updateUser
+          this.setState({
+            name: `${fbkFirstName} ${fbkLastName}`,
+            user: {
+              ...this.state.user,
+              fbkFirstName,fbkLastName
+            }
+          })
+        } else {
+          this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
+        }
+      }).catch( e => {
+        this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
+      })
+    } else {
+      this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
+    }
+  }
+
+  updateUserTypeInDb(userType){
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from updating your account type. We were notified of this error, and will be working on a fix for it.'
+    this.props.updateUserType({
+      variables: {
+        userId: id,
+        type: userType
+      }
+    }).then( res => {
+      if (res && res.data && res.data.updateUser) {
+        this.setState({userType:res.data.updateUser.type,isUserTypeSubmitModalOpen:false})
+      } else {
+        this.showModal('error','Profile',errText)
+      }
+    }).catch( e => {
+      this.showModal('error','Profile',errText)
+    })
+  }
+
 }
 
 export default compose(
@@ -461,6 +489,9 @@ export default compose(
   }),
   graphql(UpdateName,{
     name: 'updateName'
+  }),
+  graphql(UpdateUserType,{
+    name: 'updateUserType'
   })
 )(You)
 // 10000048005
