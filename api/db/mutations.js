@@ -73,7 +73,7 @@ mutation UpdateName(
 const UpdateUserType = gql`
 mutation UpdateUserType(
   $userId: ID!,
-  $type: USER_TYPE!
+  $type: UserType!
 ){
   updateUser(
     id: $userId,
@@ -83,7 +83,84 @@ mutation UpdateUserType(
   }
 }`
 
+const CreateDistributor = gql`
+mutation CreateDistributor(
+  $DistributorDistId: String!,
+  $userxId: ID!
+){
+  createDistributor(
+    distId: $DistributorDistId,
+    userxId: $userxId
+  ){
+    id
+  }
+}`
+
+const DeleteDistributor = gql`
+mutation DeleteDistributor(
+  $DistributorId: ID!
+){
+  deleteDistributor(
+    id: $DistributorId
+  ){
+    id
+  }
+}`
+
+const UpdateDistributorDistId = gql`
+mutation UpdateDistributorDistId(
+  $DistributorId: ID!,
+  $DistributorDistId: String!
+){
+  updateDistributor(
+    id: $DistributorId,
+    distId: $DistributorDistId
+  ){
+    distId
+  }
+}`
+
+const UpdateDistributorBizName = gql`
+mutation UpdateDistributorBizName(
+  $DistributorId: ID!,
+  $DistributorBizName: String!
+){
+  updateDistributor(
+    id: $DistributorId,
+    bizName: $DistributorBizName
+  ){
+    bizName
+  }
+}`
+
+const UpdateDistributorBizUri = gql`
+mutation UpdateDistributorBizUri(
+  $DistributorId: ID!,
+  $DistributorBizUri: String!
+){
+  updateDistributor(
+    id: $DistributorId,
+    bizUri: $DistributorBizUri
+  ){
+    bizUri
+  }
+}`
+
+const UpdateDistributorLogoUri = gql`
+mutation UpdateDistributorLogoUri(
+  $DistributorId: ID!,
+  $DistributorLogoUri: String!
+){
+  updateDistributor(
+    id: $DistributorId,
+    logoUri: $DistributorLogoUri
+  ){
+    logoUri
+  }
+}`
+
 export {
-  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,
-  UpdateUserType
+  AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
+  CreateDistributor,DeleteDistributor,
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri
 }

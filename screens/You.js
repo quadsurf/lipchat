@@ -21,7 +21,11 @@ import Modal from 'react-native-modal'
 import { EvilIcons,MaterialCommunityIcons } from '@expo/vector-icons'
 
 // GQL
-import { UpdateCellPhone,UpdateName,UpdateUserType } from '../api/db/mutations'
+import {
+  UpdateCellPhone,UpdateName,UpdateUserType,
+  CreateDistributor,DeleteDistributor,
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri
+} from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -29,6 +33,25 @@ import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
 import { err,Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
+
+//CONSTs
+const medium = Texts.medium.fontSize
+const large = Texts.large.fontSize
+const larger = Texts.larger.fontSize
+const xlarge = Texts.xlarge.fontSize
+const screen = getDimensions()
+const vspace = 30
+const screenPadding = 15
+const screenPaddingHorizontal =  2*screenPadding
+const textInputStyle = {
+  fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,width:screen.width-screenPaddingHorizontal,textAlign:'center'
+}
+const distributorInputStyle = {
+  fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,textAlign:'left'
+}
+const inputStyleMedium = {fontSize:medium,height:32}
+const inputStyleLarge = {fontSize:large,height:32}
+const inputStyleLarger = {fontSize:larger,height:64}
 
 class You extends Component {
 
@@ -41,14 +64,17 @@ class You extends Component {
     tempCell: '',
     name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
     userType: this.props.user.type,
-    screen: getDimensions(),
-    large: Texts.large.fontSize,
     isNumericKeyPadOpen: false,
     isUserTypeSubmitModalOpen: false,
+    isCellSubmitModalOpen: false,
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    isCellSubmitModalOpen: false
+    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
+    DistributorDistId: this.props.user.distributorx ? this.props.user.distributorx.distId : null,
+    DistributorBizName: this.props.user.distributorx ? this.props.user.distributorx.bizName : null,
+    DistributorBizUri: this.props.user.distributorx ? this.props.user.distributorx.bizUri : null,
+    DistributorLogoUri: this.props.user.distributorx ? this.props.user.distributorx.logoUri : null
   }
 
   componentWillMount(){
@@ -114,30 +140,24 @@ class You extends Component {
 
   renderMainContent(){
     let imageWidth = 280
-    let vspace = 20
-    let screenPadding = 15
-    let screenPaddingHorizontal =  2*screenPadding
-    let { large } = this.state
     let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
-    let textInputStyle = {fontFamily:'Poiret',backgroundColor:'transparent',fontSize:large,color:Colors.blue,height:32}
-    let textInputStyleLarge = {
-      fontFamily:'Poiret',backgroundColor:'transparent',fontSize:40,color:Colors.blue,
-      height:100,width:this.state.screen.width-screenPaddingHorizontal,textAlign:'center'
-    }
     return (
         <View style={{...Views.middle}}>
-          <KeyboardAwareScrollView viewIsInsideTabBar={true} contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
+          <KeyboardAwareScrollView viewIsInsideTabBar={true} contentContainerStyle={{width:screen.width,height:screen.height}}>
             <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:screenPadding}}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
-              <TextInput value={this.state.name} placeholder="add your full name" style={textInputStyleLarge}
+              <TextInput value={this.state.name}
+                placeholder="add your full name"
+                placeholderTextColor={Colors.transparentWhite}
+                style={{...textInputStyle,...inputStyleLarger}}
                 onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
                 keyboardType="default"
                 onSubmitEditing={() => this.updateNameInDb()}
                 blurOnSubmit={true}
                 returnKeyType="send"/>
-              {this.renderUserType()}
               {this.renderCellPhone()}
+              {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
@@ -147,8 +167,16 @@ class You extends Component {
     )
   }
 
+  renderCellPhone(){
+    let { cellPhone } = this.state
+    if (cellPhone) {
+      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
+    } else {
+      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
+    }
+  }
+
   renderUserType(){
-    let { large } = this.state
     let { type } = this.state.user
     return (
       <TouchableOpacity onPress={() => this.setState({isUserTypeSubmitModalOpen:true})} style={{flexDirection:'row'}}>
@@ -159,15 +187,102 @@ class You extends Component {
     )
   }
 
-  renderCellPhone(){
-    let { cellPhone } = this.state
-    let vspace = 20
-    let large = Texts.large.fontSize
-    if (cellPhone) {
-      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
-    } else {
-      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
-    }
+  renderDistributorFields(){
+    let fieldRow = {flexDirection:'row',width:screen.width*.8,height:60}
+    let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
+    let fieldValue = {flex:5,justifyContent:'center'}
+    let { userType,DistributorId,DistributorBizName,DistributorBizUri,DistributorLogoUri } = this.state
+    return (
+      <View style={{borderRadius:12,padding:screenPadding,borderColor:Colors.blue,borderWidth: userType === 'DIST' ? 1 : 0}}>
+        <View style={{width:screen.width*.8,height:50,alignItems:'center',justifyContent:'center'}}>
+          {this.renderUserType()}
+        </View>
+        {
+          userType === 'DIST' ?
+          <View style={fieldRow}>
+            <View style={fieldName}><FontPoiret text="distributor id" size={medium}
+              color={DistributorId ? Colors.transparentWhite : Colors.blue}/></View>
+            <View style={fieldValue}>{this.renderDistId()}</View>
+          </View> : null
+        }
+        {
+          DistributorId ?
+          <View style={{width:screen.width*.8,height:180}}>
+            <View style={fieldRow}>
+              <View style={fieldName}><FontPoiret text="business name" size={medium}
+                color={DistributorBizName ? Colors.transparentWhite : Colors.blue}/></View>
+              <View style={fieldValue}>{this.renderBizName()}</View>
+            </View>
+            <View style={fieldRow}>
+              <View style={fieldName}><FontPoiret text="linkTr.ee url" size={medium}
+                color={DistributorBizUri ? Colors.transparentWhite : Colors.blue}/></View>
+              <View style={fieldValue}>{this.renderBizUri()}</View>
+            </View>
+            <View style={fieldRow}>
+              <View style={fieldName}><FontPoiret text="logo url" size={medium}
+                color={DistributorLogoUri ? Colors.transparentWhite : Colors.blue}/></View>
+              <View style={fieldValue}>{this.renderLogoUri()}</View>
+            </View>
+          </View> : null
+        }
+      </View>
+    );
+  }
+
+  renderDistId(){
+    return (
+      <TextInput value={this.state.DistributorDistId}
+        placeholder="add"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...distributorInputStyle,...inputStyleMedium}}
+        onChangeText={(DistributorDistId) => DistributorDistId.length > 0 ? this.setState({DistributorDistId}) : null}
+        keyboardType="default"
+        onSubmitEditing={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
+        blurOnSubmit={true}
+        returnKeyType="send"/>
+    )
+  }
+
+  renderBizName(){
+    return (
+      <TextInput value={this.state.DistributorBizName}
+        placeholder="add"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...distributorInputStyle,...inputStyleMedium}}
+        onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
+        keyboardType="default"
+        onSubmitEditing={() => this.updateDistributorBizNameInDb()}
+        blurOnSubmit={true}
+        returnKeyType="send"/>
+    )
+  }
+
+  renderBizUri(){
+    return (
+      <TextInput value={this.state.DistributorBizUri}
+        placeholder="add"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...distributorInputStyle,...inputStyleMedium}}
+        onChangeText={(DistributorBizUri) => DistributorBizUri.length > 0 ? this.setState({DistributorBizUri}) : null}
+        keyboardType="default"
+        onSubmitEditing={() => this.updateDistributorBizUriInDb()}
+        blurOnSubmit={true}
+        returnKeyType="send"/>
+    )
+  }
+
+  renderLogoUri(){
+    return (
+      <TextInput value={this.state.DistributorLogoUri}
+        placeholder="add"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...distributorInputStyle,...inputStyleMedium}}
+        onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 0 ? this.setState({DistributorLogoUri}) : null}
+        keyboardType="default"
+        onSubmitEditing={() => this.updateDistributorLogoUriInDb()}
+        blurOnSubmit={true}
+        returnKeyType="send"/>
+    )
   }
 
   renderCellSubmitModal(){
@@ -196,69 +311,9 @@ class You extends Component {
     )
   }
 
-  render(){
-    return(
-      <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <MyStatusBar hidden={false} />
-        {this.renderMainContent()}
-        {this.renderModal()}
-      </View>
-    )
-  }
-
-  async logOut(){
-    try {
-      this.showModal('processing')
-      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
-        if (e) {
-          //
-        } else {
-          setTimeout(()=>{
-            this.setState({ isModalOpen:false },()=>{
-              this.props.nav.navigate('LoggedOut')
-            })
-          },2000)
-        }
-      })
-    } catch(e) {
-      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.',e.message)
-    }
-  }
-
-  cellButtonDisabled = () => null
-
-  cellButtonEnabled = () => {
-    this.showModal('processing')
-    let { tempCell } = this.state
-    let { id } = this.state.user
-    let cellPhone = tempCell.replace(/\s/g,"")
-    this.props.updateCellPhone({
-      variables: {
-        userId: id,
-        cellPhone
-      }
-    }).then( res => {
-      this.setState({
-        cellPhone: res.data.updateUser.cellPhone,
-        user: {
-          ...this.state.user,
-          cellPhone: res.data.updateUser.cellPhone
-        },
-        tempCell: '',
-        cellButton: this.cellButtonDisabled,
-        cellButtonColor: Colors.blue,
-        cellButtonBgColor: 'transparent',
-        isCellSubmitModalOpen:false
-      })
-    })
-    .catch( e => {
-      this.showModal('error','Profile','Apologies, but something prevented us from updating your cell phone. We were notified of this error, and will be working on a fix for it.')
-    })
-  }
-
   renderNumericKeypadCell(op,num){
     let keyPadView = {flex:1,height:50,justifyContent:'center',alignItems:'center',margin:10,borderRadius:6}
-    let keypadText = {fontFamily:'Poiret',fontSize:Texts.large.fontSize}
+    let keypadText = {fontFamily:'Poiret',fontSize:large}
     return (
       <TouchableHighlight
         onPress={ op === 'submit' ? this.state.cellButton : () => this.updateCellString(op,num) }
@@ -273,7 +328,7 @@ class You extends Component {
       <View
         style={{
           ...Views.middleNoFlex,
-          width:.85*this.state.screen.width,
+          width:.85*screen.width,
           backgroundColor: Colors.purple,
           borderRadius: 15,
           padding: 20,
@@ -324,12 +379,12 @@ class You extends Component {
   renderUserTypeContent(){
     let userType
     if (this.state.userType === "DIST") {userType = 'SHOPPER'} else {userType = 'DIST'}
-    let modalWidth = this.state.screen.width*.85
-    let modalHeight = this.state.screen.height*.75
+    let modalWidth = screen.width*.85
+    let modalHeight = screen.height*.75
     let button = {
       width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.transparentWhite
     }
-    let buttonText = {fontFamily:'Poiret',fontSize:this.state.large}
+    let buttonText = {fontFamily:'Poiret',fontSize:large}
     return (
       <View
         style={{
@@ -340,7 +395,7 @@ class You extends Component {
           padding: 20,
           maxHeight: modalHeight
         }}>
-          <FontPoiret text="about that account type..." size={this.state.large} color={Colors.blue}/>
+          <FontPoiret text="about that account type..." size={large} color={Colors.blue}/>
           <ScrollView style={{marginVertical:10}}>
             <Text
               style={{color: Colors.transparentWhite,...Texts.medium}}>
@@ -351,7 +406,7 @@ class You extends Component {
             </Text>
           </ScrollView>
           <TouchableHighlight
-            onPress={() => this.updateUserTypeInDb(userType)}
+            onPress={() => this.updateUserTypeFork(userType)}
             underlayColor={Colors.blue} style={{...button}}>
             <Text style={{...buttonText,color:Colors.purple}}>switch to {userType === 'DIST' ? 'distributor' : 'shopper'}</Text>
           </TouchableHighlight>
@@ -370,6 +425,16 @@ class You extends Component {
           underlayColor={Colors.purple}>
           <EvilIcons name="close" size={32} color={Colors.blue} />
         </TouchableHighlight>
+      </View>
+    )
+  }
+
+  render(){
+    return(
+      <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
+        <MyStatusBar hidden={false} />
+        {this.renderMainContent()}
+        {this.renderModal()}
       </View>
     )
   }
@@ -424,6 +489,7 @@ class You extends Component {
   }
 
   updateNameInDb(){
+    let errText = 'Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.'
     let { name } = this.state
     let trimmedName = name.trim()
     let nameArray = trimmedName.split(' ')
@@ -452,13 +518,56 @@ class You extends Component {
             }
           })
         } else {
-          this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
+          this.showModal('error','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile','Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.')
+        this.showModal('error','Profile',errText)
       })
     } else {
       this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
+    }
+  }
+
+  cellButtonDisabled = () => null
+  //updateCellPhoneInDb
+  cellButtonEnabled = () => {
+    let errText = 'Apologies, but something prevented us from updating your cell phone. We were notified of this error, and will be working on a fix for it.'
+    let { tempCell } = this.state
+    let { id } = this.state.user
+    let cellPhone = tempCell.replace(/\s/g,"")
+    this.props.updateCellPhone({
+      variables: {
+        userId: id,
+        cellPhone
+      }
+    }).then( res => {
+      if (res && res.data && res.data.updateUser) {
+        this.setState({
+          cellPhone: res.data.updateUser.cellPhone,
+          user: {
+            ...this.state.user,
+            cellPhone: res.data.updateUser.cellPhone
+          },
+          tempCell: '',
+          cellButton: this.cellButtonDisabled,
+          cellButtonColor: Colors.blue,
+          cellButtonBgColor: 'transparent',
+          isCellSubmitModalOpen:false
+        })
+      } else {
+        this.showModal('error','Profile',errText)
+      }
+    })
+    .catch( e => {
+      this.showModal('error','Profile',errText)
+    })
+  }
+
+  updateUserTypeFork(userType){
+    if (this.state.userType === 'DIST') {
+      this.deleteDistributorInDb(userType)
+    } else {
+      this.updateUserTypeInDb(userType)
     }
   }
 
@@ -472,13 +581,177 @@ class You extends Component {
       }
     }).then( res => {
       if (res && res.data && res.data.updateUser) {
-        this.setState({userType:res.data.updateUser.type,isUserTypeSubmitModalOpen:false})
+        this.setState({userType:res.data.updateUser.type,isUserTypeSubmitModalOpen:false},()=>{
+          console.log('new userType',userType);
+        })
       } else {
         this.showModal('error','Profile',errText)
       }
     }).catch( e => {
-      this.showModal('error','Profile',errText)
+      this.setState({isUserTypeSubmitModalOpen:false},()=>{
+        setTimeout(()=>{
+          this.showModal('error','Profile',errText)
+        },600)
+      })
     })
+  }
+
+  createDistributorInDb(){
+    let { DistributorDistId } = this.state
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from creating your Distributor ID. We were notified of this error, and will be working on a fix for it.'
+    if (DistributorDistId && id) {
+      this.props.createDistributor({
+        variables: {
+          DistributorDistId,
+          userxId: id
+        }
+      }).then( res => {
+        if (res && res.data && res.data.createDistributor) {
+          this.setState({DistributorId:res.data.createDistributor.id})
+        } else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.showModal('error','Profile',errText)
+    }
+  }
+
+  updateDistributorDistIdInDb(){
+    let { DistributorId,DistributorDistId } = this.state
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from saving your Distributor ID. We were notified of this error, and will be working on a fix for it.'
+    if (DistributorId && DistributorDistId) {
+      this.props.updateDistributorDistId({
+        variables: {
+          DistributorId,
+          DistributorDistId
+        }
+      }).then( res => {
+        if (res && res.data && res.data.updateDistributor) {} else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.showModal('error','Profile',errText)
+    }
+  }
+
+  updateDistributorBizNameInDb(){
+    let { DistributorId,DistributorBizName } = this.state
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from saving your Business Name. We were notified of this error, and will be working on a fix for it.'
+    if (DistributorId && DistributorBizName) {
+      this.props.updateDistributorBizName({
+        variables: {
+          DistributorId,
+          DistributorBizName
+        }
+      }).then( res => {
+        if (res && res.data && res.data.updateDistributor) {} else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.showModal('error','Profile',errText)
+    }
+  }
+
+  updateDistributorBizUriInDb(){
+    let { DistributorId,DistributorBizUri } = this.state
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from saving your Business URL. We were notified of this error, and will be working on a fix for it.'
+    if (DistributorId && DistributorBizUri) {
+      this.props.updateDistributorBizUri({
+        variables: {
+          DistributorId,
+          DistributorBizUri
+        }
+      }).then( res => {
+        if (res && res.data && res.data.updateDistributor) {} else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.showModal('error','Profile',errText)
+    }
+  }
+
+  updateDistributorLogoUriInDb(){
+    let { DistributorId,DistributorLogoUri } = this.state
+    let { id } = this.state.user
+    let errText = 'Apologies, but something prevented us from saving your Logo URL. We were notified of this error, and will be working on a fix for it.'
+    if (DistributorId && DistributorLogoUri) {
+      this.props.updateDistributorLogoUri({
+        variables: {
+          DistributorId,
+          DistributorLogoUri
+        }
+      }).then( res => {
+        if (res && res.data && res.data.updateDistributor) {} else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.showModal('error','Profile',errText)
+    }
+  }
+
+  deleteDistributorInDb(userType){
+    let errText = 'Apologies, but something prevented us from changing your account type from Distributor to Shopper. We were notified of this error, and will be working on a fix for it.'
+    let { DistributorId } = this.state
+    if (DistributorId) {
+      this.props.deleteDistributor({
+        variables: {DistributorId}
+      }).then( res => {
+        if (res) {
+          this.setState({
+            DistributorId: null,
+            DistributorDistId: null,
+            DistributorBizName: null,
+            DistributorBizUri: null,
+            DistributorLogoUri: null
+          })
+          this.updateUserTypeInDb(userType)
+        } else {
+          this.showModal('error','Profile',errText)
+        }
+      }).catch( e => {
+        this.showModal('error','Profile',errText)
+      })
+    } else {
+      this.updateUserTypeInDb(userType)
+    }
+  }
+
+  async logOut(){
+    try {
+      this.showModal('processing')
+      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
+        if (e) {
+          //
+        } else {
+          setTimeout(()=>{
+            this.setState({ isModalOpen:false },()=>{
+              this.props.nav.navigate('LoggedOut')
+            })
+          },2000)
+        }
+      })
+    } catch(e) {
+      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.')
+    }
   }
 
 }
@@ -492,6 +765,23 @@ export default compose(
   }),
   graphql(UpdateUserType,{
     name: 'updateUserType'
+  }),
+  graphql(CreateDistributor,{
+    name: 'createDistributor'
+  }),
+  graphql(DeleteDistributor,{
+    name: 'deleteDistributor'
+  }),
+  graphql(UpdateDistributorDistId,{
+    name: 'updateDistributorDistId'
+  }),
+  graphql(UpdateDistributorBizName,{
+    name: 'updateDistributorBizName'
+  }),
+  graphql(UpdateDistributorBizUri,{
+    name: 'updateDistributorBizUri'
+  }),
+  graphql(UpdateDistributorLogoUri,{
+    name: 'updateDistributorLogoUri'
   })
 )(You)
-// 10000048005

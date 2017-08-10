@@ -22,6 +22,13 @@ query GetUser(
     fbkUserId
     fbkVerified
     type
+    distributorx {
+      id
+      distId
+      bizName
+      bizUri
+      logoUri
+    }
   }
 }`
 
