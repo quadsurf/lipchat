@@ -1,6 +1,6 @@
 
 
-// refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling
+// refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 
 import React, { Component } from 'react'
 import {
@@ -73,8 +73,8 @@ class You extends Component {
     DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
     DistributorDistId: this.props.user.distributorx ? this.props.user.distributorx.distId : null,
     DistributorBizName: this.props.user.distributorx ? this.props.user.distributorx.bizName : null,
-    DistributorBizUri: this.props.user.distributorx ? this.props.user.distributorx.bizUri : null,
-    DistributorLogoUri: this.props.user.distributorx ? this.props.user.distributorx.logoUri : null
+    DistributorBizUri: this.props.user.distributorx ? this.props.user.distributorx.bizUri : 'https://',
+    DistributorLogoUri: this.props.user.distributorx ? this.props.user.distributorx.logoUri : 'https://'
   }
 
   componentWillMount(){
@@ -151,6 +151,7 @@ class You extends Component {
     let imageWidth = 280
     let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
     let { userType,DistributorId } = this.state
+    // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
     return (
         <View style={{flex:1}}>
           <KeyboardAwareScrollView
@@ -165,11 +166,12 @@ class You extends Component {
                 placeholder="add your full name"
                 placeholderTextColor={Colors.transparentWhite}
                 style={{...textInputStyle,...inputStyleLarger}}
-                onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
+                onChangeText={(name) => this.setState({name})}
                 keyboardType="default"
+                onBlur={() => this.updateNameInDb()}
                 onSubmitEditing={() => this.updateNameInDb()}
                 blurOnSubmit={true}
-                returnKeyType="send"/>
+                returnKeyType="done"/>
               {this.renderCellPhone()}
               {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
@@ -244,30 +246,34 @@ class You extends Component {
   }
 
   renderDistId(){
+    // onChangeText={(DistributorDistId) => DistributorDistId.length > 0 ? this.setState({DistributorDistId}) : null}
     return (
       <TextInput value={this.state.DistributorDistId}
-        placeholder="add"
+        placeholder="add (required)"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorDistId) => DistributorDistId.length > 0 ? this.setState({DistributorDistId}) : null}
+        onChangeText={(DistributorDistId) => this.setState({DistributorDistId})}
         keyboardType="default"
+        onBlur={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
         onSubmitEditing={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
         blurOnSubmit={true}
-        returnKeyType="send"/>
+        returnKeyType="done"/>
     )
   }
 
   renderBizName(){
+    // onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
     return (
       <TextInput value={this.state.DistributorBizName}
-        placeholder="add"
+        placeholder="add (optional)"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
+        onChangeText={(DistributorBizName) => this.setState({DistributorBizName})}
         keyboardType="default"
+        onBlur={() => this.updateDistributorBizNameInDb()}
         onSubmitEditing={() => this.updateDistributorBizNameInDb()}
         blurOnSubmit={true}
-        returnKeyType="send"/>
+        returnKeyType="done"/>
     )
   }
 
@@ -277,11 +283,12 @@ class You extends Component {
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorBizUri) => DistributorBizUri.length > 0 ? this.setState({DistributorBizUri}) : null}
+        onChangeText={(DistributorBizUri) => DistributorBizUri.length > 7 ? this.setState({DistributorBizUri}) : null}
         keyboardType="default"
+        onBlur={() => this.updateDistributorBizUriInDb()}
         onSubmitEditing={() => this.updateDistributorBizUriInDb()}
         blurOnSubmit={true}
-        returnKeyType="send"/>
+        returnKeyType="done"/>
     )
   }
 
@@ -291,11 +298,12 @@ class You extends Component {
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 0 ? this.setState({DistributorLogoUri}) : null}
+        onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 7 ? this.setState({DistributorLogoUri}) : null}
         keyboardType="default"
+        onBlur={() => this.updateDistributorLogoUriInDb()}
         onSubmitEditing={() => this.updateDistributorLogoUriInDb()}
         blurOnSubmit={true}
-        returnKeyType="send"/>
+        returnKeyType="done"/>
     )
   }
 
