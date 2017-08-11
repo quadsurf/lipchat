@@ -17,8 +17,9 @@ import {
 //LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
+import { MKSwitch } from 'react-native-material-kit'
 import Modal from 'react-native-modal'
-import { EvilIcons,MaterialCommunityIcons } from '@expo/vector-icons'
+import { EvilIcons } from '@expo/vector-icons'
 
 // GQL
 import {
@@ -149,7 +150,7 @@ class You extends Component {
 
   renderMainContent(){
     let imageWidth = 280
-    let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
+    let { fbkUserId } = this.state.user
     let { userType,DistributorId } = this.state
     // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
     return (
@@ -162,16 +163,7 @@ class You extends Component {
             }}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
-              <TextInput value={this.state.name}
-                placeholder="add your full name"
-                placeholderTextColor={Colors.transparentWhite}
-                style={{...textInputStyle,...inputStyleLarger}}
-                onChangeText={(name) => this.setState({name})}
-                keyboardType="default"
-                onBlur={() => this.updateNameInDb()}
-                onSubmitEditing={() => this.updateNameInDb()}
-                blurOnSubmit={true}
-                returnKeyType="done"/>
+              {this.renderName()}
               {this.renderCellPhone()}
               {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
@@ -180,6 +172,21 @@ class You extends Component {
               <FontPoiret text={"\n\n\n"} size={xlarge}/>
           </KeyboardAwareScrollView>
         </View>
+    )
+  }
+
+  renderName(){
+    return (
+      <TextInput value={this.state.name}
+        placeholder="add your full name"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...textInputStyle,...inputStyleLarger}}
+        onChangeText={(name) => this.setState({name})}
+        keyboardType="default"
+        onBlur={() => this.updateNameInDb()}
+        onSubmitEditing={() => this.updateNameInDb()}
+        blurOnSubmit={true}
+        returnKeyType="done"/>
     )
   }
 
@@ -193,13 +200,24 @@ class You extends Component {
   }
 
   renderUserType(){
-    let { type } = this.state.user
+    let type = this.state.userType
     return (
-      <TouchableOpacity onPress={() => this.setState({isUserTypeSubmitModalOpen:true})} style={{flexDirection:'row'}}>
-        <FontPoiret text="shopper" size={large}/>
-        <MaterialCommunityIcons name={this.state.userType === "DIST" ? 'ray-start-arrow' : 'ray-end-arrow' } color={Colors.purpleText} size={40} style={{marginHorizontal:10}}/>
-        <FontPoiret text="distributor" size={large}/>
-      </TouchableOpacity>
+      <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+        <FontPoiret text="shopper" size={large} color={type === 'SHOPPER' ? Colors.blue : Colors.transparentWhite} style={{paddingBottom:8}}/>
+        <MKSwitch
+          checked={type === "DIST" ? true : false}
+          trackSize={15}
+          trackLength={40}
+          onColor={Colors.transparentWhite}
+          offColor={Colors.transparentWhite}
+          thumbOnColor={Colors.pinkly}
+          thumbOffColor={Colors.blue}
+          rippleColor="rgba(103,58,183,.7)"
+          rippleAniDuration={100}
+          onPress={() => this.setState({isUserTypeSubmitModalOpen:true})}
+        />
+      <FontPoiret text="distributor" size={large} color={type === 'DIST' ? Colors.pinkly : Colors.transparentWhite} style={{paddingBottom:6}}/>
+      </View>
     )
   }
 
