@@ -48,6 +48,43 @@ class Modals extends Component {
           color={Colors.pink}
           frequency={5000}/>
       )
+    } else if (type === 'err') {
+      let { title,description } = this.props.content
+      return (
+        <View
+          onPress={this.props.close}
+          style={{
+            ...Views.middleNoFlex,
+            width:.85*getDimensions().width,
+            backgroundColor: Colors.purple,
+            borderRadius: 15,
+            padding: 20,
+            maxHeight: 400
+          }}>
+          <FontPoiret text={`${title} Screen Issue`} size={Texts.large.fontSize} color={Colors.blue}/>
+          <ScrollView style={{marginTop:10}}>
+            <Text
+              style={{color: Colors.transparentWhite,...Texts.medium}}>
+              {`Apologies, but something prevented ${AppName} from ${description}. We were notified of this error, and will be working on a fix for it.${"\n\n"}Please try again though!`}
+            </Text>
+          </ScrollView>
+          <TouchableHighlight
+            style={{
+              width: 100,
+              height: 50,
+              position: 'absolute',
+              bottom: -50,
+              backgroundColor: Colors.purple,
+              borderBottomLeftRadius: 50,
+              borderBottomRightRadius: 50,
+              ...Views.middleNoFlex
+            }}
+            onPress={this.props.close}
+            underlayColor={Colors.purple}>
+            <EvilIcons name="close" size={32} color={Colors.blue} />
+          </TouchableHighlight>
+        </View>
+      )
     } else if (type === 'error') {
       let { title,description,message } = this.props.content
       return (

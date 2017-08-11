@@ -98,34 +98,16 @@ class You extends Component {
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
-    if (this.state.isModalOpen) {
-      this.setState({isModalOpen:false},()=>{
-        setTimeout(()=>{
-          if (modalType && title) {
-            this.setState({modalType,modalContent:{
-              title,description,message
-            }},()=>{
-              this.setState({isModalOpen:true})
-            })
-          } else {
-            this.setState({modalType},()=>{
-              this.setState({isModalOpen:true})
-            })
-          }
-        },600)
+    if (modalType && title) {
+      this.setState({modalType,modalContent:{
+        title,description,message
+      }},()=>{
+        this.setState({isModalOpen:true})
       })
     } else {
-      if (modalType && title) {
-        this.setState({modalType,modalContent:{
-          title,description,message
-        }},()=>{
-          this.setState({isModalOpen:true})
-        })
-      } else {
-        this.setState({modalType},()=>{
-          this.setState({isModalOpen:true})
-        })
-      }
+      this.setState({modalType},()=>{
+        this.setState({isModalOpen:true})
+      })
     }
   }
 
@@ -253,14 +235,14 @@ class You extends Component {
               <View style={fieldValue}>{this.renderBizUri()}</View>
             </View>
             <View style={fieldRow}>
-              <View style={fieldName}><FontPoiret text="logo url" size={medium}
+              <View style={fieldName}><FontPoiret text="link to logo" size={medium}
                 color={Colors.blue}/></View>
               <View style={fieldValue}>{this.renderLogoUri()}</View>
             </View>
           </View> : null
         }
       </View>
-    );
+    )
   }
 
   renderDistId(){
@@ -529,7 +511,7 @@ class You extends Component {
   }
 
   updateNameInDb(){
-    let errText = 'Apologies, but something prevented us from updating your name. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'updating your name'
     let { name } = this.state
     let trimmedName = name.trim()
     let nameArray = trimmedName.split(' ')
@@ -548,7 +530,7 @@ class You extends Component {
           fbkFirstName,fbkLastName
         }
       }).then( res => {
-        if (res) {
+        if (res && res.data && res.data.updateUser) {
           let { fbkFirstName,fbkLastName } = res.data.updateUser
           this.setState({
             name: `${fbkFirstName} ${fbkLastName}`,
@@ -558,10 +540,10 @@ class You extends Component {
             }
           })
         } else {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       })
     } else {
       this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
@@ -571,7 +553,7 @@ class You extends Component {
   cellButtonDisabled = () => null
   //updateCellPhoneInDb
   cellButtonEnabled = () => {
-    let errText = 'Apologies, but something prevented us from updating your cell phone. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'updating your cell phone'
     let { tempCell } = this.state
     let { id } = this.state.user
     let cellPhone = tempCell.replace(/\s/g,"")
@@ -595,11 +577,11 @@ class You extends Component {
           isCellSubmitModalOpen:false
         })
       } else {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       }
     })
     .catch( e => {
-      this.showModal('error','Profile',errText)
+      this.showModal('err','Profile',errText)
     })
   }
 
@@ -613,7 +595,7 @@ class You extends Component {
 
   updateUserTypeInDb(userType){
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from updating your account type. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'updating your account type'
     this.props.updateUserType({
       variables: {
         userId: id,
@@ -627,13 +609,13 @@ class You extends Component {
           },700)
         })
       } else {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       }
     }).catch( e => {
       this.setState({isUserTypeSubmitModalOpen:false},()=>{
         setTimeout(()=>{
-          this.showModal('error','Profile',errText)
-        },600)
+          this.showModal('err','Profile',errText)
+        },700)
       })
     })
   }
@@ -641,7 +623,7 @@ class You extends Component {
   createDistributorInDb(){
     let { DistributorDistId } = this.state
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from creating your Distributor ID. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'creating your Distributor ID'
     if (DistributorDistId && id) {
       this.props.createDistributor({
         variables: {
@@ -652,20 +634,20 @@ class You extends Component {
         if (res && res.data && res.data.createDistributor) {
           this.setState({DistributorId:res.data.createDistributor.id})
         } else {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       })
     } else {
-      this.showModal('error','Profile',errText)
+      this.showModal('err','Profile',errText)
     }
   }
 
   updateDistributorDistIdInDb(){
     let { DistributorId,DistributorDistId } = this.state
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from saving your Distributor ID. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'saving your Distributor ID'
     if (DistributorId && DistributorDistId) {
       this.props.updateDistributorDistId({
         variables: {
@@ -674,20 +656,20 @@ class You extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.updateDistributor) {} else {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       })
     } else {
-      this.showModal('error','Profile',errText)
+      this.showModal('err','Profile',errText)
     }
   }
 
   updateDistributorBizNameInDb(){
     let { DistributorId,DistributorBizName } = this.state
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from saving your Business Name. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'saving your Business Name'
     if (DistributorId && DistributorBizName) {
       this.props.updateDistributorBizName({
         variables: {
@@ -696,20 +678,20 @@ class You extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.updateDistributor) {} else {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       })
     } else {
-      this.showModal('error','Profile',errText)
+      this.showModal('err','Profile',errText)
     }
   }
 
   updateDistributorBizUriInDb(){
     let { DistributorId,DistributorBizUri } = this.state
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from saving your Business URL. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'saving your Business URL'
     if (!this.isSsl(DistributorBizUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https'.")
     } else {
@@ -721,13 +703,13 @@ class You extends Component {
           }
         }).then( res => {
           if (res && res.data && res.data.updateDistributor) {} else {
-            this.showModal('error','Profile',errText)
+            this.showModal('err','Profile',errText)
           }
         }).catch( e => {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         })
       } else {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       }
     }
   }
@@ -735,7 +717,7 @@ class You extends Component {
   updateDistributorLogoUriInDb(){
     let { DistributorId,DistributorLogoUri } = this.state
     let { id } = this.state.user
-    let errText = 'Apologies, but something prevented us from saving your Logo URL. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'saving your Logo URL'
     if (!this.isSsl(DistributorLogoUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https'.")
     } else {
@@ -747,19 +729,19 @@ class You extends Component {
           }
         }).then( res => {
           if (res && res.data && res.data.updateDistributor) {} else {
-            this.showModal('error','Profile',errText)
+            this.showModal('err','Profile',errText)
           }
         }).catch( e => {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         })
       } else {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       }
     }
   }
 
   deleteDistributorInDb(userType){
-    let errText = 'Apologies, but something prevented us from changing your account type from Distributor to Shopper. We were notified of this error, and will be working on a fix for it.'
+    let errText = 'changing your account type from Distributor to Shopper'
     let { DistributorId } = this.state
     if (DistributorId) {
       this.props.deleteDistributor({
@@ -775,10 +757,10 @@ class You extends Component {
           })
           this.updateUserTypeInDb(userType)
         } else {
-          this.showModal('error','Profile',errText)
+          this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('error','Profile',errText)
+        this.showModal('err','Profile',errText)
       })
     } else {
       this.updateUserTypeInDb(userType)
@@ -800,7 +782,7 @@ class You extends Component {
         }
       })
     } catch(e) {
-      this.showModal('error','Profile','Apologies, but something prevented us from logging you out.')
+      this.showModal('err','Profile','logging you out')
     }
   }
 
