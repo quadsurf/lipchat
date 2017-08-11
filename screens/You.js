@@ -1,6 +1,6 @@
 
 
-// refactoring to-dos: centralize button styling
+// refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling
 
 import React, { Component } from 'react'
 import {
@@ -49,7 +49,7 @@ const textInputStyle = {
 const distributorInputStyle = {
   fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,textAlign:'left'
 }
-const inputStyleMedium = {fontSize:medium,height:32}
+const inputStyleMedium = {fontSize:medium,height:32,color:Colors.pinkly}
 const inputStyleLarge = {fontSize:large,height:32}
 const inputStyleLarger = {fontSize:larger,height:64}
 
@@ -128,6 +128,15 @@ class You extends Component {
     }
   }
 
+  isSsl(url){
+    let el4 = url.split('')[4]
+    if (el4 === 's') {
+      return true
+    } else {
+      return false
+    }
+  }
+
   renderModal(){
     return (
       <Modals
@@ -141,10 +150,15 @@ class You extends Component {
   renderMainContent(){
     let imageWidth = 280
     let { fbkFirstName,fbkLastName,fbkUserId } = this.state.user
+    let { userType,DistributorId } = this.state
     return (
-        <View style={{...Views.middle}}>
-          <KeyboardAwareScrollView viewIsInsideTabBar={true} contentContainerStyle={{width:screen.width,height:screen.height}}>
-            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:screenPadding}}>
+        <View style={{flex:1}}>
+          <KeyboardAwareScrollView
+            viewIsInsideTabBar={true}
+            contentContainerStyle={{
+              height: userType === 'SHOPPER' ? 600 : userType === 'DIST' && !DistributorId ? 660 : DistributorId ? 860 : 860,
+              alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
+            }}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
               <TextInput value={this.state.name}
@@ -160,8 +174,8 @@ class You extends Component {
               {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
-              <FontPoiret text="logout" size={large} vspace={vspace} onPress={() => this.logOut()}/>
-            </View>
+              <FontPoiret text="logout" size={large} vspace={20} onPress={() => this.logOut()}/>
+              <FontPoiret text={"\n\n\n"} size={xlarge}/>
           </KeyboardAwareScrollView>
         </View>
     )
@@ -201,7 +215,7 @@ class You extends Component {
           userType === 'DIST' ?
           <View style={fieldRow}>
             <View style={fieldName}><FontPoiret text="distributor id" size={medium}
-              color={DistributorId ? Colors.transparentWhite : Colors.blue}/></View>
+              color={Colors.blue}/></View>
             <View style={fieldValue}>{this.renderDistId()}</View>
           </View> : null
         }
@@ -210,17 +224,17 @@ class You extends Component {
           <View style={{width:screen.width*.8,height:180}}>
             <View style={fieldRow}>
               <View style={fieldName}><FontPoiret text="business name" size={medium}
-                color={DistributorBizName ? Colors.transparentWhite : Colors.blue}/></View>
+                color={Colors.blue}/></View>
               <View style={fieldValue}>{this.renderBizName()}</View>
             </View>
             <View style={fieldRow}>
               <View style={fieldName}><FontPoiret text="linkTr.ee url" size={medium}
-                color={DistributorBizUri ? Colors.transparentWhite : Colors.blue}/></View>
+                color={Colors.blue}/></View>
               <View style={fieldValue}>{this.renderBizUri()}</View>
             </View>
             <View style={fieldRow}>
               <View style={fieldName}><FontPoiret text="logo url" size={medium}
-                color={DistributorLogoUri ? Colors.transparentWhite : Colors.blue}/></View>
+                color={Colors.blue}/></View>
               <View style={fieldValue}>{this.renderLogoUri()}</View>
             </View>
           </View> : null
@@ -581,8 +595,10 @@ class You extends Component {
       }
     }).then( res => {
       if (res && res.data && res.data.updateUser) {
-        this.setState({userType:res.data.updateUser.type,isUserTypeSubmitModalOpen:false},()=>{
-          console.log('new userType',userType);
+        this.setState({isUserTypeSubmitModalOpen:false},()=>{
+          setTimeout(()=>{
+            this.setState({userType:res.data.updateUser.type})
+          },700)
         })
       } else {
         this.showModal('error','Profile',errText)
@@ -668,21 +684,25 @@ class You extends Component {
     let { DistributorId,DistributorBizUri } = this.state
     let { id } = this.state.user
     let errText = 'Apologies, but something prevented us from saving your Business URL. We were notified of this error, and will be working on a fix for it.'
-    if (DistributorId && DistributorBizUri) {
-      this.props.updateDistributorBizUri({
-        variables: {
-          DistributorId,
-          DistributorBizUri
-        }
-      }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {} else {
-          this.showModal('error','Profile',errText)
-        }
-      }).catch( e => {
-        this.showModal('error','Profile',errText)
-      })
+    if (!this.isSsl(DistributorBizUri)) {
+      this.showModal('error','Profile',"Your URL must begin with 'https'.")
     } else {
-      this.showModal('error','Profile',errText)
+      if (DistributorId && DistributorBizUri) {
+        this.props.updateDistributorBizUri({
+          variables: {
+            DistributorId,
+            DistributorBizUri
+          }
+        }).then( res => {
+          if (res && res.data && res.data.updateDistributor) {} else {
+            this.showModal('error','Profile',errText)
+          }
+        }).catch( e => {
+          this.showModal('error','Profile',errText)
+        })
+      } else {
+        this.showModal('error','Profile',errText)
+      }
     }
   }
 
@@ -690,21 +710,25 @@ class You extends Component {
     let { DistributorId,DistributorLogoUri } = this.state
     let { id } = this.state.user
     let errText = 'Apologies, but something prevented us from saving your Logo URL. We were notified of this error, and will be working on a fix for it.'
-    if (DistributorId && DistributorLogoUri) {
-      this.props.updateDistributorLogoUri({
-        variables: {
-          DistributorId,
-          DistributorLogoUri
-        }
-      }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {} else {
-          this.showModal('error','Profile',errText)
-        }
-      }).catch( e => {
-        this.showModal('error','Profile',errText)
-      })
+    if (!this.isSsl(DistributorLogoUri)) {
+      this.showModal('error','Profile',"Your URL must begin with 'https'.")
     } else {
-      this.showModal('error','Profile',errText)
+      if (DistributorId && DistributorLogoUri) {
+        this.props.updateDistributorLogoUri({
+          variables: {
+            DistributorId,
+            DistributorLogoUri
+          }
+        }).then( res => {
+          if (res && res.data && res.data.updateDistributor) {} else {
+            this.showModal('error','Profile',errText)
+          }
+        }).catch( e => {
+          this.showModal('error','Profile',errText)
+        })
+      } else {
+        this.showModal('error','Profile',errText)
+      }
     }
   }
 
