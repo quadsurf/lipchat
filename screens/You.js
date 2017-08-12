@@ -120,6 +120,11 @@ class You extends Component {
     }
   }
 
+  cleanString(str){
+    let cleaned = str.trim()
+    return cleaned
+  }
+
   renderModal(){
     return (
       <Modals
@@ -167,6 +172,8 @@ class You extends Component {
         onBlur={() => this.updateNameInDb()}
         onSubmitEditing={() => this.updateNameInDb()}
         blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={50}
         returnKeyType="done"/>
     )
   }
@@ -193,7 +200,7 @@ class You extends Component {
           offColor={Colors.transparentWhite}
           thumbOnColor={Colors.pinkly}
           thumbOffColor={Colors.blue}
-          rippleColor="rgba(103,58,183,.7)"
+          rippleColor={Colors.transparentPurplest}
           rippleAniDuration={100}
           onPress={() => this.setState({isUserTypeSubmitModalOpen:true})}
         />
@@ -256,6 +263,8 @@ class You extends Component {
         onBlur={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
         onSubmitEditing={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
         blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={18}
         returnKeyType="done"/>
     )
   }
@@ -272,6 +281,8 @@ class You extends Component {
         onBlur={() => this.updateDistributorBizNameInDb()}
         onSubmitEditing={() => this.updateDistributorBizNameInDb()}
         blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={50}
         returnKeyType="done"/>
     )
   }
@@ -287,6 +298,8 @@ class You extends Component {
         onBlur={() => this.updateDistributorBizUriInDb()}
         onSubmitEditing={() => this.updateDistributorBizUriInDb()}
         blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={2083}
         returnKeyType="done"/>
     )
   }
@@ -302,6 +315,8 @@ class You extends Component {
         onBlur={() => this.updateDistributorLogoUriInDb()}
         onSubmitEditing={() => this.updateDistributorLogoUriInDb()}
         blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={2083}
         returnKeyType="done"/>
     )
   }
@@ -526,7 +541,8 @@ class You extends Component {
       this.props.updateName({
         variables: {
           userId: this.state.user.id,
-          fbkFirstName,fbkLastName
+          fbkFirstName: this.cleanString(fbkFirstName),
+          fbkLastName: this.cleanString(fbkLastName)
         }
       }).then( res => {
         if (res && res.data && res.data.updateUser) {
@@ -626,17 +642,20 @@ class You extends Component {
     if (DistributorDistId && id) {
       this.props.createDistributor({
         variables: {
-          DistributorDistId,
+          DistributorDistId: this.cleanString(DistributorDistId),
           userxId: id
         }
       }).then( res => {
         if (res && res.data && res.data.createDistributor) {
-          this.setState({DistributorId:res.data.createDistributor.id})
+          this.setState({
+            DistributorId:res.data.createDistributor.id,
+            DistributorDistId:res.data.createDistributor.distId
+          })
         } else {
           this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        console.log('createDistributor',e.message);
+        console.log('createDistributor',e.message)
         // this.showModal('err','Profile',errText)
       })
     } else {
@@ -652,10 +671,12 @@ class You extends Component {
       this.props.updateDistributorDistId({
         variables: {
           DistributorId,
-          DistributorDistId
+          DistributorDistId: this.cleanString(DistributorDistId)
         }
       }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {} else {
+        if (res && res.data && res.data.updateDistributor) {
+          this.setState({DistributorDistId:res.data.updateDistributor.distId})
+        } else {
           this.showModal('err','Profile',errText)
         }
       }).catch( e => {
@@ -674,10 +695,12 @@ class You extends Component {
       this.props.updateDistributorBizName({
         variables: {
           DistributorId,
-          DistributorBizName
+          DistributorBizName: this.cleanString(DistributorBizName)
         }
       }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {} else {
+        if (res && res.data && res.data.updateDistributor) {
+          this.setState({DistributorBizName:res.data.updateDistributor.bizName})
+        } else {
           this.showModal('err','Profile',errText)
         }
       }).catch( e => {
@@ -699,10 +722,12 @@ class You extends Component {
         this.props.updateDistributorBizUri({
           variables: {
             DistributorId,
-            DistributorBizUri
+            DistributorBizUri: this.cleanString(DistributorBizUri)
           }
         }).then( res => {
-          if (res && res.data && res.data.updateDistributor) {} else {
+          if (res && res.data && res.data.updateDistributor) {
+            this.setState({DistributorBizUri:res.data.updateDistributor.bizUri})
+          } else {
             this.showModal('err','Profile',errText)
           }
         }).catch( e => {
@@ -725,13 +750,16 @@ class You extends Component {
         this.props.updateDistributorLogoUri({
           variables: {
             DistributorId,
-            DistributorLogoUri
+            DistributorLogoUri: this.cleanString(DistributorLogoUri)
           }
         }).then( res => {
-          if (res && res.data && res.data.updateDistributor) {} else {
+          if (res && res.data && res.data.updateDistributor) {
+            this.setState({DistributorLogoUri:res.data.updateDistributor.logoUri})
+          } else {
             this.showModal('err','Profile',errText)
           }
         }).catch( e => {
+          console.log('ggg',e.message);
           this.showModal('err','Profile',errText)
         })
       } else {

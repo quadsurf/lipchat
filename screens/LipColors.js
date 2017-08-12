@@ -25,12 +25,12 @@ class LipColors extends Component {
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    // if (this.props !== nextProps) {
-    //   return true
-    // }
-    // if (this.state !== nextState) {
-    //   return true
-    // }
+    if (this.props !== nextProps) {
+      return true
+    }
+    if (this.state !== nextState) {
+      return true
+    }
     return false
   }
 
@@ -82,11 +82,3 @@ class LipColors extends Component {
 }
 
 export default LipColors
-
-// static navigationOptions = ({navigation}) => ({
-//   header: null
-// })
-
-// navigate: this.props.navigation.navigate
-
-// this.state.navigate('Intros')

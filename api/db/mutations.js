@@ -93,6 +93,7 @@ mutation CreateDistributor(
     userxId: $userxId
   ){
     id
+    distId
   }
 }`
 
