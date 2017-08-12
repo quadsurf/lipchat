@@ -32,6 +32,19 @@ query GetUser(
   }
 }`
 
+const GetColors = gql`
+query GetColors{
+  allColors{
+    id
+    family
+    finish
+    name
+    rgb
+    status
+    tone
+  }
+}`
+
 export {
-  GetUser
+  GetUser,GetColors
 }

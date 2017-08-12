@@ -17,6 +17,7 @@ const pinkest = '#E3007E'
 const red = '#EC174F'
 const pink = '#ED5AF7'
 const pinkLive = '#EA74FE'
+const white = '#fff'
 const offWhite = '#fefefe'
 const transparentWhite = 'rgba(255,255,255,.3)'
 const transparentPurplest = 'rgba(103,58,183,.7)'
@@ -26,7 +27,7 @@ const green = '#4caf50'
 
 const Colors = {
   purple,purpleDarker,purpleText,purpleLight,purpleLighter,purpleLightest,purpleLive,purplest,transparentPurplest,
-  blue,bluergba,blueLive,black,green,pinkest,pinkly,pink,pinkLive,offWhite,transparentWhite,gray,red,
+  blue,bluergba,blueLive,black,green,pinkest,pinkly,pink,pinkLive,white,offWhite,transparentWhite,gray,red,
   bgColor: purple
 }
 
