@@ -151,7 +151,6 @@ class You extends Component {
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
               <FontPoiret text="logout" size={large} vspace={20} onPress={() => this.logOut()}/>
-              <FontPoiret text={"\n\n\n"} size={xlarge}/>
           </KeyboardAwareScrollView>
         </View>
     )
@@ -623,7 +622,7 @@ class You extends Component {
   createDistributorInDb(){
     let { DistributorDistId } = this.state
     let { id } = this.state.user
-    let errText = 'creating your Distributor ID'
+    let errText = 'adding your Distributor ID'
     if (DistributorDistId && id) {
       this.props.createDistributor({
         variables: {
@@ -637,7 +636,8 @@ class You extends Component {
           this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        this.showModal('err','Profile',errText)
+        console.log('createDistributor',e.message);
+        // this.showModal('err','Profile',errText)
       })
     } else {
       this.showModal('err','Profile',errText)
@@ -757,10 +757,18 @@ class You extends Component {
           })
           this.updateUserTypeInDb(userType)
         } else {
-          this.showModal('err','Profile',errText)
+          this.setState({isUserTypeSubmitModalOpen:false},()=>{
+            setTimeout(()=>{
+              this.showModal('err','Profile',errText)
+            },700)
+          })
         }
       }).catch( e => {
-        this.showModal('err','Profile',errText)
+        this.setState({isUserTypeSubmitModalOpen:false},()=>{
+          setTimeout(()=>{
+            this.showModal('err','Profile',errText)
+          },700)
+        })
       })
     } else {
       this.updateUserTypeInDb(userType)
