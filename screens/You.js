@@ -780,8 +780,8 @@ class You extends Component {
             DistributorId: null,
             DistributorDistId: null,
             DistributorBizName: null,
-            DistributorBizUri: null,
-            DistributorLogoUri: null
+            DistributorBizUri: 'https://',
+            DistributorLogoUri: 'https://'
           })
           this.updateUserTypeInDb(userType)
         } else {
