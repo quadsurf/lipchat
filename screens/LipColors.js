@@ -4,14 +4,15 @@ import React, { Component } from 'react'
 import {
   Text,
   View,
-  ScrollView
+  ScrollView,
+  TouchableOpacity
 } from 'react-native'
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
 
 // GQL
-import { GetColors } from '../api/db/queries'
+import { GetColorsAndInventories } from '../api/db/queries'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -21,7 +22,6 @@ import { err,Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 //CONSTS
-//CONSTs
 const medium = Texts.medium.fontSize
 const large = Texts.large.fontSize
 const larger = Texts.larger.fontSize
@@ -33,18 +33,18 @@ const screenPaddingHorizontal =  2*screenPadding
 const ColorCard = props => {
   return (
     <View style={{width:screen.width,height:160,backgroundColor:props.rgb,
-        paddingVertical:2,paddingHorizontal:4,marginVertical:0}}>
+        paddingBottom:4,paddingHorizontal:4}}>
       <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row'}}>
         <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
         <FontPoiret text={props.status === 'CURRENT' ? 'permanent collection' : props.status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
       </View>
-      <View style={{flex:3,...Views.middleNoFlex}}>
-        <FontMatilde text="4" size={xlarge} vspace={vspace} color={Colors.white}/>
-      </View>
-      <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
+      <TouchableOpacity style={{flex:3,alignItems:'center',justifyContent:'space-between',flexDirection:'row',marginTop:20}} onPress={props.onPress}>
         <FontPoiret text={props.tone} size={medium} color={Colors.white}/>
-        <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
+        <FontMatilde text={props.inventoryCount} size={xlarge} color={Colors.white}/>
         <FontPoiret text={props.finish} size={medium} color={Colors.white}/>
+      </TouchableOpacity>
+      <View style={{...Views.middle}}>
+        <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
       </View>
     </View>
   )
@@ -75,13 +75,19 @@ class LipColors extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps && newProps.getColors && newProps.getColors.allColors) {
-      if (newProps.getColors.allColors !== this.state.colors) {
-        let colors = newProps.getColors.allColors
+    if (newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
+      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
+        let colors = newProps.getColorsAndInventories.allColors
+        console.log('colors:',colors);
         let shades = []
         colors.forEach(color => {
           this.setState({
-            [`${color.id}`]:color
+            [`${color.id}`]:{
+              ...color,
+              inventory:{
+                id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
+                count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
+              }}
           },()=>{
             shades.push(color.id)
           })
@@ -96,18 +102,10 @@ class LipColors extends Component {
         //   berries:colors.filter(color => color.family === "BERRIES"),
         //   oranges:colors.filter(color => color.family === "ORANGES")
         // }
-        this.setState({shades},()=>{
-          this.setState({isListReady:true})
-
-          // let colorsArray = []
-          // this.state.shades.forEach(colorId => {
-          //   colorsArray.push(this.state[`${colorId}`])
-          // })
-          // this.setState({colorsArray})
-
-          // console.log('colors',this.state[`${this.state.shades[39]}`])
-          // console.log('shades length',this.state.shades.length);
-          // console.log(this.state);
+        this.setState({shades,colors},()=>{
+          this.setState({isListReady:true},()=>{
+            console.log('test: ',this.state[`${this.state.shades[0]}`]);
+          })
         })
       }
     }
@@ -148,9 +146,13 @@ class LipColors extends Component {
     } else {
       return this.state.shades.map(colorId => {
         let color = this.state[`${colorId}`]
-        return <ColorCard key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} finish={color.finish} status={color.status}/>
+        return <ColorCard key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} finish={color.finish} status={color.status} inventoryCount={color.inventory.count} inventoryId={color.inventory.id} onPress={() => this.updateColor(color.id)}/>
       })
     }
+  }
+
+  updateColor(id){
+    this.setState({[`${id}`]:{...this.state[`${id}`],count:this.state[`${id}`].count+1}})
   }
 
   renderMainContent(){
@@ -177,7 +179,13 @@ class LipColors extends Component {
 }
 
 export default compose(
-  graphql(GetColors,{
-    name: 'getColors'
+  graphql(GetColorsAndInventories,{
+    name: 'getColorsAndInventories',
+    options: props => ({
+      variables: {
+        distributorxId: props.user.distributorx ? props.user.distributorx.id : null 
+      },
+      // fetchPolicy: 'network-only'
+    })
   })
 )(LipColors)

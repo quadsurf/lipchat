@@ -45,6 +45,31 @@ query GetColors{
   }
 }`
 
+const GetColorsAndInventories = gql`
+query GetColorsAndInventories(
+  $distributorxId: ID
+){
+  allColors{
+    id
+    family
+    finish
+    name
+    rgb
+    status
+    tone
+    inventoriesx(
+      filter: {
+        distributorx: {
+          id: $distributorxId
+        }
+      }
+    ){
+      id
+      count
+    }
+  }
+}`
+
 export {
-  GetUser,GetColors
+  GetUser,GetColorsAndInventories
 }
