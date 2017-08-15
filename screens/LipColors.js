@@ -10,10 +10,11 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { Ionicons } from '@expo/vector-icons'
 
 // GQL
 import { GetColorsAndInventories } from '../api/db/queries'
-import { ConnectColorToDistributor } from '../api/db/mutations'
+import { ConnectColorToDistributor,UpdateCountOnInventory } from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -31,21 +32,30 @@ const screen = getDimensions()
 const vspace = 10
 const screenPadding = 15
 const screenPaddingHorizontal =  2*screenPadding
+
 const ColorCard = props => {
   return (
-    <View style={{width:screen.width,height:160,backgroundColor:props.rgb,
+    <View style={{width:screen.width,height:170,backgroundColor:props.rgb,
         paddingBottom:4,paddingHorizontal:4}}>
-      <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row'}}>
+      <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
         <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
-        <FontPoiret text={props.status === 'CURRENT' ? 'permanent collection' : props.status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
+        <FontPoiret text={props.status === 'CURRENT' ? 'main collection' : props.status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
       </View>
-      <TouchableOpacity style={{flex:3,alignItems:'center',justifyContent:'space-between',flexDirection:'row',marginTop:20}} onPress={props.onPress}>
-        <FontPoiret text={props.tone} size={medium} color={Colors.white}/>
-        <FontMatilde text={props.inventoryCount} size={xlarge} color={Colors.white}/>
-        <FontPoiret text={props.finish} size={medium} color={Colors.white}/>
-      </TouchableOpacity>
-      <View style={{...Views.middle}}>
+      <View style={{flex:1,alignItems:'center',justifyContent:'space-around',flexDirection:'row',marginTop:20}}>
+        <TouchableOpacity style={{marginLeft:40}} onPress={props.onMinusPress}>
+          <Ionicons name="ios-remove-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
+        </TouchableOpacity>
+        <FontMatilde text={props.inventoryCount} size={100} color={Colors.white}/>
+        <TouchableOpacity style={{marginRight:40}} onPress={props.onAddPress}>
+          <Ionicons name="ios-add-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
+        </TouchableOpacity>
+      </View>
+      <View style={{...Views.middle,marginTop:20}}>
         <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
+      </View>
+      <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
+        <FontPoiret text={`${props.tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
+        <FontPoiret text={`${props.finish.toLowerCase()} finish`} size={medium} color={Colors.white}/>
       </View>
     </View>
   )
@@ -104,7 +114,7 @@ class LipColors extends Component {
         // }
         this.setState({shades,colors},()=>{
           this.setState({isListReady:true},()=>{
-            console.log('test: ',this.state[`${this.state.shades[0]}`]);
+            // console.log('test: ',this.state[`${this.state.shades[0]}`]);
           })
         })
       }
@@ -146,7 +156,12 @@ class LipColors extends Component {
     } else {
       return this.state.shades.map(colorId => {
         let color = this.state[`${colorId}`]
-        return <ColorCard key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} finish={color.finish} status={color.status} inventoryCount={color.inventory.count} inventoryId={color.inventory.id} onPress={() => this.updateColor(color.id)}/>
+        let { id,count } = color.inventory
+        return <ColorCard
+          key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText}
+          finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
+          onAddPress={() => this.checkIfInventoryExists(id,color.id,count,'+')}
+          onMinusPress={() => this.checkIfInventoryExists(id,color.id,count,'-')}/>
       })
     }
   }
@@ -176,10 +191,10 @@ class LipColors extends Component {
     )
   }
 
-  checkIfInventoryExists(InventoryId,ColorId){
+  checkIfInventoryExists(InventoryId,ColorId,InventoryCount,op){
     let { DistributorId } = this.state
     if (InventoryId) {
-      this.updateInventory(InventoryId,InventoryCount)
+      this.updateInventory(InventoryId,InventoryCount,op)
     } else {
       this.createInventory(DistributorId,ColorId)
     }
@@ -206,13 +221,40 @@ class LipColors extends Component {
           this.showModal('err','Lip Colors','updating your inventory')
         }
       }).catch( e => {
+        console.log('error creating inventory',e.message);
         this.showModal('err','Lip Colors','updating your inventory')
       })
+    } else {
+      this.showModal('err','Lip Colors','updating your inventory')
     }
   }
 
-  updateInventory(){
-
+  updateInventory(InventoryId,InventoryCount,op){
+    if (InventoryId && InventoryCount && op) {
+      this.props.updateCountOnInventory({
+        variables: {
+          InventoryId,
+          InventoryCount: op === '+' ? InventoryCount+1 : InventoryCount-1
+        }
+      }).then( res => {
+        if (res && res.data && res.data.updateInventory) {
+          let { id,count } = res.data.updateInventory
+          this.setState({
+            [`${InventoryId}`]: {
+              ...this.state[`${InventoryId}`],
+              inventory: {id,count}
+            }
+          })
+        } else {
+          this.showModal('err','Lip Colors','updating your inventory')
+        }
+      }).catch( e => {
+        console.log('error updating inventory',e.message);
+        this.showModal('err','Lip Colors','updating your inventory')
+      })
+    } else {
+      this.showModal('err','Lip Colors','updating your inventory')
+    }
   }
 
 }
@@ -229,5 +271,8 @@ export default compose(
   }),
   graphql(ConnectColorToDistributor,{
     name: 'connectColorToDistributor'
+  }),
+  graphql(UpdateCountOnInventory,{
+    name: 'updateCountOnInventory'
   })
 )(LipColors)

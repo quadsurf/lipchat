@@ -167,6 +167,7 @@ mutation UpdateDistributorLogoUri(
   }
 }`
 
+// LIP COLORS TAB
 const ConnectColorToDistributor = gql`
 mutation ConnectColorToDistributor(
   $distributorxId: ID!,
@@ -183,8 +184,22 @@ mutation ConnectColorToDistributor(
   }
 }`
 
+const UpdateCountOnInventory = gql`
+mutation UpdateInventory(
+  $InventoryId: ID!,
+  $InventoryCount: Int!
+){
+  updateInventory(
+    id: $InventoryId,
+    count: $InventoryCount
+  ){
+    id
+    count
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
   CreateDistributor,DeleteDistributor,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory
 }
