@@ -147,7 +147,8 @@ class You extends Component {
             contentContainerStyle={{
               height: userType === 'SHOPPER' ? 600 : userType === 'DIST' && !DistributorId ? 660 : DistributorId ? 860 : 860,
               alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
-            }}>
+            }}
+            enableOnAndroid={true}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
               {this.renderName()}

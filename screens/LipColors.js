@@ -13,6 +13,7 @@ import { compose,graphql } from 'react-apollo'
 
 // GQL
 import { GetColorsAndInventories } from '../api/db/queries'
+import { ConnectColorToDistributor } from '../api/db/mutations'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -59,9 +60,9 @@ class LipColors extends Component {
     user: this.props.user,
     colors: null,
     shades: [],
-    colorsArray: null,
     colorsByFamily: null,
-    isListReady: false
+    isListReady: false,
+    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -78,7 +79,6 @@ class LipColors extends Component {
     if (newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
       if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
         let colors = newProps.getColorsAndInventories.allColors
-        console.log('colors:',colors);
         let shades = []
         colors.forEach(color => {
           this.setState({
@@ -176,6 +176,45 @@ class LipColors extends Component {
     )
   }
 
+  checkIfInventoryExists(InventoryId,ColorId){
+    let { DistributorId } = this.state
+    if (InventoryId) {
+      this.updateInventory(InventoryId,InventoryCount)
+    } else {
+      this.createInventory(DistributorId,ColorId)
+    }
+  }
+
+  createInventory(DistributorId,ColorId){
+    if (DistributorId && ColorId) {
+      this.props.connectColorToDistributor({
+        variables: {
+          distributorxId: DistributorId,
+          colorxId: ColorId,
+          count: 1
+        }
+      }).then( res => {
+        if (res && res.data && res.data.createInventory) {
+          let { id,count } = res.data.createInventory
+          this.setState({
+            [`${ColorId}`]: {
+              ...this.state[`${ColorId}`],
+              inventory: {id,count}
+            }
+          })
+        } else {
+          this.showModal('err','Lip Colors','updating your inventory')
+        }
+      }).catch( e => {
+        this.showModal('err','Lip Colors','updating your inventory')
+      })
+    }
+  }
+
+  updateInventory(){
+
+  }
+
 }
 
 export default compose(
@@ -183,9 +222,12 @@ export default compose(
     name: 'getColorsAndInventories',
     options: props => ({
       variables: {
-        distributorxId: props.user.distributorx ? props.user.distributorx.id : null 
+        distributorxId: props.user.distributorx ? props.user.distributorx.id : null
       },
       // fetchPolicy: 'network-only'
     })
+  }),
+  graphql(ConnectColorToDistributor,{
+    name: 'connectColorToDistributor'
   })
 )(LipColors)

@@ -37,6 +37,13 @@ mutation UpdateFbkFriends(
     fbkUserId
     fbkVerified
     type
+    distributorx {
+      id
+      distId
+      bizName
+      bizUri
+      logoUri
+    }
   }
 }`
 
@@ -160,8 +167,24 @@ mutation UpdateDistributorLogoUri(
   }
 }`
 
+const ConnectColorToDistributor = gql`
+mutation ConnectColorToDistributor(
+  $distributorxId: ID!,
+  $colorxId: ID!,
+  $count: Int!
+){
+  createInventory(
+    distributorxId: $distributorxId,
+    colorxId: $colorxId,
+    count: $count
+  ){
+    id
+    count
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
   CreateDistributor,DeleteDistributor,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor
 }

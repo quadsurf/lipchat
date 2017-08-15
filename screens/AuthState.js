@@ -208,7 +208,7 @@ export default compose(
     name: 'getUser',
     options: (props) => ({
       variables: {
-        userId: props.screenProps.localStorage.userId || null
+        userId: props.screenProps && props.screenProps.localStorage && props.screenProps.localStorage.userId ? props.screenProps.localStorage.userId : null
       }
     })
   }),
