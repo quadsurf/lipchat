@@ -55,7 +55,11 @@ const ColorCard = props => {
         </View> : null
       }
       <View style={{...Views.middle,marginTop:20}}>
-        <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
+        {
+          props.isEditing ?
+          <Text>cancel/save</Text> :
+          <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
+        }
       </View>
       <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
         <FontPoiret text={`${props.tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
@@ -76,7 +80,9 @@ class LipColors extends Component {
     colorIds: [],
     colorsByFamily: null,
     isListReady: false,
-    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null
+    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
+    inventoryCountEditingMode: false,
+    resetCount: null
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -238,14 +244,11 @@ class LipColors extends Component {
         return <ColorCard
           key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} distributorId={DistributorId}
           finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
-          onAddPress={() => this.checkIfInventoryExists(id,color.id,count,'+')}
-          onMinusPress={() => this.checkIfInventoryExists(id,color.id,count,'-')}/>
+          onAddPress={() => this.temporaryInventoryUpdater(id,color.id,count,'+')}
+          onMinusPress={() => this.temporaryInventoryUpdater(id,color.id,count,'-')}
+          isEditing={this.state[`isEditing-${color.id}`]}/>
       })
     }
-  }
-
-  updateColor(id){
-    this.setState({[`${id}`]:{...this.state[`${id}`],count:this.state[`${id}`].count+1}})
   }
 
   renderMainContent(){
@@ -286,12 +289,43 @@ class LipColors extends Component {
 
   render(){
     return(
-      <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
+      <View style={{...Views.middle,backgroundColor:Colors.purpleText}}>
         <MyStatusBar hidden={false} />
         {this.renderMainContent()}
         {this.renderModal()}
       </View>
     )
+  }
+
+  temporaryInventoryUpdater(InventoryId,ColorId,InventoryCount,op){
+    if (this.state[`isEditing-${ColorId}`]) {
+      this.setState({
+        [`${ColorId}`]: {
+          ...this.state[`${ColorId}`],
+          inventory: {
+            id: InventoryId,
+            count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
+          }
+        }
+      })
+    } else {
+      this.setState({
+        [`isEditing-${ColorId}`]:true,
+        [`resetCountFor-${ColorId}`]:InventoryCount
+      },()=>{
+        console.log(`resetCountFor-${ColorId}`,this.state[`resetCountFor-${ColorId}`]);
+        console.log(`isEditing-${ColorId}`,this.state[`isEditing-${ColorId}`]);
+        this.setState({
+          [`${ColorId}`]: {
+            ...this.state[`${ColorId}`],
+            inventory: {
+              id: InventoryId,
+              count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
+            }
+          }
+        })
+      })
+    }
   }
 
   checkIfInventoryExists(InventoryId,ColorId,InventoryCount,op){
