@@ -47,12 +47,9 @@ class LipColors extends Component {
     modalContent: {},
     user: this.props.user,
     colors: null,
-    colorIds: [],
-    colorsByFamily: null,
     isListReady: false,
     DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
-    inventoryCountEditingMode: false,
-    resetCount: null
+    newPropsAllColorsCount: 0
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -67,100 +64,83 @@ class LipColors extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
-        let colors = newProps.getColorsAndInventories.allColors
-        let colorIds = []
-        // colors.forEach(color => {
-        //   this.setState({
-        //     [`${color.id}`]:{
-        //       ...color,
-        //       inventory:{
-        //         id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
-        //         count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
-        //       }}
-        //   },()=>{
-        //     colorIds.push(color.id)
-        //   })
-        // })
-
-        let neutralsColorIds = []
-        let redsColorIds = []
-        let pinksColorIds = []
-        let boldPinksColorIds = []
-        let brownsColorIds = []
-        let purplesColorIds = []
-        let berriesColorIds = []
-        let orangesColorIds = []
-        let colorIdsCatcher = []
-
-        colors.forEach(color => {
-          this.setState({
-            [`${color.id}`]:{
-              ...color,
-              inventory:{
-                id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
-                count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
-              }}
-          },()=>{
-            switch (color.family) {
-              case "NEUTRALS":
-                neutralsColorIds.push(color.id)
-                break;
-                case "REDS":
-                  redsColorIds.push(color.id)
-                  break;
-                  case "PINKS":
-                    pinksColorIds.push(color.id)
-                    break;
-                    case "BOLDPINKS":
-                      boldPinksColorIds.push(color.id)
-                      break;
-                      case "BROWNS":
-                        brownsColorIds.push(color.id)
-                        break;
-                        case "PURPLES":
-                          purplesColorIds.push(color.id)
-                          break;
-                          case "BERRIES":
-                            berriesColorIds.push(color.id)
-                            break;
-                            case "ORANGES":
-                              orangesColorIds.push(color.id)
-                              break;
-                            default:
-                              colorIdsCatcher.push(color.id)
-            }
-          })
-        })
-
-        // let colorsByFamily = {
-        //   neutrals:colors.filter(color => color.family === "NEUTRALS"),
-        //   reds:colors.filter(color => color.family === "REDS"),
-        //   pinks:colors.filter(color => color.family === "PINKS"),
-        //   boldPinks:colors.filter(color => color.family === "BOLDPINKS"),
-        //   browns:colors.filter(color => color.family === "BROWNS"),
-        //   purples:colors.filter(color => color.family === "PURPLES"),
-        //   berries:colors.filter(color => color.family === "BERRIES"),
-        //   oranges:colors.filter(color => color.family === "ORANGES")
-        // }
-        this.setState({
-          colors,
-          neutralsColorIds,
-          redsColorIds,
-          pinksColorIds,
-          boldPinksColorIds,
-          brownsColorIds,
-          purplesColorIds,
-          berriesColorIds,
-          orangesColorIds,
-          colorIdsCatcher
-        },()=>{
-          setTimeout(()=>{
-            this.setState({isListReady:true});
-          },2000)
+      if (newProps.getColorsAndInventories.allColors != this.state.colors) {
+        this.setState({newPropsAllColorsCount:this.state.newPropsAllColorsCount+1},()=>{
+          if (this.state.newPropsAllColorsCount < 2) {
+            this.processColors(newProps.getColorsAndInventories.allColors);
+          }
         })
       }
     }
+  }
+
+  processColors(colors){
+    let neutralsColorIds = []
+    let redsColorIds = []
+    let pinksColorIds = []
+    let boldPinksColorIds = []
+    let brownsColorIds = []
+    let purplesColorIds = []
+    let berriesColorIds = []
+    let orangesColorIds = []
+    let colorIdsCatcher = []
+
+    colors.forEach(color => {
+      this.setState({
+        [`${color.id}`]:{
+          ...color,
+          inventory:{
+            id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
+            count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
+          }}
+      },()=>{
+        switch (color.family) {
+          case "NEUTRALS":
+            neutralsColorIds.push(color.id)
+            break;
+            case "REDS":
+              redsColorIds.push(color.id)
+              break;
+              case "PINKS":
+                pinksColorIds.push(color.id)
+                break;
+                case "BOLDPINKS":
+                  boldPinksColorIds.push(color.id)
+                  break;
+                  case "BROWNS":
+                    brownsColorIds.push(color.id)
+                    break;
+                    case "PURPLES":
+                      purplesColorIds.push(color.id)
+                      break;
+                      case "BERRIES":
+                        berriesColorIds.push(color.id)
+                        break;
+                        case "ORANGES":
+                          orangesColorIds.push(color.id)
+                          break;
+                        default:
+                          colorIdsCatcher.push(color.id)
+        }
+      })
+    })
+
+    this.setState({
+      colors,
+      neutralsColorIds,
+      redsColorIds,
+      pinksColorIds,
+      boldPinksColorIds,
+      brownsColorIds,
+      purplesColorIds,
+      berriesColorIds,
+      orangesColorIds,
+      colorIdsCatcher
+    },()=>{
+      setTimeout(()=>{
+        this.setState({isListReady:true});
+      },2000)
+    })
   }
 
   // if modalType='error', then pass at least the first 3 params below
@@ -217,8 +197,8 @@ class LipColors extends Component {
           onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
           onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
           isEditing={this.state[`isEditing-${color.id}`]}
-          onCancelPress={() => this.cancelInventoryUpdater()}
-          onUpdatePress={() => this.updateInventoryUpdater(id,color.id,count)}/>
+          onCancelPress={() => this.cancelInventoryUpdater(color)}
+          onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
       })
     }
   }
@@ -269,58 +249,64 @@ class LipColors extends Component {
     )
   }
 
+  inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op){
+    this.setState({
+      [`${ColorId}`]: {
+        ...this.state[`${ColorId}`],
+        inventory: {
+          id: InventoryId,
+          count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
+        }
+      }
+    })
+  }
+
   inventoryUpdater(InventoryId,ColorId,InventoryCount,op){
     if (this.state[`isEditing-${ColorId}`]) {
-      this.setState({
-        [`${ColorId}`]: {
-          ...this.state[`${ColorId}`],
-          inventory: {
-            id: InventoryId,
-            count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
-          }
-        }
-      })
+      this.inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op)
     } else {
       this.setState({
         [`isEditing-${ColorId}`]:true,
         [`resetCountFor-${ColorId}`]:InventoryCount
       },()=>{
-        console.log(`resetCountFor-${ColorId}`,this.state[`resetCountFor-${ColorId}`]);
-        console.log(`isEditing-${ColorId}`,this.state[`isEditing-${ColorId}`]);
-        this.setState({
-          [`${ColorId}`]: {
-            ...this.state[`${ColorId}`],
-            inventory: {
-              id: InventoryId,
-              count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
-            }
-          }
-        })
+        this.inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op)
       })
     }
   }
 
-  cancelInventoryUpdater(){
-    console.log('inventoryUpdater canceled')
+  cancelInventoryUpdater(color){
+    this.setState({
+      [`isEditing-${color.id}`]: false,
+      [`${color.id}`]: {
+        ...color,
+        inventory: {
+          id: this.state[`${color.id}`].inventory.id,
+          count: this.state[`resetCountFor-${color.id}`]
+        }
+      }
+    },()=>{
+      this.setState({[`resetCountFor-${color.id}`]:null})
+    })
   }
 
-  checkIfInventoryExists(InventoryId,ColorId,InventoryCount,op){
+  checkIfInventoryExists(InventoryId,ColorId){
     this.showModal('processing')
     let { DistributorId } = this.state
+    let InventoryCount = this.state[`${ColorId}`].inventory.count
     if (InventoryId) {
-      this.updateInventory(InventoryId,InventoryCount,op)
+      this.updateInventory(InventoryId,ColorId,InventoryCount)
     } else {
-      this.createInventory(DistributorId,ColorId)
+      this.createInventory(DistributorId,ColorId,InventoryCount)
     }
   }
 
-  createInventory(DistributorId,ColorId){
-    if (DistributorId && ColorId) {
+  createInventory(DistributorId,ColorId,InventoryCount){
+    if (DistributorId && ColorId && InventoryCount) {
       this.props.connectColorToDistributor({
         variables: {
           distributorxId: DistributorId,
           colorxId: ColorId,
-          count: 1
+          count: InventoryCount
         }
       }).then( res => {
         if (res && res.data && res.data.createInventory) {
@@ -332,7 +318,12 @@ class LipColors extends Component {
             }
           },()=>{
             setTimeout(()=>{
-              this.setState({isModalOpen:false})
+              this.setState({
+                [`isEditing-${ColorId}`]:false,
+                [`resetCountFor-${ColorId}`]:null
+              },()=>{
+                this.setState({isModalOpen:false})
+              })
             },1000)
           })
         } else {
@@ -346,26 +337,20 @@ class LipColors extends Component {
     }
   }
 
-  updateInventory(InventoryId,InventoryCount,op){
-    if (InventoryId && InventoryCount && op) {
+  updateInventory(InventoryId,ColorId,InventoryCount){
+    if (InventoryId && InventoryCount) {
       this.props.updateCountOnInventory({
-        variables: {
-          InventoryId,
-          InventoryCount: op === '+' ? InventoryCount+1 : InventoryCount-1
-        }
+        variables: {InventoryId,InventoryCount}
       }).then( res => {
         if (res && res.data && res.data.updateInventory) {
-          let { id,count } = res.data.updateInventory
-          this.setState({
-            [`${InventoryId}`]: {
-              ...this.state[`${InventoryId}`],
-              inventory: {id,count}
-            }
-          },()=>{
-            setTimeout(()=>{
+          setTimeout(()=>{
+            this.setState({
+              [`isEditing-${ColorId}`]:false,
+              [`resetCountFor-${ColorId}`]:null
+            },()=>{
               this.setState({isModalOpen:false})
-            },1000)
-          })
+            })
+          },1000)
         } else {
           this.openError(inventoryError)
         }

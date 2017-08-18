@@ -33,20 +33,28 @@ export default ColorCard = props => {
       </View>
       {
         props.distributorId ?
-        <View style={{flex:1,alignItems:'center',justifyContent:'space-around',flexDirection:'row',marginTop:20}}>
-          <TouchableOpacity style={{marginLeft:40}} onPress={props.onMinusPress}>
-            <Ionicons name="ios-remove-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
-          </TouchableOpacity>
-          <FontMatilde text={props.inventoryCount} size={100} color={Colors.white}/>
-          <TouchableOpacity style={{marginRight:40}} onPress={props.onAddPress}>
-            <Ionicons name="ios-add-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
-          </TouchableOpacity>
+        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+          {
+            props.inventoryCount < 1 && !props.isEditing ?
+            <TouchableOpacity onPress={props.onMinusPress}>
+              <FontPoiret text="add inventory" size={large} color={Colors.white}/>
+            </TouchableOpacity> :
+            <View style={{flex:1,alignItems:'center',justifyContent:'space-around',flexDirection:'row',marginTop:20}}>
+              <TouchableOpacity style={{marginRight:20}} onPress={props.onMinusPress}>
+                <Ionicons name="ios-remove-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
+              </TouchableOpacity>
+              <FontMatilde text={props.inventoryCount} size={100} color={Colors.white}/>
+              <TouchableOpacity style={{marginLeft:20}} onPress={props.onAddPress}>
+                <Ionicons name="ios-add-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
+              </TouchableOpacity>
+            </View>
+          }
         </View> : null
       }
       <View style={{...Views.middle,marginTop:20}}>
         {
           props.isEditing ?
-          <View style={{flex:1,flexDirection:'row'}}><TouchableHighlight underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} onPress={props.onCancelPress}><Text style={{fontFamily:'Poiret',color:Colors.white,textDecorationLine:'underline',marginHorizontal:20,fontSize:25,lineHeight:30}}>cancel</Text></TouchableHighlight><TouchableHighlight underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} onPress={props.onUpdatePress}><Text style={{fontFamily:'Poiret',color:Colors.white,textDecorationLine:'underline',marginHorizontal:20,fontSize:25,lineHeight:30}}>update</Text></TouchableHighlight></View> :
+          <View style={{flex:1,flexDirection:'row'}}><TouchableHighlight underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} onPress={props.onCancelPress}><Text style={{fontFamily:'Poiret',color:Colors.white,marginHorizontal:20,fontSize:25,lineHeight:30}}>cancel</Text></TouchableHighlight><TouchableHighlight underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} onPress={props.onUpdatePress}><Text style={{fontFamily:'Poiret',color:Colors.white,marginHorizontal:20,fontSize:25,lineHeight:30}}>update</Text></TouchableHighlight></View> :
           <FontPoiret text={props.name.toUpperCase()} size={large} color={Colors.white}/>
         }
       </View>
