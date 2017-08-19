@@ -73,10 +73,10 @@ class LipColors extends Component {
           this.showModal('processing')
           this.clearInventoryCounts(1)
           setTimeout(()=>{
-            this.setState({isModalOpen:false},()=>{
-              this.setState({
-                DistributorId:newProps.getDistributorId.allDistributors[0].id
-              })
+            this.setState({
+              DistributorId:newProps.getDistributorId.allDistributors[0].id
+            },()=>{
+              this.setState({isModalOpen:false})
             })
           },2000)
         }
