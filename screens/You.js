@@ -656,7 +656,7 @@ class You extends Component {
           this.showModal('err','Profile',errText)
         }
       }).catch( e => {
-        console.log('createDistributor',e.message)
+        // console.log('createDistributor',e.message)
         // this.showModal('err','Profile',errText)
       })
     } else {
@@ -788,14 +788,14 @@ class You extends Component {
         } else {
           this.setState({isUserTypeSubmitModalOpen:false},()=>{
             setTimeout(()=>{
-              this.showModal('err','Profile',errText)
+              this.showModal('err','Profile','1')
             },700)
           })
         }
       }).catch( e => {
         this.setState({isUserTypeSubmitModalOpen:false},()=>{
           setTimeout(()=>{
-            this.showModal('err','Profile',errText)
+            this.showModal('err','Profile',e.message)
           },700)
         })
       })

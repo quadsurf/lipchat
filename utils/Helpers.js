@@ -61,7 +61,7 @@ class Modals extends Component {
             padding: 20,
             maxHeight: 400
           }}>
-          <FontPoiret text={`${title} Screen Issue`} size={Texts.large.fontSize} color={Colors.blue}/>
+          <FontPoiret text={`${title} Issue`} size={Texts.large.fontSize} color={Colors.blue}/>
           <ScrollView style={{marginTop:10}}>
             <Text
               style={{color: Colors.transparentWhite,...Texts.medium}}>

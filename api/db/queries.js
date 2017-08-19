@@ -70,6 +70,19 @@ query GetColorsAndInventories(
   }
 }`
 
+const GetDistributorId = gql`
+query GetDistributorId(
+  $userx: UserFilter!
+){
+  allDistributors(
+    filter: {
+      userx: $userx
+    }
+  ){
+    id
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories
+  GetUser,GetColorsAndInventories,GetDistributorId
 }

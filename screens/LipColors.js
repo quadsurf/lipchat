@@ -14,7 +14,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetColorsAndInventories } from '../api/db/queries'
+import { GetColorsAndInventories,GetDistributorId } from '../api/db/queries'
 import { ConnectColorToDistributor,UpdateCountOnInventory } from '../api/db/mutations'
 
 // LOCALS
@@ -37,7 +37,8 @@ const screen = getDimensions()
 const vspace = 10
 const screenPadding = 15
 const screenPaddingHorizontal =  2*screenPadding
-const inventoryError = 'updating your inventory'
+const inventoryCreateError = 'setting up inventory for this color'
+const inventoryUpdateError = 'updating your inventory for this color'
 
 class LipColors extends Component {
 
@@ -63,14 +64,42 @@ class LipColors extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-      if (newProps.getColorsAndInventories.allColors != this.state.colors) {
-        this.setState({newPropsAllColorsCount:this.state.newPropsAllColorsCount+1},()=>{
-          if (this.state.newPropsAllColorsCount < 2) {
-            this.processColors(newProps.getColorsAndInventories.allColors);
-          }
-        })
+    if (
+      newProps && newProps.getDistributorId
+      && Array.isArray(newProps.getDistributorId.allDistributors)
+    ) {
+      if (newProps.getDistributorId.allDistributors.length > 0) {
+        if (this.state.DistributorId === null) {
+          this.showModal('processing')
+          this.clearInventoryCounts(1)
+          setTimeout(()=>{
+            this.setState({isModalOpen:false},()=>{
+              this.setState({
+                DistributorId:newProps.getDistributorId.allDistributors[0].id
+              })
+            })
+          },2000)
+        }
+      } else {
+        if (this.state.DistributorId) {
+          this.showModal('processing')
+          this.setState({DistributorId:null},()=>{
+            this.clearInventoryCounts(2)
+          })
+        }
       }
+    }
+
+    if (
+      newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors
+    ) {
+      this.setState({
+        newPropsAllColorsCount:this.state.newPropsAllColorsCount+1
+      },()=>{
+        if (this.state.newPropsAllColorsCount < 2) {
+          this.processColors(newProps.getColorsAndInventories.allColors)
+        }
+      })
     }
   }
 
@@ -143,6 +172,32 @@ class LipColors extends Component {
     })
   }
 
+  clearInventoryCounts(opt){
+    this.state.colors.forEach(color => {
+      if (
+        this.state[`${color.id}`].inventory.count > 0
+        || this.state[`isEditing-${color.id}`] === true
+        || this.state[`resetCountFor-${color.id}`] !== null
+      ) {
+        this.setState({
+          [`isEditing-${color.id}`]: false,
+          [`${color.id}`]: {
+            ...this.state[`${color.id}`],
+            inventory: {
+              id: null,
+              count: 0
+            }
+          }
+        },()=>{
+          this.setState({[`resetCountFor-${color.id}`]:null})
+        })
+      }
+    })
+    if (opt === 2) {
+      this.setState({isModalOpen:false})
+    }
+  }
+
   // if modalType='error', then pass at least the first 3 params below
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
@@ -212,7 +267,8 @@ class LipColors extends Component {
       brownsColorIds,
       purplesColorIds,
       berriesColorIds,
-      orangesColorIds
+      orangesColorIds,
+      DistributorId
     } = this.state
     return (
       <View style={{flex:1}}>
@@ -295,6 +351,7 @@ class LipColors extends Component {
     let InventoryCount = this.state[`${ColorId}`].inventory.count
     if (InventoryId) {
       this.updateInventory(InventoryId,ColorId,InventoryCount)
+      // this.openError(`${InventoryId} | ${ColorId} | ${InventoryCount}`)
     } else {
       this.createInventory(DistributorId,ColorId,InventoryCount)
     }
@@ -327,18 +384,18 @@ class LipColors extends Component {
             },1000)
           })
         } else {
-          this.openError(inventoryError)
+          this.openError(inventoryCreateError)
         }
       }).catch( e => {
-        this.openError(inventoryError)
+        this.openError(inventoryCreateError)
       })
     } else {
-      this.openError(inventoryError)
+      this.openError(inventoryCreateError)
     }
   }
 
   updateInventory(InventoryId,ColorId,InventoryCount){
-    if (InventoryId && InventoryCount) {
+    if (InventoryId && Number.isInteger(InventoryCount) && InventoryCount >= 0) {
       this.props.updateCountOnInventory({
         variables: {InventoryId,InventoryCount}
       }).then( res => {
@@ -352,13 +409,13 @@ class LipColors extends Component {
             })
           },1000)
         } else {
-          this.openError(inventoryError)
+          this.openError(inventoryUpdateError)
         }
       }).catch( e => {
-        this.openError(inventoryError)
+        this.openError(inventoryUpdateError)
       })
     } else {
-      this.openError(inventoryError)
+      this.openError(inventoryUpdateError)
     }
   }
 
@@ -370,8 +427,7 @@ export default compose(
     options: props => ({
       variables: {
         distributorxId: props.user.distributorx ? props.user.distributorx.id : null
-      },
-      // fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(ConnectColorToDistributor,{
@@ -379,5 +435,15 @@ export default compose(
   }),
   graphql(UpdateCountOnInventory,{
     name: 'updateCountOnInventory'
+  }),
+  graphql(GetDistributorId,{
+    name: 'getDistributorId',
+    options: props => ({
+      pollInterval: 10000,
+      variables: {
+        userx: {"id":props.user.id}
+      },
+      fetchPolicy: 'network-only'
+    })
   })
 )(LipColors)
