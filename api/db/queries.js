@@ -29,6 +29,9 @@ query GetUser(
       bizUri
       logoUri
     }
+    shopperx {
+      id
+    }
   }
 }`
 
@@ -47,7 +50,8 @@ query GetColors{
 
 const GetColorsAndInventories = gql`
 query GetColorsAndInventories(
-  $distributorxId: ID
+  $distributorxId: ID,
+  $shopperxId: ID
 ){
   allColors{
     id
@@ -67,6 +71,16 @@ query GetColorsAndInventories(
       id
       count
     }
+    likesx(
+      filter: {
+        shopperx: {
+          id: $shopperxId
+        }
+      }
+    ){
+      id
+      doesLike
+    }
   }
 }`
 
@@ -83,6 +97,18 @@ query GetDistributorId(
   }
 }`
 
+const GetUserType = gql`
+query GetUserType(
+  $UserId: ID
+){
+  User(
+    id: $UserId
+  ){
+    id
+    type
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetDistributorId
+  GetUser,GetColorsAndInventories,GetDistributorId,GetUserType
 }

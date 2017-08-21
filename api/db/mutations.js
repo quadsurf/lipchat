@@ -198,8 +198,36 @@ mutation UpdateInventory(
   }
 }`
 
+const CreateLike = gql`
+mutation CreateLike(
+  $ShopperId: ID!,
+  $ColorId: ID!
+){
+  createLike(
+    shopperxId: $ShopperId,
+    colorxId: $ColorId
+  ){
+    id
+    doesLike
+  }
+}`
+
+const UpdateDoesLikeOnLike = gql`
+mutation UpdateDoesLikeOnLike(
+  $LikeId: ID!,
+  $bool: Boolean!
+){
+  updateLike(
+    id: $LikeId,
+    doesLike: $bool
+  ){
+    id
+    doesLike
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
   CreateDistributor,DeleteDistributor,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike
 }

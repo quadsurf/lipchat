@@ -32,7 +32,7 @@ export default ColorCard = props => {
         <FontPoiret text={props.status === 'CURRENT' ? 'main collection' : props.status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
       </View>
       {
-        props.distributorId ?
+        props.userType === 'DIST' ?
         <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
           {
             props.inventoryCount < 1 && !props.isEditing ?
@@ -49,7 +49,12 @@ export default ColorCard = props => {
               </TouchableOpacity>
             </View>
           }
-        </View> : null
+        </View> :
+        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+          <TouchableOpacity onPress={props.onLikePress}>
+            <Ionicons name={props.doesLike === true ? 'ios-heart' : 'ios-heart-outline'} size={60} color={Colors.white}/>
+          </TouchableOpacity>
+        </View>
       }
       <View style={{...Views.middle,marginTop:20}}>
         {
