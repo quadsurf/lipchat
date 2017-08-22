@@ -50,10 +50,14 @@ export default ColorCard = props => {
             </View>
           }
         </View> :
+        props.userType === 'SHOPPER' ?
         <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
           <TouchableOpacity onPress={props.onLikePress}>
             <Ionicons name={props.doesLike === true ? 'ios-heart' : 'ios-heart-outline'} size={60} color={Colors.white}/>
           </TouchableOpacity>
+        </View> :
+        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+          <FontPoiret text="loading color options . . ." size={large} color={Colors.white}/>
         </View>
       }
       <View style={{...Views.middle,marginTop:20}}>

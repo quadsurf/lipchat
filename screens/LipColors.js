@@ -14,7 +14,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetColorsAndInventories,GetDistributorId,GetUserType } from '../api/db/queries'
+import { GetColorsAndInventories,GetUserType } from '../api/db/queries'
 import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
 
 // LOCALS
@@ -52,13 +52,13 @@ class LipColors extends Component {
     isListReady: false,
     userType: this.props.user.type,
     ShopperId: this.props.user.shopperx ? this.props.user.shopperx.id : null,
-    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
-    newPropsAllColorsCount: 0
+    newPropsAllColorsCount: 0,
+    hasColors: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
     if (this.props !== nextProps) {
-      return true
+      return false
     }
     if (this.state !== nextState) {
       return true
@@ -66,156 +66,116 @@ class LipColors extends Component {
     return false
   }
 
-  componentWillReceiveProps(newProps){
-    if (
-      newProps && newProps.getUserType
-      && newProps.getUserType.User
-      && newProps.getUserType.User.type
-    ) {
-      let type = this.state.userType
-      let userType = newProps.getUserType.User.type
-      if (userType !== type) {
-        this.setState({userType})
-      }
-    }
+  componentWillMount(){
+    // console.log('DistributorId on props: ',this.state.user.distributorx.id);
+  }
 
-    if (
-      newProps && newProps.getDistributorId
-      && Array.isArray(newProps.getDistributorId.allDistributors)
-    ) {
-      if (newProps.getDistributorId.allDistributors.length > 0) {
-        if (this.state.DistributorId === null) {
-          this.showModal('processing')
-          this.clearInventoryCounts(1)
-          setTimeout(()=>{
-            this.setState({
-              DistributorId:newProps.getDistributorId.allDistributors[0].id
-            },()=>{
-              this.setState({isModalOpen:false})
-            })
-          },2000)
-        }
-      } else {
-        if (this.state.DistributorId) {
-          this.showModal('processing')
-          this.setState({DistributorId:null},()=>{
-            this.clearInventoryCounts(2)
+  componentWillReceiveProps(newProps){
+    if (newProps) {
+      if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
+        if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
+          this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
+            this.processColors(this.state.colors)
           })
         }
+        // this.setState({
+        //   newPropsAllColorsCount:this.state.newPropsAllColorsCount+1,
+        //   hasColors: true
+        // },()=>{
+        //   console.log('should processColors func be called? count is at: ',this.state.newPropsAllColorsCount);
+        //   if (this.state.newPropsAllColorsCount < 2) {
+        //     this.processColors(newProps.getColorsAndInventories.allColors)
+        //   }
+        // })
       }
-    }
-
-    if (
-      newProps && newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors
-    ) {
-      this.setState({
-        newPropsAllColorsCount:this.state.newPropsAllColorsCount+1
-      },()=>{
-        if (this.state.newPropsAllColorsCount < 2) {
-          this.processColors(newProps.getColorsAndInventories.allColors)
+      if (
+        newProps.getUserType
+        && newProps.getUserType.User
+        && newProps.getUserType.User.type
+      ) {
+        let type = this.state.userType
+        let userType = newProps.getUserType.User.type
+        if (userType !== type) {
+          this.setState({userType})
         }
-      })
+      }
     }
   }
 
   processColors(colors){
-    let neutralsColorIds = []
-    let redsColorIds = []
-    let pinksColorIds = []
-    let boldPinksColorIds = []
-    let brownsColorIds = []
-    let purplesColorIds = []
-    let berriesColorIds = []
-    let orangesColorIds = []
-    let colorIdsCatcher = []
+    if (this.state.hasColors === false) {
+      this.setState({hasColors:true})
+      let neutralsColorIds = []
+      let redsColorIds = []
+      let pinksColorIds = []
+      let boldPinksColorIds = []
+      let brownsColorIds = []
+      let purplesColorIds = []
+      let berriesColorIds = []
+      let orangesColorIds = []
+      let colorIdsCatcher = []
 
-    colors.forEach(color => {
-      this.setState({
-        [`${color.id}`]:{
-          ...color,
-          inventory:{
-            id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
-            count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
-          },
-          like: {
-            id: color.likesx.length > 0 ? color.likesx[0].id : null,
-            doesLike: color.likesx.length > 0 ? color.likesx[0].doesLike : false
-          }
-        }
-      },()=>{
-        switch (color.family) {
-          case "NEUTRALS":
-            neutralsColorIds.push(color.id)
-            break;
-            case "REDS":
-              redsColorIds.push(color.id)
-              break;
-              case "PINKS":
-                pinksColorIds.push(color.id)
-                break;
-                case "BOLDPINKS":
-                  boldPinksColorIds.push(color.id)
-                  break;
-                  case "BROWNS":
-                    brownsColorIds.push(color.id)
-                    break;
-                    case "PURPLES":
-                      purplesColorIds.push(color.id)
-                      break;
-                      case "BERRIES":
-                        berriesColorIds.push(color.id)
-                        break;
-                        case "ORANGES":
-                          orangesColorIds.push(color.id)
-                          break;
-                        default:
-                          colorIdsCatcher.push(color.id)
-        }
-      })
-    })
-
-    this.setState({
-      colors,
-      neutralsColorIds,
-      redsColorIds,
-      pinksColorIds,
-      boldPinksColorIds,
-      brownsColorIds,
-      purplesColorIds,
-      berriesColorIds,
-      orangesColorIds,
-      colorIdsCatcher
-    },()=>{
-      if (debugging) {console.log('color',this.state.colors[0])}
-      setTimeout(()=>{
-        this.setState({isListReady:true})
-      },2000)
-    })
-  }
-
-  clearInventoryCounts(opt){
-    this.state.colors.forEach(color => {
-      if (
-        this.state[`${color.id}`].inventory.count > 0
-        || this.state[`isEditing-${color.id}`] === true
-        || this.state[`resetCountFor-${color.id}`] !== null
-      ) {
+      colors.forEach(color => {
         this.setState({
-          [`isEditing-${color.id}`]: false,
-          [`${color.id}`]: {
-            ...this.state[`${color.id}`],
-            inventory: {
-              id: null,
-              count: 0
+          [`${color.id}`]:{
+            ...color,
+            inventory:{
+              id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
+              count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
+            },
+            like: {
+              id: color.likesx.length > 0 ? color.likesx[0].id : null,
+              doesLike: color.likesx.length > 0 ? color.likesx[0].doesLike : false
             }
           }
         },()=>{
-          this.setState({[`resetCountFor-${color.id}`]:null})
+          switch (color.family) {
+            case "NEUTRALS":
+              neutralsColorIds.push(color.id)
+              break;
+              case "REDS":
+                redsColorIds.push(color.id)
+                break;
+                case "PINKS":
+                  pinksColorIds.push(color.id)
+                  break;
+                  case "BOLDPINKS":
+                    boldPinksColorIds.push(color.id)
+                    break;
+                    case "BROWNS":
+                      brownsColorIds.push(color.id)
+                      break;
+                      case "PURPLES":
+                        purplesColorIds.push(color.id)
+                        break;
+                        case "BERRIES":
+                          berriesColorIds.push(color.id)
+                          break;
+                          case "ORANGES":
+                            orangesColorIds.push(color.id)
+                            break;
+                          default:
+                            colorIdsCatcher.push(color.id)
+          }
         })
-      }
-    })
-    if (opt === 2) {
-      this.setState({isModalOpen:false})
+      })
+
+      this.setState({
+        neutralsColorIds,
+        redsColorIds,
+        pinksColorIds,
+        boldPinksColorIds,
+        brownsColorIds,
+        purplesColorIds,
+        berriesColorIds,
+        orangesColorIds,
+        colorIdsCatcher
+      },()=>{
+        if (debugging) {console.log('color',this.state.colors[0])}
+        setTimeout(()=>{
+          this.setState({isListReady:true})
+        },2000)
+      })
     }
   }
 
@@ -255,7 +215,6 @@ class LipColors extends Component {
   }
 
   renderColorsList(colorIds){
-    let { DistributorId } = this.state
     if (!this.state.isListReady) {
       return (
         <DotsLoader
@@ -268,8 +227,7 @@ class LipColors extends Component {
         let color = this.state[`${colorId}`]
         let { id,count } = color.inventory
         return <ColorCard
-          key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} distributorId={DistributorId}
-          userType={this.state.userType}
+          key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
           doesLike={this.state[`${color.id}`].like.doesLike}
           onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
           finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
@@ -281,7 +239,7 @@ class LipColors extends Component {
       })
     }
   }
-
+//REFACTOR THIS
   renderMainContent(){
     let {
       neutralsColorIds,
@@ -291,8 +249,7 @@ class LipColors extends Component {
       brownsColorIds,
       purplesColorIds,
       berriesColorIds,
-      orangesColorIds,
-      DistributorId
+      orangesColorIds
     } = this.state
     return (
       <View style={{flex:1}}>
@@ -371,11 +328,14 @@ class LipColors extends Component {
 
   checkIfInventoryExists(InventoryId,ColorId){
     this.showModal('processing')
-    let { DistributorId } = this.state
+    let DistributorId = this.state.user.distributorx.id
+    console.log('checkIfInventoryExists func InventoryId|DistributorId',InventoryId,DistributorId);
     let InventoryCount = this.state[`${ColorId}`].inventory.count
     if (InventoryId) {
+      console.log('updateInventory func called');
       this.updateInventory(InventoryId,ColorId,InventoryCount)
     } else {
+      console.log('createInventory func called');
       this.createInventory(DistributorId,ColorId,InventoryCount)
     }
   }
@@ -537,16 +497,6 @@ export default compose(
   }),
   graphql(UpdateCountOnInventory,{
     name: 'updateCountOnInventory'
-  }),
-  graphql(GetDistributorId,{
-    name: 'getDistributorId',
-    options: props => ({
-      pollInterval: 10000,
-      variables: {
-        userx: {"id":props.user.id}
-      },
-      fetchPolicy: 'network-only'
-    })
   }),
   graphql(GetUserType,{
     name: 'getUserType',
