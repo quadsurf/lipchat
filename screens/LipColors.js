@@ -239,7 +239,7 @@ class LipColors extends Component {
       })
     }
   }
-//REFACTOR THIS
+
   renderMainContent(){
     let {
       neutralsColorIds,
@@ -257,19 +257,19 @@ class LipColors extends Component {
           contentContainerStyle={{marginBottom:56,justifyContent:'center',alignItems:'center'}}>
             <FontPoiret text="neutrals" size={xlarge} color={Colors.blue} style={{marginTop:10,zIndex:21,backgroundColor:'transparent'}}/>
             {this.renderColorsList(neutralsColorIds)}
-            <FontPoiret text="reds" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:22,backgroundColor:'transparent'}}/>
+            <FontPoiret text="reds" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:22,backgroundColor:'transparent'}}/>
             {this.renderColorsList(redsColorIds)}
-            <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:23,backgroundColor:'transparent'}}/>
+            <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:23,backgroundColor:'transparent'}}/>
             {this.renderColorsList(pinksColorIds)}
-            <FontPoiret text="bold pinks" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:24,backgroundColor:'transparent'}}/>
+            <FontPoiret text="bold pinks" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:24,backgroundColor:'transparent'}}/>
             {this.renderColorsList(boldPinksColorIds)}
-            <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:25,backgroundColor:'transparent'}}/>
+            <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:25,backgroundColor:'transparent'}}/>
             {this.renderColorsList(brownsColorIds)}
-            <FontPoiret text="purples" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:26,backgroundColor:'transparent'}}/>
+            <FontPoiret text="purples" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:26,backgroundColor:'transparent'}}/>
             {this.renderColorsList(purplesColorIds)}
-            <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:27,backgroundColor:'transparent'}}/>
+            <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:27,backgroundColor:'transparent'}}/>
             {this.renderColorsList(berriesColorIds)}
-            <FontPoiret text="oranges" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:28,backgroundColor:'transparent'}}/>
+            <FontPoiret text="oranges" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:28,backgroundColor:'transparent'}}/>
             {this.renderColorsList(orangesColorIds)}
         </ScrollView>
       </View>

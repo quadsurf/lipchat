@@ -72,7 +72,6 @@ class You extends Component {
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
     DistributorDistId: null,
     DistributorBizName: null,
     DistributorBizUri: null,
