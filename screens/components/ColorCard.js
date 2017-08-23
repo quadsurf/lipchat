@@ -26,7 +26,7 @@ const screen = getDimensions()
 export default ColorCard = props => {
   return (
     <View style={{width:screen.width,height:170,backgroundColor:props.rgb,
-        paddingBottom:4,paddingHorizontal:4}}>
+        paddingBottom:4,paddingHorizontal:4,bottom:14}}>
       <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
         <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
         <FontPoiret text={props.status === 'CURRENT' ? 'main collection' : props.status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>

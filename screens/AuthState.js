@@ -209,7 +209,8 @@ export default compose(
     options: (props) => ({
       variables: {
         userId: props.screenProps && props.screenProps.localStorage && props.screenProps.localStorage.userId ? props.screenProps.localStorage.userId : null
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(UpdateFbkFriends,{

@@ -90,31 +90,6 @@ mutation UpdateUserType(
   }
 }`
 
-const CreateDistributor = gql`
-mutation CreateDistributor(
-  $DistributorDistId: String!,
-  $userxId: ID!
-){
-  createDistributor(
-    distId: $DistributorDistId,
-    userxId: $userxId
-  ){
-    id
-    distId
-  }
-}`
-
-const DeleteDistributor = gql`
-mutation DeleteDistributor(
-  $DistributorId: ID!
-){
-  deleteDistributor(
-    id: $DistributorId
-  ){
-    id
-  }
-}`
-
 const UpdateDistributorDistId = gql`
 mutation UpdateDistributorDistId(
   $DistributorId: ID!,
@@ -228,6 +203,5 @@ mutation UpdateDoesLikeOnLike(
 
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  CreateDistributor,DeleteDistributor,
   UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike
 }

@@ -24,10 +24,6 @@ query GetUser(
     type
     distributorx {
       id
-      distId
-      bizName
-      bizUri
-      logoUri
     }
     shopperx {
       id
@@ -96,6 +92,20 @@ query GetUserType(
   }
 }`
 
+const GetDistributor = gql`
+query GetDistributor(
+  $DistributorId: ID
+){
+  Distributor(
+    id: $DistributorId
+  ){
+    distId
+    bizName
+    bizUri
+    logoUri
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor
 }

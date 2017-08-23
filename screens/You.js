@@ -24,9 +24,10 @@ import { EvilIcons } from '@expo/vector-icons'
 // GQL
 import {
   UpdateCellPhone,UpdateName,UpdateUserType,
-  CreateDistributor,DeleteDistributor,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri
+  UpdateDistributorDistId,UpdateDistributorBizName,
+  UpdateDistributorBizUri,UpdateDistributorLogoUri
 } from '../api/db/mutations'
+import { GetDistributor } from '../api/db/queries'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -72,16 +73,10 @@ class You extends Component {
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
     DistributorId: this.props.user.distributorx ? this.props.user.distributorx.id : null,
-    DistributorDistId: this.props.user.distributorx ? this.props.user.distributorx.distId : null,
-    DistributorBizName: this.props.user.distributorx ? this.props.user.distributorx.bizName : null,
-    DistributorBizUri: this.props.user.distributorx ? this.props.user.distributorx.bizUri : 'https://',
-    DistributorLogoUri: this.props.user.distributorx ? this.props.user.distributorx.logoUri : 'https://'
-  }
-
-  componentWillMount(){
-    // let rgb = '110,250,253'
-    // let b = `rgba(${rgb},.7)`
-    // console.log('b',b);
+    DistributorDistId: null,
+    DistributorBizName: null,
+    DistributorBizUri: null,
+    DistributorLogoUri: null
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -94,9 +89,31 @@ class You extends Component {
     return false
   }
 
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
+  componentWillReceiveProps(newProps){
+    if (newProps) {
+      if (
+        newProps.getDistributor
+        && newProps.getDistributor
+        && newProps.getDistributor.Distributor
+      ) {
+        let { DistributorDistId,DistributorBizName,DistributorBizUri,DistributorLogoUri } = this.state
+        let { Distributor } = newProps.getDistributor
+        if (DistributorDistId === null) {
+          this.setState({DistributorDistId:Distributor.distId})
+        }
+        if (DistributorBizName === null) {
+          this.setState({DistributorBizName:Distributor.bizName})
+        }
+        if (DistributorBizUri === null) {
+          this.setState({DistributorBizUri:Distributor.bizUri})
+        }
+        if (DistributorLogoUri === null) {
+          this.setState({DistributorLogoUri:Distributor.logoUri})
+        }
+      }
+    }
+  }
+
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -138,14 +155,14 @@ class You extends Component {
   renderMainContent(){
     let imageWidth = 280
     let { fbkUserId } = this.state.user
-    let { userType,DistributorId } = this.state
+    let { userType } = this.state
     // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
     return (
         <View style={{flex:1}}>
           <KeyboardAwareScrollView
             viewIsInsideTabBar={true}
             contentContainerStyle={{
-              height: userType === 'SHOPPER' ? 600 : userType === 'DIST' && !DistributorId ? 660 : DistributorId ? 860 : 860,
+              height: userType === 'SHOPPER' ? 600 : 860,
               alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
             }}
             enableOnAndroid={true}>
@@ -214,7 +231,7 @@ class You extends Component {
     let fieldRow = {flexDirection:'row',width:screen.width*.8,height:60}
     let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
     let fieldValue = {flex:5,justifyContent:'center'}
-    let { userType,DistributorId,DistributorBizName,DistributorBizUri,DistributorLogoUri } = this.state
+    let { userType } = this.state
     return (
       <View style={{borderRadius:12,padding:screenPadding,borderColor:Colors.blue,borderWidth: userType === 'DIST' ? 1 : 0}}>
         <View style={{width:screen.width*.8,height:50,alignItems:'center',justifyContent:'center'}}>
@@ -222,15 +239,12 @@ class You extends Component {
         </View>
         {
           userType === 'DIST' ?
-          <View style={fieldRow}>
-            <View style={fieldName}><FontPoiret text="distributor id" size={medium}
-              color={Colors.blue}/></View>
-            <View style={fieldValue}>{this.renderDistId()}</View>
-          </View> : null
-        }
-        {
-          DistributorId ?
-          <View style={{width:screen.width*.8,height:180}}>
+          <View style={{width:screen.width*.8,height:240}}>
+            <View style={fieldRow}>
+              <View style={fieldName}><FontPoiret text="distributor id" size={medium}
+                color={Colors.blue}/></View>
+              <View style={fieldValue}>{this.renderDistId()}</View>
+            </View>
             <View style={fieldRow}>
               <View style={fieldName}><FontPoiret text="business name" size={medium}
                 color={Colors.blue}/></View>
@@ -253,7 +267,6 @@ class You extends Component {
   }
 
   renderDistId(){
-    // onChangeText={(DistributorDistId) => DistributorDistId.length > 0 ? this.setState({DistributorDistId}) : null}
     return (
       <TextInput value={this.state.DistributorDistId}
         placeholder="add (required)"
@@ -261,8 +274,8 @@ class You extends Component {
         style={{...distributorInputStyle,...inputStyleMedium}}
         onChangeText={(DistributorDistId) => this.setState({DistributorDistId})}
         keyboardType="default"
-        onBlur={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
-        onSubmitEditing={() => !this.state.DistributorId ? this.createDistributorInDb() : this.updateDistributorDistIdInDb()}
+        onBlur={() => this.updateDistributorDistIdInDb()}
+        onSubmitEditing={() => this.updateDistributorDistIdInDb()}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={18}
@@ -443,7 +456,7 @@ class You extends Component {
             </Text>
           </ScrollView>
           <TouchableHighlight
-            onPress={() => this.updateUserTypeFork(userType)}
+            onPress={() => this.updateUserTypeInDb(userType)}
             underlayColor={Colors.blue} style={{...button}}>
             <Text style={{...buttonText,color:Colors.purple}}>switch to {userType === 'DIST' ? 'distributor' : 'shopper'}</Text>
           </TouchableHighlight>
@@ -601,14 +614,6 @@ class You extends Component {
     })
   }
 
-  updateUserTypeFork(userType){
-    if (this.state.userType === 'DIST') {
-      this.deleteDistributorInDb(userType)
-    } else {
-      this.updateUserTypeInDb(userType)
-    }
-  }
-
   updateUserTypeInDb(userType){
     let { id } = this.state.user
     let errText = 'updating your account type'
@@ -636,36 +641,9 @@ class You extends Component {
     })
   }
 
-  createDistributorInDb(){
-    let { DistributorDistId } = this.state
-    let { id } = this.state.user
-    let errText = 'adding your Distributor ID'
-    if (DistributorDistId && id) {
-      this.props.createDistributor({
-        variables: {
-          DistributorDistId: this.cleanString(DistributorDistId),
-          userxId: id
-        }
-      }).then( res => {
-        if (res && res.data && res.data.createDistributor) {
-          this.setState({
-            DistributorId:res.data.createDistributor.id,
-            DistributorDistId:res.data.createDistributor.distId
-          })
-        } else {
-          this.showModal('err','Profile',errText)
-        }
-      }).catch( e => {
-        // console.log('createDistributor',e.message)
-        // this.showModal('err','Profile',errText)
-      })
-    } else {
-      this.showModal('err','Profile',errText)
-    }
-  }
-
   updateDistributorDistIdInDb(){
-    let { DistributorId,DistributorDistId } = this.state
+    let { DistributorDistId } = this.state
+    let DistributorId = this.state.user.distributorx.id
     let { id } = this.state.user
     let errText = 'saving your Distributor ID'
     if (DistributorId && DistributorDistId) {
@@ -689,7 +667,8 @@ class You extends Component {
   }
 
   updateDistributorBizNameInDb(){
-    let { DistributorId,DistributorBizName } = this.state
+    let { DistributorBizName } = this.state
+    let DistributorId = this.state.user.distributorx.id
     let { id } = this.state.user
     let errText = 'saving your Business Name'
     if (DistributorId && DistributorBizName) {
@@ -713,7 +692,8 @@ class You extends Component {
   }
 
   updateDistributorBizUriInDb(){
-    let { DistributorId,DistributorBizUri } = this.state
+    let { DistributorBizUri } = this.state
+    let DistributorId = this.state.user.distributorx.id
     let { id } = this.state.user
     let errText = 'saving your Business URL'
     if (!this.isSsl(DistributorBizUri)) {
@@ -741,7 +721,8 @@ class You extends Component {
   }
 
   updateDistributorLogoUriInDb(){
-    let { DistributorId,DistributorLogoUri } = this.state
+    let { DistributorLogoUri } = this.state
+    let DistributorId = this.state.user.distributorx.id
     let { id } = this.state.user
     let errText = 'saving your Logo URL'
     if (!this.isSsl(DistributorLogoUri)) {
@@ -769,41 +750,6 @@ class You extends Component {
     }
   }
 
-  deleteDistributorInDb(userType){
-    let errText = 'changing your account type from Distributor to Shopper'
-    let { DistributorId } = this.state
-    if (DistributorId) {
-      this.props.deleteDistributor({
-        variables: {DistributorId}
-      }).then( res => {
-        if (res) {
-          this.setState({
-            DistributorId: null,
-            DistributorDistId: null,
-            DistributorBizName: null,
-            DistributorBizUri: 'https://',
-            DistributorLogoUri: 'https://'
-          })
-          this.updateUserTypeInDb(userType)
-        } else {
-          this.setState({isUserTypeSubmitModalOpen:false},()=>{
-            setTimeout(()=>{
-              this.showModal('err','Profile','1')
-            },700)
-          })
-        }
-      }).catch( e => {
-        this.setState({isUserTypeSubmitModalOpen:false},()=>{
-          setTimeout(()=>{
-            this.showModal('err','Profile',e.message)
-          },700)
-        })
-      })
-    } else {
-      this.updateUserTypeInDb(userType)
-    }
-  }
-
   async logOut(){
     try {
       this.showModal('processing')
@@ -826,6 +772,15 @@ class You extends Component {
 }
 
 export default compose(
+  graphql(GetDistributor,{
+    name: 'getDistributor',
+    options: props => ({
+      variables: {
+        DistributorId: props.user.distributorx.id || ""
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(UpdateCellPhone,{
     name: 'updateCellPhone'
   }),
@@ -834,12 +789,6 @@ export default compose(
   }),
   graphql(UpdateUserType,{
     name: 'updateUserType'
-  }),
-  graphql(CreateDistributor,{
-    name: 'createDistributor'
-  }),
-  graphql(DeleteDistributor,{
-    name: 'deleteDistributor'
   }),
   graphql(UpdateDistributorDistId,{
     name: 'updateDistributorDistId'

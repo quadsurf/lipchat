@@ -255,21 +255,21 @@ class LipColors extends Component {
       <View style={{flex:1}}>
         <ScrollView
           contentContainerStyle={{marginBottom:56,justifyContent:'center',alignItems:'center'}}>
-            <FontPoiret text="neutrals" size={xlarge} color={Colors.blue} style={{marginTop:10}}/>
+            <FontPoiret text="neutrals" size={xlarge} color={Colors.blue} style={{marginTop:10,zIndex:21,backgroundColor:'transparent'}}/>
             {this.renderColorsList(neutralsColorIds)}
-            <FontPoiret text="reds" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="reds" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:22,backgroundColor:'transparent'}}/>
             {this.renderColorsList(redsColorIds)}
-            <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:23,backgroundColor:'transparent'}}/>
             {this.renderColorsList(pinksColorIds)}
-            <FontPoiret text="bold pinks" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="bold pinks" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:24,backgroundColor:'transparent'}}/>
             {this.renderColorsList(boldPinksColorIds)}
-            <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:25,backgroundColor:'transparent'}}/>
             {this.renderColorsList(brownsColorIds)}
-            <FontPoiret text="purples" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="purples" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:26,backgroundColor:'transparent'}}/>
             {this.renderColorsList(purplesColorIds)}
-            <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:27,backgroundColor:'transparent'}}/>
             {this.renderColorsList(berriesColorIds)}
-            <FontPoiret text="oranges" size={xlarge} color={Colors.blue} style={{marginTop:40}}/>
+            <FontPoiret text="oranges" size={xlarge} color={Colors.blue} style={{marginTop:40,zIndex:28,backgroundColor:'transparent'}}/>
             {this.renderColorsList(orangesColorIds)}
         </ScrollView>
       </View>
@@ -429,13 +429,13 @@ class LipColors extends Component {
             }
           })
         } else {
-            this.openError(`${errText}(1)`)
+            this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }
       }).catch( e => {
-        this.openError(`${errText}(2)`)
+        this.openError(`${errText} (error code: 2-${ShopperId}-${ColorId})`)
       })
     } else {
-      this.openError(`${errText}(3)`)
+      this.openError(`${errText} (error code: 3-${ShopperId}-${ColorId})`)
     }
   }
 
@@ -489,7 +489,8 @@ export default compose(
       variables: {
         distributorxId: props.user.distributorx ? props.user.distributorx.id : null,
         shopperxId: props.user.shopperx ? props.user.shopperx.id : null
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(ConnectColorToDistributor,{
