@@ -20,6 +20,7 @@ import { compose,graphql } from 'react-apollo'
 import { MKSwitch } from 'react-native-material-kit'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
+import { NavigationActions } from 'react-navigation'
 
 // GQL
 import {
@@ -89,6 +90,10 @@ class You extends Component {
       return true
     }
     return false
+  }
+
+  componentDidMount(){
+    // console.log('this.props.nav: ',this.props.nav);
   }
 
   componentWillReceiveProps(newProps){
@@ -761,7 +766,14 @@ class You extends Component {
         } else {
           setTimeout(()=>{
             this.setState({ isModalOpen:false },()=>{
-              this.props.nav.navigate('LoggedOut')
+              const resetAction = NavigationActions.reset({
+                index: 0,
+                actions: [
+                  NavigationActions.navigate({ routeName: 'Root'})
+                ]
+              })
+              this.props.nav.dispatch(resetAction)
+              // this.props.nav.navigate('LoggedOut')
             })
           },2000)
         }

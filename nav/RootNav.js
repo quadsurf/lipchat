@@ -14,33 +14,33 @@ import Login from '../screens/Login'
 import UserMeta  from '../screens/UserMeta'
 import TabNav from './TabNav'
 
-const LoggedOutStack = StackNavigator(
-  {
-    Login: { screen:Login },
-    UserMeta: { screen:UserMeta }
-  },
-  {
-    initialRouteName: 'Login',
-    headerMode: 'none'
-  }
-)
-
-const LoggedInStack = StackNavigator(
-  {
-    TabNav: { screen:TabNav }
-  },
-  {
-    headerMode: 'none',
-    mode: 'modal',
-    direction: 'bottomToTop'
-  }
-)
+// const LoggedOutStack = StackNavigator(
+//   {
+//     Login: { screen:Login },
+//     UserMeta: { screen:UserMeta }
+//   },
+//   {
+//     initialRouteName: 'Login',
+//     headerMode: 'none'
+//   }
+// )
+//
+// const LoggedInStack = StackNavigator(
+//   {
+//     TabNav: { screen:TabNav }
+//   },
+//   {
+//     headerMode: 'none',
+//     mode: 'modal',
+//     direction: 'bottomToTop'
+//   }
+// )
 
 const RootStack = StackNavigator(
   {
     Root: { screen:AuthState },
-    LoggedOut: { screen:LoggedOutStack },
-    LoggedIn: { screen:LoggedInStack }
+    LoggedOut: { screen:Login },
+    LoggedIn: { screen:TabNav }
   },
   {
     initialRouteName: 'Root',
