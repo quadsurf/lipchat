@@ -55,9 +55,9 @@ class LipColors extends Component {
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
+    // if (this.props !== nextProps) {
+    //   return true
+    // }
     if (this.state !== nextState) {
       return true
     }
@@ -80,9 +80,8 @@ class LipColors extends Component {
       ) {
         let type = this.state.userType
         let userType = newProps.getUserType.User.type
-        console.log('userType: ',userType);
         if (userType !== type) {
-          this.setState({userType},()=>{console.log(this.state.userType)})
+          this.setState({userType})
         }
       }
     }

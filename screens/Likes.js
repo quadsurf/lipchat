@@ -32,10 +32,9 @@ class Likes extends Component {
     // if (this.props !== nextProps) {
     //   return true
     // }
-    // if (this.state !== nextState) {
-    //   return true
-    // }
-    if (this.state.isModalOpen !== nextState.isModalOpen) {return true}
+    if (this.state !== nextState) {
+      return true
+    }
     return false
   }
 
