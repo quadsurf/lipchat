@@ -51,23 +51,17 @@ class LipColors extends Component {
     colors: null,
     isListReady: false,
     userType: this.props.user.type,
-    ShopperId: this.props.user.shopperx ? this.props.user.shopperx.id : null,
-    newPropsAllColorsCount: 0,
     hasColors: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
     if (this.props !== nextProps) {
-      return false
+      return true
     }
     if (this.state !== nextState) {
       return true
     }
     return false
-  }
-
-  componentWillMount(){
-    // console.log('DistributorId on props: ',this.state.user.distributorx.id);
   }
 
   componentWillReceiveProps(newProps){
@@ -86,9 +80,8 @@ class LipColors extends Component {
       ) {
         let type = this.state.userType
         let userType = newProps.getUserType.User.type
-        console.log('userType: ',userType);
         if (userType !== type) {
-          this.setState({userType},()=>{console.log(this.state.userType)})
+          this.setState({userType})
         }
       }
     }
@@ -392,7 +385,7 @@ class LipColors extends Component {
   }
 
   checkIfLikeExists(LikeId,ColorId){
-    let { ShopperId } = this.state
+    let ShopperId = this.state.user.shopperx.id
     let bool = !this.state[`${ColorId}`].like.doesLike
     if (LikeId) {
       this.updateDoesLikeOnLike(LikeId,ColorId,bool)
