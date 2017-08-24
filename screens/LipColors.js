@@ -25,7 +25,7 @@ import { err,Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS
-import ColorCard from './components/ColorCard'
+import { ColorCard } from './Components'
 
 // CONSTS
 const small = Texts.small.fontSize
@@ -51,23 +51,17 @@ class LipColors extends Component {
     colors: null,
     isListReady: false,
     userType: this.props.user.type,
-    ShopperId: this.props.user.shopperx ? this.props.user.shopperx.id : null,
-    newPropsAllColorsCount: 0,
     hasColors: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
     if (this.props !== nextProps) {
-      return false
+      return true
     }
     if (this.state !== nextState) {
       return true
     }
     return false
-  }
-
-  componentWillMount(){
-    // console.log('DistributorId on props: ',this.state.user.distributorx.id);
   }
 
   componentWillReceiveProps(newProps){
@@ -171,9 +165,6 @@ class LipColors extends Component {
     }
   }
 
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -395,7 +386,7 @@ class LipColors extends Component {
   }
 
   checkIfLikeExists(LikeId,ColorId){
-    let { ShopperId } = this.state
+    let ShopperId = this.state.user.shopperx.id
     let bool = !this.state[`${ColorId}`].like.doesLike
     if (LikeId) {
       this.updateDoesLikeOnLike(LikeId,ColorId,bool)

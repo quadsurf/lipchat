@@ -11,9 +11,9 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 
 // LOCALS
-import { FontPoiret,FontMatilde } from '../../assets/fonts/Fonts'
-import { Views,Colors,Texts } from '../../css/Styles'
-import { getDimensions } from '../../utils/Helpers'
+import { FontPoiret,FontMatilde } from '../assets/fonts/Fonts'
+import { Views,Colors,Texts } from '../css/Styles'
+import { getDimensions } from '../utils/Helpers'
 
 //CONSTS
 const small = Texts.small.fontSize
@@ -23,7 +23,7 @@ const larger = Texts.larger.fontSize
 const xlarge = Texts.xlarge.fontSize
 const screen = getDimensions()
 
-export default ColorCard = props => {
+const ColorCard = props => {
   return (
     <View style={{width:screen.width,height:170,backgroundColor:props.rgb,
         paddingBottom:4,paddingHorizontal:4,bottom:14}}>
@@ -73,4 +73,18 @@ export default ColorCard = props => {
       </View>
     </View>
   )
+}
+
+const MyButton = props => {
+  return (
+    <TouchableHighlight underlayColor={Colors.transparentWhite} style={{borderRadius:6,marginVertical:20,paddingHorizontal:20,paddingVertical:10}} onPress={props.onPress}>
+      <Text style={{
+          fontFamily:'Poiret',color:Colors.blue,fontSize:large
+        }}>{props.text}</Text>
+    </TouchableHighlight>
+  )
+}
+
+export {
+  ColorCard,MyButton
 }
