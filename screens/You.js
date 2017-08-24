@@ -36,6 +36,9 @@ import MyStatusBar from '../common/MyStatusBar'
 import { err,Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
+// COMPONENTS
+import { MyButton } from './Components'
+
 //CONSTs
 const medium = Texts.medium.fontSize
 const large = Texts.large.fontSize
@@ -172,7 +175,7 @@ class You extends Component {
               {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
-              <FontPoiret text="logout" size={large} vspace={20} onPress={() => this.logOut()}/>
+              <MyButton text="logout" onPress={() => this.logOut()}/>
           </KeyboardAwareScrollView>
         </View>
     )

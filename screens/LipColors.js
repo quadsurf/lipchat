@@ -25,7 +25,7 @@ import { err,Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS
-import ColorCard from './components/ColorCard'
+import { ColorCard } from './Components'
 
 // CONSTS
 const small = Texts.small.fontSize
@@ -78,15 +78,6 @@ class LipColors extends Component {
             this.processColors(this.state.colors)
           })
         }
-        // this.setState({
-        //   newPropsAllColorsCount:this.state.newPropsAllColorsCount+1,
-        //   hasColors: true
-        // },()=>{
-        //   console.log('should processColors func be called? count is at: ',this.state.newPropsAllColorsCount);
-        //   if (this.state.newPropsAllColorsCount < 2) {
-        //     this.processColors(newProps.getColorsAndInventories.allColors)
-        //   }
-        // })
       }
       if (
         newProps.getUserType
@@ -95,8 +86,9 @@ class LipColors extends Component {
       ) {
         let type = this.state.userType
         let userType = newProps.getUserType.User.type
+        console.log('userType: ',userType);
         if (userType !== type) {
-          this.setState({userType})
+          this.setState({userType},()=>{console.log(this.state.userType)})
         }
       }
     }
@@ -179,9 +171,6 @@ class LipColors extends Component {
     }
   }
 
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -487,8 +476,8 @@ export default compose(
     name: 'getColorsAndInventories',
     options: props => ({
       variables: {
-        distributorxId: props.user.distributorx ? props.user.distributorx.id : null,
-        shopperxId: props.user.shopperx ? props.user.shopperx.id : null
+        distributorxId: props.user.distributorx ? props.user.distributorx.id : "",
+        shopperxId: props.user.shopperx ? props.user.shopperx.id : ""
       },
       fetchPolicy: 'network-only'
     })
@@ -504,7 +493,7 @@ export default compose(
     options: props => ({
       pollInterval: 10000,
       variables: {
-        UserId: props.user.id
+        UserId: props.user.id || ""
       },
       fetchPolicy: 'network-only'
     })
