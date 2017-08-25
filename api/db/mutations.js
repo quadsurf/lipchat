@@ -44,6 +44,9 @@ mutation UpdateFbkFriends(
       bizUri
       logoUri
     }
+    shopperx {
+      id
+    }
   }
 }`
 

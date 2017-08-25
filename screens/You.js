@@ -83,17 +83,13 @@ class You extends Component {
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    // if (this.props !== nextProps) {
-    //   return true
-    // }
+    if (this.props !== nextProps) {
+      return true
+    }
     if (this.state !== nextState) {
       return true
     }
     return false
-  }
-
-  componentDidMount(){
-    // console.log('this.props.nav: ',this.props.nav);
   }
 
   componentWillReceiveProps(newProps){

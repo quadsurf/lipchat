@@ -29,9 +29,9 @@ class Likes extends Component {
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    // if (this.props !== nextProps) {
-    //   return true
-    // }
+    if (this.props !== nextProps) {
+      return true
+    }
     if (this.state !== nextState) {
       return true
     }

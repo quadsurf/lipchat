@@ -46,8 +46,8 @@ query GetColors{
 
 const GetColorsAndInventories = gql`
 query GetColorsAndInventories(
-  $distributorxId: ID,
-  $shopperxId: ID
+  $distributorxId: ID!,
+  $shopperxId: ID!
 ){
   allColors{
     id

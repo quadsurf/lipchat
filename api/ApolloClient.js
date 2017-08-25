@@ -1,6 +1,6 @@
 
 
-import { AsyncStorage } from 'react-native'
+import { AsyncStorage,Alert } from 'react-native'
 
 //ENV VARS
 import { PROJECT_ID } from 'react-native-dotenv'
@@ -23,7 +23,7 @@ networkInterface: createNetworkInterface({
               next()
             },
             failure => {
-              console.error('ERROR: no token', failure)
+              Alert.alert('ERROR: ', failure.message)
               next()
             })
     }

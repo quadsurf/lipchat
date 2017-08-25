@@ -55,9 +55,9 @@ class LipColors extends Component {
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    // if (this.props !== nextProps) {
-    //   return true
-    // }
+    if (this.props !== nextProps) {
+      return true
+    }
     if (this.state !== nextState) {
       return true
     }
@@ -69,6 +69,7 @@ class LipColors extends Component {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
         if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
           this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
+            // console.log('colors: ',this.state.colors[0]);
             this.processColors(this.state.colors)
           })
         }
