@@ -15,7 +15,7 @@ import RootNav from './nav/RootNav'
 import TabNav from './nav/TabNav'
 
 // LOCALS
-import client from './api/ApolloClient'
+import client from './api/ApolloClientRT'
 import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'

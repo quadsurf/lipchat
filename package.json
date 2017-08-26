@@ -26,7 +26,8 @@
     "react-native-modal": "^2.5.0",
     "react-native-swiper": "^1.5.4",
     "react-native-tab-view": "^0.0.67",
-    "react-navigation": "^1.0.0-beta.12"
+    "react-navigation": "^1.0.0-beta.12",
+    "subscriptions-transport-ws": "^0.8.2"
   },
   "devDependencies": {
     "jest-expo": "19.0.0"

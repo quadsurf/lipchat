@@ -15,6 +15,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { GetColorsAndInventories,GetUserType } from '../api/db/queries'
+import { SubUserType } from '../api/db/pubsub'
 import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
 
 // LOCALS
@@ -79,6 +80,7 @@ class LipColors extends Component {
         && newProps.getUserType.User
         && newProps.getUserType.User.type
       ) {
+        // console.log('UserType',newProps.getUserType);
         let type = this.state.userType
         let userType = newProps.getUserType.User.type
         if (userType !== type) {
@@ -86,6 +88,29 @@ class LipColors extends Component {
         }
       }
     }
+  }
+
+  componentDidMount(){
+    this.subToUserType()
+  }
+
+  subToUserType(){
+    this.props.getUserType.subscribeToMore({
+      document: SubUserType,
+      updateQuery: (previous, { subscriptionData }) => {
+        console.log('previous',previous);
+        console.log('new',subscriptionData);
+        // const newAllLinks = [
+        //   subscriptionData.data.Link.node,
+        //   ...previous.allLinks
+        // ]
+        // const result = {
+        //   ...previous,
+        //   allLinks: newAllLinks
+        // }
+        // return result
+      }
+    })
   }
 
   processColors(colors){
@@ -312,13 +337,10 @@ class LipColors extends Component {
   checkIfInventoryExists(InventoryId,ColorId){
     this.showModal('processing')
     let DistributorId = this.state.user.distributorx.id
-    console.log('checkIfInventoryExists func InventoryId|DistributorId',InventoryId,DistributorId);
     let InventoryCount = this.state[`${ColorId}`].inventory.count
     if (InventoryId) {
-      console.log('updateInventory func called');
       this.updateInventory(InventoryId,ColorId,InventoryCount)
     } else {
-      console.log('createInventory func called');
       this.createInventory(DistributorId,ColorId,InventoryCount)
     }
   }
@@ -485,7 +507,7 @@ export default compose(
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
-      pollInterval: 10000,
+      // pollInterval: 10000,
       variables: {
         UserId: props.user.id || ""
       },
