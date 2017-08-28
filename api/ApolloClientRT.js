@@ -69,7 +69,8 @@ networkInterface.use([{
 }])
 
 const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions
+  networkInterface: networkInterfaceWithSubscriptions,
+  queryDeduplication: true
 })
 
 export default client

@@ -100,15 +100,6 @@ class LipColors extends Component {
       updateQuery: (previous, { subscriptionData }) => {
         console.log('previous',previous);
         console.log('new',subscriptionData);
-        // const newAllLinks = [
-        //   subscriptionData.data.Link.node,
-        //   ...previous.allLinks
-        // ]
-        // const result = {
-        //   ...previous,
-        //   allLinks: newAllLinks
-        // }
-        // return result
       }
     })
   }

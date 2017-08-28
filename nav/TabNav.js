@@ -43,7 +43,7 @@ type State = NavigationState<Route>;
 export default class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 3,
+      index: 4,
       routes: [
         { key: '0', title: 'LIKES', icon: 'ios-heart' },
         { key: '1', title: 'CHAT', icon: 'chat' },
