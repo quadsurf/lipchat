@@ -42,10 +42,12 @@ class FontMatilde extends Component {
           fontFamily: 'Matilde',
           fontSize:this.props.size || Texts.xlarge.fontSize,
           color:this.props.color || Colors.blue,
-          textDecorationLine:this.props.underline ? 'underline' : 'none'
+          textDecorationLine:this.props.underline ? 'underline' : 'none',
+          backgroundColor:'transparent'
         }]}
         allowFontScaling={false}
-        selectable={true}>
+        selectable={true}
+        numberOfLines={1}>
         {this.props.text}
       </Text>
     )
@@ -62,10 +64,12 @@ class FontPoiret extends Component {
           fontSize:this.props.size || Texts.xlarge.fontSize,
           color:this.props.color || Colors.blue,
           textDecorationLine:this.props.underline ? 'underline' : 'none',
-          paddingVertical: this.props.vspace || 0
+          paddingVertical: this.props.vspace || 0,
+          backgroundColor:'transparent'
         }]}
         allowFontScaling={false}
-        selectable={true}>
+        selectable={true}
+        numberOfLines={1}>
         {this.props.text}
       </Text>
     )

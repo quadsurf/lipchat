@@ -22,7 +22,7 @@ import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesL
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals,getDimensions } from '../utils/Helpers'
+import { Modals,getDimensions } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS

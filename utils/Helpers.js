@@ -34,6 +34,16 @@ const err = (title='',problem='',message='',br='') => {
   )
 }
 
+const clipText = (text,length) => {
+  if (text.length > length) {
+    let textArray = text.split('')
+    let shortened = textArray.splice(0,length).join('')
+    return `${shortened}...`
+  } else {
+    return text
+  }
+}
+
 class Modals extends Component {
   constructor(props){
     super(props)
@@ -232,5 +242,5 @@ const getGQLerror = e => {
   return messages[0]
 }
 
-export { getDimensions,err,Modals,clearIdentifiers,getGQLerror }
+export { getDimensions,clipText,Modals,clearIdentifiers,getGQLerror,err }
 // ${"\n"}${br}${"\n"}

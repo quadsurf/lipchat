@@ -34,7 +34,7 @@ import { GetDistributor } from '../api/db/queries'
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals,getDimensions } from '../utils/Helpers'
+import { Modals,getDimensions,clipText } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS
@@ -168,7 +168,7 @@ class You extends Component {
           <KeyboardAwareScrollView
             viewIsInsideTabBar={true}
             contentContainerStyle={{
-              height: userType === 'SHOPPER' ? 600 : 860,
+              height: userType === 'SHOPPER' ? 860 : 860,
               alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
             }}
             enableOnAndroid={true}>
@@ -233,28 +233,24 @@ class You extends Component {
     )
   }
 
-  renderShoppersDist(){
-
-  }
-
-  renderShoppersDistCard(){
+  renderShoppersDistCard(width){
     let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
     let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
     // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
-    let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${80}&height=${80}`
-    let imgSize = {width:80,height:80}
+    let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${90}&height=${90}`
+    let imgSize = {width:90,height:90}
     return (
-      <View style={{...Views.middle,flexDirection:'row'}}>
+      <View style={{width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}}>
         <View style={imgSize}>
-          <Image source={{uri}} style={[
-              imgSize,{borderTopLeftRadius:6,borderBottomLeftRadius:6}
-            ]}/>
+          <Image source={{uri}} style={[imgSize,{borderRadius:12}]}/>
         </View>
-        <View style={{...Views.middle,backgroundColor:Colors.pinkly,height:80,paddingHorizontal:15,paddingVertical:20}}>
-          <FontPoiret text={bizName} size={medium} color={Colors.blue}/>
-          <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.blue}/>
-          <FontPoiret text={cellPhone} size={medium} color={Colors.blue}/>
-          <FontPoiret text={bizUri} size={small} color={Colors.blue}/>
+        <View style={{
+            height:90,paddingHorizontal:10,paddingVertical:5
+          }}>
+          <FontPoiret text={bizName} size={medium} color={Colors.white}/>
+          <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.white}/>
+          <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
+          <FontPoiret text={clipText(bizUri,32)} size={small} color={Colors.white}/>
         </View>
       </View>
     )
@@ -299,14 +295,14 @@ class You extends Component {
           <View style={{...Views.middle,width}}>
             <FontPoiret text={ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
           </View>
-          <View style={fieldRow}>
+          <View style={[fieldRow,{marginBottom:15}]}>
             <View style={[fieldName,{alignItems:'flex-end'}]}>
               <FontPoiret text="your distributor's id #" size={small} color={Colors.blue}/>
             </View>
             <View style={[fieldValue,{paddingLeft:10}]}>{this.renderShoppersDistId()}</View>
           </View>
-          <View style={{height:120}}>
-            {this.renderShoppersDistCard()}
+          <View style={{height:105}}>
+            {this.renderShoppersDistCard(width)}
           </View>
         </View>
       )
@@ -315,7 +311,7 @@ class You extends Component {
 
   renderDistributorFields(){
     return (
-      <View style={{borderRadius:12,padding:screenPadding,borderColor:Colors.blue,borderWidth:1}}>
+      <View style={{borderRadius:12,padding:screenPadding,borderColor:this.state.userType === 'SHOPPER' ? Colors.blue : Colors.pinkly,borderWidth:1}}>
         <View style={{width:screen.width*.8,height:50,alignItems:'center',justifyContent:'center'}}>
           {this.renderUserType()}
         </View>
