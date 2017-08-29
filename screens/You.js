@@ -233,6 +233,33 @@ class You extends Component {
     )
   }
 
+  renderShoppersDist(){
+
+  }
+
+  renderShoppersDistCard(){
+    let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
+    let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
+    // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
+    let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${80}&height=${80}`
+    let imgSize = {width:80,height:80}
+    return (
+      <View style={{...Views.middle,flexDirection:'row'}}>
+        <View style={imgSize}>
+          <Image source={{uri}} style={[
+              imgSize,{borderTopLeftRadius:6,borderBottomLeftRadius:6}
+            ]}/>
+        </View>
+        <View style={{...Views.middle,backgroundColor:Colors.pinkly,height:80,paddingHorizontal:15,paddingVertical:20}}>
+          <FontPoiret text={bizName} size={medium} color={Colors.blue}/>
+          <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.blue}/>
+          <FontPoiret text={cellPhone} size={medium} color={Colors.blue}/>
+          <FontPoiret text={bizUri} size={small} color={Colors.blue}/>
+        </View>
+      </View>
+    )
+  }
+
   renderUserTypeForm(){
     let width = screen.width*.8
     let fieldRow = {flexDirection:'row',width,height:60}
@@ -279,7 +306,7 @@ class You extends Component {
             <View style={[fieldValue,{paddingLeft:10}]}>{this.renderShoppersDistId()}</View>
           </View>
           <View style={{height:120}}>
-            <Text>{ShoppersDist.bizName} | {ShoppersDist.bizUri} | {ShoppersDist.logoUri} | {ShoppersDist.status === false ? 'inactive' : 'active'} | {ShoppersDist.userx ? ShoppersDist.userx.fbkUserId : null} |</Text>
+            {this.renderShoppersDistCard()}
           </View>
         </View>
       )

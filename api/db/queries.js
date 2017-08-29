@@ -36,6 +36,9 @@ query GetUser(
         status
         userx {
           fbkUserId
+          cellPhone
+          fbkFirstName
+          fbkLastName
         }
       }
     }

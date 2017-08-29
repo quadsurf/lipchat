@@ -55,6 +55,9 @@ mutation UpdateFbkFriends(
         status
         userx {
           fbkUserId
+          cellPhone
+          fbkFirstName
+          fbkLastName
         }
       }
     }
