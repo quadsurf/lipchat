@@ -46,6 +46,17 @@ mutation UpdateFbkFriends(
     }
     shopperx {
       id
+      distributorsx {
+        id
+        bizName
+        bizUri
+        distId
+        logoUri
+        status
+        userx {
+          fbkUserId
+        }
+      }
     }
   }
 }`

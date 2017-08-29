@@ -17,7 +17,7 @@ import Swiper from 'react-native-swiper'
 //LOCALS
 import { Colors,Views,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
-import { getDimensions,Modals,getGQLerror } from '../utils/Helpers'
+import { getDimensions,Modals } from '../utils/Helpers'
 import { terms } from '../config/Defaults'
 
 //ENV VARS
@@ -90,6 +90,14 @@ class Login extends Component {
         type={this.state.modalType}
         content={this.state.modalContent}/>
     )
+  }
+
+  openError(errText){
+    this.setState({isModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('err','Login',errText)
+      },700)
+    })
   }
 
   render() {
@@ -225,6 +233,7 @@ class Login extends Component {
   }
 
   getOrCreateUser(facebookUser){
+    let errText = "getting or creating an account for you in the Database"
     let fbkUser = JSON.stringify(facebookUser)
     this.props.authenticateFacebookUser({
       variables: {
@@ -241,14 +250,15 @@ class Login extends Component {
           }
         }
       } else {
-        this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
+        this.openError(`${errText} (error code: 1-${fbkUser})`)
       }
     }).catch( e => {
-      this.showModal('error','Intro',"Could not retrieve or create an account for you in the Database.")
+      this.openError(`${errText} (error code: 2-${fbkUser})`)
     })
   }
 
   async updateFbkFriendsOnUser(id,fbkFriends){
+    let errText = "updating your connections data"
     this.props.updateFbkFriends({
       variables: {
         userId: id,
@@ -259,10 +269,11 @@ class Login extends Component {
       if (res) {
         this.handleRedirect(res)
       } else {
-        this.showModal('error','Intro','An attempt to update your new data, failed.')
+        this.openError(`${errText} (error code: 1-${id})`)
       }
     }).catch( e => {
-      this.showModal('error','Intro','An attempt to update your new data, failed.')
+      this.openError(e.message)
+      // `${errText} (error code: 2-${id})`
     })
   }
 

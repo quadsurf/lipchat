@@ -41,6 +41,7 @@ import { AppName } from '../config/Defaults'
 import { MyButton } from './Components'
 
 //CONSTs
+const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const large = Texts.large.fontSize
 const larger = Texts.larger.fontSize
@@ -76,6 +77,8 @@ class You extends Component {
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
+    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : [],
+    ShoppersDistId: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0].distId : null,
     DistributorDistId: null,
     DistributorBizName: null,
     DistributorBizUri: null,
@@ -230,42 +233,84 @@ class You extends Component {
     )
   }
 
-  renderDistributorFields(){
-    let fieldRow = {flexDirection:'row',width:screen.width*.8,height:60}
+  renderUserTypeForm(){
+    let width = screen.width*.8
+    let fieldRow = {flexDirection:'row',width,height:60}
     let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
     let fieldValue = {flex:5,justifyContent:'center'}
     let { userType } = this.state
+    if (userType === 'DIST') {
+      return (
+        <View style={{width,height:240}}>
+          <View style={fieldRow}>
+            <View style={fieldName}><FontPoiret text="distributor id" size={medium}
+              color={Colors.blue}/></View>
+            <View style={fieldValue}>{this.renderDistId()}</View>
+          </View>
+          <View style={fieldRow}>
+            <View style={fieldName}><FontPoiret text="business name" size={medium}
+              color={Colors.blue}/></View>
+            <View style={fieldValue}>{this.renderBizName()}</View>
+          </View>
+          <View style={fieldRow}>
+            <View style={fieldName}><FontPoiret text="linkTr.ee url" size={medium}
+              color={Colors.blue}/></View>
+            <View style={fieldValue}>{this.renderBizUri()}</View>
+          </View>
+          <View style={fieldRow}>
+            <View style={fieldName}><FontPoiret text="link to logo" size={medium}
+              color={Colors.blue}/></View>
+            <View style={fieldValue}>{this.renderLogoUri()}</View>
+          </View>
+        </View>
+      )
+    } else {
+      let { ShoppersDist } = this.state
+      // console.log('ShoppersDist',ShoppersDist);
+      return (
+        <View style={{width,height:240}}>
+          <View style={{...Views.middle,width}}>
+            <FontPoiret text={ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
+          </View>
+          <View style={fieldRow}>
+            <View style={[fieldName,{alignItems:'flex-end'}]}>
+              <FontPoiret text="your distributor's id #" size={small} color={Colors.blue}/>
+            </View>
+            <View style={[fieldValue,{paddingLeft:10}]}>{this.renderShoppersDistId()}</View>
+          </View>
+          <View style={{height:120}}>
+            <Text>{ShoppersDist.bizName} | {ShoppersDist.bizUri} | {ShoppersDist.logoUri} | {ShoppersDist.status === false ? 'inactive' : 'active'} | {ShoppersDist.userx ? ShoppersDist.userx.fbkUserId : null} |</Text>
+          </View>
+        </View>
+      )
+    }
+  }
+
+  renderDistributorFields(){
     return (
-      <View style={{borderRadius:12,padding:screenPadding,borderColor:Colors.blue,borderWidth: userType === 'DIST' ? 1 : 0}}>
+      <View style={{borderRadius:12,padding:screenPadding,borderColor:Colors.blue,borderWidth:1}}>
         <View style={{width:screen.width*.8,height:50,alignItems:'center',justifyContent:'center'}}>
           {this.renderUserType()}
         </View>
-        {
-          userType === 'DIST' ?
-          <View style={{width:screen.width*.8,height:240}}>
-            <View style={fieldRow}>
-              <View style={fieldName}><FontPoiret text="distributor id" size={medium}
-                color={Colors.blue}/></View>
-              <View style={fieldValue}>{this.renderDistId()}</View>
-            </View>
-            <View style={fieldRow}>
-              <View style={fieldName}><FontPoiret text="business name" size={medium}
-                color={Colors.blue}/></View>
-              <View style={fieldValue}>{this.renderBizName()}</View>
-            </View>
-            <View style={fieldRow}>
-              <View style={fieldName}><FontPoiret text="linkTr.ee url" size={medium}
-                color={Colors.blue}/></View>
-              <View style={fieldValue}>{this.renderBizUri()}</View>
-            </View>
-            <View style={fieldRow}>
-              <View style={fieldName}><FontPoiret text="link to logo" size={medium}
-                color={Colors.blue}/></View>
-              <View style={fieldValue}>{this.renderLogoUri()}</View>
-            </View>
-          </View> : null
-        }
+        {this.renderUserTypeForm()}
       </View>
+    )
+  }
+
+  renderShoppersDistId(){
+    return (
+      <TextInput value={this.state.ShoppersDistId}
+        placeholder="add (optional)"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...distributorInputStyle,...inputStyleMedium}}
+        onChangeText={(ShoppersDistId) => this.setState({ShoppersDistId})}
+        keyboardType="default"
+        onBlur={() => this.findDistributorInDb()}
+        onSubmitEditing={() => this.findDistributorInDb()}
+        blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={18}
+        returnKeyType="done"/>
     )
   }
 

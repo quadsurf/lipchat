@@ -59,7 +59,7 @@ const Views = {
 
 const Texts = {
   small: {
-    fontSize: 12
+    fontSize: 14
   },
   medium: {
     fontSize: 18

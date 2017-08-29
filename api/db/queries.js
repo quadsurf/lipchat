@@ -27,6 +27,17 @@ query GetUser(
     }
     shopperx {
       id
+      distributorsx {
+        id
+        bizName
+        bizUri
+        distId
+        logoUri
+        status
+        userx {
+          fbkUserId
+        }
+      }
     }
   }
 }`
