@@ -159,6 +159,42 @@ mutation UpdateDistributorLogoUri(
   }
 }`
 
+const LinkShopperToDistributor = gql`
+mutation LinkShopperToDistributor(
+  $ShopperId: ID!,
+  $DistributorId: ID!
+){
+  addToShopperOnDistributor(
+    shoppersxShopperId: $ShopperId,
+    distributorsxDistributorId: $DistributorId
+  ){
+    shoppersxShopper {
+      id
+    }
+    distributorsxDistributor {
+      id
+    }
+  }
+}`
+
+const DeLinkShopperFromDistributor = gql`
+mutation DisconnectShopperFromDistributor(
+  $ShopperId: ID!,
+  $DistributorId: ID!
+){
+  removeFromShopperOnDistributor(
+    shoppersxShopperId: $ShopperId,
+    distributorsxDistributorId: $DistributorId
+  ){
+    shoppersxShopper {
+      id
+    }
+    distributorsxDistributor {
+      id
+    }
+  }
+}`
+
 // LIP COLORS TAB
 const ConnectColorToDistributor = gql`
 mutation ConnectColorToDistributor(
@@ -220,5 +256,5 @@ mutation UpdateDoesLikeOnLike(
 
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor
 }

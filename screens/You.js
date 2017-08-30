@@ -26,9 +26,10 @@ import { NavigationActions } from 'react-navigation'
 import {
   UpdateCellPhone,UpdateName,UpdateUserType,
   UpdateDistributorDistId,UpdateDistributorBizName,
-  UpdateDistributorBizUri,UpdateDistributorLogoUri
+  UpdateDistributorBizUri,UpdateDistributorLogoUri,
+  LinkShopperToDistributor,DeLinkShopperFromDistributor
 } from '../api/db/mutations'
-import { GetDistributor } from '../api/db/queries'
+import { GetDistributor,FindDistributor } from '../api/db/queries'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -264,22 +265,12 @@ class You extends Component {
           <View style={cardLeft}>
             <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
           </View>
-          <View style={cardRight}>
-            <FontPoiret text="Nopster Nesterings" size={medium} color={Colors.white}/>
-            <FontPoiret text="Henrietta Rosenthalio" size={small} color={Colors.white}/>
-            <FontPoiret text="858-750-8318" size={medium} color={Colors.white}/>
-            <FontPoiret text={shortenUrl('https://www.milkofthepoppymilkofthepoppy.com',22)} size={small} color={Colors.white}/>
-          </View>
+          <CardLines style={cardRight}/>
         </View>
       )
     }
   }
-  // <View style={cardStyle}>
-  //   <View style={cardLeft}>
-  //     <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
-  //   </View>
-  //   <CardLines style={cardRight}/>
-  // </View>
+
   renderUserTypeForm(){
     let width = screen.width*.8
     let fieldRow = {flexDirection:'row',width,height:60}
@@ -892,6 +883,9 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
+  graphql(LinkShopperToDistributor,{
+    name: 'linkShopperToDistributor'
+  }),
   graphql(UpdateCellPhone,{
     name: 'updateCellPhone'
   }),
@@ -912,5 +906,8 @@ export default compose(
   }),
   graphql(UpdateDistributorLogoUri,{
     name: 'updateDistributorLogoUri'
+  }),
+  graphql(DeLinkShopperFromDistributor,{
+    name: 'deLinkShopperFromDistributor'
   })
 )(You)

@@ -120,6 +120,29 @@ query GetDistributor(
   }
 }`
 
+const FindDistributor = gql`
+query FindDistributor(
+  $DistributorDistId: String!
+){
+  allDistributors(
+    filter: {
+      distId: $DistributorDistId
+    }
+  ){
+    id
+    distId
+    bizName
+    bizUri
+    status
+    userx {
+      fbkFirstName
+      fbkLastName
+      cellPhone
+      fbkUserId
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor
 }
