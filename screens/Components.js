@@ -85,6 +85,23 @@ const MyButton = props => {
   )
 }
 
+const CardLine = props => {
+  return (
+    <View style={{width:props.width,height:15,backgroundColor:Colors.transparentWhite,borderRadius:14,marginVertical:3}}></View>
+  )
+}
+
+const CardLines = props => {
+  return (
+    <View style={props.style}>
+      <CardLine width={125}/>
+      <CardLine width={100}/>
+      <CardLine width={110}/>
+      <CardLine width={140}/>
+    </View>
+  )
+}
+
 export {
-  ColorCard,MyButton
+  ColorCard,MyButton,CardLines
 }

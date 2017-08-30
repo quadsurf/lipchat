@@ -30,7 +30,8 @@ export default class App extends React.Component {
       require('./assets/images/water-proof.jpg'),
       require('./assets/images/kiss-proof.jpg'),
       require('./assets/images/smudge-proof.jpg'),
-      require('./assets/images/cruelty-free.jpg')
+      require('./assets/images/cruelty-free.jpg'),
+      require('./assets/images/avatar.png')
     ],
     fontsToPreLoad: [
       { 'Matilde': require('./assets/fonts/Matilde.ttf') },

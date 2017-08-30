@@ -38,7 +38,7 @@ import { Modals,getDimensions,clipText } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS
-import { MyButton } from './Components'
+import { MyButton,CardLines } from './Components'
 
 //CONSTs
 const small = Texts.small.fontSize
@@ -77,7 +77,7 @@ class You extends Component {
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : [],
+    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : {},
     ShoppersDistId: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0].distId : null,
     DistributorDistId: null,
     DistributorBizName: null,
@@ -234,26 +234,39 @@ class You extends Component {
   }
 
   renderShoppersDistCard(width){
-    let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
-    let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
-    // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
-    let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${90}&height=${90}`
-    let imgSize = {width:90,height:90}
-    return (
-      <View style={{width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}}>
-        <View style={imgSize}>
-          <Image source={{uri}} style={[imgSize,{borderRadius:12}]}/>
+    let size = 90
+    let cardLeft = {width:size,height:size}
+    let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
+    let imgSize = {...cardLeft,borderRadius:12}
+    let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
+    if (this.state.ShoppersDist && this.state.ShoppersDist.userx) {
+      let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
+      let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
+      // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
+      let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+      return (
+        <View style={cardStyle}>
+          <View style={cardLeft}>
+            <Image source={{uri}} style={imgSize}/>
+          </View>
+          <View style={cardRight}>
+            <FontPoiret text={bizName} size={medium} color={Colors.white}/>
+            <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.white}/>
+            <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
+            <FontPoiret text={clipText(bizUri,32)} size={small} color={Colors.white}/>
+          </View>
         </View>
-        <View style={{
-            height:90,paddingHorizontal:10,paddingVertical:5
-          }}>
-          <FontPoiret text={bizName} size={medium} color={Colors.white}/>
-          <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.white}/>
-          <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
-          <FontPoiret text={clipText(bizUri,32)} size={small} color={Colors.white}/>
+      )
+    } else {
+      return (
+        <View style={cardStyle}>
+          <View style={cardLeft}>
+            <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+          </View>
+          <CardLines style={cardRight}/>
         </View>
-      </View>
-    )
+      )
+    }
   }
 
   renderUserTypeForm(){
@@ -296,10 +309,10 @@ class You extends Component {
             <FontPoiret text={ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
           </View>
           <View style={[fieldRow,{marginBottom:15}]}>
-            <View style={[fieldName,{alignItems:'flex-end'}]}>
+            <View style={{flex:5,justifyContent:'center',alignItems:'flex-end'}}>
               <FontPoiret text="your distributor's id #" size={small} color={Colors.blue}/>
             </View>
-            <View style={[fieldValue,{paddingLeft:10}]}>{this.renderShoppersDistId()}</View>
+            <View style={{flex:3,justifyContent:'center',alignItems:'flex-start',paddingLeft:10}}>{this.renderShoppersDistId()}</View>
           </View>
           <View style={{height:105}}>
             {this.renderShoppersDistCard(width)}
@@ -332,7 +345,7 @@ class You extends Component {
         onSubmitEditing={() => this.findDistributorInDb()}
         blurOnSubmit={true}
         autoCorrect={false}
-        maxLength={18}
+        maxLength={12}
         returnKeyType="done"/>
     )
   }
@@ -606,6 +619,15 @@ class You extends Component {
           this.setState({tempCell})
         }
       }
+    }
+  }
+
+  findDistributorInDb(){
+    let { ShoppersDistId } = this.state
+    if (ShoppersDistId) {
+      // this.props
+    } else {
+
     }
   }
 
