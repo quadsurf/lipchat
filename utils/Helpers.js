@@ -34,6 +34,18 @@ const err = (title='',problem='',message='',br='') => {
   )
 }
 
+const shortenUrl = (text,length) => {
+  let url = text.split('')
+  let shortened = url.splice(8,url.length).join('')
+  if (shortened.length > length) {
+    let textArray = shortened.split('')
+    shortened = textArray.splice(0,length).join('')
+    return `${shortened}...`
+  } else {
+    return shortened
+  }
+}
+
 const clipText = (text,length) => {
   if (text.length > length) {
     let textArray = text.split('')
@@ -242,5 +254,5 @@ const getGQLerror = e => {
   return messages[0]
 }
 
-export { getDimensions,clipText,Modals,clearIdentifiers,getGQLerror,err }
+export { getDimensions,shortenUrl,clipText,Modals,clearIdentifiers,getGQLerror,err }
 // ${"\n"}${br}${"\n"}

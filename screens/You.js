@@ -34,7 +34,7 @@ import { GetDistributor } from '../api/db/queries'
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { Modals,getDimensions,clipText } from '../utils/Helpers'
+import { Modals,getDimensions,shortenUrl,clipText } from '../utils/Helpers'
 import { AppName } from '../config/Defaults'
 
 // COMPONENTS
@@ -244,16 +244,17 @@ class You extends Component {
       let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
       // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
       let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+      let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
       return (
         <View style={cardStyle}>
           <View style={cardLeft}>
             <Image source={{uri}} style={imgSize}/>
           </View>
           <View style={cardRight}>
-            <FontPoiret text={bizName} size={medium} color={Colors.white}/>
-            <FontPoiret text={`by ${fbkFirstName} ${fbkLastName}`} size={small} color={Colors.white}/>
+            <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
+            <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
             <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
-            <FontPoiret text={clipText(bizUri,32)} size={small} color={Colors.white}/>
+            <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
           </View>
         </View>
       )
@@ -263,12 +264,22 @@ class You extends Component {
           <View style={cardLeft}>
             <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
           </View>
-          <CardLines style={cardRight}/>
+          <View style={cardRight}>
+            <FontPoiret text="Nopster Nesterings" size={medium} color={Colors.white}/>
+            <FontPoiret text="Henrietta Rosenthalio" size={small} color={Colors.white}/>
+            <FontPoiret text="858-750-8318" size={medium} color={Colors.white}/>
+            <FontPoiret text={shortenUrl('https://www.milkofthepoppymilkofthepoppy.com',22)} size={small} color={Colors.white}/>
+          </View>
         </View>
       )
     }
   }
-
+  // <View style={cardStyle}>
+  //   <View style={cardLeft}>
+  //     <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+  //   </View>
+  //   <CardLines style={cardRight}/>
+  // </View>
   renderUserTypeForm(){
     let width = screen.width*.8
     let fieldRow = {flexDirection:'row',width,height:60}
