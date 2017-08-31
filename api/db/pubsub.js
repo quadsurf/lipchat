@@ -4,13 +4,16 @@ import gql from 'graphql-tag'
 
 // LIP COLORS
 const SubUserType = gql`
-subscription SubUserType{
+subscription SubUserType(
+  $UserId: ID!
+){
   User(
     filter: {
       mutation_in: [UPDATED]
+      node: { id: $UserId }
     }
   ){
-    node {
+    node{
       id
       type
     }

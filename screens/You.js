@@ -14,7 +14,7 @@ import {
   TouchableOpacity
 } from 'react-native'
 
-//LIBS
+// LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
 import { MKSwitch } from 'react-native-material-kit'
@@ -29,9 +29,9 @@ import {
   UpdateDistributorBizUri,UpdateDistributorLogoUri,
   LinkShopperToDistributor,DeLinkShopperFromDistributor
 } from '../api/db/mutations'
-import { GetDistributor,FindDistributor } from '../api/db/queries'
+import { GetDistributor } from '../api/db/queries'
 
-//LOCALS
+// LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
@@ -40,8 +40,9 @@ import { AppName } from '../config/Defaults'
 
 // COMPONENTS
 import { MyButton,CardLines } from './Components'
+import ShoppersDistCard from './You/ShoppersDistCard'
 
-//CONSTs
+// CONSTs
 const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const large = Texts.large.fontSize
@@ -83,7 +84,8 @@ class You extends Component {
     DistributorDistId: null,
     DistributorBizName: null,
     DistributorBizUri: null,
-    DistributorLogoUri: null
+    DistributorLogoUri: null,
+    findDistributorQueryIsReady: false
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -94,6 +96,11 @@ class You extends Component {
       return true
     }
     return false
+  }
+
+  componentWillMount(){
+    // console.log('this.props');
+    // console.log(this.props);
   }
 
   componentWillReceiveProps(newProps){
@@ -234,16 +241,57 @@ class You extends Component {
     )
   }
 
-  renderShoppersDistCard(width){
+  // renderShoppersDistCard(){
+  //   let size = 90
+  //   let width = screen.width*.8
+  //   let cardLeft = {width:size,height:size}
+  //   let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
+  //   let imgSize = {...cardLeft,borderRadius:12}
+  //   let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
+  //   if (this.state.ShoppersDist && this.state.ShoppersDist.userx) {
+  //     let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
+  //     let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
+  //     let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+  //     let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+  //     return (
+  //       <View style={cardStyle}>
+  //         <View style={cardLeft}>
+  //           <Image source={{uri}} style={imgSize}/>
+  //         </View>
+  //         <View style={cardRight}>
+  //           <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
+  //           <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
+  //           <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
+  //           <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
+  //         </View>
+  //       </View>
+  //     )
+  //   } else {
+  //     return (
+  //       <View style={cardStyle}>
+  //         <View style={cardLeft}>
+  //           <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+  //         </View>
+  //         <CardLines style={cardRight}/>
+  //       </View>
+  //     )
+  //   }
+  // }
+
+  renderShoppersDistCard(){
     let size = 90
+    let width = screen.width*.8
     let cardLeft = {width:size,height:size}
     let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
     let imgSize = {...cardLeft,borderRadius:12}
     let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
-    if (this.state.ShoppersDist && this.state.ShoppersDist.userx) {
+    if (
+      this.state.ShoppersDist
+      && this.state.ShoppersDist.userx
+      && !this.state.findDistributorQueryIsReady
+    ) {
       let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
       let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
-      // let uri = props.imgPref === 'self' ? props.fbkImg : props.logoImg
       let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
       return (
@@ -258,6 +306,13 @@ class You extends Component {
             <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
           </View>
         </View>
+      )
+    } else if (
+      this.state.findDistributorQueryIsReady
+      && this.state.ShoppersDistId
+    ) {
+      return (
+        <ShoppersDistCard distId={this.state.ShoppersDistId}/>
       )
     } else {
       return (
@@ -304,7 +359,6 @@ class You extends Component {
       )
     } else {
       let { ShoppersDist } = this.state
-      // console.log('ShoppersDist',ShoppersDist);
       return (
         <View style={{width,height:240}}>
           <View style={{...Views.middle,width}}>
@@ -317,7 +371,7 @@ class You extends Component {
             <View style={{flex:3,justifyContent:'center',alignItems:'flex-start',paddingLeft:10}}>{this.renderShoppersDistId()}</View>
           </View>
           <View style={{height:105}}>
-            {this.renderShoppersDistCard(width)}
+            {this.renderShoppersDistCard()}
           </View>
         </View>
       )
@@ -343,13 +397,17 @@ class You extends Component {
         style={{...distributorInputStyle,...inputStyleMedium}}
         onChangeText={(ShoppersDistId) => this.setState({ShoppersDistId})}
         keyboardType="default"
-        onBlur={() => this.findDistributorInDb()}
-        onSubmitEditing={() => this.findDistributorInDb()}
+        onBlur={() => this.makeFindDistributorReadyForQuery()}
+        onSubmitEditing={() => this.makeFindDistributorReadyForQuery()}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={12}
         returnKeyType="done"/>
     )
+  }
+
+  makeFindDistributorReadyForQuery(){
+    this.setState({findDistributorQueryIsReady:true})
   }
 
   renderDistId(){
@@ -627,9 +685,16 @@ class You extends Component {
   findDistributorInDb(){
     let { ShoppersDistId } = this.state
     if (ShoppersDistId) {
-      // this.props
+      // this.props.findDistributor.query({
+      //   query: FindDistributor,
+      //   variables: {DistributorDistId:ShoppersDistId}
+      // }).then( result => {
+      //   console.log('res from one-off query',result.data);
+      //     // localThis.fromUserInfo = result.data.getUserData[0];
+      //     // localThis.setState({fromAvatar: result.data.getUserData[0].picture_thumbnail})
+      // })
     } else {
-
+      console.log('could not find a distributor');
     }
   }
 

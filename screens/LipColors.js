@@ -97,6 +97,7 @@ class LipColors extends Component {
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubUserType,
+      variables: {UserId:this.state.user.id},
       updateQuery: (previous, { subscriptionData }) => {
         console.log('previous',previous);
         console.log('new',subscriptionData);

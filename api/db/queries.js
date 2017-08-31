@@ -122,7 +122,7 @@ query GetDistributor(
 
 const FindDistributor = gql`
 query FindDistributor(
-  $DistributorDistId: String!
+  $DistributorDistId: String
 ){
   allDistributors(
     filter: {
@@ -133,6 +133,7 @@ query FindDistributor(
     distId
     bizName
     bizUri
+    logoUri
     status
     userx {
       fbkFirstName
