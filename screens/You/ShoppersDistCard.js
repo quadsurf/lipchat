@@ -7,9 +7,11 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { FindDistributor } from '../../api/db/queries'
+import { LinkShopperToDistributor,DeLinkShopperFromDistributor } from '../../api/db/mutations'
 
 // LOCALS
 import { FontPoiret } from '../../assets/fonts/Fonts'
@@ -30,13 +32,43 @@ class ShoppersDistCard extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps) {
-      if (newProps.findDistributor && newProps.findDistributor.allDistributors) {
+      console.log(newProps);
+      if (
+        newProps.findDistributor
+        && newProps.findDistributor.allDistributors
+        && newProps.findDistributor.allDistributors.length > 0
+      ) {
         if (newProps.findDistributor.allDistributors[0] !== this.state.ShoppersDist ) {
-          this.setState({ShoppersDist:newProps.findDistributor.allDistributors[0]})
+          this.setState({ShoppersDist:newProps.findDistributor.allDistributors[0]},()=>{
+            this.linkShopperToDistributorInDb()
+          })
         }
-      } else {
-        console.log('props not properly received');
       }
+    }
+  }
+
+  checkIfLinkExists(){
+    if (true) {
+      // delink and link
+    } else {
+      // link
+    }
+  }
+
+  linkShopperToDistributorInDb(){
+    if (
+      this.state.ShoppersDist
+      && this.state.ShoppersDist.id
+      && this.props.shopperId
+    ) {
+      this.props.linkShopperToDistributor({
+        variables: {
+          ShopperId: this.props.shopperId,
+          DistributorId: this.state.ShoppersDist.id
+        }
+      })
+    } else {
+      console.log('not enuf inputs for gql request');
     }
   }
 
@@ -45,11 +77,21 @@ class ShoppersDistCard extends Component {
     let width = screen.width*.8
     let cardLeft = {width:size,height:size}
     let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
+    let noExist = {
+      height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
+    }
     let imgSize = {...cardLeft,borderRadius:12}
     let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
     if (!this.state.ShoppersDist) {
       return (
-        <View style={{flex:1}}><Text>loading...</Text></View>
+        <View style={cardStyle}>
+          <View style={cardLeft}>
+            <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+          </View>
+          <View style={noExist}>
+            <FontPoiret text="distributor does not exist" size={medium} color={Colors.white}/>
+          </View>
+        </View>
       )
     } else {
       let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
@@ -82,5 +124,11 @@ export default compose(
         DistributorDistId: props.distId
       }
     })
+  }),
+  graphql(LinkShopperToDistributor,{
+    name: 'linkShopperToDistributor'
+  }),
+  graphql(DeLinkShopperFromDistributor,{
+    name: 'deLinkShopperFromDistributor'
   })
 )(ShoppersDistCard)
