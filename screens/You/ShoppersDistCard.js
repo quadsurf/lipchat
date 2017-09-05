@@ -65,11 +65,8 @@ class ShoppersDistCard extends Component {
   }
 
   sendRequests(){
-    console.log('sendRequests func called');
     axios.all([this.getDistributor(),this.findDistributor()])
       .then(axios.spread( (currentDist,newDist) => {
-        console.log('currentDistributor',currentDist.data.data.Shopper.distributorsx)
-        console.log('newDistributor',newDist.data.data.allDistributors)
         let currentDistributor = currentDist.data.data.Shopper.distributorsx
         let newDistributor = newDist.data.data.allDistributors
         let currentDistributorExists = currentDistributor.length > 0 ? true : false
@@ -93,45 +90,18 @@ class ShoppersDistCard extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    console.log('newProps received');
     if (newProps) {
-      console.log('newProps received');
       if (newProps.distId) {
-        console.log('distId',newProps.distId)
         if (newProps.distId !== this.state.distId) {
-          console.log('the new distId is different')
           this.setState({distId:newProps.distId},()=>{
             this.sendRequests()
           })
-        } else {
-          console.log('the new distId is NOT different')
         }
       }
-      // if (
-      //   newProps.findDistributor && newProps.findDistributor.allDistributors
-      //   && newProps.findFormerDistributor && newProps.findFormerDistributor.allDistributors
-      // ) {
-      //   if (
-      //     newProps.findDistributor.allDistributors
-      //     !== newProps.findFormerDistributor.allDistributors
-      //   ) {
-      //     this.deLinkShopperFromDistributorInDb(newProps.findDistributor.allDistributors[0],newProps.findFormerDistributor.allDistributors[0])
-      //   } else {
-      //     this.linkShopperToDistributorInDb(newProps.findDistributor.allDistributors[0])
-      //   }
-      //   if (newProps.findDistributor.allDistributors.length > 0) {
-      //     if (newProps.findDistributor.allDistributors[0] !== this.state.ShoppersDist ) {
-      //       this.deLinkShopperFromDistributorInDb(newProps.findDistributor.allDistributors[0])
-      //     }
-      //   } else {
-      //     this.linkShopperToDistributorInDb(newProps.findDistributor.allDistributors[0])
-      //   }
-      // }
     }
   }
 
   linkShopperToDistributorInDb(ShoppersDist){
-    console.log('link func called');
     if (this.props.shopperId) {
       this.props.linkShopperToDistributor({
         variables: {
@@ -140,7 +110,6 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.addToShopperOnDistributor) {
-            console.log('link func success');
             this.setState({ShoppersDist})
         } else {
           console.log('1. no regular response from link request');
@@ -150,12 +119,10 @@ class ShoppersDistCard extends Component {
       })
     } else {
       console.log('3. not enuf valid inputs for gql link request');
-      console.log(ShoppersDist.id,this.props.shopperId);
     }
   }
 
   deLinkShopperFromDistributorInDb(ShoppersDist,formerShoppersDist,bool){
-    console.log('delink func called');
     if (this.props.shopperId) {
       this.props.deLinkShopperFromDistributor({
         variables: {
@@ -164,7 +131,6 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.removeFromShopperOnDistributor) {
-          console.log('delink func success');
           if (bool) {
             this.linkShopperToDistributorInDb(ShoppersDist)
           } else {
@@ -178,7 +144,6 @@ class ShoppersDistCard extends Component {
       })
     } else {
       console.log('3. not enuf valid inputs for gql delink request');
-      console.log(ShoppersDist,formerShoppersDist);
     }
   }
 
@@ -208,19 +173,34 @@ class ShoppersDistCard extends Component {
       let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
       let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-      return (
-        <View style={cardStyle}>
-          <View style={cardLeft}>
-            <Image source={{uri}} style={imgSize}/>
+      console.log('status',status);
+      if (status) {
+        return (
+          <View style={cardStyle}>
+            <View style={cardLeft}>
+              <Image source={{uri}} style={imgSize}/>
+            </View>
+            <View style={cardRight}>
+              <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
+              <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
+              <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
+              <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
+            </View>
           </View>
-          <View style={cardRight}>
-            <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
-            <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
-            <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
-            <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
+        )
+      } else {
+        return (
+          <View style={cardStyle}>
+            <View style={cardLeft}>
+              <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+            </View>
+            <View style={noExist}>
+              <FontPoiret text="distributor exists, but" size={medium} color={Colors.white}/>
+              <FontPoiret text="hasn't signed up yet" size={medium} color={Colors.white}/>
+            </View>
           </View>
-        </View>
-      )
+        )
+      }
     }
   }
 
