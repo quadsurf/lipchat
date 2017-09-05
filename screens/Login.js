@@ -125,7 +125,8 @@ class Login extends Component {
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter,marginBottom:this.state.bottomMargin}}>
               <FontPoiret text="Find Your Sexy" size={48} underline={true} />
-              <FontPoiret text={`overlay lip colors${"\n"}onto your selfie`} size={32} />
+              <FontPoiret text="overlay lip colors" size={32} />
+              <FontPoiret text="onto your selfie" size={32} />
             </View>
           </Image>
         </View>
@@ -246,7 +247,8 @@ class Login extends Component {
         let userId = res.token.user.id
         if (this.setItem('gcToken',gcToken)) {
           if (this.setItem('userId',userId)) {
-            this.updateFbkFriendsOnUser(userId,facebookUser.friends.data)
+            let localStorage = {gcToken,userId}
+            this.updateFbkFriendsOnUser(userId,facebookUser.friends.data,localStorage)
           }
         }
       } else {
@@ -257,7 +259,7 @@ class Login extends Component {
     })
   }
 
-  async updateFbkFriendsOnUser(id,fbkFriends){
+  async updateFbkFriendsOnUser(id,fbkFriends,localStorage){
     let errText = "updating your connections data"
     this.props.updateFbkFriends({
       variables: {
@@ -265,20 +267,19 @@ class Login extends Component {
         fbkFriends: fbkFriends
       }
     }).then( response => {
-      let res = response.data.updateUser || {}
-      if (res) {
-        this.handleRedirect(res)
+      let user = response.data.updateUser || {}
+      if (user) {
+        this.handleRedirect(user,localStorage)
       } else {
         this.openError(`${errText} (error code: 1-${id})`)
       }
     }).catch( e => {
-      this.openError(e.message)
-      // `${errText} (error code: 2-${id})`
+      this.openError(`${errText} (error code: 2-${id})`)
     })
   }
 
-  handleRedirect(user){
-    let passProps = {user}
+  handleRedirect(user,localStorage){
+    let passProps = {user,localStorage}
     setTimeout(()=>{
       this.setState({isModalOpen:false},()=>{
         this.props.navigation.navigate('LoggedIn',passProps)

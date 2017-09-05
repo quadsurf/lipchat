@@ -26,8 +26,7 @@ import { NavigationActions } from 'react-navigation'
 import {
   UpdateCellPhone,UpdateName,UpdateUserType,
   UpdateDistributorDistId,UpdateDistributorBizName,
-  UpdateDistributorBizUri,UpdateDistributorLogoUri,
-  LinkShopperToDistributor,DeLinkShopperFromDistributor
+  UpdateDistributorBizUri,UpdateDistributorLogoUri
 } from '../api/db/mutations'
 import { GetDistributor } from '../api/db/queries'
 
@@ -79,8 +78,8 @@ class You extends Component {
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : {},
-    ShoppersDistId: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0].distId : null,
+    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : null,
+    ShoppersDistId: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0].distId : "",
     DistributorDistId: null,
     DistributorBizName: null,
     DistributorBizUri: null,
@@ -99,8 +98,7 @@ class You extends Component {
   }
 
   componentWillMount(){
-    // console.log('this.props');
-    // console.log(this.props);
+
   }
 
   componentWillReceiveProps(newProps){
@@ -278,6 +276,7 @@ class You extends Component {
       return (
         <ShoppersDistCard
           distId={this.state.ShoppersDistId}
+          gcToken={this.props.localStorage.gcToken}
           shopperId={this.props.user.shopperx.id}/>
       )
     } else {
@@ -328,7 +327,7 @@ class You extends Component {
       return (
         <View style={{width,height:240}}>
           <View style={{...Views.middle,width}}>
-            <FontPoiret text={ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
+            <FontPoiret text={ShoppersDist && ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
           </View>
           <View style={[fieldRow,{marginBottom:15}]}>
             <View style={{flex:5,justifyContent:'center',alignItems:'flex-end'}}>
@@ -357,7 +356,9 @@ class You extends Component {
 
   renderShoppersDistId(){
     return (
-      <TextInput value={this.state.ShoppersDistId}
+      <TextInput
+        onFocus={() => this.setState({formerShoppersDistId:this.state.ShoppersDistId})}
+        value={this.state.ShoppersDistId}
         placeholder="add (optional)"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
@@ -375,7 +376,9 @@ class You extends Component {
   makeFindDistributorReadyForQuery(){
     let { ShoppersDistId } = this.state
     this.setState({ShoppersDistId:ShoppersDistId.trim()},()=>{
-      this.setState({findDistributorQueryIsReady:true})
+      if (this.state.ShoppersDistId !== this.state.formerShoppersDistId) {
+        this.setState({findDistributorQueryIsReady:true})
+      }
     })
   }
 
@@ -863,6 +866,35 @@ class You extends Component {
     }
   }
 
+  // deLinkShopperFromDistributorInDb(){
+  //   if (
+  //     this.props.user && this.props.user.shopperx
+  //     && this.props.user.shopperx.id
+  //     && this.state.ShoppersDist && this.state.ShoppersDist.id
+  //   ) {
+  //     this.props.deLinkShopperFromDistributor({
+  //       variables: {
+  //         ShopperId: this.props.user.shopperx.id,
+  //         DistributorId: this.state.ShoppersDist.id
+  //       }
+  //     }).then( res => {
+  //       console.log('deLinkShopperFromDistributorInDb func success w/ res',res.data);
+  //       if (res && res.data && res.data.removeFromShopperOnDistributor) {
+  //         this.setState({ShoppersDist:{}},()=>{
+  //           this.setState({findDistributorQueryIsReady:true})
+  //         })
+  //       } else {
+  //         console.log('1. not enuf inputs for gql delink request');
+  //       }
+  //     }).catch( e => {
+  //       console.log('2. deLinkShopperFromDistributorInDb func error',e.message);
+  //     })
+  //   } else {
+  //     console.log('3. not enuf inputs for gql delink request');
+  //     console.log(this.props.user.shopperx.id,this.state.ShoppersDist.id);
+  //   }
+  // }
+
   async logOut(){
     try {
       this.showModal('processing')
@@ -901,9 +933,6 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(LinkShopperToDistributor,{
-    name: 'linkShopperToDistributor'
-  }),
   graphql(UpdateCellPhone,{
     name: 'updateCellPhone'
   }),
@@ -924,8 +953,5 @@ export default compose(
   }),
   graphql(UpdateDistributorLogoUri,{
     name: 'updateDistributorLogoUri'
-  }),
-  graphql(DeLinkShopperFromDistributor,{
-    name: 'deLinkShopperFromDistributor'
   })
 )(You)

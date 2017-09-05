@@ -183,7 +183,8 @@ class AuthState extends Component {
 
   goTo(screen){
     let passProps = {
-      user: this.state.user || {}
+      user: this.state.user || {},
+      localStorage: this.props.screenProps.localStorage
     }
     setTimeout(()=>{
       this.props.navigation.navigate(screen,passProps)

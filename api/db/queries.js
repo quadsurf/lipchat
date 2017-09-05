@@ -120,7 +120,7 @@ query GetDistributor(
   }
 }`
 
-const FindDistributor = gql`
+const FindDistributor = `
 query FindDistributor(
   $DistributorDistId: String
 ){
@@ -144,6 +144,20 @@ query FindDistributor(
   }
 }`
 
+const CheckForDistributorOnShopper = `
+query CheckForDistributorOnShopper(
+  $ShopperId: ID
+){
+  Shopper(
+    id: $ShopperId
+  ){
+    id
+    distributorsx {
+      id
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper
 }

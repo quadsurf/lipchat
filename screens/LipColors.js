@@ -70,7 +70,6 @@ class LipColors extends Component {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
         if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
           this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
-            // console.log('colors: ',this.state.colors[0]);
             this.processColors(this.state.colors)
           })
         }
@@ -80,7 +79,6 @@ class LipColors extends Component {
         && newProps.getUserType.User
         && newProps.getUserType.User.type
       ) {
-        // console.log('UserType',newProps.getUserType);
         let type = this.state.userType
         let userType = newProps.getUserType.User.type
         if (userType !== type) {
@@ -499,7 +497,6 @@ export default compose(
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
-      // pollInterval: 10000,
       variables: {
         UserId: props.user.id || ""
       },
