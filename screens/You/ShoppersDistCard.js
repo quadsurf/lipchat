@@ -173,7 +173,6 @@ class ShoppersDistCard extends Component {
       let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
       let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-      console.log('status',status);
       if (status) {
         return (
           <View style={cardStyle}>

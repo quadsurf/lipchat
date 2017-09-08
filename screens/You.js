@@ -244,6 +244,9 @@ class You extends Component {
     let width = screen.width*.8
     let cardLeft = {width:size,height:size}
     let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
+    let noExist = {
+      height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
+    }
     let imgSize = {...cardLeft,borderRadius:12}
     let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
     if (
@@ -255,19 +258,33 @@ class You extends Component {
       let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
       let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-      return (
-        <View style={cardStyle}>
-          <View style={cardLeft}>
-            <Image source={{uri}} style={imgSize}/>
+      if (status) {
+        return (
+          <View style={cardStyle}>
+            <View style={cardLeft}>
+              <Image source={{uri}} style={imgSize}/>
+            </View>
+            <View style={cardRight}>
+              <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
+              <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
+              <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
+              <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
+            </View>
           </View>
-          <View style={cardRight}>
-            <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
-            <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
-            <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
-            <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
+        )
+      } else {
+        return (
+          <View style={cardStyle}>
+            <View style={cardLeft}>
+              <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+            </View>
+            <View style={noExist}>
+              <FontPoiret text="distributor exists, but" size={medium} color={Colors.white}/>
+              <FontPoiret text="hasn't signed up yet" size={medium} color={Colors.white}/>
+            </View>
           </View>
-        </View>
-      )
+        )
+      }
     } else if (
       this.state.findDistributorQueryIsReady
       && this.state.ShoppersDistId
