@@ -164,7 +164,8 @@ class ShoppersDistCard extends Component {
             <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
           </View>
           <View style={noExist}>
-            <FontPoiret text="distributor does not exist" size={medium} color={Colors.white}/>
+            <FontPoiret text="distributor not found" size={medium} color={Colors.white}/>
+            <FontPoiret text="please try again" size={medium} color={Colors.white}/>
           </View>
         </View>
       )
