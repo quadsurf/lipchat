@@ -11,7 +11,7 @@ import type { NavigationState } from 'react-native-tab-view/types'
 
 //SCREENS
 import Likes from '../screens/Likes'
-import Chat from '../screens/Chat'
+import Chat from '../screens/Chat/Chat'
 import Selfie from '../screens/Selfie'
 import LipColors from '../screens/LipColors'
 import You from '../screens/You'
@@ -43,7 +43,7 @@ type State = NavigationState<Route>;
 export default class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 4,
+      index: 1,
       routes: [
         { key: '0', title: 'LIKES', icon: 'ios-heart' },
         { key: '1', title: 'CHAT', icon: 'chat' },

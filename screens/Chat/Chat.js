@@ -6,14 +6,20 @@ import {
   View
 } from 'react-native'
 
-//LIBS
+// LIBS
+import { compose,graphql } from 'react-apollo'
+import { DotsLoader } from 'react-native-indicator'
+
+// GQL
+import { GetChatsForDistributor } from '../../api/db/queries'
+// import {  } from '../../api/db/pubsub'
 
 
 //LOCALS
-import { Views,Colors,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals } from '../utils/Helpers'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import MyStatusBar from '../../common/MyStatusBar'
+import { Modals,getDimensions } from '../../utils/Helpers'
 
 class Chat extends Component {
 
@@ -21,10 +27,12 @@ class Chat extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    user: this.props.user
+    user: this.props.user,
+    userType: this.props.user.type
   }
 
   shouldComponentUpdate(nextProps,nextState){
+    console.log('nextProps',nextProps);
     if (this.props !== nextProps) {
       return true
     }
@@ -34,9 +42,6 @@ class Chat extends Component {
     return false
   }
 
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -81,4 +86,15 @@ class Chat extends Component {
 
 }
 
-export default Chat
+export default compose(
+  graphql(GetChatsForDistributor,{
+    name: 'getChatsForDistributor',
+    options: props => ({
+      variables: {
+        DistributorId: {
+          id: props.user && props.user.distributorx && props.user.distributorx.id ? props.user.distributorx.id : ''
+        }
+      }
+    })
+  })
+)(Chat)
