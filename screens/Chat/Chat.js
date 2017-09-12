@@ -11,15 +11,18 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetChatsForDistributor } from '../../api/db/queries'
-// import {  } from '../../api/db/pubsub'
+import { GetChatsForShopper,GetChatsForDistributor } from '../../api/db/queries'
+import { SubShoppersChats,SubDistributorsChats } from '../../api/db/pubsub'
 
 
-//LOCALS
+// LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
+
+// COMPONENTS
+import ChatCard from './ChatCard'
 
 class Chat extends Component {
 
@@ -27,19 +30,94 @@ class Chat extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    user: this.props.user,
-    userType: this.props.user.type
+    user: this.props.user ? this.props.user : null,
+    userType: this.props.user && this.props.user.type ? this.props.user.type : null,
+    chats: null
+  }
+
+  componentWillMount(){
+    console.log('userId',this.props.user.id);
+    console.log('shopperId',this.props.user.shopperx.id);
+    console.log('distributorId',this.props.user.distributorx.id);
   }
 
   shouldComponentUpdate(nextProps,nextState){
-    console.log('nextProps',nextProps);
-    if (this.props !== nextProps) {
-      return true
-    }
     if (this.state !== nextState) {
       return true
     }
     return false
+  }
+
+  componentWillReceiveProps(newProps){
+    if (newProps) {
+
+      if (newProps !== this.props) {
+
+        if (this.state.userType === 'DIST') {
+
+          if (
+            newProps.getChatsForDistributor
+            && Array.isArray(newProps.getChatsForDistributor.allChats)
+          ) {
+
+            if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
+              this.setState({chats:newProps.getChatsForDistributor.allChats})
+            }
+          }
+
+        }
+
+        if (this.state.userType === 'SHOPPER') {
+
+          if (
+            newProps.getChatsForShopper
+            && Array.isArray(newProps.getChatsForShopper.allChats)
+          ) {
+
+            if (newProps.getChatsForShopper.allChats !== this.state.chats) {
+              this.setState({chats:newProps.getChatsForShopper.allChats})
+            }
+          }
+
+        }
+
+      }
+    }
+  }
+
+  componentDidMount(){
+    this.subToShoppersChats()
+    this.subToDistributorsChats()
+  }
+
+  subToShoppersChats(){
+    if (this.props.user && this.props.user.shopperx)
+    this.props.getChatsForShopper.subscribeToMore({
+      document: SubShoppersChats,
+      variables: {ShopperId:{"id":this.props.user.shopperx.id}},
+      updateQuery: (previous, { subscriptionData }) => {
+        console.log('new Chats for Shopper',subscriptionData);
+        this.setState({chats:[
+          ...previous.allChats,
+          subscriptionData.data.Chat.node
+        ]})
+      }
+    })
+  }
+
+  subToDistributorsChats(){
+    if (this.props.user && this.props.user.distributorx)
+    this.props.getChatsForDistributor.subscribeToMore({
+      document: SubDistributorsChats,
+      variables: {DistributorId:{"id":this.props.user.distributorx.id}},
+      updateQuery: (previous, { subscriptionData }) => {
+        console.log('new Chats for Distributor',subscriptionData);
+        this.setState({chats:[
+          ...previous.allChats,
+          subscriptionData.data.Chat.node
+        ]})
+      }
+    })
   }
 
   showModal(modalType,title,description,message=''){
@@ -66,10 +144,29 @@ class Chat extends Component {
     )
   }
 
+  openError(errText){
+    this.setState({isModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('err','Chat',errText)
+      },700)
+    })
+  }
+
+  renderChats(){
+    if (this.state.chats) {
+      return this.state.chats.map( chat => {
+        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.user.distributorx.status}/>
+      })
+    } else {
+      return <FontPoiret text="No Chats Yet" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+    }
+  }
+
   renderMainContent(){
     return (
       <View style={{...Views.middle}}>
-        <FontPoiret text="Chat" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+        <FontPoiret text="Chats" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+        {this.renderChats()}
       </View>
     )
   }
@@ -93,6 +190,16 @@ export default compose(
       variables: {
         DistributorId: {
           id: props.user && props.user.distributorx && props.user.distributorx.id ? props.user.distributorx.id : ''
+        }
+      }
+    })
+  }),
+  graphql(GetChatsForShopper,{
+    name: 'getChatsForShopper',
+    options: props => ({
+      variables: {
+        ShopperId: {
+          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
         }
       }
     })

@@ -20,6 +20,78 @@ subscription SubUserType(
   }
 }`
 
+// CHAT
+const SubShoppersChats = gql`
+subscription SubShoppersChats(
+  $ShopperId: ShopperFilter!
+){
+  Chat(
+    filter: {
+      mutation_in: [CREATED,UPDATED]
+      node: {
+        shoppersx_every: $ShopperId
+      }
+    }
+  ){
+    node {
+      id
+      alias
+      updatedAt
+      distributorsx(
+        first:1
+      ){
+        userx {
+          fbkFirstName
+          fbkLastName
+          fbkUserId
+        }
+        bizName
+        logoUri
+        status
+      }
+      messages(
+        last:1
+      ){
+        text
+      }
+    }
+  }
+}`
+
+const SubDistributorsChats = gql`
+subscription SubDistributorsChats(
+  $DistributorId: DistributorFilter!
+){
+  Chat(
+    filter: {
+      mutation_in: [CREATED,UPDATED]
+      node: {
+        distributorsx_every: $DistributorId
+      }
+    }
+  ){
+    node {
+      id
+      alias
+      updatedAt
+      shoppersx(
+        first:1
+      ){
+        userx {
+          fbkFirstName
+          fbkLastName
+          fbkUserId
+        }
+      }
+      messages(
+        last:1
+      ){
+        text
+      }
+    }
+  }
+}`
+
 export {
-  SubUserType
+  SubUserType,SubShoppersChats,SubDistributorsChats
 }

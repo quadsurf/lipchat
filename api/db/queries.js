@@ -189,6 +189,39 @@ query GetChatsForDistributor(
   }
 }`
 
+const GetChatsForShopper = gql`
+query GetChatsForShopper(
+  $ShopperId: ShopperFilter!
+){
+  allChats(
+    orderBy: updatedAt_ASC,
+    filter: {
+      shoppersx_every: $ShopperId
+    }
+  ){
+    id
+    alias
+    updatedAt
+    distributorsx(
+      first:1
+    ){
+      userx {
+        fbkFirstName
+        fbkLastName
+        fbkUserId
+      }
+      bizName
+      logoUri
+      status
+    }
+    messages(
+      last:1
+    ){
+      text
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForDistributor
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor
 }

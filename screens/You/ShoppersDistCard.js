@@ -207,24 +207,6 @@ class ShoppersDistCard extends Component {
 }
 
 export default compose(
-  // graphql(FindDistributor,{
-  //   name: 'findDistributor',
-  //   options: props => ({
-  //     variables: {
-  //       DistributorDistId: props.distId
-  //     },
-  //     fetchPolicy: 'network-only'
-  //   })
-  // }),
-  // graphql(FindDistributor,{
-  //   name: 'findFormerDistributor',
-  //   options: props => ({
-  //     variables: {
-  //       DistributorDistId: props.formerDistId
-  //     },
-  //     fetchPolicy: 'network-only'
-  //   })
-  // }),
   graphql(LinkShopperToDistributor,{
     name: 'linkShopperToDistributor'
   }),
