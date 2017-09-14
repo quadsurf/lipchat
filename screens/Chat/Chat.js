@@ -31,17 +31,21 @@ class Chat extends Component {
     modalType: 'processing',
     modalContent: {},
     user: this.props.user ? this.props.user : null,
-    userType: this.props.user && this.props.user.type ? this.props.user.type : null,
+    // userType: this.props.user && this.props.user.type ? this.props.user.type : null,
+    userType: this.props.userType ? this.props.userType : null,
     chats: null
   }
 
   componentWillMount(){
-    console.log('userId',this.props.user.id);
-    console.log('shopperId',this.props.user.shopperx.id);
-    console.log('distributorId',this.props.user.distributorx.id);
+    // console.log('userId',this.props.user.id);
+    // console.log('shopperId',this.props.user.shopperx.id);
+    // console.log('distributorId',this.props.user.distributorx.id);
   }
 
   shouldComponentUpdate(nextProps,nextState){
+    if (this.props !== nextProps) {
+      return true
+    }
     if (this.state !== nextState) {
       return true
     }
@@ -153,12 +157,18 @@ class Chat extends Component {
   }
 
   renderChats(){
+    // this.props.user.distributorx.status
     if (this.state.chats) {
       return this.state.chats.map( chat => {
-        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.user.distributorx.status}/>
+        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus}/>
       })
     } else {
-      return <FontPoiret text="No Chats Yet" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+      return (
+        <DotsLoader
+          size={15}
+          color={Colors.pink}
+          frequency={5000}/>
+      )
     }
   }
 

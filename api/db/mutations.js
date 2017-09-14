@@ -43,6 +43,7 @@ mutation UpdateFbkFriends(
       bizName
       bizUri
       logoUri
+      status
     }
     shopperx {
       id

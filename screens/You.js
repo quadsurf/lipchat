@@ -71,7 +71,7 @@ class You extends Component {
     cellPhone: this.props.user.cellPhone,
     tempCell: '',
     name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-    userType: this.props.user.type,
+    userType: this.props.userType,//this.props.user.type
     isNumericKeyPadOpen: false,
     isUserTypeSubmitModalOpen: false,
     isCellSubmitModalOpen: false,
@@ -279,8 +279,8 @@ class You extends Component {
               <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
             </View>
             <View style={noExist}>
-              <FontPoiret text="distributor exists, but" size={medium} color={Colors.white}/>
-              <FontPoiret text="hasn't signed up yet" size={medium} color={Colors.white}/>
+              <FontPoiret text="distributor exists but hasn't" size={medium} color={Colors.white}/>
+              <FontPoiret text="been approved yet" size={medium} color={Colors.white}/>
             </View>
           </View>
         )

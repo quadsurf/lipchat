@@ -40,6 +40,7 @@ subscription SubShoppersChats(
       distributorsx(
         first:1
       ){
+        id
         userx {
           fbkFirstName
           fbkLastName
@@ -48,6 +49,9 @@ subscription SubShoppersChats(
         bizName
         logoUri
         status
+      }
+      _messagesMeta {
+        count
       }
       messages(
         last:1
@@ -77,11 +81,15 @@ subscription SubDistributorsChats(
       shoppersx(
         first:1
       ){
+        id
         userx {
           fbkFirstName
           fbkLastName
           fbkUserId
         }
+      }
+      _messagesMeta {
+        count
       }
       messages(
         last:1
@@ -92,6 +100,25 @@ subscription SubDistributorsChats(
   }
 }`
 
+const SubToDistributorStatus = gql`
+subscription SubToDistributorStatus(
+  $DistributorId: ID!
+){
+  Distributor(
+    filter: {
+      mutation_in: [UPDATED],
+      node: {
+        id: $DistributorId
+      }
+    }
+  ){
+    node {
+      id
+      status
+    }
+  }
+}`
+
 export {
-  SubUserType,SubShoppersChats,SubDistributorsChats
+  SubUserType,SubShoppersChats,SubDistributorsChats,SubToDistributorStatus
 }

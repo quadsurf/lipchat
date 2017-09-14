@@ -8,6 +8,11 @@ import { Animated, View, Text, StyleSheet } from 'react-native'
 import { Ionicons,Entypo,MaterialCommunityIcons } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
+import { compose,graphql } from 'react-apollo'
+
+// GQL
+import { GetUserType,GetDistributorStatus } from '../api/db/queries'
+import { SubUserType,SubToDistributorStatus } from '../api/db/pubsub'
 
 //SCREENS
 import Likes from '../screens/Likes'
@@ -40,7 +45,7 @@ type Route = {
 
 type State = NavigationState<Route>;
 
-export default class TabNav extends PureComponent<void, *, State> {
+class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
       index: 1,
@@ -51,8 +56,66 @@ export default class TabNav extends PureComponent<void, *, State> {
         { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
         { key: '4', title: 'YOU', icon: 'account' }
       ],
-      loaded: false
+      loaded: false,
+      userType: this.props.navigation.state.params.user.type,
+      distributorStatus: this.props.navigation.state.params.user.distributorx.status
     }
+
+  componentWillMount(){
+    console.log('this.props.getDistributorStatus',this.props.getDistributorStatus);
+    this.subToUserType()
+    this.subToDistributorStatus()
+  }
+
+  subToUserType(){
+    this.props.getUserType.subscribeToMore({
+      document: SubUserType,
+      variables: {UserId:this.props.navigation.state.params.user.id},
+      updateQuery: (previous, { subscriptionData }) => {
+        // console.log('previous on TabNav',previous);
+        // console.log('new on TabNav',subscriptionData);
+      }
+    })
+  }
+
+  subToDistributorStatus(){
+    this.props.getDistributorStatus.subscribeToMore({
+      document: SubToDistributorStatus,
+      variables: {DistributorId:this.props.navigation.state.params.user.distributorx.id},
+      updateQuery: (previous, { subscriptionData }) => {
+        // console.log('previous on TabNav',previous);
+        // console.log('new on TabNav',subscriptionData);
+      }
+    })
+  }
+
+  componentWillReceiveProps(newProps){
+    if (newProps) {
+      if (
+        newProps.getUserType
+        && newProps.getUserType.User
+        && newProps.getUserType.User.type
+      ) {
+        let type = this.state.userType
+        let userType = newProps.getUserType.User.type
+        if (userType !== type) {
+          this.setState({userType})
+        }
+      }
+      if (
+        newProps.getDistributorStatus
+        && newProps.getDistributorStatus.Distributor
+        && newProps.getDistributorStatus.Distributor.status
+      ) {
+        console.log('there was a distributorStatus received',newProps.getDistributorStatus.Distributor.status);
+        let localStatus = this.state.distributorStatus
+        let distributorStatus = newProps.getDistributorStatus.Distributor.status
+        if (distributorStatus !== localStatus) {
+          this.setState({distributorStatus})
+        }
+      }
+    }
+  }
 
   handleChangeTab = index => {
     this.setState({index})
@@ -138,6 +201,7 @@ export default class TabNav extends PureComponent<void, *, State> {
   renderScene = ({ route,focused }) => {
     let { user,localStorage } = this.props.navigation.state.params
     let { navigation } = this.props
+    let { userType,distributorStatus } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -146,6 +210,8 @@ export default class TabNav extends PureComponent<void, *, State> {
             focused={focused}
             tabRoute={route}
             user={user}
+            userType={userType}
+            distributorStatus={distributorStatus}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -157,6 +223,8 @@ export default class TabNav extends PureComponent<void, *, State> {
             focused={focused}
             tabRoute={route}
             user={user}
+            userType={userType}
+            distributorStatus={distributorStatus}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -168,6 +236,8 @@ export default class TabNav extends PureComponent<void, *, State> {
             focused={focused}
             tabRoute={route}
             user={user}
+            userType={userType}
+            distributorStatus={distributorStatus}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -179,6 +249,8 @@ export default class TabNav extends PureComponent<void, *, State> {
             focused={focused}
             tabRoute={route}
             user={user}
+            userType={userType}
+            distributorStatus={distributorStatus}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -190,6 +262,8 @@ export default class TabNav extends PureComponent<void, *, State> {
             focused={focused}
             tabRoute={route}
             user={user}
+            userType={userType}
+            distributorStatus={distributorStatus}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -216,6 +290,27 @@ export default class TabNav extends PureComponent<void, *, State> {
   }
 
 }
+
+export default compose(
+  graphql(GetUserType,{
+    name: 'getUserType',
+    options: props => ({
+      variables: {
+        UserId: props.navigation.state.params.user.id || ""
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(GetDistributorStatus,{
+    name: 'getDistributorStatus',
+    options: props => ({
+      variables: {
+        DistributorId: props.navigation.state.params.user.distributorx.id || ""
+      },
+      fetchPolicy: 'network-only'
+    })
+  })
+)(TabNav)
 
 const styles = StyleSheet.create({
   container: {

@@ -24,6 +24,7 @@ query GetUser(
     type
     distributorx {
       id
+      status
     }
     shopperx {
       id
@@ -175,11 +176,15 @@ query GetChatsForDistributor(
     shoppersx(
       first:1
     ){
+      id
       userx {
         fbkFirstName
         fbkLastName
         fbkUserId
       }
+    }
+    _messagesMeta {
+      count
     }
     messages(
       last:1
@@ -205,6 +210,7 @@ query GetChatsForShopper(
     distributorsx(
       first:1
     ){
+      id
       userx {
         fbkFirstName
         fbkLastName
@@ -214,6 +220,9 @@ query GetChatsForShopper(
       logoUri
       status
     }
+    _messagesMeta {
+      count
+    }
     messages(
       last:1
     ){
@@ -222,6 +231,17 @@ query GetChatsForShopper(
   }
 }`
 
+const GetDistributorStatus = gql`
+query GetDistributorStatus(
+  $DistributorId: ID!
+){
+  Distributor(
+    id: $DistributorId
+  ){
+    status
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus
 }

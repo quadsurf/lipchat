@@ -89,7 +89,7 @@ class LipColors extends Component {
   }
 
   componentDidMount(){
-    this.subToUserType()
+    // this.subToUserType()
   }
 
   subToUserType(){
@@ -97,8 +97,8 @@ class LipColors extends Component {
       document: SubUserType,
       variables: {UserId:this.state.user.id},
       updateQuery: (previous, { subscriptionData }) => {
-        console.log('previous',previous);
-        console.log('new',subscriptionData);
+        // console.log('previous',previous);
+        // console.log('new',subscriptionData);
       }
     })
   }

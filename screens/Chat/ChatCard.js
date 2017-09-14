@@ -38,6 +38,7 @@ const ChatCard = props => {
   }
 
   let { chat,userType,viewersStatus } = props
+  // console.log('props on ChatCard',props);
   let { id,alias } = chat
   let count = chat.messages.length
   let date = chat.updatedAt
@@ -61,8 +62,10 @@ const ChatCard = props => {
   let uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
 
   if (status) {
+      // viewing approved DISTs
       if (userType === 'DIST') {
           if (viewersStatus) {
+            // approved DIST viewing an approved DIST
             return (
               <View style={cardStyle}>
                 <View style={cardLeft}>
@@ -77,6 +80,7 @@ const ChatCard = props => {
               </View>
             )
           } else {
+            // unapproved DIST viewing an approved DIST
             return (
               <View style={cardStyle}>
                 <View style={cardLeft}>
@@ -89,6 +93,7 @@ const ChatCard = props => {
             )
           }
       } else {
+        // shopper viewing an approved DIST [tested,passed]
         return (
           <View style={cardStyle}>
             <View style={cardLeft}>
@@ -103,17 +108,66 @@ const ChatCard = props => {
         )
       }
   } else {
-    return (
-      <View style={cardStyle}>
-        <View style={cardLeft}>
-          <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+    if (status === false) {
+      // viewing unapproved DIST [tested,passed]
+      return (
+        <View style={cardStyle}>
+          <View style={cardLeft}>
+            <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+          </View>
+          <View style={noExist}>
+            <FontPoiret text="distributor exists but hasn't" size={medium} color={Colors.white}/>
+            <FontPoiret text="been approved yet" size={medium} color={Colors.white}/>
+          </View>
         </View>
-        <View style={noExist}>
-          <FontPoiret text="distributor exists, but" size={medium} color={Colors.white}/>
-          <FontPoiret text="hasn't signed up yet" size={medium} color={Colors.white}/>
-        </View>
-      </View>
-    )
+      )
+    } else {
+      // viewing shoppers
+      if (userType === 'DIST') {
+          if (viewersStatus) {
+            // approved DIST viewing a shopper [tested,passed]
+            return (
+              <View style={cardStyle}>
+                <View style={cardLeft}>
+                  <Image source={{uri}} style={imgSize}/>
+                </View>
+                <View style={cardRight}>
+                  <FontPoiret text={clipText(chatTitle,17)} size={medium} color={Colors.white}/>
+                  <FontPoiret text={message} size={small} color={Colors.white}/>
+                  <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
+                </View>
+              </View>
+            )
+          } else {
+            // unapproved DIST viewing a shopper [tested,passed]
+            return (
+              <View style={cardStyle}>
+                <View style={cardLeft}>
+                  <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+                </View>
+                <View style={noExist}>
+                  <FontPoiret text="show lock" size={medium} color={Colors.white}/>
+                  <FontPoiret text="this shopper is waiting for you to get approved" size={medium} color={Colors.white}/>
+                </View>
+              </View>
+            )
+          }
+      } else {
+        // shopper viewing shopper
+        return (
+          <View style={cardStyle}>
+            <View style={cardLeft}>
+              <Image source={{uri}} style={imgSize}/>
+            </View>
+            <View style={cardRight}>
+              <FontPoiret text={clipText(chatTitle,17)} size={medium} color={Colors.white}/>
+              <FontPoiret text={message} size={small} color={Colors.white}/>
+              <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
+            </View>
+          </View>
+        )
+      }
+    }
   }
 
 }
