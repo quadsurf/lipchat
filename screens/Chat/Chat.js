@@ -6,14 +6,17 @@ import {
   View
 } from 'react-native'
 
+//ENV VARS
+import { PROJECT_ID } from 'react-native-dotenv'
+
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import axios from 'axios'
 
 // GQL
-import { GetChatsForShopper,GetChatsForDistributor } from '../../api/db/queries'
-import { SubShoppersChats,SubDistributorsChats } from '../../api/db/pubsub'
-
+import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
+import { SubShoppersChats,SubDistributorsChats,SubToDistributorsForShopper } from '../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -21,12 +24,17 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
+// CONSTs
+const method = 'post'
+const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
+
 // COMPONENTS
 import ChatCard from './ChatCard'
 
 class Chat extends Component {
 
   state = {
+    Authorization: `Bearer ${this.props.localStorage.gcToken}`,
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
@@ -54,37 +62,40 @@ class Chat extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps) {
-
       if (newProps !== this.props) {
-
-        if (this.state.userType === 'DIST') {
-
-          if (
-            newProps.getChatsForDistributor
-            && Array.isArray(newProps.getChatsForDistributor.allChats)
-          ) {
-
-            if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
-              this.setState({chats:newProps.getChatsForDistributor.allChats})
-            }
+          if (this.state.userType === 'DIST') {
+              if (
+                newProps.getChatsForDistributor
+                && Array.isArray(newProps.getChatsForDistributor.allChats)
+              ) {
+                  if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
+                    this.setState({chats:newProps.getChatsForDistributor.allChats})
+                  }
+              }
           }
-
-        }
-
-        if (this.state.userType === 'SHOPPER') {
-
-          if (
-            newProps.getChatsForShopper
-            && Array.isArray(newProps.getChatsForShopper.allChats)
-          ) {
-
-            if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-              this.setState({chats:newProps.getChatsForShopper.allChats})
-            }
+          if (this.state.userType === 'SHOPPER') {
+              if (
+                newProps.getChatsForShopper
+                && Array.isArray(newProps.getChatsForShopper.allChats)
+              ) {
+                  if (newProps.getChatsForShopper.allChats !== this.state.chats) {
+                    this.setState({chats:newProps.getChatsForShopper.allChats})
+                  }
+              }
+              if (
+                newProps.getAllDistributorsStatusForShopper
+                && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
+              ) {
+                console.log('as a shopper, there are newProps for allDistributors');
+                if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
+                  this.setState({
+                    allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
+                  },()=>{
+                    this.refetchChats()
+                  })
+                }
+              }
           }
-
-        }
-
       }
     }
   }
@@ -92,36 +103,45 @@ class Chat extends Component {
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
+    this.subToAllDistributorsStatusForShopper()
   }
 
   subToShoppersChats(){
-    if (this.props.user && this.props.user.shopperx)
-    this.props.getChatsForShopper.subscribeToMore({
-      document: SubShoppersChats,
-      variables: {ShopperId:{"id":this.props.user.shopperx.id}},
-      updateQuery: (previous, { subscriptionData }) => {
-        console.log('new Chats for Shopper',subscriptionData);
-        this.setState({chats:[
-          ...previous.allChats,
-          subscriptionData.data.Chat.node
-        ]})
-      }
-    })
+    if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
+      this.props.getChatsForDistributor.subscribeToMore({
+        document: SubShoppersChats,
+        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
+        updateQuery: (previous, { subscriptionData }) => {}
+      })
+    }
   }
 
   subToDistributorsChats(){
-    if (this.props.user && this.props.user.distributorx)
-    this.props.getChatsForDistributor.subscribeToMore({
-      document: SubDistributorsChats,
-      variables: {DistributorId:{"id":this.props.user.distributorx.id}},
-      updateQuery: (previous, { subscriptionData }) => {
-        console.log('new Chats for Distributor',subscriptionData);
-        this.setState({chats:[
-          ...previous.allChats,
-          subscriptionData.data.Chat.node
-        ]})
-      }
-    })
+    if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
+      this.props.getChatsForShopper.subscribeToMore({
+        document: SubDistributorsChats,
+        variables: {DistributorId:{"id":this.props.user.distributorx.id}},
+        updateQuery: (previous, { subscriptionData }) => {}
+      })
+    }
+  }
+
+  subToAllDistributorsStatusForShopper(){
+    if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
+      console.log(this.props.getAllDistributorsStatusForShopper);
+      this.props.getAllDistributorsStatusForShopper.subscribeToMore({
+        document: SubToDistributorsForShopper,
+        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
+        updateQuery: (previous, { subscriptionData }) => {
+          console.log('new Distributors Status for Shopper')
+        }
+      })
+    }
+  }
+
+  refetchChats(){
+    console.log('refetchChats func called')
+    console.log(this.state.allDistributorsStatusForShopper);
   }
 
   showModal(modalType,title,description,message=''){
@@ -206,6 +226,17 @@ export default compose(
   }),
   graphql(GetChatsForShopper,{
     name: 'getChatsForShopper',
+    options: props => ({
+      // pollInterval: 5000,
+      variables: {
+        ShopperId: {
+          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
+        }
+      }
+    })
+  }),
+  graphql(GetAllDistributorsStatusForShopper,{
+    name: 'getAllDistributorsStatusForShopper',
     options: props => ({
       variables: {
         ShopperId: {

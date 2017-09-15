@@ -242,6 +242,38 @@ query GetDistributorStatus(
   }
 }`
 
+const GetAllDistributorsStatusForShopper = gql`
+query GetDistributorsForShopper(
+  $ShopperId: ShopperFilter!
+){
+  allDistributors(
+    filter: {
+      shoppersx_every: $ShopperId
+    }
+  ){
+    id
+    status
+  }
+}`
+
+// not in use
+const GetAllDistributorIdsForShopper = gql`
+query GetAllDistributorIdsForShopper(
+  $ShopperId: ShopperFilter!
+){
+  allChats(
+    filter: {
+      shoppersx_every: $ShopperId
+    }
+  ){
+    id
+    distributorsx{
+      id
+      status
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper
 }

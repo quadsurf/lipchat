@@ -113,12 +113,30 @@ subscription SubToDistributorStatus(
     }
   ){
     node {
-      id
       status
     }
   }
 }`
 
+const SubToDistributorsForShopper = gql`
+subscription SubToDistributorsForShopper(
+  $ShopperId: ShopperFilter!
+){
+  Distributor(
+    filter: {
+      mutation_in: [UPDATED],
+      node: {
+        shoppersx_every: $ShopperId
+      }
+    }
+  ){
+    node {
+      id
+    	status
+    }
+  }
+}`
+
 export {
-  SubUserType,SubShoppersChats,SubDistributorsChats,SubToDistributorStatus
+  SubUserType,SubShoppersChats,SubDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper
 }

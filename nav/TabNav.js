@@ -62,7 +62,6 @@ class TabNav extends PureComponent<void, *, State> {
     }
 
   componentWillMount(){
-    console.log('this.props.getDistributorStatus',this.props.getDistributorStatus);
     this.subToUserType()
     this.subToDistributorStatus()
   }
@@ -107,7 +106,6 @@ class TabNav extends PureComponent<void, *, State> {
         && newProps.getDistributorStatus.Distributor
         && newProps.getDistributorStatus.Distributor.status
       ) {
-        console.log('there was a distributorStatus received',newProps.getDistributorStatus.Distributor.status);
         let localStatus = this.state.distributorStatus
         let distributorStatus = newProps.getDistributorStatus.Distributor.status
         if (distributorStatus !== localStatus) {
