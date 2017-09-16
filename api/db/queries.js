@@ -248,7 +248,7 @@ query GetDistributorsForShopper(
 ){
   allDistributors(
     filter: {
-      shoppersx_every: $ShopperId
+      shoppersx_some: $ShopperId
     }
   ){
     id

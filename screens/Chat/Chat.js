@@ -7,12 +7,11 @@ import {
 } from 'react-native'
 
 //ENV VARS
-import { PROJECT_ID } from 'react-native-dotenv'
+
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
-import axios from 'axios'
 
 // GQL
 import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
@@ -25,8 +24,7 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
-const method = 'post'
-const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
+
 
 // COMPONENTS
 import ChatCard from './ChatCard'
@@ -34,7 +32,6 @@ import ChatCard from './ChatCard'
 class Chat extends Component {
 
   state = {
-    Authorization: `Bearer ${this.props.localStorage.gcToken}`,
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
@@ -65,7 +62,7 @@ class Chat extends Component {
       if (newProps !== this.props) {
           if (this.state.userType === 'DIST') {
               if (
-                newProps.getChatsForDistributor
+                newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
                 && Array.isArray(newProps.getChatsForDistributor.allChats)
               ) {
                   if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
@@ -75,7 +72,7 @@ class Chat extends Component {
           }
           if (this.state.userType === 'SHOPPER') {
               if (
-                newProps.getChatsForShopper
+                newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
                 && Array.isArray(newProps.getChatsForShopper.allChats)
               ) {
                   if (newProps.getChatsForShopper.allChats !== this.state.chats) {
@@ -84,14 +81,12 @@ class Chat extends Component {
               }
               if (
                 newProps.getAllDistributorsStatusForShopper
+                && newProps.getAllDistributorsStatusForShopper.allDistributors
                 && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
               ) {
-                console.log('as a shopper, there are newProps for allDistributors');
                 if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
                   this.setState({
                     allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
-                  },()=>{
-                    this.refetchChats()
                   })
                 }
               }
@@ -110,8 +105,7 @@ class Chat extends Component {
     if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
       this.props.getChatsForDistributor.subscribeToMore({
         document: SubShoppersChats,
-        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
-        updateQuery: (previous, { subscriptionData }) => {}
+        variables: {ShopperId:{"id":this.props.user.shopperx.id}}
       })
     }
   }
@@ -120,28 +114,18 @@ class Chat extends Component {
     if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
       this.props.getChatsForShopper.subscribeToMore({
         document: SubDistributorsChats,
-        variables: {DistributorId:{"id":this.props.user.distributorx.id}},
-        updateQuery: (previous, { subscriptionData }) => {}
+        variables: {DistributorId:{"id":this.props.user.distributorx.id}}
       })
     }
   }
 
   subToAllDistributorsStatusForShopper(){
     if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
-      console.log(this.props.getAllDistributorsStatusForShopper);
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
         document: SubToDistributorsForShopper,
-        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
-        updateQuery: (previous, { subscriptionData }) => {
-          console.log('new Distributors Status for Shopper')
-        }
+        variables: {ShopperId:{"id":this.props.user.shopperx.id}}
       })
     }
-  }
-
-  refetchChats(){
-    console.log('refetchChats func called')
-    console.log(this.state.allDistributorsStatusForShopper);
   }
 
   showModal(modalType,title,description,message=''){

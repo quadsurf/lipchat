@@ -69,22 +69,14 @@ class TabNav extends PureComponent<void, *, State> {
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubUserType,
-      variables: {UserId:this.props.navigation.state.params.user.id},
-      updateQuery: (previous, { subscriptionData }) => {
-        // console.log('previous on TabNav',previous);
-        // console.log('new on TabNav',subscriptionData);
-      }
+      variables: {UserId:this.props.navigation.state.params.user.id}
     })
   }
 
   subToDistributorStatus(){
     this.props.getDistributorStatus.subscribeToMore({
       document: SubToDistributorStatus,
-      variables: {DistributorId:this.props.navigation.state.params.user.distributorx.id},
-      updateQuery: (previous, { subscriptionData }) => {
-        // console.log('previous on TabNav',previous);
-        // console.log('new on TabNav',subscriptionData);
-      }
+      variables: {DistributorId:this.props.navigation.state.params.user.distributorx.id}
     })
   }
 
@@ -371,3 +363,5 @@ const styles = StyleSheet.create({
     marginTop: -1,
   }
 })
+
+// updateQuery: (previous, { subscriptionData }) => {}

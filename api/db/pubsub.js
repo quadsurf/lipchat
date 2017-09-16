@@ -113,6 +113,7 @@ subscription SubToDistributorStatus(
     }
   ){
     node {
+      id
       status
     }
   }
@@ -126,7 +127,7 @@ subscription SubToDistributorsForShopper(
     filter: {
       mutation_in: [UPDATED],
       node: {
-        shoppersx_every: $ShopperId
+        shoppersx_some: $ShopperId
       }
     }
   ){
