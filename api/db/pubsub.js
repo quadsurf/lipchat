@@ -27,12 +27,16 @@ subscription SubToShoppersChats(
 ){
   Chat(
     filter: {
-      mutation_in: [CREATED,UPDATED]
+      mutation_in: [CREATED,UPDATED,DELETED]
       node: {
         shoppersx_some: $ShopperId
       }
     }
   ){
+    mutation
+    previousValues {
+      id
+    }
     node {
       id
       alias

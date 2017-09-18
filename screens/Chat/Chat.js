@@ -75,9 +75,7 @@ class Chat extends Component {
               && Array.isArray(newProps.getChatsForShopper.allChats)
             ) {
                 if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-                  this.setState({chats:newProps.getChatsForShopper.allChats},()=>{
-                    console.log('not equal');
-                  })
+                  this.setState({chats:newProps.getChatsForShopper.allChats})
                 }
             }
             if (
@@ -105,7 +103,28 @@ class Chat extends Component {
     if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
       this.props.getChatsForShopper.subscribeToMore({
         document: SubToShoppersChats,
-        variables: {ShopperId:{"id":this.props.user.shopperx.id}}
+        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
+        updateQuery: (previous, { subscriptionData }) => {
+          let mutation = subscriptionData.data.Chat.mutation
+          if (mutation === 'CREATED') {
+            this.setState({
+              chats: [
+                ...this.state.chats,
+                subscriptionData.data.Chat.node
+              ]
+            })
+          }
+          if (mutation === 'DELETED') {
+            let chats = this.state.chats
+            let i = chats.findIndex( chat => {
+            	return chat.id === subscriptionData.data.Chat.previousValues.id
+            })
+            if (i !== -1) {
+              chats.splice(i,1)
+              this.setState({chats})
+            }
+          }
+        }
       })
     }
   }
