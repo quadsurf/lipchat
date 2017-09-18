@@ -19,22 +19,23 @@ import { Colors,Texts } from '../../css/Styles'
 import { getDimensions,clipText } from '../../utils/Helpers'
 
 // CONSTs
-const small = Texts.small.fontSize
-const medium = Texts.medium.fontSize
 const size = 90
-const screen = getDimensions()
 
 const ChatCardLayout = props => {
   let { approved,uri,chatTitle,chatSubTitle,message,date,line1,line2 } = props
+  let screen = getDimensions()
+  let small = Texts.small.fontSize
+  let medium = Texts.medium.fontSize
+  let bR = 6
   let width = screen.width*.95
   let cardLeft = {width:size,height:size}
   let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
   let noExist = {
     height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
   }
-  let imgSize = {...cardLeft,borderRadius:12}
+  let imgSize = {...cardLeft,borderRadius:bR}
   let cardStyle = {
-    width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12,marginVertical:6
+    width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
   }
 
   if (approved) {

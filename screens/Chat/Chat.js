@@ -3,7 +3,8 @@
 import React, { Component } from 'react'
 import {
   Text,
-  View
+  View,
+  ScrollView
 } from 'react-native'
 
 //ENV VARS
@@ -115,7 +116,7 @@ class Chat extends Component {
             })
           }
           if (mutation === 'DELETED') {
-            let chats = this.state.chats
+            let chats = JSON.parse(JSON.stringify(this.state.chats))
             let i = chats.findIndex( chat => {
             	return chat.id === subscriptionData.data.Chat.previousValues.id
             })
@@ -197,10 +198,9 @@ class Chat extends Component {
 
   renderMainContent(){
     return (
-      <View style={{...Views.middle}}>
-        <FontPoiret text="Chats" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+      <ScrollView contentContainerStyle={{flex:0,paddingBottom:6}}>
         {this.renderChats()}
-      </View>
+      </ScrollView>
     )
   }
 
@@ -208,6 +208,7 @@ class Chat extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
+        <FontPoiret text="Chats" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>
