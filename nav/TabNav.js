@@ -12,7 +12,7 @@ import { compose,graphql } from 'react-apollo'
 
 // GQL
 import { GetUserType,GetDistributorStatus } from '../api/db/queries'
-import { SubUserType,SubToDistributorStatus } from '../api/db/pubsub'
+import { SubToUserType,SubToDistributorStatus } from '../api/db/pubsub'
 
 //SCREENS
 import Likes from '../screens/Likes'
@@ -68,7 +68,7 @@ class TabNav extends PureComponent<void, *, State> {
 
   subToUserType(){
     this.props.getUserType.subscribeToMore({
-      document: SubUserType,
+      document: SubToUserType,
       variables: {UserId:this.props.navigation.state.params.user.id}
     })
   }

@@ -3,8 +3,8 @@
 import gql from 'graphql-tag'
 
 // LIP COLORS
-const SubUserType = gql`
-subscription SubUserType(
+const SubToUserType = gql`
+subscription SubToUserType(
   $UserId: ID!
 ){
   User(
@@ -21,15 +21,15 @@ subscription SubUserType(
 }`
 
 // CHAT
-const SubShoppersChats = gql`
-subscription SubShoppersChats(
+const SubToShoppersChats = gql`
+subscription SubToShoppersChats(
   $ShopperId: ShopperFilter!
 ){
   Chat(
     filter: {
       mutation_in: [CREATED,UPDATED]
       node: {
-        shoppersx_every: $ShopperId
+        shoppersx_some: $ShopperId
       }
     }
   ){
@@ -62,15 +62,15 @@ subscription SubShoppersChats(
   }
 }`
 
-const SubDistributorsChats = gql`
-subscription SubDistributorsChats(
+const SubToDistributorsChats = gql`
+subscription SubToDistributorsChats(
   $DistributorId: DistributorFilter!
 ){
   Chat(
     filter: {
       mutation_in: [CREATED,UPDATED]
       node: {
-        distributorsx_every: $DistributorId
+        distributorsx_some: $DistributorId
       }
     }
   ){
@@ -139,5 +139,5 @@ subscription SubToDistributorsForShopper(
 }`
 
 export {
-  SubUserType,SubShoppersChats,SubDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper
+  SubToUserType,SubToShoppersChats,SubToDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper
 }

@@ -15,7 +15,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
-import { SubShoppersChats,SubDistributorsChats,SubToDistributorsForShopper } from '../../api/db/pubsub'
+import { SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper } from '../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -59,39 +59,39 @@ class Chat extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps) {
-      if (newProps !== this.props) {
-          if (this.state.userType === 'DIST') {
-              if (
-                newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
-                && Array.isArray(newProps.getChatsForDistributor.allChats)
-              ) {
-                  if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
-                    this.setState({chats:newProps.getChatsForDistributor.allChats})
-                  }
-              }
-          }
-          if (this.state.userType === 'SHOPPER') {
-              if (
-                newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
-                && Array.isArray(newProps.getChatsForShopper.allChats)
-              ) {
-                  if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-                    this.setState({chats:newProps.getChatsForShopper.allChats})
-                  }
-              }
-              if (
-                newProps.getAllDistributorsStatusForShopper
-                && newProps.getAllDistributorsStatusForShopper.allDistributors
-                && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
-              ) {
-                if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
-                  this.setState({
-                    allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
+        if (this.state.userType === 'DIST') {
+            if (
+              newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
+              && Array.isArray(newProps.getChatsForDistributor.allChats)
+            ) {
+                if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
+                  this.setState({chats:newProps.getChatsForDistributor.allChats})
+                }
+            }
+        }
+        if (this.state.userType === 'SHOPPER') {
+            if (
+              newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
+              && Array.isArray(newProps.getChatsForShopper.allChats)
+            ) {
+                if (newProps.getChatsForShopper.allChats !== this.state.chats) {
+                  this.setState({chats:newProps.getChatsForShopper.allChats},()=>{
+                    console.log('not equal');
                   })
                 }
+            }
+            if (
+              newProps.getAllDistributorsStatusForShopper
+              && newProps.getAllDistributorsStatusForShopper.allDistributors
+              && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
+            ) {
+              if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
+                this.setState({
+                  allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
+                })
               }
-          }
-      }
+            }
+        }
     }
   }
 
@@ -103,8 +103,8 @@ class Chat extends Component {
 
   subToShoppersChats(){
     if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
-      this.props.getChatsForDistributor.subscribeToMore({
-        document: SubShoppersChats,
+      this.props.getChatsForShopper.subscribeToMore({
+        document: SubToShoppersChats,
         variables: {ShopperId:{"id":this.props.user.shopperx.id}}
       })
     }
@@ -112,8 +112,8 @@ class Chat extends Component {
 
   subToDistributorsChats(){
     if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
-      this.props.getChatsForShopper.subscribeToMore({
-        document: SubDistributorsChats,
+      this.props.getChatsForDistributor.subscribeToMore({
+        document: SubToDistributorsChats,
         variables: {DistributorId:{"id":this.props.user.distributorx.id}}
       })
     }
@@ -205,7 +205,8 @@ export default compose(
         DistributorId: {
           id: props.user && props.user.distributorx && props.user.distributorx.id ? props.user.distributorx.id : ''
         }
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(GetChatsForShopper,{
@@ -216,7 +217,8 @@ export default compose(
         ShopperId: {
           id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
         }
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(GetAllDistributorsStatusForShopper,{
@@ -226,7 +228,8 @@ export default compose(
         ShopperId: {
           id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
         }
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   })
 )(Chat)

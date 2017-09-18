@@ -167,7 +167,7 @@ query GetChatsForDistributor(
   allChats(
     orderBy: updatedAt_ASC,
     filter: {
-      distributorsx_every: $DistributorId
+      distributorsx_some: $DistributorId
     }
   ){
     id
@@ -201,7 +201,7 @@ query GetChatsForShopper(
   allChats(
     orderBy: updatedAt_ASC,
     filter: {
-      shoppersx_every: $ShopperId
+      shoppersx_some: $ShopperId
     }
   ){
     id
@@ -263,7 +263,7 @@ query GetAllDistributorIdsForShopper(
 ){
   allChats(
     filter: {
-      shoppersx_every: $ShopperId
+      shoppersx_some: $ShopperId
     }
   ){
     id
