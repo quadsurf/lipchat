@@ -125,6 +125,9 @@ class Chat extends Component {
               this.setState({chats})
             }
           }
+        },
+        onError: err => {
+          console.log('subscription err:',err);
         }
       })
     }
@@ -184,7 +187,7 @@ class Chat extends Component {
     // this.props.user.distributorx.status
     if (this.state.chats) {
       return this.state.chats.map( chat => {
-        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus}/>
+        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus} nav={this.props.nav}/>
       })
     } else {
       return (

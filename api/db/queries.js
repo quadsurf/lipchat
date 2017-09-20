@@ -274,6 +274,33 @@ query GetAllDistributorIdsForShopper(
   }
 }`
 
+const GetMessagesForChat = gql`
+query	GetMessagesForChat(
+  $ChatId: ChatFilter!
+){
+  allMessages(
+    orderBy: updatedAt_ASC,
+    filter: {
+      chat: $ChatId
+    }
+  ){
+    id
+    text
+    writerx {
+      id
+      fbkUserId
+      fbkFirstName
+      fbkLastName
+      type
+      distributorx {
+        id
+        bizName
+        logoUri
+      }
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat
 }

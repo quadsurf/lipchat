@@ -2,7 +2,7 @@
 
 import React, {Component} from 'react'
 import {
-  View,Image,Text
+  View,Image,Text,TouchableOpacity
 } from 'react-native'
 
 //ENV VARS
@@ -22,7 +22,7 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 const size = 90
 
 const ChatCardLayout = props => {
-  let { approved,uri,chatTitle,chatSubTitle,message,date,line1,line2 } = props
+  let { chatId,approved,uri,chatTitle,chatSubTitle,message,date,line1,line2,nav } = props
   let screen = getDimensions()
   let small = Texts.small.fontSize
   let medium = Texts.medium.fontSize
@@ -39,8 +39,12 @@ const ChatCardLayout = props => {
   }
 
   if (approved) {
+    // the person being viewed is approved
     return (
-      <View style={cardStyle}>
+      <TouchableOpacity style={cardStyle} onPress={()=>{
+          nav.navigate('Messages',{nav,chatId})
+          // console.log('chatId',chatId);
+        }}>
         <View style={cardLeft}>
           <Image source={{uri}} style={imgSize}/>
         </View>
@@ -54,9 +58,10 @@ const ChatCardLayout = props => {
           <FontPoiret text={message} size={small} color={Colors.white}/>
           <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   } else {
+    // the person being viewed is unapproved
     return (
       <View style={cardStyle}>
         <View style={cardLeft}>
@@ -105,14 +110,14 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing an approved DIST
-            return <ChatCardLayout approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
           } else {
             // unapproved DIST viewing an approved DIST
             return <ChatCardLayout approved={false} line1="your fellow distributors are" line2="waiting for you to get approved"/>
           }
       } else {
         // shopper viewing an approved DIST [tested,passed]
-        return <ChatCardLayout approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
       }
   } else {
     if (status === false) {
@@ -123,14 +128,14 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing a shopper [tested,passed]
-            return <ChatCardLayout approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
           } else {
             // unapproved DIST viewing a shopper [tested,passed]
             return <ChatCardLayout approved={false} line1="this shopper is waiting" line2="for you to get approved"/>
           }
       } else {
         // shopper viewing shopper
-        return <ChatCardLayout approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
       }
     }
   }

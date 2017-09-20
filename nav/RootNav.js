@@ -13,6 +13,7 @@ import AuthState from '../screens/AuthState'
 import Login from '../screens/Login'
 import UserMeta  from '../screens/UserMeta'
 import TabNav from './TabNav'
+import Messages from '../screens/Chat/Messages'
 
 // const LoggedOutStack = StackNavigator(
 //   {
@@ -40,7 +41,8 @@ const RootStack = StackNavigator(
   {
     Root: { screen:AuthState },
     LoggedOut: { screen:Login },
-    LoggedIn: { screen:TabNav }
+    LoggedIn: { screen:TabNav },
+    Messages: { screen:Messages }
   },
   {
     initialRouteName: 'Root',
