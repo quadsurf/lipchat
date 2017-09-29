@@ -4,14 +4,18 @@ import React, { Component } from 'react'
 import {
   Text,
   View,
-  ScrollView
+  ScrollView,
+  Image,
+  TouchableOpacity
 } from 'react-native'
 
-//ENV VARS
+// ENV VARS
 
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+import { Entypo } from '@expo/vector-icons'
+import { NavigationActions } from 'react-navigation'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
@@ -25,24 +29,30 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
+const screen = getDimensions()
+const avatarSize = 50
 
-// <Message key={message.id} text={message.text} userId={this.state.userId}/>
 // COMPONENTS
 const Message = props => {
-  let { text,userId,writerId } = props
-  let position = userId !== writerId ? 'left' : 'right'
-  let screen = getDimensions()
+  let { text,userId,writer } = props
+  let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
+  let position = userId !== writer.id ? 'left' : 'right'
   let medium = Texts.medium.fontSize
   let width = screen.width*.9
   // let imgStyle = {}
   let msgStyle = {
     width,flexDirection:'row',backgroundColor:'transparent',
-    borderRadius:10,borderWidth:1,borderColor:Colors.blue,
+    borderRadius:10,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
     marginVertical:10,padding:10
   }
   return (
-    <View style={msgStyle}>
-      <FontPoiret text={text} size={medium} color={Colors.blue}/>
+    <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
+      <View>
+        <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+      </View>
+      <View style={msgStyle}>
+        <Text style={{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}}>{text}</Text>
+      </View>
     </View>
   )
 }
@@ -148,9 +158,17 @@ class Messages extends Component {
 
   renderMessages(){
     if (this.state.messages) {
-      return this.state.messages.map( message => {
-        return <Message key={message.id} text={message.text} userId={this.state.userId} writerId={message.writerx.id}/>
-      })
+      if (this.state.messages.length > 0) {
+        return this.state.messages.map( message => {
+          return <Message key={message.id} text={message.text} userId={this.state.userId} writer={message.writerx}/>
+        })
+      } else {
+        return (
+          <View style={{...Views.middle}}>
+            <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
+          </View>
+        )
+      }
     } else {
       return (
         <DotsLoader
@@ -163,7 +181,7 @@ class Messages extends Component {
 
   renderMainContent(){
     return (
-      <ScrollView contentContainerStyle={{flex:0,paddingBottom:6}}>
+      <ScrollView contentContainerStyle={{flex:0,paddingBottom:6,width:screen.width*.98}}>
         {this.renderMessages()}
       </ScrollView>
     )
@@ -173,7 +191,20 @@ class Messages extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Messages" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+        <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
+          <View style={{justifyContent:'center'}}>
+            <TouchableOpacity onPress={() => this.props.navigation.dispatch(NavigationActions.back())}>
+              <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
+            </TouchableOpacity>
+          </View>
+          <View style={{alignItems:'center'}}>
+            <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
+            <FontPoiret text={`Chatting with ${this.props.navigation.state.params.chatTitle}`} size={Texts.small.fontSize} style={{color:Colors.blue}}/>
+          </View>
+          <View>
+            <Entypo name="dot-single" size={50} style={{color:Colors.purple}}/>
+          </View>
+        </View>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

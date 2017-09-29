@@ -42,7 +42,7 @@ const ChatCardLayout = props => {
     // the person being viewed is approved
     return (
       <TouchableOpacity style={cardStyle} onPress={()=>{
-          nav.navigate('Messages',{nav,chatId})
+          nav.navigate('Messages',{nav,chatId,uri,chatTitle})
           // console.log('chatId',chatId);
         }}>
         <View style={cardLeft}>
