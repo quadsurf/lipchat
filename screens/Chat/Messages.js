@@ -41,7 +41,12 @@ const Message = props => {
   let position = userId !== writer.id ? 'left' : 'right'
   let medium = Texts.medium.fontSize
   let width = screen.width*.835
-  // let imgStyle = {}
+  let date = {
+      alignItems: position === 'left' ? 'flex-end' : 'flex-start',
+      paddingLeft: 5,
+      paddingRight: 5,
+      paddingBottom: 2
+  }
   let msgStyle = {
     width,flexDirection:'row',backgroundColor:'transparent',
     borderRadius:6,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
@@ -84,12 +89,7 @@ const Message = props => {
   }
   return (
     <View style={{flex:1}}>
-      <View style={{
-          alignItems: position === 'left' ? 'flex-end' : 'flex-start',
-          paddingLeft: 5,
-          paddingRight: 5,
-          paddingBottom: 2
-        }}>
+      <View style={date}>
         <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
       </View>
       <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
@@ -216,7 +216,7 @@ class Messages extends Component {
 
   renderSeparater = () => (
     <View style={{
-        height: 100
+        height: 20
       }}/>
   )
 
@@ -225,6 +225,7 @@ class Messages extends Component {
       if (this.state.messages.length > 0) {
         return (
           <FlatList
+            inverted
             data={this.state.messages}
             renderItem={({ item }) => (
               <Message text={item.text} userId={this.state.userId} writer={item.writerx} updated={item.updatedAt}/>
@@ -253,7 +254,7 @@ class Messages extends Component {
 
   renderMainContent(){
     return (
-      <View style={{flex:1,paddingBottom:6,width:screen.width*.98}}>
+      <View style={{flex:1,width:screen.width*.98}}>
         {this.renderMessageList()}
       </View>
     )

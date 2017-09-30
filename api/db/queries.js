@@ -279,7 +279,7 @@ query	GetMessagesForChat(
   $ChatId: ChatFilter!
 ){
   allMessages(
-    orderBy: updatedAt_ASC,
+    orderBy: updatedAt_DESC,
     filter: {
       chat: $ChatId
     }
