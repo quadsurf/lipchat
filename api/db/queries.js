@@ -298,6 +298,7 @@ query	GetMessagesForChat(
         logoUri
       }
     }
+    updatedAt
   }
 }`
 

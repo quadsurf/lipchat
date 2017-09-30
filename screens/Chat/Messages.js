@@ -18,6 +18,7 @@ import { compose,graphql } from 'react-apollo'
 import { Entypo } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
 import { DotsLoader } from 'react-native-indicator'
+import moment from 'moment'
 
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
@@ -35,16 +36,16 @@ const avatarSize = 50
 
 // COMPONENTS
 const Message = props => {
-  let { text,userId,writer } = props
+  let { text,userId,writer,updated } = props
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
   let medium = Texts.medium.fontSize
-  let width = screen.width*.86
+  let width = screen.width*.835
   // let imgStyle = {}
   let msgStyle = {
     width,flexDirection:'row',backgroundColor:'transparent',
     borderRadius:6,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
-    marginVertical:10,padding:14,position:'relative'
+    padding:14
   }
   let avatarLeft = {
     left: 0
@@ -52,29 +53,64 @@ const Message = props => {
   let avatarRight = {
     right: 0
   }
-  let textLeft = {
-    paddingLeft:50
+  let triBorder = screen.width*.0125
+  let tri = {
+    left: 0,
+    top: 21,
+    width: 0,
+    height: 0,
+    borderTopColor: 'transparent',
+    borderTopWidth: triBorder,
+    borderBottomWidth: triBorder,
+    borderBottomColor: 'transparent'
   }
-  let textRight = {
-    paddingRight:50
+  let triLeft = {
+    borderRightWidth: triBorder*2
+  }
+  let triLeftPink = {
+    borderRightColor: Colors.pinkly
+  }
+  let triLeftBlue = {
+    borderRightColor: Colors.blue
+  }
+  let triRight = {
+    borderLeftWidth: triBorder*2
+  }
+  let triRightPink = {
+    borderLeftColor: Colors.pinkly
+  }
+  let triRightBlue = {
+    borderLeftColor: Colors.blue
   }
   return (
-    <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
-      {
-        position === 'left' ?
-        <View style={{marginVertical:10}}>
-          <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-        </View> : null
-      }
-      <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
-        <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly},position === 'left' ? textLeft : textRight]}>{text}</Text>
+    <View style={{flex:1}}>
+      <View style={{
+          alignItems: position === 'left' ? 'flex-end' : 'flex-start',
+          paddingLeft: 5,
+          paddingRight: 5,
+          paddingBottom: 2
+        }}>
+        <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
       </View>
-      {
-        position === 'right' ?
-        <View style={{marginVertical:10}}>
-          <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-        </View> : null
-      }
+      <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
+        {
+          position === 'left' ?
+          <View style={{flexDirection:'row'}}>
+            <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+            <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
+          </View> : null
+        }
+        <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
+          <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}>{text}</Text>
+        </View>
+        {
+          position === 'right' ?
+          <View style={{flexDirection:'row'}}>
+            <View style={[tri,triRight,writer.type === 'SHOPPER' ? triRightBlue : triRightPink]} />
+            <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+          </View> : null
+        }
+      </View>
     </View>
   )
 }
@@ -173,39 +209,14 @@ class Messages extends Component {
   openError(errText){
     this.setState({isModalOpen:false},()=>{
       setTimeout(()=>{
-        this.showModal('err','Chat',errText)
+        this.showModal('err','Messages',errText)
       },700)
     })
   }
 
-  renderMessages(){
-    if (this.state.messages) {
-      if (this.state.messages.length > 0) {
-        return this.state.messages.map( message => {
-          return <Message key={message.id} text={message.text} userId={this.state.userId} writer={message.writerx}/>
-        })
-      } else {
-        return (
-          <View style={{...Views.middle}}>
-            <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
-          </View>
-        )
-      }
-    } else {
-      return (
-        <DotsLoader
-          size={15}
-          color={Colors.pink}
-          frequency={5000}/>
-      )
-    }
-  }
-
   renderSeparater = () => (
     <View style={{
-        height: 6,
-        width: '100%',
-        backgroundColor: Colors.pink
+        height: 100
       }}/>
   )
 
@@ -216,9 +227,10 @@ class Messages extends Component {
           <FlatList
             data={this.state.messages}
             renderItem={({ item }) => (
-              <Message text={item.text} userId={this.state.userId} writer={item.writerx}/>
+              <Message text={item.text} userId={this.state.userId} writer={item.writerx} updated={item.updatedAt}/>
             )}
-            keyExtractor={item => item.id}/>
+            keyExtractor={item => item.id}
+            ItemSeparatorComponent={this.renderSeparater}/>
         )
       } else {
         return (
