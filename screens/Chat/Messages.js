@@ -6,7 +6,8 @@ import {
   View,
   ScrollView,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList
 } from 'react-native'
 
 // ENV VARS
@@ -38,21 +39,42 @@ const Message = props => {
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
   let medium = Texts.medium.fontSize
-  let width = screen.width*.9
+  let width = screen.width*.86
   // let imgStyle = {}
   let msgStyle = {
     width,flexDirection:'row',backgroundColor:'transparent',
-    borderRadius:10,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
-    marginVertical:10,padding:10
+    borderRadius:6,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
+    marginVertical:10,padding:14,position:'relative'
+  }
+  let avatarLeft = {
+    left: 0
+  }
+  let avatarRight = {
+    right: 0
+  }
+  let textLeft = {
+    paddingLeft:50
+  }
+  let textRight = {
+    paddingRight:50
   }
   return (
     <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
-      <View>
-        <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+      {
+        position === 'left' ?
+        <View style={{marginVertical:10}}>
+          <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+        </View> : null
+      }
+      <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
+        <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly},position === 'left' ? textLeft : textRight]}>{text}</Text>
       </View>
-      <View style={msgStyle}>
-        <Text style={{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}}>{text}</Text>
-      </View>
+      {
+        position === 'right' ?
+        <View style={{marginVertical:10}}>
+          <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+        </View> : null
+      }
     </View>
   )
 }
@@ -179,11 +201,49 @@ class Messages extends Component {
     }
   }
 
+  renderSeparater = () => (
+    <View style={{
+        height: 6,
+        width: '100%',
+        backgroundColor: Colors.pink
+      }}/>
+  )
+
+  renderMessageList(){
+    if (this.state.messages) {
+      if (this.state.messages.length > 0) {
+        return (
+          <FlatList
+            data={this.state.messages}
+            renderItem={({ item }) => (
+              <Message text={item.text} userId={this.state.userId} writer={item.writerx}/>
+            )}
+            keyExtractor={item => item.id}/>
+        )
+      } else {
+        return (
+          <View style={{...Views.middle}}>
+            <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
+          </View>
+        )
+      }
+    } else {
+      return (
+        <View style={{...Views.middle}}>
+          <DotsLoader
+            size={15}
+            color={Colors.pink}
+            frequency={5000}/>
+        </View>
+      )
+    }
+  }
+
   renderMainContent(){
     return (
-      <ScrollView contentContainerStyle={{flex:0,paddingBottom:6,width:screen.width*.98}}>
-        {this.renderMessages()}
-      </ScrollView>
+      <View style={{flex:1,paddingBottom:6,width:screen.width*.98}}>
+        {this.renderMessageList()}
+      </View>
     )
   }
 
