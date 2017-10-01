@@ -8,7 +8,8 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  TextInput
+  TextInput,
+  Keyboard
 } from 'react-native'
 
 // ENV VARS
@@ -128,11 +129,30 @@ class Messages extends Component {
     modalType: 'processing',
     modalContent: {},
     userId: this.props.navigation.state.params.nav.state.params.localStorage.userId || null,
-    messages: null
+    messages: null,
+    keyboardHeight: 0
   }
 
   componentWillMount(){
-    // console.log('userId',this.state.userId);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  componentWillUnmount(){
+    this.keyboardDidShowListener.remove()
+    this.keyboardDidHideListener.remove()
+  }
+
+  keyboardDidShow = (e) => {
+    this.flatListRef.scrollToOffset({animated:true,offset:-(e.endCoordinates.height)})
+    // this.setState({keyboardHeight:-(e.endCoordinates.height)},()=>{
+    //   this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
+    // })
+  }
+
+  keyboardDidHide = () => {
+    this.flatListRef.scrollToOffset({animated:true,offset:0})
+    // this.setState({keyboardHeight:0})
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -249,12 +269,11 @@ class Messages extends Component {
       autoCorrect={false}
       maxLength={1024}
       returnKeyType="send"
-      multiline={true}
-      onFocus={() => this.scrollToOffset()}/>
+      multiline={true}/>
   )
-
+// onFocus={() => this.scrollToOffset()}
   scrollToOffset(){
-    this.flatListRef.scrollToOffset({animated:true,offset:-300})
+    this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
   }
 
   renderMessageList(){
