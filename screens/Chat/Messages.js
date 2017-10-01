@@ -7,7 +7,8 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  TextInput
 } from 'react-native'
 
 // ENV VARS
@@ -19,6 +20,7 @@ import { Entypo } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
 import { DotsLoader } from 'react-native-indicator'
 import moment from 'moment'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
@@ -33,13 +35,17 @@ import { Modals,getDimensions } from '../../utils/Helpers'
 // CONSTs
 const screen = getDimensions()
 const avatarSize = 50
+const medium = Texts.medium.fontSize
+const textInputStyle = {
+  fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
+  width:screen.width,fontSize:medium,height:32
+}
 
 // COMPONENTS
 const Message = props => {
   let { text,userId,writer,updated } = props
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
-  let medium = Texts.medium.fontSize
   let width = screen.width*.835
   let date = {
       alignItems: position === 'left' ? 'flex-end' : 'flex-start',
@@ -220,26 +226,53 @@ class Messages extends Component {
       }}/>
   )
 
+  renderNoChats = () => (
+    <View style={{...Views.middle}}>
+      <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
+    </View>
+  )
+
+  createMessage(){
+    console.log('func called')
+  }
+
+  renderInputBox = () => (
+    <TextInput value={this.state.newMessage}
+      placeholder="send a chat"
+      placeholderTextColor={Colors.transparentWhite}
+      style={{...textInputStyle}}
+      onChangeText={(newMessage) => this.setState({newMessage})}
+      keyboardType="default"
+      onBlur={() => this.createMessage()}
+      onSubmitEditing={() => this.createMessage()}
+      blurOnSubmit={true}
+      autoCorrect={false}
+      maxLength={1024}
+      returnKeyType="send"
+      multiline={true}
+      onFocus={() => this.scrollToOffset()}/>
+  )
+
+  scrollToOffset(){
+    this.flatListRef.scrollToOffset({animated:true,offset:-300})
+  }
+
   renderMessageList(){
     if (this.state.messages) {
-      if (this.state.messages.length > 0) {
-        return (
-          <FlatList
-            inverted
-            data={this.state.messages}
-            renderItem={({ item }) => (
-              <Message text={item.text} userId={this.state.userId} writer={item.writerx} updated={item.updatedAt}/>
-            )}
-            keyExtractor={item => item.id}
-            ItemSeparatorComponent={this.renderSeparater}/>
-        )
-      } else {
-        return (
-          <View style={{...Views.middle}}>
-            <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
-          </View>
-        )
-      }
+      return (
+        <FlatList
+          inverted
+          data={this.state.messages}
+          renderItem={({ item }) => (
+            <Message text={item.text} userId={this.state.userId} writer={item.writerx} updated={item.updatedAt}/>
+          )}
+          ref={(ref) => { this.flatListRef = ref }}
+          keyExtractor={item => item.id}
+          ItemSeparatorComponent={this.renderSeparater}
+          ListHeaderComponent={this.renderInputBox}
+          ListEmptyComponent={this.renderNoChats}
+          style={{marginBottom:0}}/>
+      )
     } else {
       return (
         <View style={{...Views.middle}}>
@@ -251,11 +284,11 @@ class Messages extends Component {
       )
     }
   }
-
+// <KeyboardAwareScrollView>
   renderMainContent(){
     return (
       <View style={{flex:1,width:screen.width*.98}}>
-        {this.renderMessageList()}
+          {this.renderMessageList()}
       </View>
     )
   }
