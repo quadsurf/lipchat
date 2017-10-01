@@ -4,7 +4,7 @@
     "description": "Browse & Claim Lip Colors",
     "slug": "lips",
     "privacy": "unlisted",
-    "sdkVersion": "20.0.0",
+    "sdkVersion": "21.0.0",
     "version": "1.0.1",
     "orientation": "portrait",
     "primaryColor": "#371A85",
