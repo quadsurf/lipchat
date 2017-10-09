@@ -20,7 +20,7 @@ const wsClient = new SubscriptionClient(`wss://subscriptions.us-west-2.graph.coo
   reconnect: true,
   timeout: 20000,
   connectionParams: {
-    Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDY1ODAzNDUsImlhdCI6MTUwMzk4ODM0NSwicHJvamVjdElkIjoiY2o1YXllNzN2Z3ZnYjAxMzNnOW41N2V0biIsInVzZXJJZCI6ImNqNnZwenp4bGl6NXgwMTgzNGFhZ2M2aWUiLCJtb2RlbE5hbWUiOiJVc2VyIn0.wYs8Ww-olrX3Y0CoRlYr0DBk-DeSSpV3Aypjs2_88Ls"
+    Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTAxMjQ2NDYsImlhdCI6MTUwNzUzMjY0NiwicHJvamVjdElkIjoiY2o1YXllNzN2Z3ZnYjAxMzNnOW41N2V0biIsInVzZXJJZCI6ImNqNnZwenp4bGl6NXgwMTgzNGFhZ2M2aWUiLCJtb2RlbE5hbWUiOiJVc2VyIn0.qOQKJClCbGejKTqdrBGSWAHUSIeP1fDbHKXaUOKT_Kk"
   }
 })
 
@@ -53,3 +53,4 @@ const client = new ApolloClient({
 })
 
 export default client
+// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDY1ODAzNDUsImlhdCI6MTUwMzk4ODM0NSwicHJvamVjdElkIjoiY2o1YXllNzN2Z3ZnYjAxMzNnOW41N2V0biIsInVzZXJJZCI6ImNqNnZwenp4bGl6NXgwMTgzNGFhZ2M2aWUiLCJtb2RlbE5hbWUiOiJVc2VyIn0.wYs8Ww-olrX3Y0CoRlYr0DBk-DeSSpV3Aypjs2_88Ls

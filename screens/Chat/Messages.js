@@ -130,7 +130,8 @@ class Messages extends Component {
     modalContent: {},
     userId: this.props.navigation.state.params.nav.state.params.localStorage.userId || null,
     messages: null,
-    keyboardHeight: 0
+    keyboardHeight: 0,
+    height: 40
   }
 
   componentWillMount(){
@@ -144,14 +145,14 @@ class Messages extends Component {
   }
 
   keyboardDidShow = (e) => {
-    this.flatListRef.scrollToOffset({animated:true,offset:-(e.endCoordinates.height)})
+    this.flatListRef.scrollToOffset({animated:true,offset:-(e.endCoordinates.height+14)})
     // this.setState({keyboardHeight:-(e.endCoordinates.height)},()=>{
     //   this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
     // })
   }
 
   keyboardDidHide = () => {
-    this.flatListRef.scrollToOffset({animated:true,offset:0})
+    this.flatListRef.scrollToOffset({animated:true,offset:-14})
     // this.setState({keyboardHeight:0})
   }
 
@@ -256,21 +257,25 @@ class Messages extends Component {
     console.log('func called')
   }
 
-  renderInputBox = () => (
-    <TextInput value={this.state.newMessage}
-      placeholder="send a chat"
-      placeholderTextColor={Colors.transparentWhite}
-      style={{...textInputStyle}}
-      onChangeText={(newMessage) => this.setState({newMessage})}
-      keyboardType="default"
-      onBlur={() => this.createMessage()}
-      onSubmitEditing={() => this.createMessage()}
-      blurOnSubmit={true}
-      autoCorrect={false}
-      maxLength={1024}
-      returnKeyType="send"
-      multiline={true}/>
-  )
+  renderInputBox = () => {
+    let { height } = this.state
+    return (
+      <TextInput value={this.state.newMessage}
+        placeholder="send a chat"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...textInputStyle,height,marginBottom:14}}
+        onChangeText={(newMessage) => this.setState({newMessage})}
+        keyboardType="default"
+        onBlur={() => this.createMessage()}
+        onSubmitEditing={() => this.createMessage()}
+        blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={1024}
+        returnKeyType="send"
+        onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
+        multiline={true}/>
+    )
+  }
 // onFocus={() => this.scrollToOffset()}
   scrollToOffset(){
     this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
