@@ -15,7 +15,8 @@ import RootNav from './nav/RootNav'
 import TabNav from './nav/TabNav'
 
 // LOCALS
-import client from './api/ApolloClientRT'
+// import client from './api/ApolloClientRT'
+import getClient from './api/ApolloClientRT'
 import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
@@ -77,7 +78,7 @@ export default class App extends React.Component {
     } else {
       if (this.state.localStorage !== null) {
         return (
-          <ApolloProvider client={client}>
+          <ApolloProvider client={getClient(this.state.localStorage.localStorage.gcToken)}>
             <View style={{flex:1}}>
               <MyStatusBar hidden={true} />
               <RootNav localStorage={this.state.localStorage}/>
