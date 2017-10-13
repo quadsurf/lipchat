@@ -1,6 +1,6 @@
 
 
-import Expo, { Components } from 'expo'
+import Expo, { Components,Util } from 'expo'
 import React, { Component } from 'react'
 import {
   Text,
@@ -282,6 +282,7 @@ class Login extends Component {
     let passProps = {user,localStorage}
     setTimeout(()=>{
       this.setState({isModalOpen:false},()=>{
+        // Util.reload()
         this.props.navigation.navigate('LoggedIn',passProps)
       })
     },1000)
