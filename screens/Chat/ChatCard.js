@@ -86,14 +86,16 @@ const ChatCard = props => {
   let date = chat.updatedAt
   let chattingWith,bizName,logoUri,status
   if (userType === 'SHOPPER') {
-    chattingWith = chat.distributorsx[0] || {}
+    chattingWith = chat.distributorsx ? chat.distributorsx[0] : {}
+    // chattingWith = chat.distributorsx[0] || {}
     // chat.distributorsx && chat.distributorsx.length > 0 ? chat.distributorsx[0] : {}
     bizName = chattingWith.bizName ? chattingWith.bizName : 'Your Distributor'
     logoUri = chattingWith.logoUri
     status = chattingWith.status
   }
   if (userType === 'DIST') {
-    chattingWith = chat.shoppersx[0] || {}
+    chattingWith = chat.shoppersx ? chat.shoppersx[0] : {}
+    // chattingWith = chat.shoppersx[0] || {}
     // chat.shoppersx && chat.shoppersx.length > 0 ? chat.shoppersx[0] : {}
   }
   let { fbkFirstName,fbkLastName,fbkUserId } = chattingWith.userx

@@ -15,7 +15,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
+import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper,GetUserType } from '../../api/db/queries'
 import { SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper } from '../../api/db/pubsub'
 
 // LOCALS
@@ -60,37 +60,46 @@ class Chat extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps) {
-        if (this.state.userType === 'DIST') {
-            if (
-              newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
-              && Array.isArray(newProps.getChatsForDistributor.allChats)
-            ) {
-                if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
-                  this.setState({chats:newProps.getChatsForDistributor.allChats})
-                }
-            }
+        let type = newProps && newProps.getUserType && newProps.getUserType.User && newProps.getUserType.User.type ? newProps.getUserType.User.type : this.state.userType
+        if (type === 'DIST') {
+            this.chatsForDist(newProps)
         }
-        if (this.state.userType === 'SHOPPER') {
-            if (
-              newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
-              && Array.isArray(newProps.getChatsForShopper.allChats)
-            ) {
-                if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-                  this.setState({chats:newProps.getChatsForShopper.allChats})
-                }
-            }
-            if (
-              newProps.getAllDistributorsStatusForShopper
-              && newProps.getAllDistributorsStatusForShopper.allDistributors
-              && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
-            ) {
-              if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
-                this.setState({
-                  allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
-                })
-              }
-            }
+        if (type === 'SHOPPER') {
+            this.chatsForShopper(newProps)
         }
+    }
+  }
+
+  chatsForDist(newProps){
+    if (
+      newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
+      && Array.isArray(newProps.getChatsForDistributor.allChats)
+    ) {
+        if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
+          this.setState({chats:newProps.getChatsForDistributor.allChats})
+        }
+    }
+  }
+
+  chatsForShopper(newProps){
+    if (
+      newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
+      && Array.isArray(newProps.getChatsForShopper.allChats)
+    ) {
+        if (newProps.getChatsForShopper.allChats !== this.state.chats) {
+          this.setState({chats:newProps.getChatsForShopper.allChats})
+        }
+    }
+    if (
+      newProps.getAllDistributorsStatusForShopper
+      && newProps.getAllDistributorsStatusForShopper.allDistributors
+      && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
+    ) {
+      if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
+        this.setState({
+          allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
+        })
+      }
     }
   }
 
