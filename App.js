@@ -50,7 +50,6 @@ export default class App extends React.Component {
 
   handler(e) {
     this.setState({localStorage:null},()=>{
-      console.log('localStorage is null again, but not for long');
       this.getAllAsyncStorage()
     })
   }
