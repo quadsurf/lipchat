@@ -28,7 +28,7 @@ import {
   UpdateDistributorDistId,UpdateDistributorBizName,
   UpdateDistributorBizUri,UpdateDistributorLogoUri
 } from '../api/db/mutations'
-import { GetDistributor } from '../api/db/queries'
+import { GetDistributor,GetUserType } from '../api/db/queries'
 
 // LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -121,6 +121,17 @@ class You extends Component {
         }
         if (DistributorLogoUri === null) {
           this.setState({DistributorLogoUri:Distributor.logoUri})
+        }
+      }
+      if (
+        newProps.getUserType
+        && newProps.getUserType.User
+        && newProps.getUserType.User.type
+      ) {
+        let type = this.state.userType
+        let userType = newProps.getUserType.User.type
+        if (userType !== type) {
+          this.setState({userType})
         }
       }
     }
@@ -946,6 +957,15 @@ export default compose(
     options: props => ({
       variables: {
         DistributorId: props.user.distributorx.id || ""
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(GetUserType,{
+    name: 'getUserType',
+    options: props => ({
+      variables: {
+        UserId: props.user.id || ""
       },
       fetchPolicy: 'network-only'
     })

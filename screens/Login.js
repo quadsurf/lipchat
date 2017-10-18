@@ -236,27 +236,29 @@ class Login extends Component {
   getOrCreateUser(facebookUser){
     let errText = "getting or creating an account for you in the Database"
     let fbkUser = JSON.stringify(facebookUser)
-    this.props.authenticateFacebookUser({
-      variables: {
-        fbkUser
-      }
-    }).then( response => {
-      let res = response.data.authenticateFacebookUser || {}
-      if (res) {
-        let gcToken = res.token.gctoken
-        let userId = res.token.user.id
-        if (this.setItem('gcToken',gcToken)) {
-          if (this.setItem('userId',userId)) {
-            let localStorage = {gcToken,userId}
-            this.updateFbkFriendsOnUser(userId,facebookUser.friends.data,localStorage)
-          }
+    if (fbkUser) {
+      this.props.authenticateFacebookUser({
+        variables: {
+          fbkUser
         }
-      } else {
-        this.openError(`${errText} (error code: 1-${fbkUser})`)
-      }
-    }).catch( e => {
-      this.openError(`${errText} (error code: 2-${fbkUser})`)
-    })
+      }).then( response => {
+        let res = response.data.authenticateFacebookUser || {}
+        if (res) {
+          let gcToken = res.token.gctoken
+          let userId = res.token.user.id
+          if (this.setItem('gcToken',gcToken)) {
+            if (this.setItem('userId',userId)) {
+              let localStorage = {gcToken,userId}
+              this.updateFbkFriendsOnUser(userId,facebookUser.friends.data,localStorage)
+            }
+          }
+        } else {
+          this.openError(`${errText} (error code: 1-${fbkUser})`)
+        }
+      }).catch( e => {
+        this.openError(`${errText} (error code: 2-${fbkUser})`)
+      })
+    }
   }
 
   async updateFbkFriendsOnUser(id,fbkFriends,localStorage){
@@ -283,9 +285,10 @@ class Login extends Component {
     setTimeout(()=>{
       this.setState({isModalOpen:false},()=>{
         // Util.reload()
-        this.props.navigation.navigate('LoggedIn',passProps)
+        this.props.screenProps.handler()
+        // this.props.navigation.navigate('LoggedIn',passProps)
       })
-    },1000)
+    },0)
   }
 
   async setItem(key,token){
