@@ -26,6 +26,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
 import { SubToChatsMessages } from '../../api/db/pubsub'
+import { CreateChatMessage,UpdateChatMessage } from '../../api/db/mutations'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -129,7 +130,10 @@ class Messages extends Component {
     modalType: 'processing',
     modalContent: {},
     userId: this.props.navigation.state.params.nav.state.params.localStorage.userId || null,
+    chatId: this.props.navigation.state.params.chatId,
     messages: null,
+    newMessage: '',
+    messageId: null,
     keyboardHeight: 0,
     height: 40
   }
@@ -181,11 +185,11 @@ class Messages extends Component {
   subToMessages(){
     if (
       this.props.navigation &&
-      this.props.navigation.state.params.chatId
+      this.state.chatId
     ) {
       this.props.getMessagesForChat.subscribeToMore({
         document: SubToChatsMessages,
-        variables: {ChatId:{"id":this.props.navigation.state.params.chatId}},
+        variables: {ChatId:{"id":this.state.chatId}},
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
           if (mutation === 'CREATED' || mutation === 'UPDATED') {
@@ -255,32 +259,84 @@ class Messages extends Component {
     </View>
   )
 
+  isTyping(newMessage){
+    this.setState((prevState, props) => {
+      if (prevState.newMessage !== newMessage) {
+        if (newMessage.length > 0 && prevState.newMessage.length === 0) {
+          this.createMessage()
+          return {newMessage}
+        }
+        if (newMessage.length === 0 && prevState.newMessage.length > 0) {
+          this.deleteMessage()
+          return {newMessage}
+        }
+        return {newMessage}
+      }
+    })
+  }
+
   createMessage(){
-    console.log('func called')
+    if (this.state.chatId && this.state.userId) {
+      this.props.createChatMessage({
+        variables: {
+          ChatId: this.state.chatId,
+          writer: this.state.userId,
+          text: 'isTypingNow'
+        }
+      }).then((res)=>{
+        if (res && res.data && res.data.createMessage) {
+          this.setState({messageId:res.data.createMessage.id})
+        }
+      }).catch()
+    }
+  }
+
+  updateMessage(){
+    if (this.state.messageId && this.state.newMessage && this.state.newMessage.length > 0) {
+      this.props.updateChatMessage({
+        variables: {
+          MessageId: this.state.messageId,
+          text: this.state.newMessage
+        }
+      }).then((res)=>{
+        if (res && res.data && res.data.updateMessage) {
+          setTimeout(()=>{
+            // this.textInput.clear()
+            this.setState({newMessage:'',messageId:null})
+          },0)
+        }
+      }).catch()
+    }
+  }
+
+  deleteMessage(){
+    console.log('delete message');
   }
 
   renderInputBox = () => {
     let { height } = this.state
     return (
       <TextInput value={this.state.newMessage}
-        placeholder="send a chat"
+        placeholder=" send a chat"
         placeholderTextColor={Colors.transparentWhite}
         style={{...textInputStyle,height,marginBottom:14}}
-        onChangeText={(newMessage) => this.setState({newMessage})}
+        onChangeText={(newMessage) => this.isTyping(newMessage)}
         keyboardType="default"
-        onBlur={() => this.createMessage()}
-        onSubmitEditing={() => this.createMessage()}
+        onSubmitEditing={() => this.updateMessage()}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={1024}
         returnKeyType="send"
         onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
-        multiline={true}/>
+        multiline={true}
+        ref={input => { this.textInput = input }}/>
     )
+    // onBlur={() => this.createMessage()}
   }
-// onFocus={() => this.scrollToOffset()}
+
   scrollToOffset(){
     this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
+    // onFocus={() => this.scrollToOffset()}
   }
 
   renderMessageList(){
@@ -356,5 +412,11 @@ export default compose(
       },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(CreateChatMessage,{
+    name: 'createChatMessage'
+  }),
+  graphql(UpdateChatMessage,{
+    name: 'updateChatMessage'
   })
 )(Messages)

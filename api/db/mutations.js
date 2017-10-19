@@ -255,7 +255,37 @@ mutation UpdateDoesLikeOnLike(
   }
 }`
 
+const CreateChatMessage = gql`
+mutation CreateMessage(
+  $ChatId: ID!,
+  $text: String!,
+  $writer: ID!
+){
+  createMessage(
+    chatId: $ChatId,
+    text: $text,
+    writerxId: $writer
+  ){
+    id
+    text
+    updatedAt
+  }
+}`
+
+const UpdateChatMessage = gql`
+mutation UpdateChatMessage(
+  $MessageId: ID!,
+  $text: String!
+){
+  updateMessage(
+    id: $MessageId,
+    text: $text
+  ){
+    id
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage
 }
