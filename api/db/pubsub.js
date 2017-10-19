@@ -142,6 +142,42 @@ subscription SubToDistributorsForShopper(
   }
 }`
 
+const SubToChatsMessages = gql`
+subscription SubToChatsMessages(
+  $ChatId: ChatFilter!
+){
+  Message(
+    filter: {
+      mutation_in: [CREATED,UPDATED,DELETED]
+      node: {
+        chat: $ChatId
+      }
+    }
+  ){
+    mutation
+    previousValues {
+      id
+    }
+    node {
+      id
+    	text
+      writerx {
+        id
+        fbkUserId
+        fbkFirstName
+        fbkLastName
+        type
+        distributorx {
+          id
+          bizName
+          logoUri
+        }
+      }
+      updatedAt
+    }
+  }
+}`
+
 export {
-  SubToUserType,SubToShoppersChats,SubToDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper
+  SubToUserType,SubToShoppersChats,SubToDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper,SubToChatsMessages
 }

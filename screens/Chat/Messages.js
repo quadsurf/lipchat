@@ -25,7 +25,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
-// import {  } from '../../api/db/pubsub'
+import { SubToChatsMessages } from '../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -168,7 +168,6 @@ class Messages extends Component {
 
   componentWillReceiveProps(newProps){
     if (newProps) {
-      // console.log('messages for chat: ',newProps.getMessagesForChat);
       if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
         this.setState({messages:newProps.getMessagesForChat.allMessages})
       }
@@ -176,38 +175,41 @@ class Messages extends Component {
   }
 
   componentDidMount(){
-    // this.subToMessages()
+    this.subToMessages()
   }
 
-  // subToMessages(){
-  //   if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
-  //     this.props.getMessagesForChat.subscribeToMore({
-  //       document: SubToMessagesForChat,
-  //       variables: {ShopperId:{"id":this.props.user.shopperx.id}},
-  //       updateQuery: (previous, { subscriptionData }) => {
-  //         let mutation = subscriptionData.data.Chat.mutation
-  //         if (mutation === 'CREATED') {
-  //           this.setState({
-  //             chats: [
-  //               ...this.state.chats,
-  //               subscriptionData.data.Chat.node
-  //             ]
-  //           })
-  //         }
-  //         if (mutation === 'DELETED') {
-  //           let chats = JSON.parse(JSON.stringify(this.state.chats))
-  //           let i = chats.findIndex( chat => {
-  //           	return chat.id === subscriptionData.data.Chat.previousValues.id
-  //           })
-  //           if (i !== -1) {
-  //             chats.splice(i,1)
-  //             this.setState({chats})
-  //           }
-  //         }
-  //       }
-  //     })
-  //   }
-  // }
+  subToMessages(){
+    if (
+      this.props.navigation &&
+      this.props.navigation.state.params.chatId
+    ) {
+      this.props.getMessagesForChat.subscribeToMore({
+        document: SubToChatsMessages,
+        variables: {ChatId:{"id":this.props.navigation.state.params.chatId}},
+        updateQuery: (previous, { subscriptionData }) => {
+          let mutation = subscriptionData.data.Message.mutation
+          if (mutation === 'CREATED' || mutation === 'UPDATED') {
+            this.setState({
+              messages: [
+                subscriptionData.data.Message.node,
+                ...this.state.messages
+              ]
+            })
+          }
+          if (mutation === 'DELETED') {
+            let messages = JSON.parse(JSON.stringify(this.state.messages))
+            let i = messages.findIndex( message => {
+            	return message.id === subscriptionData.data.Message.previousValues.id
+            })
+            if (i !== -1) {
+              messages.splice(i,1)
+              this.setState({messages})
+            }
+          }
+        }
+      })
+    }
+  }
 
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
