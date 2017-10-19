@@ -26,7 +26,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
 import { SubToChatsMessages } from '../../api/db/pubsub'
-import { CreateChatMessage,UpdateChatMessage } from '../../api/db/mutations'
+import { CreateChatMessage,UpdateChatMessage,DeleteChatMessage } from '../../api/db/mutations'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -308,9 +308,22 @@ class Messages extends Component {
       }).catch()
     }
   }
-
+//ERROR HANDLING AND isTypingNow handling
   deleteMessage(){
-    console.log('delete message');
+    if (this.state.messageId) {
+      this.props.deleteChatMessage({
+        variables: {
+          MessageId: this.state.messageId
+        }
+      }).then((res)=>{
+        if (res && res.data && res.data.deleteMessage) {
+          setTimeout(()=>{
+            // this.textInput.clear()
+            this.setState({messageId:null})
+          },0)
+        }
+      }).catch()
+    }
   }
 
   renderInputBox = () => {
@@ -418,5 +431,8 @@ export default compose(
   }),
   graphql(UpdateChatMessage,{
     name: 'updateChatMessage'
+  }),
+  graphql(DeleteChatMessage,{
+    name: 'deleteChatMessage'
   })
 )(Messages)
