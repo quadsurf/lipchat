@@ -342,7 +342,7 @@ class Messages extends Component {
       }).catch()
     }
   }
-//ERROR HANDLING AND isTypingNow handling
+
   deleteMessage(){
     if (this.state.messageId) {
       this.props.deleteChatMessage({
@@ -366,7 +366,7 @@ class Messages extends Component {
       <TextInput value={this.state.newMessage}
         placeholder=" send a chat"
         placeholderTextColor={Colors.transparentWhite}
-        style={{...textInputStyle,height,marginBottom:14}}
+        style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
         onChangeText={(newMessage) => this.isTyping(newMessage)}
         keyboardType="default"
         onSubmitEditing={() => this.updateMessage()}
@@ -470,3 +470,11 @@ export default compose(
     name: 'deleteChatMessage'
   })
 )(Messages)
+
+// virtualized list trimming, i.e. last 10, or convert to PureComponent
+// test concurrency of 2 people typing at same time and how it affects updatedAt
+// list of chat convos should not show isTypingNow
+// UI for smaller phones not working
+// add a loader for when it takes too long for mutation to resolve
+// ERROR HANDLING
+// i need an iPhone 5 and 6 to test on
