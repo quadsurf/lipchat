@@ -95,32 +95,58 @@ const Message = props => {
   let triRightBlue = {
     borderLeftColor: Colors.blue
   }
-  return (
-    <View style={{flex:1}}>
-      <View style={date}>
-        <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
-      </View>
-      <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
-        {
-          position === 'left' ?
-          <View style={{flexDirection:'row'}}>
-            <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-            <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
-          </View> : null
-        }
-        <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
-          <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}>{text}</Text>
+  if (text === 'isTypingNow') {
+    if (position === 'left') {
+      return (
+        <View style={{flex:1}}>
+          <View style={date}>
+            <FontPoiret text="typing now" size={12} color={Colors.transparentWhite}/>
+          </View>
+          <View style={{flexDirection:'row',justifyContent: 'flex-start'}}>
+            <View style={{flexDirection:'row'}}>
+              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+              <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
+            </View>
+            <View style={[{alignItems:'center'},msgStyle,avatarLeft]}>
+              <DotsLoader
+                size={10}
+                color={writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}
+                frequency={5000}/>
+            </View>
+          </View>
         </View>
-        {
-          position === 'right' ?
-          <View style={{flexDirection:'row'}}>
-            <View style={[tri,triRight,writer.type === 'SHOPPER' ? triRightBlue : triRightPink]} />
-            <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-          </View> : null
-        }
+      )
+    } else {
+      return null
+    }
+  } else {
+    return (
+      <View style={{flex:1}}>
+        <View style={date}>
+          <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
+        </View>
+        <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
+          {
+            position === 'left' ?
+            <View style={{flexDirection:'row'}}>
+              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+              <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
+            </View> : null
+          }
+          <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
+            <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}>{text}</Text>
+          </View>
+          {
+            position === 'right' ?
+            <View style={{flexDirection:'row'}}>
+              <View style={[tri,triRight,writer.type === 'SHOPPER' ? triRightBlue : triRightPink]} />
+              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
+            </View> : null
+          }
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
 }
 
 class Messages extends Component {
@@ -192,13 +218,21 @@ class Messages extends Component {
         variables: {ChatId:{"id":this.state.chatId}},
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
-          if (mutation === 'CREATED' || mutation === 'UPDATED') {
+          if (mutation === 'CREATED') {
             this.setState({
               messages: [
                 subscriptionData.data.Message.node,
                 ...this.state.messages
               ]
             })
+          }
+          if (mutation === 'UPDATED') {
+            let messages = JSON.parse(JSON.stringify(this.state.messages))
+            let i = messages.findIndex( message => {
+            	return message.id === subscriptionData.data.Message.node.id
+            })
+            messages[i] = subscriptionData.data.Message.node
+            this.setState({messages})
           }
           if (mutation === 'DELETED') {
             let messages = JSON.parse(JSON.stringify(this.state.messages))
