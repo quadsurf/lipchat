@@ -310,6 +310,7 @@ class Messages extends Component {
   }
 
   createMessage(){
+    let errText = 'creating your chat message'
     if (this.state.chatId && this.state.userId) {
       this.props.createChatMessage({
         variables: {
@@ -320,13 +321,21 @@ class Messages extends Component {
       }).then((res)=>{
         if (res && res.data && res.data.createMessage) {
           this.setState({messageId:res.data.createMessage.id})
+        } else {
+          this.openError(errText)
         }
-      }).catch()
+      }).catch( e => {
+        this.setState({isModalOpen:false},()=>{
+          this.openError(errText)
+        })
+      })
     }
   }
 
   updateMessage(){
+    let errText = 'sending off your chat message'
     if (this.state.messageId && this.state.newMessage && this.state.newMessage.length > 0) {
+      this.showModal('processing')
       this.props.updateChatMessage({
         variables: {
           MessageId: this.state.messageId,
@@ -334,16 +343,22 @@ class Messages extends Component {
         }
       }).then((res)=>{
         if (res && res.data && res.data.updateMessage) {
-          setTimeout(()=>{
-            // this.textInput.clear()
-            this.setState({newMessage:'',messageId:null})
-          },0)
+          this.setState({newMessage:'',messageId:null},()=>{
+            this.setState({isModalOpen:false})
+          })
+        } else {
+          this.openError(errText)
         }
-      }).catch()
+      }).catch( e => {
+        this.setState({isModalOpen:false},()=>{
+          this.openError(errText)
+        })
+      })
     }
   }
 
   deleteMessage(){
+    let errText = 'clearing your chat message'
     if (this.state.messageId) {
       this.props.deleteChatMessage({
         variables: {
@@ -351,12 +366,13 @@ class Messages extends Component {
         }
       }).then((res)=>{
         if (res && res.data && res.data.deleteMessage) {
-          setTimeout(()=>{
-            // this.textInput.clear()
-            this.setState({messageId:null})
-          },0)
+          this.setState({messageId:null})
+        } else {
+          this.openError(errText)
         }
-      }).catch()
+      }).catch( e => {
+        this.openError(errText)
+      })
     }
   }
 
@@ -471,10 +487,11 @@ export default compose(
   })
 )(Messages)
 
+// DONE - add a loader for when it takes too long for mutation to resolve
+// list of chat convos should not show isTypingNow
+// clear isTypingNow messages server side
+// i need an iPhone 5 and 6 to test on
+// ERROR HANDLING
 // virtualized list trimming, i.e. last 10, or convert to PureComponent
 // test concurrency of 2 people typing at same time and how it affects updatedAt
-// list of chat convos should not show isTypingNow
 // UI for smaller phones not working
-// add a loader for when it takes too long for mutation to resolve
-// ERROR HANDLING
-// i need an iPhone 5 and 6 to test on

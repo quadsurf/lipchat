@@ -894,35 +894,6 @@ class You extends Component {
     }
   }
 
-  // deLinkShopperFromDistributorInDb(){
-  //   if (
-  //     this.props.user && this.props.user.shopperx
-  //     && this.props.user.shopperx.id
-  //     && this.state.ShoppersDist && this.state.ShoppersDist.id
-  //   ) {
-  //     this.props.deLinkShopperFromDistributor({
-  //       variables: {
-  //         ShopperId: this.props.user.shopperx.id,
-  //         DistributorId: this.state.ShoppersDist.id
-  //       }
-  //     }).then( res => {
-  //       console.log('deLinkShopperFromDistributorInDb func success w/ res',res.data);
-  //       if (res && res.data && res.data.removeFromShopperOnDistributor) {
-  //         this.setState({ShoppersDist:{}},()=>{
-  //           this.setState({findDistributorQueryIsReady:true})
-  //         })
-  //       } else {
-  //         console.log('1. not enuf inputs for gql delink request');
-  //       }
-  //     }).catch( e => {
-  //       console.log('2. deLinkShopperFromDistributorInDb func error',e.message);
-  //     })
-  //   } else {
-  //     console.log('3. not enuf inputs for gql delink request');
-  //     console.log(this.props.user.shopperx.id,this.state.ShoppersDist.id);
-  //   }
-  // }
-
   async logOut(){
     try {
       this.showModal('processing')
