@@ -37,7 +37,7 @@ const ChatCardLayout = props => {
   let cardStyle = {
     width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
   }
-
+  let textWidth = width-size-20
   if (approved) {
     // the person being viewed is approved
     return (
@@ -55,7 +55,11 @@ const ChatCardLayout = props => {
             <FontPoiret text={clipText(chatSubTitle,20)} size={small} color={Colors.white}/> :
               null
           }
-          <FontPoiret text={message} size={small} color={Colors.white}/>
+          {
+            message !== 'isTypingNow' ?
+            <View style={{width:textWidth}}><FontPoiret text={message} size={small} color={Colors.white}/></View> :
+            <View style={{width:textWidth}}><FontPoiret text="typing..." size={small} color={Colors.white}/></View>
+          }
           <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
         </View>
       </TouchableOpacity>

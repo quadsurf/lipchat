@@ -48,7 +48,7 @@ const Message = props => {
   let { text,userId,writer,updated } = props
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
-  let width = screen.width*.835
+  let width = screen.width > 400 ? screen.width*.835 : (screen.width*.835)-12
   let date = {
       alignItems: position === 'left' ? 'flex-end' : 'flex-start',
       paddingLeft: 5,
@@ -488,10 +488,10 @@ export default compose(
 )(Messages)
 
 // DONE - add a loader for when it takes too long for mutation to resolve
-// list of chat convos should not show isTypingNow
-// clear isTypingNow messages server side
+// DONE - list of chat convos should not show isTypingNow
+// DONE - error handling
+// DONE - UI for smaller phones not working
+// cron job clear isTypingNow messages server side
 // i need an iPhone 5 and 6 to test on
-// ERROR HANDLING
 // virtualized list trimming, i.e. last 10, or convert to PureComponent
 // test concurrency of 2 people typing at same time and how it affects updatedAt
-// UI for smaller phones not working
