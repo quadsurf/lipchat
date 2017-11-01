@@ -42,64 +42,65 @@ const textInputStyle = {
   fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
   width:screen.width,fontSize:medium,height:32
 }
+const width = screen.width > 400 ? screen.width*.835 : (screen.width*.835)-12
+const deviceSize = screen.width > 400 ? 'bigEnuf' : 'tooSmall'
+const date1 = {
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingBottom: 2
+}
+const msgStyle1 = {
+  width,flexDirection:'row',backgroundColor:'transparent',
+  borderRadius:6,borderWidth:1,padding:14
+}
+const avatarLeft = {
+  left: 0
+}
+const avatarRight = {
+  right: 0
+}
+const triBorder = screen.width*.0125
+const tri = {
+  left: 0,
+  top: 21,
+  width: 0,
+  height: 0,
+  borderTopColor: 'transparent',
+  borderTopWidth: triBorder,
+  borderBottomWidth: triBorder,
+  borderBottomColor: 'transparent'
+}
+const triLeft = {
+  borderRightWidth: triBorder*2
+}
+const triLeftPink = {
+  borderRightColor: Colors.pinkly
+}
+const triLeftBlue = {
+  borderRightColor: Colors.blue
+}
+const triRight = {
+  borderLeftWidth: triBorder*2
+}
+const triRightPink = {
+  borderLeftColor: Colors.pinkly
+}
+const triRightBlue = {
+  borderLeftColor: Colors.blue
+}
 
 // COMPONENTS
 const Message = props => {
   let { text,userId,writer,updated } = props
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
-  let width = screen.width > 400 ? screen.width*.835 : (screen.width*.835)-12
-  let date = {
-      alignItems: position === 'left' ? 'flex-end' : 'flex-start',
-      paddingLeft: 5,
-      paddingRight: 5,
-      paddingBottom: 2
-  }
-  let msgStyle = {
-    width,flexDirection:'row',backgroundColor:'transparent',
-    borderRadius:6,borderWidth:1,borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly,
-    padding:14
-  }
-  let avatarLeft = {
-    left: 0
-  }
-  let avatarRight = {
-    right: 0
-  }
-  let triBorder = screen.width*.0125
-  let tri = {
-    left: 0,
-    top: 21,
-    width: 0,
-    height: 0,
-    borderTopColor: 'transparent',
-    borderTopWidth: triBorder,
-    borderBottomWidth: triBorder,
-    borderBottomColor: 'transparent'
-  }
-  let triLeft = {
-    borderRightWidth: triBorder*2
-  }
-  let triLeftPink = {
-    borderRightColor: Colors.pinkly
-  }
-  let triLeftBlue = {
-    borderRightColor: Colors.blue
-  }
-  let triRight = {
-    borderLeftWidth: triBorder*2
-  }
-  let triRightPink = {
-    borderLeftColor: Colors.pinkly
-  }
-  let triRightBlue = {
-    borderLeftColor: Colors.blue
-  }
+  let date2 = { alignItems: position === 'left' ? 'flex-end' : 'flex-start' }
+  let msgStyle2 = { borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly }
   if (text === 'isTypingNow') {
     if (position === 'left') {
       return (
         <View style={{flex:1}}>
-          <View style={date}>
+          <View style={[date1,date2]}>
             <FontPoiret text="typing now" size={12} color={Colors.transparentWhite}/>
           </View>
           <View style={{flexDirection:'row',justifyContent: 'flex-start'}}>
@@ -107,7 +108,7 @@ const Message = props => {
               <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
               <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
             </View>
-            <View style={[{alignItems:'center'},msgStyle,avatarLeft]}>
+            <View style={[{alignItems:'center'},msgStyle1,msgStyle2,avatarLeft]}>
               <DotsLoader
                 size={10}
                 color={writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}
@@ -122,7 +123,7 @@ const Message = props => {
   } else {
     return (
       <View style={{flex:1}}>
-        <View style={date}>
+        <View style={[date1,date2]}>
           <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
         </View>
         <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
@@ -133,7 +134,7 @@ const Message = props => {
               <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
             </View> : null
           }
-          <View style={[msgStyle,position === 'left' ? avatarLeft : avatarRight]}>
+          <View style={[msgStyle1,msgStyle2,position === 'left' ? avatarLeft : avatarRight]}>
             <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}>{text}</Text>
           </View>
           {
@@ -336,7 +337,9 @@ class Messages extends Component {
   updateMessage(){
     let errText = 'sending off your chat message'
     if (this.state.messageId && this.state.newMessage && this.state.newMessage.length > 0) {
-      this.showModal('processing')
+      if (deviceSize === 'tooSmall') {
+        this.showModal('processing')
+      }
       this.props.updateChatMessage({
         variables: {
           MessageId: this.state.messageId,
@@ -345,15 +348,21 @@ class Messages extends Component {
       }).then((res)=>{
         if (res && res.data && res.data.updateMessage) {
           this.setState({newMessage:'',messageId:null},()=>{
-            this.setState({isModalOpen:false})
+            if (this.state.isModalOpen) {
+              this.setState({isModalOpen:false})
+            }
           })
         } else {
           this.openError(errText)
         }
       }).catch( e => {
-        this.setState({isModalOpen:false},()=>{
+        if (this.state.isModalOpen) {
+          this.setState({isModalOpen:false},()=>{
+            this.openError(errText)
+          })
+        } else {
           this.openError(errText)
-        })
+        }
       })
     }
   }

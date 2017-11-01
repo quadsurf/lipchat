@@ -63,7 +63,9 @@ class Modals extends Component {
 
   renderModal(){
     let type = this.props.type ? this.props.type : null
-    if (type === 'processing') {
+    if (type === 'sending') {
+      return null
+    } else if (type === 'processing') {
       return (
         <DotsLoader
           size={15}
