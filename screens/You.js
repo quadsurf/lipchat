@@ -768,10 +768,23 @@ class You extends Component {
       }
     }).then( res => {
       if (res && res.data && res.data.updateUser) {
+        let newUserType = res.data.updateUser.type
+        console.log('newUserType',newUserType);
+        let exUserType = this.state.userType
+        console.log('exUserType',exUserType);
         this.setState({isUserTypeSubmitModalOpen:false},()=>{
-          setTimeout(()=>{
-            this.setState({userType:res.data.updateUser.type})
-          },700)
+          if (newUserType !== exUserType) {
+            console.log('ex and new userTypes are not equal');
+            if (newUserType === 'DIST') {
+              this.createNewGroupChatForNewDistAndHerShoppers()
+            }
+            if (newUserType === 'SHOPPER') {
+              this.deleteDistsGroupChat(this.state.newDistsGroupChatId)
+            }
+            setTimeout(()=>{
+              this.setState({userType:newUserType})
+            },700)
+          }
         })
       } else {
         this.showModal('err','Profile',errText)
@@ -892,6 +905,14 @@ class You extends Component {
         this.showModal('err','Profile',errText)
       }
     }
+  }
+
+  createNewGroupChatForNewDistAndHerShoppers(){
+    console.log('createNewGroupChatForNewDistAndHerShoppers func called');
+  }
+
+  deleteDistsGroupChat(chatId){
+    console.log('deleteDistsGroupChat func called');
   }
 
   async logOut(){
