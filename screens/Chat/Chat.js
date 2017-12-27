@@ -202,7 +202,7 @@ class Chat extends Component {
       return (
         <DotsLoader
           size={15}
-          color={Colors.pink}
+          color={Colors.pinkly}
           frequency={5000}/>
       )
     }

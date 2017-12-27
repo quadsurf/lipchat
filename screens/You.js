@@ -97,8 +97,8 @@ class You extends Component {
     return false
   }
 
-  componentWillMount(){
-
+  componentDidMount(){
+    
   }
 
   componentWillReceiveProps(newProps){
@@ -768,24 +768,7 @@ class You extends Component {
       }
     }).then( res => {
       if (res && res.data && res.data.updateUser) {
-        let newUserType = res.data.updateUser.type
-        console.log('newUserType',newUserType);
-        let exUserType = this.state.userType
-        console.log('exUserType',exUserType);
-        this.setState({isUserTypeSubmitModalOpen:false},()=>{
-          if (newUserType !== exUserType) {
-            console.log('ex and new userTypes are not equal');
-            if (newUserType === 'DIST') {
-              this.createNewGroupChatForNewDistAndHerShoppers()
-            }
-            if (newUserType === 'SHOPPER') {
-              this.deleteDistsGroupChat(this.state.newDistsGroupChatId)
-            }
-            setTimeout(()=>{
-              this.setState({userType:newUserType})
-            },700)
-          }
-        })
+        this.setState({isUserTypeSubmitModalOpen:false})
       } else {
         this.showModal('err','Profile',errText)
       }

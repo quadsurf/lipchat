@@ -296,7 +296,22 @@ mutation DeleteChatMessage(
   }
 }`
 
+const AddShopperToDistributorsGroupChat = gql`
+mutation AddShopperToDistributorsGroupChat(
+  $chatsxChatId: ID!
+  $shoppersxShopperId: ID!
+){
+  addToChatOnShopper(
+    chatsxChatId: $chatsxChatId,
+    shoppersxShopperId: $shoppersxShopperId
+  ){
+    chatsxChat {
+      alias
+    }
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat
 }
