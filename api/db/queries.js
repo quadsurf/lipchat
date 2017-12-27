@@ -142,11 +142,18 @@ query FindDistributor(
       cellPhone
       fbkUserId
     }
+    chatsx(
+      filter: {
+        type: GROUPINT
+      }
+    ){
+      id
+    }
   }
 }`
 
 const CheckForDistributorOnShopper = `
-query CheckForDistributorOnShopper(
+query(
   $ShopperId: ID
 ){
   Shopper(
@@ -155,6 +162,13 @@ query CheckForDistributorOnShopper(
     id
     distributorsx {
       id
+      chatsx(
+        filter: {
+          type: GROUPINT
+        }
+      ){
+        id
+      }
     }
   }
 }`

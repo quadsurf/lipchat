@@ -15,7 +15,10 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { FindDistributor,CheckForDistributorOnShopper } from '../../api/db/queries'
-import { LinkShopperToDistributor,DeLinkShopperFromDistributor } from '../../api/db/mutations'
+import {
+  LinkShopperToDistributor,DeLinkShopperFromDistributor,
+  AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat
+} from '../../api/db/mutations'
 
 // LOCALS
 import { FontPoiret } from '../../assets/fonts/Fonts'
@@ -110,7 +113,9 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.addToShopperOnDistributor) {
-            this.setState({ShoppersDist})
+            this.setState({ShoppersDist},()=>{
+              this.addShopperToDistributorsGroupChatInDb(ShoppersDist.chatsx[0].id,this.props.shopperId)
+            })
         } else {
           console.log('1. no regular response from link request');
         }
@@ -122,7 +127,7 @@ class ShoppersDistCard extends Component {
     }
   }
 
-  deLinkShopperFromDistributorInDb(ShoppersDist,formerShoppersDist,bool){
+  deLinkShopperFromDistributorInDb(ShoppersDist,formerShoppersDist,replaceWithNew){
     if (this.props.shopperId) {
       this.props.deLinkShopperFromDistributor({
         variables: {
@@ -131,11 +136,10 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.removeFromShopperOnDistributor) {
-          if (bool) {
-            this.linkShopperToDistributorInDb(ShoppersDist)
-          } else {
-            this.setState({ShoppersDist:null})
-          }
+          this.removeShopperFromDistributorsGroupChatInDb(
+            this.props.shopperId,formerShoppersDist.chatsx[0].id,
+            ShoppersDist,replaceWithNew
+          )
         } else {
           console.log('1. no regular response from delete request');
         }
@@ -144,6 +148,34 @@ class ShoppersDistCard extends Component {
       })
     } else {
       console.log('3. not enuf valid inputs for gql delink request');
+    }
+  }
+
+  addShopperToDistributorsGroupChatInDb(chatsxChatId,shoppersxShopperId){
+    if (this.props.shopperId && chatsxChatId) {
+      this.props.addShopperToDistributorsGroupChat({
+        variables: {
+          chatsxChatId,shoppersxShopperId
+        }
+      })
+    }
+  }
+  
+  removeShopperFromDistributorsGroupChatInDb(shopperId,chatId,ShoppersDist,replaceWithNew){
+    if (shopperId && chatId) {
+      this.props.removeShopperFromDistributorsGroupChat({
+        variables: {
+          shopperId,chatId
+        }
+      }).then( res => {
+        if (replaceWithNew) {
+          this.linkShopperToDistributorInDb(ShoppersDist)
+        } else {
+          this.setState({ShoppersDist:null})
+        }
+      }).catch( e => {
+        console.log('There was a problem removing Shopper from Distributors Group Chat',e.message);
+      })
     }
   }
 
@@ -212,5 +244,11 @@ export default compose(
   }),
   graphql(DeLinkShopperFromDistributor,{
     name: 'deLinkShopperFromDistributor'
+  }),
+  graphql(AddShopperToDistributorsGroupChat,{
+    name: 'addShopperToDistributorsGroupChat'
+  }),
+  graphql(RemoveShopperFromDistributorsGroupChat,{
+    name: 'removeShopperFromDistributorsGroupChat'
   })
 )(ShoppersDistCard)
