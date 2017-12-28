@@ -15,8 +15,12 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper,GetUserType } from '../../api/db/queries'
-import { SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper } from '../../api/db/pubsub'
+import {
+  GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper,GetUserType
+} from '../../api/db/queries'
+import {
+  SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper
+} from '../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -43,9 +47,7 @@ class Chat extends Component {
   }
 
   componentWillMount(){
-    // console.log('userId',this.props.user.id);
-    // console.log('shopperId',this.props.user.shopperx.id);
-    // console.log('distributorId',this.props.user.distributorx.id);
+    
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -115,30 +117,68 @@ class Chat extends Component {
         document: SubToShoppersChats,
         variables: {ShopperId:{"id":this.props.user.shopperx.id}},
         updateQuery: (previous, { subscriptionData }) => {
-          let mutation = subscriptionData.data.Chat.mutation
-          if (mutation === 'CREATED') {
-            this.setState({
-              chats: [
-                ...this.state.chats,
-                subscriptionData.data.Chat.node
-              ]
-            })
-          }
-          if (mutation === 'DELETED') {
-            let chats = JSON.parse(JSON.stringify(this.state.chats))
-            let i = chats.findIndex( chat => {
-            	return chat.id === subscriptionData.data.Chat.previousValues.id
-            })
-            if (i !== -1) {
-              chats.splice(i,1)
-              this.setState({chats})
-            }
+          let { mutation,node,previousValues } = subscriptionData.data.Chat
+          switch(mutation){
+            case 'CREATED': this.addChatToChatList(node)
+            case 'UPDATED': this.updateChatOnChatList(previousValues,node)
+            case 'DELETED': this.removeChatFromChatList(previousValues.id)
+            default: return
           }
         },
         onError: err => {
-          console.log('subscription err:',err);
+          // console.log('subscription err:',err);
         }
       })
+    }
+  }
+  
+  addChatToChatList(chat){
+    let chats = JSON.parse(JSON.stringify(this.state.chats))
+    let index = chats.findIndex( chatIndex => {
+      return chatIndex.id === chat.id
+    })
+    if (index !== -1) {
+      chats.splice(index,1,chat)
+      this.setState({chats})
+    } else {
+      this.setState({
+        chats: [
+          ...this.state.chats,
+          chat
+        ]
+      })
+    }
+  }
+  
+  updateChatOnChatList(prev = null,chat){
+    let subjectChat = this.state.chats.find( chatNode => {
+      return chatNode.id === chat.id
+    })
+    if (!subjectChat) {
+      this.addChatToChatList(chat)
+    } else {
+      if (prev.updater !== chat.updater) {
+        this.addChatToChatList(chat)
+      }
+      let shopperExists = subjectChat.shoppersx.find( shopper => {
+        return shopper.id === this.props.user.shopperx.id
+      })
+      if (!shopperExists) {
+        if (prev.id) {
+          this.removeChatFromChatList(prev.id)
+        }
+      }
+    }
+  }
+  
+  removeChatFromChatList(previousChatId){
+    let chats = JSON.parse(JSON.stringify(this.state.chats))
+    let i = chats.findIndex( chat => {
+      return chat.id === previousChatId
+    })
+    if (i !== -1) {
+      chats.splice(i,1)
+      this.setState({chats})
     }
   }
 

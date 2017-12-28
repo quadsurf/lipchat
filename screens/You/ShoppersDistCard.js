@@ -16,7 +16,7 @@ import { DotsLoader } from 'react-native-indicator'
 // GQL
 import { FindDistributor,CheckForDistributorOnShopper } from '../../api/db/queries'
 import {
-  LinkShopperToDistributor,DeLinkShopperFromDistributor,
+  LinkShopperToDistributor,DeLinkShopperFromDistributor,TriggerEventOnChat,
   AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat
 } from '../../api/db/mutations'
 
@@ -70,19 +70,23 @@ class ShoppersDistCard extends Component {
   sendRequests(){
     axios.all([this.getDistributor(),this.findDistributor()])
       .then(axios.spread( (currentDist,newDist) => {
-        let currentDistributor = currentDist.data.data.Shopper.distributorsx
-        let newDistributor = newDist.data.data.allDistributors
-        let currentDistributorExists = currentDistributor.length > 0 ? true : false
-        let newDistributorExists = newDistributor.length > 0 ? true : false
-        if (newDistributorExists) {
-          if (currentDistributorExists) {
-            this.deLinkShopperFromDistributorInDb(newDistributor[0],currentDistributor[0],true)
+        let prevDist = currentDist.data.data.Shopper.distributorsx
+        let nextDist = newDist.data.data.allDistributors
+        let prevDistExists = prevDist.length > 0 ? true : false
+        let nextDistExists = nextDist.length > 0 ? true : false
+        if (nextDistExists) {
+          if (prevDistExists) {
+            console.log('current and new distributor exists, so deLink and link with new')
+            this.deLinkShopperFromDistributorInDb(nextDist[0],prevDist[0],true)
           } else {
-            this.linkShopperToDistributorInDb(newDistributor[0])
+            console.log('there is a new distributor but no current distributor, so add-only')
+            this.linkShopperToDistributorInDb(nextDist[0])
           }
         } else {
-          if (currentDistributorExists) {
-            this.deLinkShopperFromDistributorInDb(false,currentDistributor[0],false)
+          console.log('new distributor does not exist');
+          if (prevDistExists) {
+            console.log('current distributor exists and needs to be removed')
+            this.deLinkShopperFromDistributorInDb(false,prevDist[0],false)
           }
         }
       }))
@@ -104,79 +108,105 @@ class ShoppersDistCard extends Component {
     }
   }
 
-  linkShopperToDistributorInDb(ShoppersDist){
-    if (this.props.shopperId) {
+  linkShopperToDistributorInDb(nextDist){
+    console.log('linkShopperToDistributorInDb func called with:',nextDist.distId)
+    if (this.props.shopperId && nextDist.id) {
       this.props.linkShopperToDistributor({
         variables: {
           ShopperId: this.props.shopperId,
-          DistributorId: ShoppersDist.id
+          DistributorId: nextDist.id
         }
       }).then( res => {
+        console.log('successfully linked Shopper to NEXT Distributor');
         if (res && res.data && res.data.addToShopperOnDistributor) {
-            this.setState({ShoppersDist},()=>{
-              this.addShopperToDistributorsGroupChatInDb(ShoppersDist.chatsx[0].id,this.props.shopperId)
+            this.setState({ShoppersDist:nextDist},()=>{
+              if (nextDist.chatsx.length > 0) {
+                this.addShopperToDistributorsGroupChatInDb(nextDist.chatsx[0].id,this.props.shopperId)
+              }
             })
         } else {
           console.log('1. no regular response from link request');
         }
       }).catch( e => {
-        console.log('2. link func error',e.message);
+        console.log('failed to link Shopper to NEXT Distributor',e.message)
       })
     } else {
-      console.log('3. not enuf valid inputs for gql link request');
+      console.log('not enuf valid inputs for gql linkShopperToDistributor method');
     }
   }
 
-  deLinkShopperFromDistributorInDb(ShoppersDist,formerShoppersDist,replaceWithNew){
-    if (this.props.shopperId) {
+  deLinkShopperFromDistributorInDb(nextDist,prevDist,replaceWithNew){
+    console.log('deLinkShopperFromDistributorInDb func called');
+    console.log('replace with New Dist? ',replaceWithNew);
+    if (this.props.shopperId && prevDist.id) {
       this.props.deLinkShopperFromDistributor({
         variables: {
           ShopperId: this.props.shopperId,
-          DistributorId: formerShoppersDist.id
+          DistributorId: prevDist.id
         }
-      }).then( res => {
-        if (res && res.data && res.data.removeFromShopperOnDistributor) {
+      }).then( () => {
+        console.log('successfully delinked Shopper from Distributor');
+        if (prevDist.chatsx.length > 0) {
           this.removeShopperFromDistributorsGroupChatInDb(
-            this.props.shopperId,formerShoppersDist.chatsx[0].id,
-            ShoppersDist,replaceWithNew
+            this.props.shopperId,prevDist.chatsx[0].id
           )
+        }
+        if (replaceWithNew) {
+          this.linkShopperToDistributorInDb(nextDist)
         } else {
-          console.log('1. no regular response from delete request');
+          this.setState({ShoppersDist:null})
         }
       }).catch( e => {
-        console.log('2. delink func error',e.message);
+        console.log('failed to delink Shopper from Distributor',e.message);
       })
     } else {
-      console.log('3. not enuf valid inputs for gql delink request');
+      console.log('not enuf valid inputs for gql deLinkShopperFromDistributor method');
     }
   }
 
   addShopperToDistributorsGroupChatInDb(chatsxChatId,shoppersxShopperId){
+    console.log('addShopperToDistributorsGroupChatInDb func called');
     if (this.props.shopperId && chatsxChatId) {
       this.props.addShopperToDistributorsGroupChat({
         variables: {
           chatsxChatId,shoppersxShopperId
         }
+      }).then( () => {
+        console.log('successfully added Shopper To Distributors Group Chat In Db');
+        this.triggerEventOnChatInDb(chatsxChatId)
+      }).catch( e => {
+        console.log('failed to add Shopper To Distributors Group Chat In Db',e.message);
       })
     }
   }
   
-  removeShopperFromDistributorsGroupChatInDb(shopperId,chatId,ShoppersDist,replaceWithNew){
+  removeShopperFromDistributorsGroupChatInDb(shopperId,chatId){
+    console.log('removeShopperFromDistributorsGroupChatInDb func called');
     if (shopperId && chatId) {
       this.props.removeShopperFromDistributorsGroupChat({
         variables: {
           shopperId,chatId
         }
-      }).then( res => {
-        if (replaceWithNew) {
-          this.linkShopperToDistributorInDb(ShoppersDist)
-        } else {
-          this.setState({ShoppersDist:null})
-        }
+      }).then( () => {
+        console.log('successfully removed Shopper from Distributors Group Chat in DB');
+        this.triggerEventOnChatInDb(chatId)
       }).catch( e => {
-        console.log('There was a problem removing Shopper from Distributors Group Chat',e.message);
+        console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message);
       })
     }
+  }
+  
+  triggerEventOnChatInDb(chatId){
+    this.props.triggerEventOnChat({
+      variables: {
+        chatId,
+        updater: JSON.stringify(new Date())
+      }
+    }).then( res => {
+      console.log('event successfully triggered on chat node');
+    }).catch( e => {
+      console.log('could not trigger event on Chat node',e.message);
+    })
   }
 
   render(){
@@ -250,5 +280,8 @@ export default compose(
   }),
   graphql(RemoveShopperFromDistributorsGroupChat,{
     name: 'removeShopperFromDistributorsGroupChat'
+  }),
+  graphql(TriggerEventOnChat,{
+    name: 'triggerEventOnChat'
   })
 )(ShoppersDistCard)

@@ -36,11 +36,16 @@ subscription SubToShoppersChats(
     mutation
     previousValues {
       id
+      updater
     }
     node {
       id
       alias
       updatedAt
+      updater
+      shoppersx {
+        id
+      }
       distributorsx(
         first:1
       ){

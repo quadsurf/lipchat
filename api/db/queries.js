@@ -221,6 +221,10 @@ query GetChatsForShopper(
     id
     alias
     updatedAt
+    updater
+    shoppersx {
+      id
+    }
     distributorsx(
       first:1
     ){

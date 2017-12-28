@@ -329,7 +329,20 @@ mutation(
   }
 }`
 
+const TriggerEventOnChat = gql`
+mutation(
+  $chatId: ID!
+  $updater: String!
+){
+  updateChat(
+    id: $chatId
+    updater: $updater
+  ){
+    id
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat
 }

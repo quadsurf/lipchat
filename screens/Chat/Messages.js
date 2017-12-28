@@ -26,7 +26,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
 import { SubToChatsMessages } from '../../api/db/pubsub'
-import { CreateChatMessage,UpdateChatMessage,DeleteChatMessage } from '../../api/db/mutations'
+import {
+  CreateChatMessage,UpdateChatMessage,DeleteChatMessage,TriggerEventOnChat
+} from '../../api/db/mutations'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -320,7 +322,7 @@ class Messages extends Component {
           writer: this.state.userId,
           text: 'isTypingNow'
         }
-      }).then((res)=>{
+      }).then( res => {
         if (res && res.data && res.data.createMessage) {
           this.setState({messageId:res.data.createMessage.id})
         } else {
@@ -351,6 +353,7 @@ class Messages extends Component {
             if (this.state.isModalOpen) {
               this.setState({isModalOpen:false})
             }
+            this.triggerEventOnChatInDb()
           })
         } else {
           this.openError(errText)
@@ -384,6 +387,18 @@ class Messages extends Component {
         this.openError(errText)
       })
     }
+  }
+  
+  triggerEventOnChatInDb(){
+    this.props.triggerEventOnChat({
+      variables: {
+        chatId: this.state.chatId,
+        updater: JSON.stringify(new Date())
+      }
+    }).then( () => {
+    }).catch( e => {
+      console.log('could not trigger event on Chat node',e.message);
+    })
   }
 
   renderInputBox = () => {
@@ -494,6 +509,9 @@ export default compose(
   }),
   graphql(DeleteChatMessage,{
     name: 'deleteChatMessage'
+  }),
+  graphql(TriggerEventOnChat,{
+    name: 'triggerEventOnChat'
   })
 )(Messages)
 
