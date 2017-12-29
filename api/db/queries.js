@@ -320,6 +320,23 @@ query	GetMessagesForChat(
   }
 }`
 
+const CheckIfDistributorHasGroupChat = `
+query(
+  $distributorsx: DistributorFilter!
+){
+  allChats(
+    filter: {
+      AND: [
+        { distributorsx_some: $distributorsx },
+        { type: GROUPINT }
+      ]
+    }
+  ){
+    id
+    alias
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat
 }

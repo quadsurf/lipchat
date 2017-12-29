@@ -107,24 +107,16 @@ class TabNav extends PureComponent<void, *, State> {
     }
   }
 
-  updateUserTypeLocally(newUserType){
-    this.setState({userType:newUserType},()=>{
-      let userType = this.state.userType
-      if (userType === 'DIST') {
-        this.createNewGroupChatForNewDistAndHerShoppers()
-      }
-      if (userType === 'SHOPPER') {
-        this.deleteDistsGroupChat()
+  updateUserTypeLocally(userType){
+    this.setState({userType},()=>{
+      if (this.state.userType === 'DIST') {
+        this.createGroupChatForDistributorInDb()
       }
     })
   }
 
-  createNewGroupChatForNewDistAndHerShoppers(){
-    console.log('createNewGroupChatForNewDistAndHerShoppers func called');
-  }
-
-  deleteDistsGroupChat(){
-    console.log('deleteDistsGroupChat func called');
+  createGroupChatForDistributorInDb(){
+    
   }
 
   handleChangeTab = index => {

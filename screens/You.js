@@ -1,6 +1,9 @@
 
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
+//ERROR HANDLING NEEDED FOR:
+// checkIfDistributorHasGroupChat
+// createGroupChatForDistributorInDb
 
 import React, { Component } from 'react'
 import {
@@ -14,6 +17,9 @@ import {
   TouchableOpacity
 } from 'react-native'
 
+//ENV VARS
+import { PROJECT_ID } from 'react-native-dotenv'
+
 // LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
@@ -21,14 +27,16 @@ import { MKSwitch } from 'react-native-material-kit'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
+import axios from 'axios'
 
 // GQL
 import {
   UpdateCellPhone,UpdateName,UpdateUserType,
   UpdateDistributorDistId,UpdateDistributorBizName,
-  UpdateDistributorBizUri,UpdateDistributorLogoUri
+  UpdateDistributorBizUri,UpdateDistributorLogoUri,
+  CreateGroupChatForDistributor
 } from '../api/db/mutations'
-import { GetDistributor,GetUserType } from '../api/db/queries'
+import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../api/db/queries'
 
 // LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
@@ -724,6 +732,7 @@ class You extends Component {
   }
 
   cellButtonDisabled = () => null
+  
   //updateCellPhoneInDb
   cellButtonEnabled = () => {
     let errText = 'updating your cell phone'
@@ -769,6 +778,9 @@ class You extends Component {
     }).then( res => {
       if (res && res.data && res.data.updateUser) {
         this.setState({isUserTypeSubmitModalOpen:false})
+        if (res.data.updateUser.type && res.data.updateUser.type === 'DIST') {
+          this.checkIfDistributorHasGroupChat()
+        }
       } else {
         this.showModal('err','Profile',errText)
       }
@@ -779,6 +791,58 @@ class You extends Component {
         },700)
       })
     })
+  }
+
+//ERROR HANDLING NEEDED
+  checkIfDistributorHasGroupChat(){
+    let method = 'post'
+    let url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
+    let headers = {
+      Authorization: `Bearer ${this.props.localStorage.gcToken}`,
+      "Content-Type": "application/json"
+    }
+    axios({
+      headers,method,url,
+      data: {
+        query: CheckIfDistributorHasGroupChat,
+        variables: {
+          distributorsx: {id: this.state.user.distributorx.id}
+        }
+      }
+    }).then( res => {
+      if (res.data.data.allChats.length > 0) {
+        console.log('distributor already has a group chat, so no need to create');
+      } else {
+        this.createGroupChatForDistributorInDb()
+      }
+    }).catch( e => {
+      console.log('e',e.message);
+    })
+  }
+
+//ERROR HANDLING NEEDED  
+  createGroupChatForDistributorInDb(){
+    if (
+      this.state.user && 
+      this.state.user.fbkFirstName && 
+      this.state.user.distributorx && 
+      this.state.user.distributorx.id
+    ) {
+      this.props.createGroupChatForDistributor({
+        variables: {
+          alias: `${this.state.user.fbkFirstName}'s Shoppers`,
+          distributorsx: this.state.user.distributorx.id
+        }
+      }).then( res => {
+        if (res && res.data && res.data.createChat) {
+          //
+        }
+      }).catch( e => {
+        console.log('failed to create group chat for distributor in db',e.message);
+      })
+    } else {
+      console.log('insufficient inputs to create group chat for distributor in db');
+    }
   }
 
   updateDistributorDistIdInDb(){
@@ -881,21 +945,13 @@ class You extends Component {
             this.showModal('err','Profile',errText)
           }
         }).catch( e => {
-          console.log('ggg',e.message);
+          console.log('Error: ',e.message);
           this.showModal('err','Profile',errText)
         })
       } else {
         this.showModal('err','Profile',errText)
       }
     }
-  }
-
-  createNewGroupChatForNewDistAndHerShoppers(){
-    console.log('createNewGroupChatForNewDistAndHerShoppers func called');
-  }
-
-  deleteDistsGroupChat(chatId){
-    console.log('deleteDistsGroupChat func called');
   }
 
   async logOut(){
@@ -965,5 +1021,8 @@ export default compose(
   }),
   graphql(UpdateDistributorLogoUri,{
     name: 'updateDistributorLogoUri'
+  }),
+  graphql(CreateGroupChatForDistributor,{
+    name: 'createGroupChatForDistributor'
   })
 )(You)
