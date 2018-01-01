@@ -119,9 +119,9 @@ class Chat extends Component {
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
-            case 'CREATED': this.addChatToChatList(node)
+            case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
             case 'UPDATED': this.updateChatOnChatList(previousValues,node)
-            case 'DELETED': this.removeChatFromChatList(previousValues.id)
+            case 'DELETED': this.removeChatFromChatList(previousValues,'subToShoppersChats')
             default: return
           }
         },
@@ -132,13 +132,15 @@ class Chat extends Component {
     }
   }
   
-  addChatToChatList(chat){
+  addChatToChatList(chat,cameFrom){
+    console.log('addChatToChatList func called');
+    console.log('Came From: ',cameFrom);
     let chats = JSON.parse(JSON.stringify(this.state.chats))
-    let index = chats.findIndex( chatIndex => {
+    let i = chats.findIndex( chatIndex => {
       return chatIndex.id === chat.id
     })
-    if (index !== -1) {
-      chats.splice(index,1,chat)
+    if (i !== -1) {
+      chats.splice(i,1,chat)
       this.setState({chats})
     } else {
       this.setState({
@@ -150,35 +152,43 @@ class Chat extends Component {
     }
   }
   
-  updateChatOnChatList(prev = null,chat){
-    let subjectChat = this.state.chats.find( chatNode => {
-      return chatNode.id === chat.id
+  updateChatOnChatList(prevChat,nextChat){
+    console.log('updateChatOnChatList func called');
+    let subjectChat = this.state.chats.find( chat => {
+      return chat.id === nextChat.id
     })
     if (!subjectChat) {
-      this.addChatToChatList(chat)
+      this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
-      if (prev.updater !== chat.updater) {
-        this.addChatToChatList(chat)
-      }
-      let shopperExists = subjectChat.shoppersx.find( shopper => {
-        return shopper.id === this.props.user.shopperx.id
-      })
-      if (!shopperExists) {
-        if (prev.id) {
-          this.removeChatFromChatList(prev.id)
+      if (prevChat && nextChat) {
+        if (prevChat.updater !== nextChat.updater) {
+          this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat')
         }
+        if (nextChat.type === 'GROUPINT') {
+          let shopperExists = subjectChat.shoppersx.find( shopper => {
+            return shopper.id === this.props.user.shopperx.id
+          })
+          if (!shopperExists) {
+            this.removeChatFromChatList(prevChat,'updateChatOnChatList')
+          }
+        }
+      } else {
+        console.log('no prevChat value');
       }
     }
   }
   
-  removeChatFromChatList(previousChatId){
-    let chats = JSON.parse(JSON.stringify(this.state.chats))
-    let i = chats.findIndex( chat => {
-      return chat.id === previousChatId
-    })
-    if (i !== -1) {
-      chats.splice(i,1)
-      this.setState({chats})
+  removeChatFromChatList(prevChat,cameFrom){
+    console.log('removeChatFromChatList func called');
+    if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
+      let chats = JSON.parse(JSON.stringify(this.state.chats))
+      let i = chats.findIndex( chat => {
+        return chat.id === prevChat.id
+      })
+      if (i !== -1) {
+        chats.splice(i,1)
+        this.setState({chats})
+      }
     }
   }
 
@@ -284,7 +294,7 @@ export default compose(
   graphql(GetChatsForShopper,{
     name: 'getChatsForShopper',
     options: props => ({
-      // pollInterval: 5000,
+      // pollInterval: 15000,
       variables: {
         ShopperId: {
           id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''

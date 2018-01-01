@@ -824,13 +824,12 @@ class You extends Component {
   createGroupChatForDistributorInDb(){
     if (
       this.state.user && 
-      this.state.user.fbkFirstName && 
       this.state.user.distributorx && 
       this.state.user.distributorx.id
     ) {
       this.props.createGroupChatForDistributor({
         variables: {
-          alias: `${this.state.user.fbkFirstName}'s Shoppers`,
+          alias: `${this.state.user.fbkFirstName || ''} - Group Chat`,
           distributorsx: this.state.user.distributorx.id
         }
       }).then( res => {

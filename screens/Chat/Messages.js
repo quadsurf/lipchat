@@ -388,7 +388,8 @@ class Messages extends Component {
       })
     }
   }
-  
+
+//NEEDS ERROR HANDLING  
   triggerEventOnChatInDb(){
     this.props.triggerEventOnChat({
       variables: {
@@ -475,7 +476,10 @@ class Messages extends Component {
           </View>
           <View style={{alignItems:'center'}}>
             <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
-            <FontPoiret text={`Chatting with ${this.props.navigation.state.params.chatTitle}`} size={Texts.small.fontSize} style={{color:Colors.blue}}/>
+            <FontPoiret 
+              text={this.props.navigation.state.params.chatTitle} 
+              size={Texts.small.fontSize} 
+              style={{color:Colors.blue}}/>
           </View>
           <View>
             <Entypo name="dot-single" size={50} style={{color:Colors.purple}}/>

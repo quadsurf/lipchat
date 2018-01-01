@@ -222,6 +222,7 @@ query GetChatsForShopper(
     alias
     updatedAt
     updater
+    type
     shoppersx {
       id
     }
@@ -337,6 +338,24 @@ query(
   }
 }`
 
+const CheckIfShopperHasDmChatWithDistributor = `
+query(
+  $shoppersx: ShopperFilter
+  $distributorsx: DistributorFilter
+){
+  allChats(
+    filter: {
+      AND: [
+        { shoppersx_some: $shoppersx },
+        { distributorsx_some: $distributorsx },
+        { type: DMSH2DIST }
+      ]
+    }
+  ){
+    id
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor
 }

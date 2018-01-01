@@ -16,10 +16,13 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { FindDistributor,CheckForDistributorOnShopper } from '../../api/db/queries'
+import {
+  FindDistributor,CheckForDistributorOnShopper,CheckIfShopperHasDmChatWithDistributor
+} from '../../api/db/queries'
 import {
   LinkShopperToDistributor,DeLinkShopperFromDistributor,TriggerEventOnChat,
-  AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat
+  AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,
+  CreateDmChatForShopperAndDistributor
 } from '../../api/db/mutations'
 
 // LOCALS
@@ -39,14 +42,14 @@ class ShoppersDistCard extends Component {
 
   state = {
     ShoppersDist: null,
-    Authorization: `Bearer ${this.props.gcToken}`,
+    headers: { Authorization: `Bearer ${this.props.gcToken}` },
     distId: ''
   }
 
   getDistributor(){
-    let { Authorization } = this.state
+    let { headers } = this.state
     return axios({
-      headers: {Authorization},method,url,
+      headers,method,url,
       data: {
         query: CheckForDistributorOnShopper,
         variables: {
@@ -57,9 +60,9 @@ class ShoppersDistCard extends Component {
   }
 
   findDistributor(){
-    let { Authorization } = this.state
+    let { headers } = this.state
     return axios({
-      headers: {Authorization},method,url,
+      headers,method,url,
       data: {
         query: FindDistributor,
         variables: {
@@ -122,6 +125,7 @@ class ShoppersDistCard extends Component {
         console.log('successfully linked Shopper to NEXT Distributor');
         if (res && res.data && res.data.addToShopperOnDistributor) {
             this.setState({ShoppersDist:nextDist},()=>{
+              this.checkIfShopperHasDmChatWithDistributor(nextDist.id,this.props.shopperId)
               if (nextDist.chatsx.length > 0) {
                 this.addShopperToDistributorsGroupChatInDb(nextDist.chatsx[0].id,this.props.shopperId)
               }
@@ -195,6 +199,65 @@ class ShoppersDistCard extends Component {
       }).catch( e => {
         console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message);
       })
+    }
+  }
+
+//NEEDS ERROR HANDLING
+  checkIfShopperHasDmChatWithDistributor(distributorsx,shoppersx){
+    console.log('checkIfShopperHasDmChatWithDistributor func called');
+    if (shoppersx && distributorsx) {
+      let { headers } = this.state
+      axios({
+        headers,method,url,
+        data: {
+          query: CheckIfShopperHasDmChatWithDistributor,
+          variables: {
+            shoppersx: { id:shoppersx },
+            distributorsx: { id:distributorsx }
+          }
+        }
+      }).then( res => {
+        if (res && res.data && res.data.data && res.data.data.allChats) {
+          console.log('successfully checked if shopper has DM chat with Distributor');
+          if (res.data.data.allChats.length < 1) {
+            console.log('shopper does not have DM chat with Distributor, call create func');
+            this.createDmChatForShopperAndDistributor(distributorsx,shoppersx)
+          } else {
+            console.log('shopper has DM chat with Distributor, no need to create');
+          }
+        } else {
+          console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
+        }
+      }).catch( e => {
+        console.log('failed to check if shopper has DM chat with Distributor',e.message);
+      })
+    } else {
+      console.log('insufficient inputs to run checkIfShopperHasDmChatWithDistributor query');
+    }
+  }
+
+//NEEDS ERROR HANDLING  
+  createDmChatForShopperAndDistributor(distributorsx,shoppersx){
+    console.log('createDmChatForShopperAndDistributor func called');
+    if (distributorsx && shoppersx) {
+      let { headers } = this.state
+      axios({
+        headers,method,url,
+        data: {
+          query: CreateDmChatForShopperAndDistributor,
+          variables: { distributorsx,shoppersx }
+        }
+      }).then( res => {
+        if (res && res.data && res.data.data && res.data.data.createChat) {
+          console.log('successfully created dm chat for shopper and distributor');
+        } else {
+          console.log('no response received for CreateDmChatForShopperAndDistributor request');
+        }
+      }).catch( e => {
+        console.log('failed to create dm chat for shopper and distributor',e.message);
+      })
+    } else {
+      console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
     }
   }
   

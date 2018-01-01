@@ -43,6 +43,7 @@ subscription SubToShoppersChats(
       alias
       updatedAt
       updater
+      type
       shoppersx {
         id
       }

@@ -356,7 +356,22 @@ mutation(
   }
 }`
 
+const CreateDmChatForShopperAndDistributor = `
+mutation(
+  $shoppersx: [ID!]
+  $distributorsx: [ID!]
+){
+  createChat(
+    shoppersxIds: $shoppersx
+    distributorsxIds: $distributorsx
+    type: DMSH2DIST
+    alias: "Direct Chat"
+  ){
+    id
+  }
+}`
+
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor,CreateDmChatForShopperAndDistributor
 }
