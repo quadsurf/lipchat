@@ -179,7 +179,7 @@ class Chat extends Component {
   }
   
   removeChatFromChatList(prevChat,cameFrom){
-    console.log('removeChatFromChatList func called');
+    console.log('removeChatFromChatList func called',cameFrom);
     if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
       let chats = JSON.parse(JSON.stringify(this.state.chats))
       let i = chats.findIndex( chat => {

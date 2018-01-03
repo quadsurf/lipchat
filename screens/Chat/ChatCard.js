@@ -49,10 +49,10 @@ const ChatCardLayout = props => {
           <Image source={{uri}} style={imgSize}/>
         </View>
         <View style={cardRight}>
-          <FontPoiret text={clipText(chatTitle,20)} size={medium} color={Colors.white}/>
+          <FontPoiret text={clipText(chatTitle,30)} size={medium} color={Colors.white}/>
           {
             chatSubTitle ?
-            <FontPoiret text={clipText(chatSubTitle,20)} size={small} color={Colors.white}/> :
+            <FontPoiret text={clipText(chatSubTitle,30)} size={small} color={Colors.white}/> :
               null
           }
           {
@@ -81,14 +81,6 @@ const ChatCardLayout = props => {
   }
 }
 
-const userxBU = {
-  userx: {
-    fbkFirstName: 'loading...',
-    fbkLastName: '',
-    fbkUserId: '100002537512909'
-  }
-}
-
 const ChatCard = props => {
 
   let { chat,userType,viewersStatus } = props
@@ -97,21 +89,41 @@ const ChatCard = props => {
   let count = chat.messages.length
   let date = chat.updatedAt
   let chattingWith,bizName,logoUri,status
-  if (userType === 'SHOPPER') {
-    chattingWith = chat.distributorsx && chat.distributorsx.length > 0 ? chat.distributorsx[0] : userxBU
-    // chattingWith = chat.distributorsx[0] || {}
+  let fbkFirstName = ''
+  let fbkLastName = ''
+  let fbkUserId = '100002537512909'
+  
+  if (
+    userType === 'SHOPPER' && 
+    chat.distributorsx && 
+    chat.distributorsx.length > 0 && 
+    chat.distributorsx[0]
+  ) {
+    chattingWith =  chat.distributorsx[0]
     bizName = chattingWith.bizName ? chattingWith.bizName : 'Your Distributor'
     logoUri = chattingWith.logoUri
     status = chattingWith.status
   }
-  if (userType === 'DIST') {
-    chattingWith = chat.shoppersx && chat.shoppersx.length > 0 ? chat.shoppersx[0] : userxBU
-    // chattingWith = chat.shoppersx[0] || {}
+  
+  if (userType === 'DIST' && chat.shoppersx && chat.shoppersx.length > 0 && chat.shoppersx[0]) {
+    chattingWith = chat.shoppersx[0]
   }
-  let { fbkFirstName,fbkLastName,fbkUserId } = chattingWith.userx
-  let name = `${fbkFirstName || ''} ${fbkLastName || ''}`
+  
+  if (
+    chattingWith && 
+    chattingWith.userx && 
+    chattingWith.userx.fbkFirstName && 
+    chattingWith.userx.fbkLastName && 
+    chattingWith.userx.fbkUserId
+  ) {
+    fbkFirstName = chattingWith.userx.fbkFirstName
+    fbkLastName = chattingWith.userx.fbkLastName
+    fbkUserId = chattingWith.userx.fbkUserId
+  }
+  
+  let name = `${fbkFirstName} ${fbkLastName}`
 
-  let chatTitle = alias ? alias : userType === 'SHOPPER' ? bizName : name
+  let chatTitle = alias ? alias : userType === 'SHOPPER' ? chat.type === 'DMSH2DIST' ? `DirectChat: ${bizName}` : `GroupChat: ${bizName}` : name
   let chatSubTitle = status ? `by ${name}` : null
   let message = chat.messages.length > 0 ? chat.messages[0].text : 'no chat history'
 

@@ -365,7 +365,6 @@ mutation(
     shoppersxIds: $shoppersx
     distributorsxIds: $distributorsx
     type: DMSH2DIST
-    alias: "Direct Chat"
   ){
     id
   }
