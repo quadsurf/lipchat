@@ -1,0 +1,127 @@
+﻿type File implements Node {
+  contentType: String!
+  createdAt: DateTime!
+  id: ID! @isUnique
+  name: String!
+  secret: String! @isUnique
+  size: Int!
+  updatedAt: DateTime!
+  url: String! @isUnique
+}
+
+type User implements Node {
+  createdAt: DateTime!
+  fbkAgeMin: Int
+  fbkAgeMax: Int
+  fbkEmail: String
+  fbkFirstName: String
+  fbkGender: String
+  fbkLastName: String
+  fbkUserId: String! @isUnique
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  fbkPhotoUri: String
+  fbkFriends: Json
+  fbkVerified: Boolean
+  cellPhone: String
+  type: UserType @defaultValue(value: SHOPPER)
+  distributorx: Distributor @relation(name: "DistributorOnUser")
+  shopperx: Shopper @relation(name: "ShopperOnUser")
+}
+
+type Color implements Node {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  name: String!
+  updatedAt: DateTime!
+  finish: ColorFinish!
+  rgb: String
+  tone: ColorTone!
+  family: ColorFamily!
+  inventoriesx: [Inventory!]! @relation(name: "ColorOnInventory")
+  likesx: [Like!]! @relation(name: "LikeOnColor")
+  status: ColorStatus!
+}
+
+enum UserType {
+  SHOPPER
+  DIST
+}
+
+enum ColorFinish {
+  MATTE
+  SHIMMER
+  FROST
+}
+
+enum ColorTone {
+  COOL
+  WARM
+  NEUTRAL
+}
+
+enum ColorFamily {
+  NEUTRALS
+  REDS
+  PINKS
+  BOLDPINKS
+  BROWNS
+  PURPLES
+  BERRIES
+  ORANGES
+}
+
+enum ColorStatus {
+  CURRENT
+  DISCONTINUED
+  LIMITEDEDITION
+}
+
+type Chat implements Node {
+  createdAt: DateTime!
+  distributorx: Distributor @relation(name: "ChatOnDistributor")
+  id: ID! @isUnique
+  messages: Json
+  shoppersx: [Shopper!]! @relation(name: "ChatOnShopper")
+  updatedAt: DateTime!
+}
+
+type Distributor implements Node {
+  bizName: String
+  bizUri: String! @defaultValue(value: "https://")
+  chatsx: [Chat!]! @relation(name: "ChatOnDistributor")
+  createdAt: DateTime!
+  distId: String!
+  id: ID! @isUnique
+  inventoriesx: [Inventory!]! @relation(name: "DistributorOnInventory")
+  logoUri: String! @defaultValue(value: "https://")
+  updatedAt: DateTime!
+  userx: User! @relation(name: "DistributorOnUser")
+}
+
+type Inventory implements Node {
+  colorx: Color! @relation(name: "ColorOnInventory")
+  count: Int! @defaultValue(value: 0)
+  createdAt: DateTime!
+  distributorx: Distributor @relation(name: "DistributorOnInventory")
+  id: ID! @isUnique
+  updatedAt: DateTime!
+}
+
+type Like implements Node {
+  colorx: Color! @relation(name: "LikeOnColor")
+  createdAt: DateTime!
+  doesLike: Boolean! @defaultValue(value: true)
+  id: ID! @isUnique
+  shopperx: Shopper @relation(name: "LikeOnShopper")
+  updatedAt: DateTime!
+}
+
+type Shopper implements Node {
+  chatsx: [Chat!]! @relation(name: "ChatOnShopper")
+  createdAt: DateTime!
+  id: ID! @isUnique
+  likesx: [Like!]! @relation(name: "LikeOnShopper")
+  updatedAt: DateTime!
+  userx: User! @relation(name: "ShopperOnUser")
+}
