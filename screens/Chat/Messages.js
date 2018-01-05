@@ -103,7 +103,7 @@ const Message = props => {
       return (
         <View style={{flex:1}}>
           <View style={[date1,date2]}>
-            <FontPoiret text="typing now" size={12} color={Colors.transparentWhite}/>
+            <FontPoiret text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} is typing now...`} size={12} color={Colors.transparentWhite}/>
           </View>
           <View style={{flexDirection:'row',justifyContent: 'flex-start'}}>
             <View style={{flexDirection:'row'}}>
@@ -126,7 +126,10 @@ const Message = props => {
     return (
       <View style={{flex:1}}>
         <View style={[date1,date2]}>
-          <FontPoiret text={moment(updated).fromNow()} size={12} color={Colors.transparentWhite}/>
+          <FontPoiret 
+            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}`} 
+            size={12} 
+            color={Colors.transparentWhite}/>
         </View>
         <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
           {

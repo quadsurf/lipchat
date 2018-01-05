@@ -88,6 +88,8 @@ subscription SubToDistributorsChats(
       id
       alias
       updatedAt
+      updater
+      type
       shoppersx(
         first:1
       ){
@@ -97,6 +99,15 @@ subscription SubToDistributorsChats(
           fbkLastName
           fbkUserId
         }
+      }
+      distributorsx {
+        id
+        userx {
+          fbkFirstName
+          fbkLastName
+          fbkUserId
+        }
+        logoUri
       }
       _messagesMeta {
         count

@@ -187,8 +187,10 @@ query GetChatsForDistributor(
     id
     alias
     updatedAt
+    updater
+    type
     shoppersx(
-      first:1
+      last:1
     ){
       id
       userx {
@@ -196,6 +198,15 @@ query GetChatsForDistributor(
         fbkLastName
         fbkUserId
       }
+    }
+    distributorsx {
+      id
+      userx {
+        fbkFirstName
+        fbkLastName
+        fbkUserId
+      }
+      logoUri
     }
     _messagesMeta {
       count
