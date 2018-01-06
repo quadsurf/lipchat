@@ -82,8 +82,10 @@ const ChatCard = props => {
       }
     }  
   }
-
-  let chatSubTitle = status ? `by ${name}` : null
+  if (chat.type === 'SADVR2ALL' && viewersStatus === false) {
+    viewersStatus = true
+  }
+  let chatSubTitle = chat.type === 'SADVR2ALL' ? null : status ? `by ${name}` : null
   let message = chat.messages.length > 0 ? chat.messages[0].text : 'no chat history'
 
   if (status) {
@@ -115,7 +117,7 @@ const ChatCard = props => {
             if (chat.type === 'DMSH2DIST') {
               return <ChatCardLayout approved={false} line1="this shopper is waiting" line2="for you to get approved"/>
             } else {
-              return <ChatCardLayout approved={false} line1="get approved to group" line2="chat w/ all your shoppers"/>
+              return <ChatCardLayout approved={false} line1="get approved to group" line2="chat with your shoppers"/>
             }
           }
       } else {
