@@ -3,6 +3,7 @@
 import React from 'react'
 
 import ChatCardLayout from './ChatCardLayout'
+import { AppName } from '../../config/Defaults'
 
 // CONSTs
 const size = 90
@@ -33,53 +34,53 @@ const ChatCard = props => {
         fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
         fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
         name = `${fbkFirstName} ${fbkLastName}`
+        uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       }
     }
     if (chat.type === 'DMSH2DIST') {
-      uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       chatTitle = alias ? alias : bizName ? `${dm}${bizName}` : name ? name : 'Unknown'
     }
     if (chat.type === 'GROUPINT') {
-      uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       chatTitle = alias ? alias : bizName ? `${gm}${bizName}` : name ? name : 'Unknown'
     }
-  }
-  
-  if (
-    userType === 'DIST' && 
-    chat.type === 'DMSH2DIST' && 
-    chat.shoppersx && 
-    chat.shoppersx.length > 0
-  ) {
-    chattingWith = chat.shoppersx[0]
-    status = chattingWith.status
-    if (chattingWith.userx) {
-      fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
-      fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
-      fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
-      name = `${fbkFirstName} ${fbkLastName}`
-      uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-      chatTitle = alias ? alias : name ? `${dm}${name}` : 'Unknown'
+    if (chat.type === 'SADVR2ALL') {
+      chatTitle = alias ? alias : `${AppName} Notifications`
     }
   }
   
-  if (
-    userType === 'DIST' && 
-    chat.type === 'GROUPINT' && 
-    chat.distributorsx && 
-    chat.distributorsx.length > 0
-  ) {
-    chattingWith = chat.distributorsx[0]
-    logoUri = chattingWith.logoUri ? chattingWith.logoUri : null
-    status = chattingWith.status
-    if (chattingWith.userx) {
-      fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
-      fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
-      fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
-      name = `${fbkFirstName} ${fbkLastName}`
-      uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-      chatTitle = alias ? alias : 'Chat with Your Shoppers'
+  if (userType === 'DIST') {
+    if (
+      chat.type === 'DMSH2DIST' && 
+      chat.shoppersx && 
+      chat.shoppersx.length > 0
+    ) {
+      chattingWith = chat.shoppersx[0]
+      status = chattingWith.status
+      if (chattingWith.userx) {
+        fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
+        fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
+        fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
+        name = `${fbkFirstName} ${fbkLastName}`
+        uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+        chatTitle = alias ? alias : name ? `${dm}${name}` : 'Unknown'
+      }
     }
+    
+    if (chat.type === 'GROUPINT' || chat.type === 'SADVR2ALL') {
+      if (chat.distributorsx && chat.distributorsx.length > 0) {
+        chattingWith = chat.distributorsx[0]
+        logoUri = chattingWith.logoUri ? chattingWith.logoUri : null
+        status = chattingWith.status
+        if (chattingWith.userx) {
+          fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
+          fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
+          fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
+          name = `${fbkFirstName} ${fbkLastName}`
+          uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+          chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName} Notifications` : 'Chat with Your Shoppers'
+        }
+      }
+    }  
   }
 
   let chatSubTitle = status ? `by ${name}` : null
