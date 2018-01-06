@@ -34,7 +34,7 @@ const err = (title='',problem='',message='',br='') => {
   )
 }
 
-const shortenUrl = (text,length) => {
+const shortenUrl = (text='',length) => {
   let url = text.split('')
   let shortened = url.splice(8,url.length).join('')
   if (shortened.length > length) {
@@ -46,7 +46,7 @@ const shortenUrl = (text,length) => {
   }
 }
 
-const clipText = (text,length) => {
+const clipText = (text='',length) => {
   if (text.length > length) {
     let textArray = text.split('')
     let shortened = textArray.splice(0,length).join('')

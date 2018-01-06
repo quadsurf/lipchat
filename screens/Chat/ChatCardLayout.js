@@ -7,6 +7,7 @@ import {
 
 //LIBS
 import moment from 'moment'
+import { Foundation } from '@expo/vector-icons'
 
 // LOCALS
 import { FontPoiret } from '../../assets/fonts/Fonts'
@@ -67,7 +68,7 @@ const ChatCardLayout = props => {
           <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
         </View>
         <View style={noExist}>
-          <FontPoiret text="show lock" size={medium} color={Colors.white}/>
+          <Foundation name="lock" size={30} color={Colors.white}/>
           <FontPoiret text={line1} size={medium} color={Colors.white}/>
           <FontPoiret text={line2} size={medium} color={Colors.white}/>
         </View>

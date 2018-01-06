@@ -269,6 +269,7 @@ query GetDistributorStatus(
     id: $DistributorId
   ){
     status
+    level
   }
 }`
 

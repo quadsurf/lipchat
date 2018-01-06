@@ -43,7 +43,7 @@ class Chat extends Component {
     user: this.props.user ? this.props.user : null,
     // userType: this.props.user && this.props.user.type ? this.props.user.type : null,
     userType: this.props.userType ? this.props.userType : null,
-    chats: null
+    chats: []
   }
 
   componentWillMount(){
@@ -65,6 +65,8 @@ class Chat extends Component {
         let type = newProps && newProps.getUserType && newProps.getUserType.User && newProps.getUserType.User.type ? newProps.getUserType.User.type : this.state.userType
         if (type === 'DIST') {
             this.chatsForDist(newProps)
+            // filter to find only the DMU2ADMIN and SADVR2ALL chats
+            this.chatsForShopper(newProps)
         }
         if (type === 'SHOPPER') {
             this.chatsForShopper(newProps)
@@ -78,7 +80,11 @@ class Chat extends Component {
       && Array.isArray(newProps.getChatsForDistributor.allChats)
     ) {
         if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
-          this.setState({chats:newProps.getChatsForDistributor.allChats})
+          // filter to prevent duplicates
+          this.setState({chats:[
+            ...this.state.chats,
+            ...newProps.getChatsForDistributor.allChats
+          ]})
         }
     }
   }
@@ -89,7 +95,11 @@ class Chat extends Component {
       && Array.isArray(newProps.getChatsForShopper.allChats)
     ) {
         if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-          this.setState({chats:newProps.getChatsForShopper.allChats})
+          // filter to prevent duplicates
+          this.setState({chats:[
+            ...this.state.chats,
+            ...newProps.getChatsForShopper.allChats
+          ]})
         }
     }
     if (

@@ -136,6 +136,7 @@ subscription SubToDistributorStatus(
     node {
       id
       status
+      level
     }
   }
 }`
