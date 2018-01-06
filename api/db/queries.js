@@ -181,7 +181,10 @@ query GetChatsForDistributor(
   allChats(
     orderBy: updatedAt_ASC,
     filter: {
-      distributorsx_some: $DistributorId
+      OR: [
+        {distributorsx_some: $DistributorId},
+        {type: SADVR2ALL}
+      ]
     }
   ){
     id

@@ -78,10 +78,19 @@ subscription SubToDistributorsChats(
 ){
   Chat(
     filter: {
-      mutation_in: [CREATED,UPDATED]
-      node: {
-        distributorsx_some: $DistributorId
-      }
+      mutation_in: [UPDATED]
+      OR: [
+        {
+          node: {
+        		distributorsx_some: $DistributorId
+      		}
+        },
+        {
+          node: {
+        		type: SADVR2ALL
+      		}
+        }
+      ]
     }
   ){
     node {

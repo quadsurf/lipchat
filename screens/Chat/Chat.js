@@ -16,7 +16,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import {
-  GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper,GetUserType
+  GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper
 } from '../../api/db/queries'
 import {
   SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper
@@ -61,57 +61,54 @@ class Chat extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps) {
-        let type = newProps && newProps.getUserType && newProps.getUserType.User && newProps.getUserType.User.type ? newProps.getUserType.User.type : this.state.userType
-        if (type === 'DIST') {
-            this.chatsForDist(newProps)
-            // filter to find only the DMU2ADMIN and SADVR2ALL chats
-            this.chatsForShopper(newProps)
-        }
-        if (type === 'SHOPPER') {
-            this.chatsForShopper(newProps)
-        }
-    }
-  }
-
-  chatsForDist(newProps){
     if (
       newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
-      && Array.isArray(newProps.getChatsForDistributor.allChats)
     ) {
-        if (newProps.getChatsForDistributor.allChats !== this.state.chats) {
-          // filter to prevent duplicates
-          this.setState({chats:[
-            ...this.state.chats,
-            ...newProps.getChatsForDistributor.allChats
-          ]})
-        }
+      if (this.props.userType === 'DIST') {
+        this.chatsForDist(newProps.getChatsForDistributor.allChats)
+      }
     }
-  }
-
-  chatsForShopper(newProps){
     if (
       newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
-      && Array.isArray(newProps.getChatsForShopper.allChats)
     ) {
-        if (newProps.getChatsForShopper.allChats !== this.state.chats) {
-          // filter to prevent duplicates
-          this.setState({chats:[
-            ...this.state.chats,
-            ...newProps.getChatsForShopper.allChats
-          ]})
-        }
+      if (this.props.userType === 'SHOPPER') {
+        this.chatsForShopper(newProps.getChatsForShopper.allChats)
+      }
     }
     if (
       newProps.getAllDistributorsStatusForShopper
       && newProps.getAllDistributorsStatusForShopper.allDistributors
-      && Array.isArray(newProps.getAllDistributorsStatusForShopper.allDistributors)
     ) {
-      if (newProps.getAllDistributorsStatusForShopper.allDistributors !== this.state.allDistributorsStatusForShopper) {
-        this.setState({
-          allDistributorsStatusForShopper: newProps.getAllDistributorsStatusForShopper.allDistributors
-        })
-      }
+      this.distributorsStatusForShopper(newProps.getAllDistributorsStatusForShopper.allDistributors=[])
+    }
+      // let type = this.props.userType
+      // if (type === 'DIST') {
+      //     this.chatsForDist(newProps)
+      //     // filter to find only the DMU2ADMIN and SADVR2ALL chats
+      //     this.chatsForShopper(newProps)
+      // }
+      // if (type === 'SHOPPER') {
+      //     this.chatsForShopper(newProps)
+      // }
+  }
+
+  chatsForDist(chats){
+    if (chats !== this.state.chats) {
+      this.setState({chats})
+    }
+  }
+
+  chatsForShopper(chats){
+    if (chats !== this.state.chats) {
+      this.setState({chats})
+    }
+  }
+  
+  distributorsStatusForShopper(allDistributorsStatusForShopper){
+    if (allDistributorsStatusForShopper !== this.state.allDistributorsStatusForShopper) {
+      this.setState({allDistributorsStatusForShopper},()=>{
+        console.log('allDistributorsStatusForShopper',this.state.allDistributorsStatusForShopper);
+      })
     }
   }
 
@@ -135,8 +132,8 @@ class Chat extends Component {
             default: return
           }
         },
-        onError: err => {
-          // console.log('subscription err:',err);
+        onError: e => {
+          console.log('subToShoppersChats error:',e);
         }
       })
     }
@@ -171,9 +168,6 @@ class Chat extends Component {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
       if (prevChat && nextChat) {
-        if (prevChat.updater !== nextChat.updater) {
-          this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat')
-        }
         if (nextChat.type === 'GROUPINT') {
           let shopperExists = subjectChat.shoppersx.find( shopper => {
             return shopper.id === this.props.user.shopperx.id
@@ -181,6 +175,10 @@ class Chat extends Component {
           if (!shopperExists) {
             this.removeChatFromChatList(prevChat,'updateChatOnChatList')
           }
+        } else if (nextChat.type === 'SADVR2ALL') {
+            this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (SADVR2ALL)')
+        } else if (prevChat.updater !== nextChat.updater) {
+          this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (updater is diff)')
         }
       } else {
         console.log('no prevChat value');
@@ -206,7 +204,16 @@ class Chat extends Component {
     if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
       this.props.getChatsForDistributor.subscribeToMore({
         document: SubToDistributorsChats,
-        variables: {DistributorId:{"id":this.props.user.distributorx.id}}
+        variables: {DistributorId:{"id":this.props.user.distributorx.id}},
+        updateQuery: (previous, { subscriptionData }) => {
+          let { mutation,node,previousValues } = subscriptionData.data.Chat
+          if (mutation === 'UPDATED') {
+            this.updateChatOnChatList(previousValues,node)
+          }
+        },
+        onError: e => {
+          console.log('subToShoppersChats error:',e);
+        }
       })
     }
   }
