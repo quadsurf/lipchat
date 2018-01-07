@@ -245,10 +245,7 @@ class ShoppersDistCard extends Component {
         headers,method,url,
         data: {
           query: CreateDmChatForShopperAndDistributor,
-          variables: {
-            distributorsx,shoppersx,
-            // alias: `${shoppersx.userx && shoppersx.userx.fbkFirstName ? shoppersx.userx.fbkFirstName : '???'} ${distributorsx.userx && distributorsx.userx.fbkFirstName ? distributorsx.userx.fbkFirstName : '???'} (DM)`
-          }
+          variables: { distributorsx,shoppersx }
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.createChat) {

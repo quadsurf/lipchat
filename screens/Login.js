@@ -44,7 +44,7 @@ class Login extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    //
+    
   }
 
   // if modalType='error', then pass at least the first 3 params below

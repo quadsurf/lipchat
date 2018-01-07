@@ -371,6 +371,17 @@ query(
   }
 }`
 
+const FindAppNotificationGroupChat = gql`
+query {
+  allChats(
+    filter: {
+      type: SADVR2ALL
+    }
+  ){
+    id
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,FindAppNotificationGroupChat
 }

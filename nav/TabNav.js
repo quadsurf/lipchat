@@ -11,8 +11,9 @@ import type { NavigationState } from 'react-native-tab-view/types'
 import { compose,graphql } from 'react-apollo'
 
 // GQL
-import { GetUserType,GetDistributorStatus } from '../api/db/queries'
+import { GetUserType,GetDistributorStatus,FindAppNotificationGroupChat } from '../api/db/queries'
 import { SubToUserType,SubToDistributorStatus } from '../api/db/pubsub'
+import { AddShopperToAppNotificationGroupChat } from '../api/db/mutations'
 
 //SCREENS
 import Likes from '../screens/Likes'
@@ -58,7 +59,8 @@ class TabNav extends PureComponent<void, *, State> {
       ],
       loaded: false,
       userType: this.props.navigation.state.params.user.type,
-      distributorStatus: this.props.navigation.state.params.user.distributorx.status
+      distributorStatus: this.props.navigation.state.params.user.distributorx.status,
+      readyToLoadChats: false
     }
 
   componentWillMount(){
@@ -81,29 +83,53 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (
-        newProps.getUserType
-        && newProps.getUserType.User
-        && newProps.getUserType.User.type
-      ) {
-        let exUserType = this.state.userType
-        let newUserType = newProps.getUserType.User.type
-        if (newUserType !== exUserType) {
-          this.updateUserTypeLocally(newUserType)
-        }
+    if (
+      newProps.getUserType
+      && newProps.getUserType.User
+      && newProps.getUserType.User.type
+    ) {
+      let exUserType = this.state.userType
+      let newUserType = newProps.getUserType.User.type
+      if (newUserType !== exUserType) {
+        this.updateUserTypeLocally(newUserType)
       }
-      if (
-        newProps.getDistributorStatus
-        && newProps.getDistributorStatus.Distributor
-        && newProps.getDistributorStatus.Distributor.status
-      ) {
-        let localStatus = this.state.distributorStatus
-        let distributorStatus = newProps.getDistributorStatus.Distributor.status
-        if (distributorStatus !== localStatus) {
-          this.setState({distributorStatus})
-        }
+    }
+    if (
+      newProps.getDistributorStatus
+      && newProps.getDistributorStatus.Distributor
+      && newProps.getDistributorStatus.Distributor.status
+    ) {
+      let localStatus = this.state.distributorStatus
+      let distributorStatus = newProps.getDistributorStatus.Distributor.status
+      if (distributorStatus !== localStatus) {
+        this.setState({distributorStatus})
       }
+    }
+    if (
+      newProps.findAppNotificationGroupChat && 
+      newProps.findAppNotificationGroupChat.allChats && 
+      newProps.findAppNotificationGroupChat.allChats.length > 0
+    ) {
+      this.addShopperToAppNotificationGroupChatInDb(
+        newProps.findAppNotificationGroupChat.allChats[0].id,
+        this.props.navigation.state.params.user.shopperx.id
+      )
+    }
+  }
+//NEEDS ERROR HANDLING  
+  addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
+    if (chatId && shopperId) {
+      this.props.addShopperToAppNotificationGroupChat({
+        variables: {chatId,shopperId}
+      }).then( res => {
+        if (res && res.data && res.data.addToChatOnShopper) {
+          this.setState({readyToLoadChats:true})
+        } else {
+          console.log('no response received from addShopperToAppNotificationGroupChat mutation');
+        }
+      }).catch( e => console.log('failed to addShopperToAppNotificationGroupChat in DB',e.message))
+    } else {
+      console.log('insufficient inputs to run addShopperToAppNotificationGroupChatInDb mutation');
     }
   }
 
@@ -219,18 +245,24 @@ class TabNav extends PureComponent<void, *, State> {
           />
         )
       case '1':
-        return (
-          <Chat
-            state={this.state}
-            focused={focused}
-            tabRoute={route}
-            user={user}
-            userType={userType}
-            distributorStatus={distributorStatus}
-            nav={navigation}
-            localStorage={localStorage}
-          />
-        )
+        if (this.state.readyToLoadChats) {
+          return (
+            <Chat
+              state={this.state}
+              focused={focused}
+              tabRoute={route}
+              user={user}
+              userType={userType}
+              distributorStatus={distributorStatus}
+              nav={navigation}
+              localStorage={localStorage}
+            />
+          )
+        } else {
+          return (
+            <View style={{...Views.middle,backgroundColor:Colors.bgColor}} />
+          ) 
+        }
       case '2':
         return (
           <Selfie
@@ -311,6 +343,12 @@ export default compose(
       },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(FindAppNotificationGroupChat,{
+    name: 'findAppNotificationGroupChat'
+  }),
+  graphql(AddShopperToAppNotificationGroupChat,{
+    name: 'addShopperToAppNotificationGroupChat'
   })
 )(TabNav)
 
