@@ -344,11 +344,9 @@ mutation(
 
 const CreateGroupChatForDistributor = gql`
 mutation(
-  $alias: String!
   $distributorsx: [ID!]
 ){
   createChat(
-    alias: $alias
     distributorsxIds: $distributorsx
     type: GROUPINT
   ){
@@ -365,6 +363,20 @@ mutation(
     shoppersxIds: $shoppersx
     distributorsxIds: $distributorsx
     type: DMSH2DIST
+  ){
+    id
+  }
+}`
+
+const CreateDmChatForShopperAndSadvr = gql`
+mutation(
+  $shopperId: [ID!]
+  $distributorId: [ID!]
+){
+  createChat(
+    shoppersxIds: $shopperId
+    distributorsxIds: $distributorId
+    type: DMU2ADMIN
   ){
     id
   }
@@ -389,5 +401,5 @@ mutation(
 
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor,CreateDmChatForShopperAndDistributor,AddShopperToAppNotificationGroupChat
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor,CreateDmChatForShopperAndDistributor,AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr
 }

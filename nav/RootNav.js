@@ -1,7 +1,7 @@
 
 
 import { Notifications } from 'expo'
-import React from 'react'
+import React, { Component } from 'react'
 
 // LIBS
 import { StackNavigator } from 'react-navigation'
@@ -50,7 +50,7 @@ const RootStack = StackNavigator(
   }
 )
 
-export default class RootNav extends React.Component {
+export default class RootNav extends Component {
   componentDidMount() {
     this._notificationSubscription = this._registerForPushNotifications()
   }

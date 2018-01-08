@@ -11,9 +11,9 @@ import type { NavigationState } from 'react-native-tab-view/types'
 import { compose,graphql } from 'react-apollo'
 
 // GQL
-import { GetUserType,GetDistributorStatus,FindAppNotificationGroupChat } from '../api/db/queries'
+import { GetUserType,GetDistributorStatus,GetAdminChats } from '../api/db/queries'
 import { SubToUserType,SubToDistributorStatus } from '../api/db/pubsub'
-import { AddShopperToAppNotificationGroupChat } from '../api/db/mutations'
+import { AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr } from '../api/db/mutations'
 
 //SCREENS
 import Likes from '../screens/Likes'
@@ -60,7 +60,9 @@ class TabNav extends PureComponent<void, *, State> {
       loaded: false,
       userType: this.props.navigation.state.params.user.type,
       distributorStatus: this.props.navigation.state.params.user.distributorx.status,
-      readyToLoadChats: false
+      notificationsHasShopper: false,
+      user2AdminDmExists: false,
+      adminChats: []
     }
 
   componentWillMount(){
@@ -106,43 +108,72 @@ class TabNav extends PureComponent<void, *, State> {
       }
     }
     if (
-      newProps.findAppNotificationGroupChat && 
-      newProps.findAppNotificationGroupChat.allChats && 
-      newProps.findAppNotificationGroupChat.allChats.length > 0
+      newProps.getAdminChats && 
+      newProps.getAdminChats.allChats && 
+      newProps.getAdminChats.allChats.length > 0
     ) {
-      this.addShopperToAppNotificationGroupChatInDb(
-        newProps.findAppNotificationGroupChat.allChats[0].id,
-        this.props.navigation.state.params.user.shopperx.id
-      )
+      if (newProps.getAdminChats.allChats !== this.state.adminChats) {
+        this.setState({adminChats:newProps.getAdminChats.allChats},()=>{
+          let shopperId = this.props.navigation.state.params.user.shopperx.id
+          let groupChat = this.state.adminChats.find( chat => {
+            return chat.type === 'SADVR2ALL'
+          })
+          let dmChat = this.state.adminChats.find( chat => {
+            return chat.type === 'DMU2ADMIN'
+          })
+          this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
+          if (!dmChat) {
+            console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
+            this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
+          } else {
+            this.setState({user2AdminDmExists:true})
+            console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
+          }
+        })
+      }
     }
   }
-//NEEDS ERROR HANDLING  
+
+//NEEDS ERROR HANDLING
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
     if (chatId && shopperId) {
       this.props.addShopperToAppNotificationGroupChat({
         variables: {chatId,shopperId}
       }).then( res => {
         if (res && res.data && res.data.addToChatOnShopper) {
-          this.setState({readyToLoadChats:true})
+          this.setState({notificationsHasShopper:true})
         } else {
           console.log('no response received from addShopperToAppNotificationGroupChat mutation');
         }
       }).catch( e => console.log('failed to addShopperToAppNotificationGroupChat in DB',e.message))
     } else {
-      console.log('insufficient inputs to run addShopperToAppNotificationGroupChatInDb mutation');
+      console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
+    }
+  }
+
+//NEEDS ERROR HANDLING  
+  createDmChatForShopperAndSadvrInDb(shopperId,distributorId){
+    console.log('createDmChatForShopperAndDistributor func called');
+    if (shopperId && distributorId) {
+      this.props.createDmChatForShopperAndSadvr({
+        variables: { shopperId,distributorId }
+      }).then( res => {
+        if (res && res.data && res.data.createChat) {
+          this.setState({user2AdminDmExists:true})
+          console.log('successfully received res from createDmChatForShopperAndDistributor mutation');
+        } else {
+          console.log('failed to receive res from createDmChatForShopperAndDistributor mutation');
+        }
+      }).catch( e => {
+        console.log('failed to process createDmChatForShopperAndDistributor mutation',e.message);
+      })
+    } else {
+      console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
     }
   }
 
   updateUserTypeLocally(userType){
-    this.setState({userType},()=>{
-      if (this.state.userType === 'DIST') {
-        this.createGroupChatForDistributorInDb()
-      }
-    })
-  }
-
-  createGroupChatForDistributorInDb(){
-    
+    this.setState({userType})
   }
 
   handleChangeTab = index => {
@@ -245,7 +276,7 @@ class TabNav extends PureComponent<void, *, State> {
           />
         )
       case '1':
-        if (this.state.readyToLoadChats) {
+        if (this.state.notificationsHasShopper && this.state.user2AdminDmExists) {
           return (
             <Chat
               state={this.state}
@@ -344,11 +375,19 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(FindAppNotificationGroupChat,{
-    name: 'findAppNotificationGroupChat'
+  graphql(GetAdminChats,{
+    name: 'getAdminChats',
+    options: props => ({
+      variables: {
+        shopperId: {"id": props.navigation.state.params.user.shopperx.id || ""}
+      }
+    })
   }),
   graphql(AddShopperToAppNotificationGroupChat,{
     name: 'addShopperToAppNotificationGroupChat'
+  }),
+  graphql(CreateDmChatForShopperAndSadvr,{
+    name: 'createDmChatForShopperAndSadvr'
   })
 )(TabNav)
 

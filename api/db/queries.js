@@ -371,17 +371,29 @@ query(
   }
 }`
 
-const FindAppNotificationGroupChat = gql`
-query {
+const GetAdminChats = gql`
+query(
+  $shopperId: ShopperFilter!
+){
   allChats(
     filter: {
-      type: SADVR2ALL
+      OR: [
+        { type: SADVR2ALL },
+        { AND: [
+          { type: DMU2ADMIN },
+          { shoppersx_some: $shopperId }
+        ] }
+      ]
     }
   ){
     id
+    type
+    distributorsx {
+      id
+    }
   }
 }`
 
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,FindAppNotificationGroupChat
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,GetAdminChats
 }

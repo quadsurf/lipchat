@@ -221,7 +221,7 @@ class ShoppersDistCard extends Component {
           console.log('successfully checked if shopper has DM chat with Distributor');
           if (res.data.data.allChats.length < 1) {
             console.log('shopper does not have DM chat with Distributor, call create func');
-            this.createDmChatForShopperAndDistributor(distributorsx,shoppersx)
+            this.createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx)
           } else {
             console.log('shopper has DM chat with Distributor, no need to create');
           }
@@ -237,8 +237,8 @@ class ShoppersDistCard extends Component {
   }
 
 //NEEDS ERROR HANDLING  
-  createDmChatForShopperAndDistributor(distributorsx,shoppersx){
-    console.log('createDmChatForShopperAndDistributor func called');
+  createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx){
+    console.log('createDmChatForShopperAndDistributorInDb func called');
     if (distributorsx && shoppersx) {
       let { headers } = this.state
       axios({
@@ -257,7 +257,7 @@ class ShoppersDistCard extends Component {
         console.log('failed to create dm chat for shopper and distributor',e.message);
       })
     } else {
-      console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
+      console.log('insufficient inputs to run createDmChatForShopperAndDistributorInDb mutation');
     }
   }
   

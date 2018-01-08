@@ -829,7 +829,6 @@ class You extends Component {
     ) {
       this.props.createGroupChatForDistributor({
         variables: {
-          alias: `${this.state.user.fbkFirstName || ''} - Group Chat`,
           distributorsx: this.state.user.distributorx.id
         }
       }).then( res => {
