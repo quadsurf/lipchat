@@ -73,8 +73,9 @@ subscription SubToShoppersChats(
 }`
 
 const SubToDistributorsChats = gql`
-subscription SubToDistributorsChats(
+subscription(
   $DistributorId: DistributorFilter!
+  $shopperId: ShopperFilter!
 ){
   Chat(
     filter: {
@@ -89,6 +90,20 @@ subscription SubToDistributorsChats(
           node: {
         		type: SADVR2ALL
       		}
+        },
+        {
+          AND: [
+            {
+              node: {
+                shoppersx_some: $shopperId
+              }
+            },
+            {
+              node: {
+                type: DMU2ADMIN
+              }
+            }
+          ]
         }
       ]
     }

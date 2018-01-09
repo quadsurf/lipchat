@@ -105,11 +105,9 @@ class Chat extends Component {
   }
   
   distributorsStatusForShopper(allDistributorsStatusForShopper){
-    if (allDistributorsStatusForShopper !== this.state.allDistributorsStatusForShopper) {
-      this.setState({allDistributorsStatusForShopper},()=>{
-        console.log('allDistributorsStatusForShopper',this.state.allDistributorsStatusForShopper);
-      })
-    }
+    // if (allDistributorsStatusForShopper !== this.state.allDistributorsStatusForShopper) {
+    //   this.setState({allDistributorsStatusForShopper})
+    // }
   }
 
   componentDidMount(){
@@ -168,7 +166,7 @@ class Chat extends Component {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
       if (prevChat && nextChat) {
-        if (nextChat.type === 'GROUPINT') {
+        if (nextChat.type === 'DIST2SHPRS') {
           let shopperExists = subjectChat.shoppersx.find( shopper => {
             return shopper.id === this.props.user.shopperx.id
           })
@@ -204,7 +202,10 @@ class Chat extends Component {
     if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
       this.props.getChatsForDistributor.subscribeToMore({
         document: SubToDistributorsChats,
-        variables: {DistributorId:{"id":this.props.user.distributorx.id}},
+        variables: {
+          DistributorId:{"id":this.props.user.distributorx.id},
+          shopperId:{"id":this.props.user.shopperx.id}
+        },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           if (mutation === 'UPDATED') {

@@ -42,7 +42,7 @@ const ChatCard = props => {
     if (chat.type === 'DMSH2DIST') {
       chatTitle = alias ? alias : bizName ? `${dm}${bizName}` : name ? name : 'Unknown'
     }
-    if (chat.type === 'GROUPINT') {
+    if (chat.type === 'DIST2SHPRS') {
       chatTitle = alias ? alias : bizName ? `${gm}${bizName}` : name ? name : 'Unknown'
     }
     if (chat.type === 'SADVR2ALL') {
@@ -69,7 +69,7 @@ const ChatCard = props => {
       }
     }
     
-    if (chat.type === 'GROUPINT' || chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN') {
+    if (chat.type === 'DIST2SHPRS' || chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN') {
       if (chat.distributorsx && chat.distributorsx.length > 0) {
         chattingWith = chat.distributorsx[0]
         logoUri = chattingWith.logoUri ? chattingWith.logoUri : null

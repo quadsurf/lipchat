@@ -348,7 +348,7 @@ mutation(
 ){
   createChat(
     distributorsxIds: $distributorsx
-    type: GROUPINT
+    type: DIST2SHPRS
   ){
     id
   }

@@ -144,7 +144,7 @@ query FindDistributor(
     }
     chatsx(
       filter: {
-        type: GROUPINT
+        type: DIST2SHPRS
       }
     ){
       id
@@ -164,7 +164,7 @@ query(
       id
       chatsx(
         filter: {
-          type: GROUPINT
+          type: DIST2SHPRS
         }
       ){
         id
@@ -349,7 +349,7 @@ query(
     filter: {
       AND: [
         { distributorsx_some: $distributorsx },
-        { type: GROUPINT }
+        { type: DIST2SHPRS }
       ]
     }
   ){
