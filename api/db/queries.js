@@ -177,13 +177,18 @@ query(
 const GetChatsForDistributor = gql`
 query GetChatsForDistributor(
   $DistributorId: DistributorFilter!
+  $shopperId: ShopperFilter!
 ){
   allChats(
     orderBy: updatedAt_ASC,
     filter: {
       OR: [
         {distributorsx_some: $DistributorId},
-        {type: SADVR2ALL}
+        {type: SADVR2ALL},
+        { AND: [
+          {shoppersx_some: $shopperId},
+          {type: DMU2ADMIN}
+        ] }
       ]
     }
   ){

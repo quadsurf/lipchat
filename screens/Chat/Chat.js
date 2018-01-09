@@ -303,6 +303,9 @@ export default compose(
       variables: {
         DistributorId: {
           id: props.user && props.user.distributorx && props.user.distributorx.id ? props.user.distributorx.id : ''
+        },
+        shopperId: {
+          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
         }
       },
       fetchPolicy: 'network-only'
