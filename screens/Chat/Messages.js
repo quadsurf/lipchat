@@ -2,9 +2,7 @@
 
 import React, { Component } from 'react'
 import {
-  Text,
   View,
-  ScrollView,
   Image,
   TouchableOpacity,
   FlatList,
@@ -20,8 +18,7 @@ import { compose,graphql } from 'react-apollo'
 import { Entypo } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
 import { DotsLoader } from 'react-native-indicator'
-import moment from 'moment'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+// import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 // GQL
 import { GetMessagesForChat } from '../../api/db/queries'
@@ -38,122 +35,14 @@ import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
 const screen = getDimensions()
-const avatarSize = 50
-const medium = Texts.medium.fontSize
+const deviceSize = screen.width > 400 ? 'bigEnuf' : 'tooSmall'
 const textInputStyle = {
   fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
-  width:screen.width,fontSize:medium,height:32
-}
-const width = screen.width > 400 ? screen.width*.835 : (screen.width*.835)-12
-const deviceSize = screen.width > 400 ? 'bigEnuf' : 'tooSmall'
-const date1 = {
-    paddingLeft: 5,
-    paddingRight: 5,
-    paddingBottom: 2
-}
-const msgStyle1 = {
-  width,flexDirection:'row',backgroundColor:'transparent',
-  borderRadius:6,borderWidth:1,padding:14
-}
-const avatarLeft = {
-  left: 0
-}
-const avatarRight = {
-  right: 0
-}
-const triBorder = screen.width*.0125
-const tri = {
-  left: 0,
-  top: 21,
-  width: 0,
-  height: 0,
-  borderTopColor: 'transparent',
-  borderTopWidth: triBorder,
-  borderBottomWidth: triBorder,
-  borderBottomColor: 'transparent'
-}
-const triLeft = {
-  borderRightWidth: triBorder*2
-}
-const triLeftPink = {
-  borderRightColor: Colors.pinkly
-}
-const triLeftBlue = {
-  borderRightColor: Colors.blue
-}
-const triRight = {
-  borderLeftWidth: triBorder*2
-}
-const triRightPink = {
-  borderLeftColor: Colors.pinkly
-}
-const triRightBlue = {
-  borderLeftColor: Colors.blue
+  width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 
 // COMPONENTS
-const Message = props => {
-  let { text,userId,writer,updated } = props
-  let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
-  let position = userId !== writer.id ? 'left' : 'right'
-  let date2 = { alignItems: position === 'left' ? 'flex-end' : 'flex-start' }
-  let msgStyle2 = { borderColor: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly }
-  if (text === 'isTypingNow') {
-    if (position === 'left') {
-      return (
-        <View style={{flex:1}}>
-          <View style={[date1,date2]}>
-            <FontPoiret text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} is typing now...`} size={12} color={Colors.transparentWhite}/>
-          </View>
-          <View style={{flexDirection:'row',justifyContent: 'flex-start'}}>
-            <View style={{flexDirection:'row'}}>
-              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-              <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
-            </View>
-            <View style={[{alignItems:'center'},msgStyle1,msgStyle2,avatarLeft]}>
-              <DotsLoader
-                size={10}
-                color={writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}
-                frequency={5000}/>
-            </View>
-          </View>
-        </View>
-      )
-    } else {
-      return null
-    }
-  } else {
-    return (
-      <View style={{flex:1}}>
-        <View style={[date1,date2]}>
-          <FontPoiret 
-            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}`} 
-            size={12} 
-            color={Colors.transparentWhite}/>
-        </View>
-        <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
-          {
-            position === 'left' ?
-            <View style={{flexDirection:'row'}}>
-              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-              <View style={[tri,triLeft,writer.type === 'SHOPPER' ? triLeftBlue : triLeftPink]} />
-            </View> : null
-          }
-          <View style={[msgStyle1,msgStyle2,position === 'left' ? avatarLeft : avatarRight]}>
-            <Text style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}>{text}</Text>
-          </View>
-          {
-            position === 'right' ?
-            <View style={{flexDirection:'row'}}>
-              <View style={[tri,triRight,writer.type === 'SHOPPER' ? triRightBlue : triRightPink]} />
-              <Image source={{uri}} style={{width:avatarSize,height:avatarSize,borderRadius:6}}/>
-            </View> : null
-          }
-        </View>
-      </View>
-    )
-  }
-}
+import Message from './Message'
 
 class Messages extends Component {
 
@@ -290,18 +179,6 @@ class Messages extends Component {
     })
   }
 
-  renderSeparater = () => (
-    <View style={{
-        height: 20
-      }}/>
-  )
-
-  renderNoChats = () => (
-    <View style={{...Views.middle}}>
-      <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
-    </View>
-  )
-
   isTyping(newMessage){
     this.setState((prevState, props) => {
       if (prevState.newMessage !== newMessage) {
@@ -406,48 +283,37 @@ class Messages extends Component {
       console.log('could not trigger event on Chat node',e.message);
     })
   }
+  
+  renderTextInput(){
+    let { height } = this.state
+    return (
+      <TextInput value={this.state.newMessage}
+        placeholder=" send a chat"
+        placeholderTextColor={Colors.transparentWhite}
+        style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
+        onChangeText={(newMessage) => this.isTyping(newMessage)}
+        keyboardType="default"
+        onSubmitEditing={() => this.updateMessage()}
+        blurOnSubmit={true}
+        autoCorrect={false}
+        maxLength={1024}
+        returnKeyType="send"
+        onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
+        multiline={true}
+        ref={input => { this.textInput = input }}/>
+    )
+  }
 
   renderInputBox = () => {
-    let { height } = this.state
     let { chatType,level } = this.props.navigation.state.params
     if (chatType === 'SADVR2ALL') {
       if (level === 'A') {
-        return (
-          <TextInput value={this.state.newMessage}
-            placeholder=" send a chat"
-            placeholderTextColor={Colors.transparentWhite}
-            style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
-            onChangeText={(newMessage) => this.isTyping(newMessage)}
-            keyboardType="default"
-            onSubmitEditing={() => this.updateMessage()}
-            blurOnSubmit={true}
-            autoCorrect={false}
-            maxLength={1024}
-            returnKeyType="send"
-            onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
-            multiline={true}
-            ref={input => { this.textInput = input }}/>
-        )
+        return this.renderTextInput()
       } else {
         return <View style={{flex:1,height:20}}/>
       }
     } else {
-      return (
-        <TextInput value={this.state.newMessage}
-          placeholder=" send a chat"
-          placeholderTextColor={Colors.transparentWhite}
-          style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
-          onChangeText={(newMessage) => this.isTyping(newMessage)}
-          keyboardType="default"
-          onSubmitEditing={() => this.updateMessage()}
-          blurOnSubmit={true}
-          autoCorrect={false}
-          maxLength={1024}
-          returnKeyType="send"
-          onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
-          multiline={true}
-          ref={input => { this.textInput = input }}/>
-      )
+      return this.renderTextInput()
     }
     // onBlur={() => this.createMessage()}
   }
@@ -456,6 +322,19 @@ class Messages extends Component {
     this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
     // onFocus={() => this.scrollToOffset()}
   }
+
+  // ItemSeparatorComponent={this.renderSeparater}
+  renderSeparater = () => (
+    <View style={{
+        height: 20
+      }}/>
+  )
+
+  renderNoChats = () => (
+    <View style={{...Views.middle}}>
+      <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
+    </View>
+  )
 
   renderMessageList(){
     if (this.state.messages) {
@@ -468,7 +347,6 @@ class Messages extends Component {
           )}
           ref={(ref) => { this.flatListRef = ref }}
           keyExtractor={item => item.id}
-          ItemSeparatorComponent={this.renderSeparater}
           ListHeaderComponent={this.renderInputBox}
           ListEmptyComponent={this.renderNoChats}
           style={{marginBottom:0}}/>
