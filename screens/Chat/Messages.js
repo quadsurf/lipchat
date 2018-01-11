@@ -40,6 +40,7 @@ const textInputStyle = {
   fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
+const chatCount = 5
 
 // COMPONENTS
 import Message from './Message'
@@ -56,7 +57,8 @@ class Messages extends Component {
     newMessage: '',
     messageId: null,
     keyboardHeight: 0,
-    height: 40
+    height: 40,
+    isRefreshing: false
   }
 
   componentWillMount(){
@@ -95,9 +97,12 @@ class Messages extends Component {
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
-        this.setState({messages:newProps.getMessagesForChat.allMessages},()=>{
-          console.log('messages: ',this.state.messages);
-        })
+        // console.log('newProps.getMessagesForChat: ',newProps.getMessagesForChat);
+        if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
+          this.setState({messages:newProps.getMessagesForChat.allMessages},()=>{
+            // console.log('messages: ',this.state.messages);
+          })
+        }
       }
     }
   }
@@ -335,6 +340,28 @@ class Messages extends Component {
       <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
     </View>
   )
+  
+  fetchMoreChats = () => {
+    this.props.getMessagesForChat.fetchMore({
+      variables: {
+        skipCount: this.state.messages.length
+      },
+      updateQuery: (prev,{fetchMoreResult}) => {
+        if (
+          fetchMoreResult && 
+          fetchMoreResult.allMessages && 
+          fetchMoreResult.allMessages.length > 0
+        ) {
+          this.setState({
+            messages: [
+              ...this.state.messages,
+              ...fetchMoreResult.allMessages
+            ]
+          })
+        }
+      }
+    })
+  }
 
   renderMessageList(){
     if (this.state.messages) {
@@ -349,7 +376,9 @@ class Messages extends Component {
           keyExtractor={item => item.id}
           ListHeaderComponent={this.renderInputBox}
           ListEmptyComponent={this.renderNoChats}
-          style={{marginBottom:0}}/>
+          style={{marginBottom:0}} 
+          refreshing={this.props.getMessagesForChat.networkStatus === 4} 
+          onRefresh={this.fetchMoreChats}/>
       )
     } else {
       return (
@@ -407,7 +436,9 @@ export default compose(
       variables: {
         ChatId: {
           id: props.navigation.state.params.chatId
-        }
+        },
+        chatCount,
+        skipCount: 0 
       },
       fetchPolicy: 'network-only'
     })

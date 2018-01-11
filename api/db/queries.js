@@ -318,12 +318,16 @@ query GetAllDistributorIdsForShopper(
 const GetMessagesForChat = gql`
 query	GetMessagesForChat(
   $ChatId: ChatFilter!
+  $chatCount: Int!
+  $skipCount: Int!
 ){
   allMessages(
     orderBy: updatedAt_DESC,
     filter: {
       chat: $ChatId
-    }
+    },
+    first: $chatCount,
+    skip: $skipCount
   ){
     id
     text
