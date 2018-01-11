@@ -44,6 +44,7 @@ mutation UpdateFbkFriends(
       bizUri
       logoUri
       status
+      level
     }
     shopperx {
       id
@@ -54,6 +55,7 @@ mutation UpdateFbkFriends(
         distId
         logoUri
         status
+        level
         userx {
           fbkUserId
           cellPhone

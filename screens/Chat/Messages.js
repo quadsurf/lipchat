@@ -206,7 +206,9 @@ class Messages extends Component {
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
-        this.setState({messages:newProps.getMessagesForChat.allMessages})
+        this.setState({messages:newProps.getMessagesForChat.allMessages},()=>{
+          console.log('messages: ',this.state.messages);
+        })
       }
     }
   }
@@ -407,22 +409,46 @@ class Messages extends Component {
 
   renderInputBox = () => {
     let { height } = this.state
-    return (
-      <TextInput value={this.state.newMessage}
-        placeholder=" send a chat"
-        placeholderTextColor={Colors.transparentWhite}
-        style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
-        onChangeText={(newMessage) => this.isTyping(newMessage)}
-        keyboardType="default"
-        onSubmitEditing={() => this.updateMessage()}
-        blurOnSubmit={true}
-        autoCorrect={false}
-        maxLength={1024}
-        returnKeyType="send"
-        onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
-        multiline={true}
-        ref={input => { this.textInput = input }}/>
-    )
+    let { chatType,level } = this.props.navigation.state.params
+    if (chatType === 'SADVR2ALL') {
+      if (level === 'A') {
+        return (
+          <TextInput value={this.state.newMessage}
+            placeholder=" send a chat"
+            placeholderTextColor={Colors.transparentWhite}
+            style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
+            onChangeText={(newMessage) => this.isTyping(newMessage)}
+            keyboardType="default"
+            onSubmitEditing={() => this.updateMessage()}
+            blurOnSubmit={true}
+            autoCorrect={false}
+            maxLength={1024}
+            returnKeyType="send"
+            onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
+            multiline={true}
+            ref={input => { this.textInput = input }}/>
+        )
+      } else {
+        return <View style={{flex:1,height:20}}/>
+      }
+    } else {
+      return (
+        <TextInput value={this.state.newMessage}
+          placeholder=" send a chat"
+          placeholderTextColor={Colors.transparentWhite}
+          style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
+          onChangeText={(newMessage) => this.isTyping(newMessage)}
+          keyboardType="default"
+          onSubmitEditing={() => this.updateMessage()}
+          blurOnSubmit={true}
+          autoCorrect={false}
+          maxLength={1024}
+          returnKeyType="send"
+          onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
+          multiline={true}
+          ref={input => { this.textInput = input }}/>
+      )
+    }
     // onBlur={() => this.createMessage()}
   }
 

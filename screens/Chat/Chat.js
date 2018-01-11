@@ -264,7 +264,7 @@ class Chat extends Component {
     // this.props.user.distributorx.status
     if (this.state.chats) {
       return this.state.chats.map( chat => {
-        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus} nav={this.props.nav}/>
+        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus} nav={this.props.nav} level={this.props.user.distributorx.level}/>
       })
     } else {
       return (

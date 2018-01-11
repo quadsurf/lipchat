@@ -25,6 +25,7 @@ query GetUser(
     distributorx {
       id
       status
+      level
     }
     shopperx {
       id
@@ -35,6 +36,7 @@ query GetUser(
         distId
         logoUri
         status
+        level
         userx {
           fbkUserId
           cellPhone

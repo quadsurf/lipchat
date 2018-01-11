@@ -15,7 +15,7 @@ const fbkId = '100002537512909'
 
 const ChatCard = props => {
 
-  let { chat,userType,viewersStatus } = props
+  let { chat,userType,viewersStatus,level } = props
   let { id,alias } = chat
   let count = chat.messages.length
   let date = chat.updatedAt
@@ -98,14 +98,14 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing an approved DIST
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} level={level} message={message} date={date} nav={props.nav}/>
           } else {
             // unapproved DIST viewing an approved DIST
             return <ChatCardLayout approved={false} line1="your fellow distributors are" line2="waiting for you to get approved"/>
           }
       } else {
         // shopper viewing an approved DIST [tested,passed]
-        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} level={level} message={message} date={date} nav={props.nav}/>
       }
   } else {
     if (status === false) {
@@ -116,7 +116,7 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing a shopper [tested,passed]
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} level={level} message={message} date={date} nav={props.nav}/>
           } else {
             // unapproved DIST viewing a shopper [tested,passed]
             if (chat.type === 'DMSH2DIST') {
@@ -127,7 +127,7 @@ const ChatCard = props => {
           }
       } else {
         // shopper viewing shopper
-        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} message={message} date={date} nav={props.nav}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} level={level} message={message} date={date} nav={props.nav}/>
       }
     }
   }
