@@ -258,15 +258,17 @@ mutation UpdateDoesLikeOnLike(
 }`
 
 const CreateChatMessage = gql`
-mutation CreateMessage(
-  $ChatId: ID!,
-  $text: String!,
+mutation(
+  $ChatId: ID!
+  $text: String!
   $writer: ID!
+  $audience: Audience!
 ){
   createMessage(
-    chatId: $ChatId,
-    text: $text,
+    chatId: $ChatId
+    text: $text
     writerxId: $writer
+    audience: $audience
   ){
     id
     text

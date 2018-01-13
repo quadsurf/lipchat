@@ -3,8 +3,10 @@
 import React, { Component } from 'react'
 import {
   View,
+  Text,
   Image,
   TouchableOpacity,
+  TouchableHighlight,
   FlatList,
   TextInput,
   Keyboard
@@ -58,7 +60,10 @@ class Messages extends Component {
     messageId: null,
     keyboardHeight: 0,
     height: 40,
-    isRefreshing: false
+    audience: 'ANY',
+    SHOPPERS: false,
+    APPROVED: false,
+    PENDINGS: false
   }
 
   componentWillMount(){
@@ -207,7 +212,8 @@ class Messages extends Component {
         variables: {
           ChatId: this.state.chatId,
           writer: this.state.userId,
-          text: 'isTypingNow'
+          text: 'isTypingNow',
+          audience: this.state.audience
         }
       }).then( res => {
         if (res && res.data && res.data.createMessage) {
@@ -289,23 +295,83 @@ class Messages extends Component {
     })
   }
   
-  renderTextInput(){
+  processAudience(){
+    let { SHOPPERS,APPROVED,PENDINGS } = this.state
+    console.log('audience before: ',this.state.audience);
+    if (SHOPPERS && APPROVED && PENDINGS) {
+      this.setState({audience:'SHPSDSTS'})
+    } else if (SHOPPERS && APPROVED) {
+      this.setState({audience:'SHPSAPPS'})
+    } else if (SHOPPERS && PENDINGS) {
+      this.setState({audience:'SHPSPNDS'})
+    } else if (APPROVED && PENDINGS) {
+      this.setState({audience:'APPSPNDS'})
+    } else if (SHOPPERS) {
+      this.setState({audience:'SHOPPERS'})
+    } else if (APPROVED) {
+      this.setState({audience:'APPROVED'})
+    } else if (PENDINGS) {
+      this.setState({audience:'PENDINGS'})
+    } else {
+      this.setState({audience:'ANY'})
+    }
+  }
+  
+  setAudienceState(audType){
+    this.setState({
+      [audType]: !this.state[audType]
+    },()=>this.processAudience())
+  }
+  
+  renderAudienceButton(display,audType){
+    return (
+      <TouchableHighlight 
+        onPress={() => this.setAudienceState(audType)}
+        style={{
+          height: 40,
+          width: .20*screen.width,
+          backgroundColor: this.state[audType] ? Colors.pinkly : Colors.transparentWhite,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 7
+        }}>
+        <Text style={{color:Colors.purple}}>{display}</Text>
+      </TouchableHighlight>
+    )
+  }
+  
+  renderTextInput(bool){
     let { height } = this.state
     return (
-      <TextInput value={this.state.newMessage}
-        placeholder=" send a chat"
-        placeholderTextColor={Colors.transparentWhite}
-        style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
-        onChangeText={(newMessage) => this.isTyping(newMessage)}
-        keyboardType="default"
-        onSubmitEditing={() => this.updateMessage()}
-        blurOnSubmit={true}
-        autoCorrect={false}
-        maxLength={1024}
-        returnKeyType="send"
-        onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
-        multiline={true}
-        ref={input => { this.textInput = input }}/>
+      <View style={{flex:1}}>
+        {
+          bool ? <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            flex: 1,
+            height: 40,
+            marginVertical: 10
+          }}>
+            {this.renderAudienceButton('shoppers','SHOPPERS')}
+            {this.renderAudienceButton('ap dists','APPROVED')}
+            {this.renderAudienceButton('un dists','PENDINGS')}
+          </View> : null
+        }
+        <TextInput value={this.state.newMessage}
+          placeholder=" send a chat"
+          placeholderTextColor={Colors.transparentWhite}
+          style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
+          onChangeText={(newMessage) => this.isTyping(newMessage)}
+          keyboardType="default"
+          onSubmitEditing={() => this.updateMessage()}
+          blurOnSubmit={true}
+          autoCorrect={false}
+          maxLength={1024}
+          returnKeyType="send"
+          onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
+          multiline={true}
+          ref={input => { this.textInput = input }}/>
+      </View>
     )
   }
 
@@ -313,12 +379,12 @@ class Messages extends Component {
     let { chatType,level } = this.props.navigation.state.params
     if (chatType === 'SADVR2ALL') {
       if (level === 'A') {
-        return this.renderTextInput()
+        return this.renderTextInput(true)
       } else {
         return <View style={{flex:1,height:20}}/>
       }
     } else {
-      return this.renderTextInput()
+      return this.renderTextInput(false)
     }
     // onBlur={() => this.createMessage()}
   }
