@@ -504,7 +504,10 @@ export default compose(
           id: props.navigation.state.params.chatId
         },
         chatCount,
-        skipCount: 0 
+        skipCount: 0,
+        aud1: props.navigation.state.params.audiences.aud1 || '',
+        aud2: props.navigation.state.params.audiences.aud2 || '',
+        aud3: props.navigation.state.params.audiences.aud3 || ''
       },
       fetchPolicy: 'network-only'
     })

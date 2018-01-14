@@ -18,7 +18,7 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 const size = 90
 
 const ChatCardLayout = props => {
-  let { chatId,approved,uri,chatTitle,chatSubTitle,chatType,level,message,date,line1,line2,nav } = props
+  let { chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,level,message,date,line1,line2,nav } = props
   let screen = getDimensions()
   let small = Texts.small.fontSize
   let medium = Texts.medium.fontSize
@@ -34,11 +34,33 @@ const ChatCardLayout = props => {
     width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
   }
   let textWidth = width-size-20
+  let audiences = {}
+  if (audience === 'SHPS') {
+    audiences = {
+      aud1: 'SHOPPERS',
+      aud2: 'SHPSAPPS',
+      aud3: 'SHPSPNDS'
+    }
+  }
+  if (audience === 'APPS') {
+    audiences = {
+      aud1: 'APPROVED',
+      aud2: 'SHPSAPPS',
+      aud3: 'APPSPNDS'
+    }
+  }
+  if (audience === 'PNDS') {
+    audiences = {
+      aud1: 'PENDINGS',
+      aud2: 'APPSPNDS',
+      aud3: 'SHPSPNDS'
+    }
+  }
   if (approved) {
     // the person being viewed is approved
     return (
       <TouchableOpacity style={cardStyle} onPress={()=>{
-          nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level})
+          nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
           // console.log('chatId',chatId);
         }}>
         <View style={cardLeft}>
