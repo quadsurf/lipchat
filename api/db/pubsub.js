@@ -132,6 +132,7 @@ subscription(
           fbkUserId
         }
         logoUri
+        status
       }
       _messagesMeta {
         count
@@ -187,13 +188,36 @@ subscription SubToDistributorsForShopper(
 const SubToChatsMessages = gql`
 subscription SubToChatsMessages(
   $ChatId: ChatFilter!
+  $aud1: Audience
+  $aud2: Audience
+  $aud3: Audience
+  $aud4: Audience
+  $aud5: Audience
+  $aud6: Audience
+  $aud7: Audience
 ){
   Message(
     filter: {
       mutation_in: [CREATED,UPDATED,DELETED]
-      node: {
-        chat: $ChatId
-      }
+      AND: [
+        {
+          node: {
+            chat: $ChatId
+          }
+        },
+        {
+          OR: [
+            { node: {audience: $aud1} },
+            { node: {audience: $aud2} },
+            { node: {audience: $aud3} },
+            { node: {audience: $aud4} },
+            { node: {audience: $aud5} },
+            { node: {audience: $aud6} },
+            { node: {audience: $aud7} },
+            { node: {audience: ANY} }
+          ]
+        }
+      ]
     }
   ){
     mutation
@@ -203,6 +227,7 @@ subscription SubToChatsMessages(
     node {
       id
     	text
+      audience
       writerx {
         id
         fbkUserId

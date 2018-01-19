@@ -38,6 +38,8 @@ const ChatCard = props => {
         name = `${fbkFirstName} ${fbkLastName}`
         uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       }
+    } else {
+      console.log('SHOPPER: there was no distributorsx on chat');
     }
     if (chat.type === 'DMSH2DIST') {
       chatTitle = alias ? alias : bizName ? `${dm}${bizName}` : name ? name : 'Unknown'
@@ -54,10 +56,11 @@ const ChatCard = props => {
   }
   
   if (userType === 'DIST') {
+    
     if (chat.type === 'DMSH2DIST') {
       if (chat.shoppersx && chat.shoppersx.length > 0) {
         chattingWith = chat.shoppersx[0]
-        status = chattingWith.status
+        // status = chattingWith.status
         if (chattingWith.userx) {
           fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
           fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
@@ -66,6 +69,8 @@ const ChatCard = props => {
           uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
           chatTitle = alias ? alias : name ? `${dm}${name}` : 'Unknown'
         }
+      } else {
+        console.log('DIST & DMSH2DIST: there was no shoppersx on chat');
       }
     }
     
@@ -73,7 +78,11 @@ const ChatCard = props => {
       if (chat.distributorsx && chat.distributorsx.length > 0) {
         chattingWith = chat.distributorsx[0]
         logoUri = chattingWith.logoUri ? chattingWith.logoUri : null
-        status = chattingWith.status
+        
+        // DMU2ADMIN goes under viewing approved distributors
+        // DIST2SHPRS/SADVR2ALL goes under "viewing shoppers or distributors as shoppers"
+        status = chat.type === 'DMU2ADMIN' ? chattingWith.status : undefined
+        
         if (chattingWith.userx) {
           fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
           fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
@@ -82,27 +91,30 @@ const ChatCard = props => {
           uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
           chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName}${news}` : chat.type === 'DMU2ADMIN' ? `${AppName}${support}` : 'Chat with Your Shoppers'
         }
+      } else {
+        console.log('DIST & DIST2SHPRS & SADVR2ALL & DMU2ADMIN: there was no distributorsx on chat');
       }
-    }
-  }
-  //FIX THIS, MOVE TO FILTER LOGIC DOWN BELOW
-  if (chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN') {
-    if (viewersStatus === false) {
-      viewersStatus = true
     }
   }
   let chatSubTitle = chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN' ? null : status ? `by ${name}` : null
   let message = chat.messages.length > 0 ? chat.messages[0].text : 'no chat history'
+  
+  // let debuggie = {status,userType,viewersStatus,chatType:chat.type}
+  // console.log('debuggie: ',debuggie);
 
   if (status) {
-      // viewing approved DISTs
+      // viewing approved DISTs since they have a status (shoppers do not)
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing an approved DIST
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="APPS" level={level} message={message} date={date} nav={props.nav}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav}/>
           } else {
             // unapproved DIST viewing an approved DIST
-            return <ChatCardLayout approved={false} line1="your fellow distributors are" line2="waiting for you to get approved"/>
+            if (chat.type === 'DMU2ADMIN') {
+              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav}/>
+            } else {
+              return <ChatCardLayout approved={false} line1="your fellow distributors are" line2="waiting for you to get verified"/>
+            }
           }
       } else {
         // shopper viewing an approved DIST [tested,passed]
@@ -111,19 +123,26 @@ const ChatCard = props => {
   } else {
     if (status === false) {
       // viewing unapproved DIST [tested,passed]
-      return <ChatCardLayout approved={false} line1="distributor exists but has" line2="not been approved yet"/>
+      return <ChatCardLayout approved={false} line1="distributor exists but has" line2="not been verified yet"/>
     } else {
-      // viewing shoppers
+      // viewing shoppers since they have no status
       if (userType === 'DIST') {
           if (viewersStatus) {
-            // approved DIST viewing a shopper [tested,passed]
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="APPS" level={level} message={message} date={date} nav={props.nav}/>
+            // approved DIST viewing a shopper's chat
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav}/>
+            // covers DIST2SHPRS
+            // covers SADVR2ALL
           } else {
-            // unapproved DIST viewing a shopper [tested,passed]
+            // unapproved DIST viewing a shopper's chat [tested,passed]
             if (chat.type === 'DMSH2DIST') {
-              return <ChatCardLayout approved={false} line1="this shopper is waiting" line2="for you to get approved"/>
+              return <ChatCardLayout approved={false} line1="this shopper is waiting" line2="for you to get verified"/>
+            } else if (chat.type === 'DIST2SHPRS') {
+              return <ChatCardLayout approved={false} line1="get verified to group" line2="chat with your shoppers"/>
+            } else if (chat.type === 'SADVR2ALL') {
+              // unapproved DIST (as Shopper), viewing a DMU2ADMIN
+              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav}/>
             } else {
-              return <ChatCardLayout approved={false} line1="get approved to group" line2="chat with your shoppers"/>
+              return <ChatCardLayout approved={false} line1="there was a problem" line2="loading this chat"/>
             }
           }
       } else {

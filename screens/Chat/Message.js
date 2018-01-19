@@ -68,7 +68,7 @@ const spacer = {
 
 // COMPONENTS
 const Message = props => {
-  let { text,userId,writer,updated } = props
+  let { text,userId,writer,updated,level,audience } = props
   let uri = writer.type === 'DIST' && writer.distributorx.logoUri && writer.distributorx.logoUri.length > 8 ? writer.distributorx.logoUri : `https://graph.facebook.com/${writer.fbkUserId}/picture?width=${avatarSize}&height=${avatarSize}`
   let position = userId !== writer.id ? 'left' : 'right'
   let date2 = { alignItems: position === 'left' ? 'flex-end' : 'flex-start' }
@@ -102,7 +102,7 @@ const Message = props => {
       <View style={{flex:1,marginVertical:10}}>
         <View style={[date1,date2]}>
           <FontPoiret 
-            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}`} 
+            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}${level === 'A' ? ` - To: ${audience}` : ''}`} 
             size={12} 
             color={Colors.transparentWhite}/>
         </View>

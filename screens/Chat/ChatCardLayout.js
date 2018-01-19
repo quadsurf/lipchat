@@ -39,21 +39,44 @@ const ChatCardLayout = props => {
     audiences = {
       aud1: 'SHOPPERS',
       aud2: 'SHPSAPPS',
-      aud3: 'SHPSPNDS'
+      aud3: 'SHPSPNDS',
+      aud4: 'ANY',
+      aud5: 'ANY',
+      aud6: 'ANY',
+      aud7: 'SHPSDSTS'
     }
   }
   if (audience === 'APPS') {
     audiences = {
       aud1: 'APPROVED',
       aud2: 'SHPSAPPS',
-      aud3: 'APPSPNDS'
+      aud3: 'APPSPNDS',
+      aud4: 'ANY',
+      aud5: 'ANY',
+      aud6: 'ANY',
+      aud7: 'SHPSDSTS'
     }
   }
   if (audience === 'PNDS') {
     audiences = {
       aud1: 'PENDINGS',
       aud2: 'APPSPNDS',
-      aud3: 'SHPSPNDS'
+      aud3: 'SHPSPNDS',
+      aud4: 'ANY',
+      aud5: 'ANY',
+      aud6: 'ANY',
+      aud7: 'SHPSDSTS'
+    }
+  }
+  if (audience === 'ANY') {
+    audiences = {
+      aud1: 'SHOPPERS',
+      aud2: 'APPROVED',
+      aud3: 'PENDINGS',
+      aud4: 'SHPSAPPS',
+      aud5: 'SHPSPNDS',
+      aud6: 'APPSPNDS',
+      aud7: 'SHPSDSTS'
     }
   }
   if (approved) {

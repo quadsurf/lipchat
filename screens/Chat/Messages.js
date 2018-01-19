@@ -115,15 +115,25 @@ class Messages extends Component {
   componentDidMount(){
     this.subToMessages()
   }
-
+  
   subToMessages(){
     if (
       this.props.navigation &&
       this.state.chatId
     ) {
+      const { aud1,aud2,aud3,aud4,aud5,aud6,aud7 } = this.props.navigation.state.params.audiences
       this.props.getMessagesForChat.subscribeToMore({
         document: SubToChatsMessages,
-        variables: {ChatId:{"id":this.state.chatId}},
+        variables: {
+          ChatId:{"id":this.state.chatId},
+          aud1,
+          aud2,
+          aud3,
+          aud4,
+          aud5,
+          aud6,
+          aud7
+        },
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
           if (mutation === 'CREATED') {
@@ -436,7 +446,13 @@ class Messages extends Component {
           inverted
           data={this.state.messages}
           renderItem={({ item }) => (
-            <Message text={item.text} userId={this.state.userId} writer={item.writerx} updated={item.updatedAt}/>
+            <Message 
+              text={item.text} 
+              userId={this.state.userId} 
+              writer={item.writerx} 
+              updated={item.updatedAt} 
+              level={this.props.navigation.state.params.level} 
+              audience={item.audience}/>
           )}
           ref={(ref) => { this.flatListRef = ref }}
           keyExtractor={item => item.id}
@@ -505,9 +521,13 @@ export default compose(
         },
         chatCount,
         skipCount: 0,
-        aud1: props.navigation.state.params.audiences.aud1 || '',
-        aud2: props.navigation.state.params.audiences.aud2 || '',
-        aud3: props.navigation.state.params.audiences.aud3 || ''
+        aud1: props.navigation.state.params.audiences.aud1,
+        aud2: props.navigation.state.params.audiences.aud2,
+        aud3: props.navigation.state.params.audiences.aud3,
+        aud4: props.navigation.state.params.audiences.aud4,
+        aud5: props.navigation.state.params.audiences.aud5,
+        aud6: props.navigation.state.params.audiences.aud6,
+        aud7: props.navigation.state.params.audiences.aud7
       },
       fetchPolicy: 'network-only'
     })

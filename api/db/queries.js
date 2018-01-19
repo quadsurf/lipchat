@@ -217,6 +217,7 @@ query GetChatsForDistributor(
         fbkUserId
       }
       logoUri
+      status
     }
     _messagesMeta {
       count
@@ -323,6 +324,10 @@ query(
   $aud1: Audience
   $aud2: Audience
   $aud3: Audience
+  $aud4: Audience
+  $aud5: Audience
+  $aud6: Audience
+  $aud7: Audience
 ){
   allMessages(
     orderBy: updatedAt_DESC
@@ -334,6 +339,10 @@ query(
             { audience: $aud1 },
             { audience: $aud2 },
             { audience: $aud3 },
+            { audience: $aud4 },
+            { audience: $aud5 },
+            { audience: $aud6 },
+            { audience: $aud7 },
             { audience: ANY }
           ]
         }
@@ -344,6 +353,7 @@ query(
   ){
     id
     text
+    audience
     writerx {
       id
       fbkUserId
