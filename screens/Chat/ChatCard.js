@@ -38,8 +38,6 @@ const ChatCard = props => {
         name = `${fbkFirstName} ${fbkLastName}`
         uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
       }
-    } else {
-      console.log('SHOPPER: there was no distributorsx on chat');
     }
     if (chat.type === 'DMSH2DIST') {
       chatTitle = alias ? alias : bizName ? `${dm}${bizName}` : name ? name : 'Unknown'
@@ -69,39 +67,58 @@ const ChatCard = props => {
           uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
           chatTitle = alias ? alias : name ? `${dm}${name}` : 'Unknown'
         }
-      } else {
-        console.log('DIST & DMSH2DIST: there was no shoppersx on chat');
       }
     }
     
-    if (chat.type === 'DIST2SHPRS' || chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN') {
+    if (chat.type === 'DIST2SHPRS' || chat.type === 'SADVR2ALL') {
       if (chat.distributorsx && chat.distributorsx.length > 0) {
         chattingWith = chat.distributorsx[0]
         logoUri = chattingWith.logoUri ? chattingWith.logoUri : null
-        
-        // DMU2ADMIN goes under viewing approved distributors
-        // DIST2SHPRS/SADVR2ALL goes under "viewing shoppers or distributors as shoppers"
-        status = chat.type === 'DMU2ADMIN' ? chattingWith.status : undefined
-        
         if (chattingWith.userx) {
           fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
           fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
           fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
           name = `${fbkFirstName} ${fbkLastName}`
           uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-          chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName}${news}` : chat.type === 'DMU2ADMIN' ? `${AppName}${support}` : 'Chat with Your Shoppers'
+          chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName}${news}` : 'Chat with Your Shoppers'
+        }
+      }
+    }
+    
+    if (chat.type === 'DMU2ADMIN') {
+      if (level === 'A') {
+        if (chat.shoppersx && chat.shoppersx.length > 0) {
+          chattingWith = chat.shoppersx[0]
+          // status = chattingWith.status
+          if (chattingWith.userx) {
+            fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
+            fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
+            fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
+            name = `${fbkFirstName} ${fbkLastName}`
+            uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+            chatTitle = alias ? alias : name ? `${name}${support}` : `No Facebook Name${support}`
+          }
         }
       } else {
-        console.log('DIST & DIST2SHPRS & SADVR2ALL & DMU2ADMIN: there was no distributorsx on chat');
+        if (chat.distributorsx && chat.distributorsx.length > 0) {
+          chattingWith = chat.distributorsx[0]
+          logoUri = chattingWith.logoUri ? chattingWith.logoUri : null
+          status = chattingWith.status
+          if (chattingWith.userx) {
+            fbkUserId = chattingWith.userx.fbkUserId ? chattingWith.userx.fbkUserId : fbkId
+            fbkFirstName = chattingWith.userx.fbkFirstName ? chattingWith.userx.fbkFirstName : ''
+            fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
+            name = `${fbkFirstName} ${fbkLastName}`
+            uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+            chatTitle = alias ? alias : `${AppName}${support}`
+          }
+        }
       }
     }
   }
   let chatSubTitle = chat.type === 'SADVR2ALL' || chat.type === 'DMU2ADMIN' ? null : status ? `by ${name}` : null
   let message = chat.messages.length > 0 ? chat.messages[0].text : 'no chat history'
   
-  // let debuggie = {status,userType,viewersStatus,chatType:chat.type}
-  // console.log('debuggie: ',debuggie);
-
   if (status) {
       // viewing approved DISTs since they have a status (shoppers do not)
       if (userType === 'DIST') {
