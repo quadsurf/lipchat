@@ -67,6 +67,7 @@ subscription SubToShoppersChats(
         last:1
       ){
         text
+        updatedAt
       }
     }
   }
@@ -141,6 +142,7 @@ subscription(
         last:1
       ){
         text
+        updatedAt
       }
     }
   }

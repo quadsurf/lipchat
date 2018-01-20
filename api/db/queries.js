@@ -226,6 +226,7 @@ query GetChatsForDistributor(
       last:1
     ){
       text
+      updatedAt
     }
   }
 }`
@@ -268,6 +269,7 @@ query GetChatsForShopper(
       last:1
     ){
       text
+      updatedAt
     }
   }
 }`

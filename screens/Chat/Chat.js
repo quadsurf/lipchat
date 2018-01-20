@@ -93,12 +93,18 @@ class Chat extends Component {
   }
 
   chatsForDist(chats){
-    if (chats !== this.state.chats) {
-      this.setState({chats})
-    }
+    this.updateChatsList(chats)
   }
 
   chatsForShopper(chats){
+    this.updateChatsList(chats)
+  }
+  
+  updateChatsList(allChats){
+    let chats = JSON.parse(JSON.stringify(allChats))
+    chats.sort( (a,b) => {
+      return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
+    })
     if (chats !== this.state.chats) {
       this.setState({chats})
     }
@@ -145,13 +151,16 @@ class Chat extends Component {
       return chatIndex.id === chat.id
     })
     if (i !== -1) {
-      chats.splice(i,1,chat)
+      console.log('findIndex match found, so remove then add');
+      chats.splice(i,1)
+      chats.unshift(chat)
       this.setState({chats})
     } else {
+      console.log('no findIndex match found, so just add');
       this.setState({
         chats: [
-          ...this.state.chats,
-          chat
+          chat,
+          ...this.state.chats
         ]
       })
     }

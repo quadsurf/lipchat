@@ -307,7 +307,6 @@ class Messages extends Component {
   
   processAudience(){
     let { SHOPPERS,APPROVED,PENDINGS } = this.state
-    console.log('audience before: ',this.state.audience);
     if (SHOPPERS && APPROVED && PENDINGS) {
       this.setState({audience:'SHPSDSTS'})
     } else if (SHOPPERS && APPROVED) {
@@ -452,6 +451,7 @@ class Messages extends Component {
               writer={item.writerx} 
               updated={item.updatedAt} 
               level={this.props.navigation.state.params.level} 
+              chatType={this.props.navigation.state.params.chatType} 
               audience={item.audience}/>
           )}
           ref={(ref) => { this.flatListRef = ref }}
