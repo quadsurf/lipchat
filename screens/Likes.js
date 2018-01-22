@@ -4,20 +4,23 @@ import React, { Component } from 'react'
 import {
   Text,
   View,
-  AsyncStorage,
-  Image,
-  ScrollView,
-  TextInput
+  ScrollView
 } from 'react-native'
 
 //LIBS
-
+import { compose,graphql } from 'react-apollo'
 
 //LOCALS
 import { Views,Colors,Texts } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals,getDimensions } from '../utils/Helpers'
+import { err,Modals } from '../utils/Helpers'
+
+//GQL
+import { GetLikesForShopper } from './../api/db/queries'
+
+//COMPONENTS
+import { LikeCard } from './Components'
 
 class Likes extends Component {
 
@@ -25,7 +28,7 @@ class Likes extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    user: this.props.user
+    likes: []
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -42,34 +45,16 @@ class Likes extends Component {
   // if modalType='processing', then pass only modalType
   // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
-    if (this.state.isModalOpen) {
-      this.setState({isModalOpen:false},()=>{
-        setTimeout(()=>{
-          if (modalType && title) {
-            this.setState({modalType,modalContent:{
-              title,description,message
-            }},()=>{
-              this.setState({isModalOpen:true})
-            })
-          } else {
-            this.setState({modalType},()=>{
-              this.setState({isModalOpen:true})
-            })
-          }
-        },600)
+    if (modalType && title) {
+      this.setState({modalType,modalContent:{
+        title,description,message
+      }},()=>{
+        this.setState({isModalOpen:true})
       })
     } else {
-      if (modalType && title) {
-        this.setState({modalType,modalContent:{
-          title,description,message
-        }},()=>{
-          this.setState({isModalOpen:true})
-        })
-      } else {
-        this.setState({modalType},()=>{
-          this.setState({isModalOpen:true})
-        })
-      }
+      this.setState({modalType},()=>{
+        this.setState({isModalOpen:true})
+      })
     }
   }
 
@@ -82,22 +67,48 @@ class Likes extends Component {
         content={this.state.modalContent}/>
     )
   }
+  
+  componentWillReceiveProps(newProps){
+    if (
+      newProps.getLikesForShopper && 
+      newProps.getLikesForShopper.allLikes && 
+      newProps.getLikesForShopper.allLikes.length > 0
+    ) {
+      if (newProps !== this.state.likes) {
+        this.setState({likes:newProps.getLikesForShopper.allLikes})
+      }
+    }
+  }
+  
+  renderNoLikes = () => (
+    <View style={{...Views.middle}}>
+      <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
+    </View>
+  )
+  
+  onPressClaim(like){
+    console.log('onPressClaim func called for: ',like);
+  }
+  
+  renderLikes(){
+    if (this.state.likes.length > 0) {
+      return this.state.likes.map( like => {
+        return <LikeCard 
+          key={like.colorx.id} 
+          like={like.colorx} 
+          onPressClaim={() => this.onPressClaim(like)} 
+          rgb={like.colorx.rgb ? `rgb(${like.colorx.rgb})` : Colors.purpleText}/>
+      })
+    } else {
+      return this.renderNoLikes()
+    }
+  }
 
   renderMainContent(){
-    let imageWidth = 280
-    let vspace = 20
-    let large = Texts.large.fontSize
-    let xlarge = Texts.xlarge.fontSize
-    let { fbkFirstName,fbkLastName,fbkUserId,cellPhone } = this.state.user
-    let textInputStyle = {fontFamily:'Poiret',backgroundColor:Colors.bgColor,fontSize:large,color:Colors.blue}
     return (
-        <View style={{...Views.middle}}>
-          <ScrollView contentContainerStyle={{width:getDimensions().width,height:getDimensions().height}}>
-            <View style={{...Views.middle,paddingVertical:40,paddingHorizontal:15}}>
-              <FontPoiret text="Likes" size={xlarge} vspace={vspace}/>
-            </View>
-          </ScrollView>
-        </View>
+      <ScrollView contentContainerStyle={{flex:0,paddingVertical:16}}>
+        {this.renderLikes()}
+      </ScrollView>
     )
   }
 
@@ -105,6 +116,7 @@ class Likes extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
+        <FontPoiret text="Likes" size={Texts.xlarge.fontSize}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>
@@ -113,5 +125,14 @@ class Likes extends Component {
 
 }
 
-export default Likes
+export default compose(
+  graphql(GetLikesForShopper,{
+    name: 'getLikesForShopper',
+    options: props => ({
+      variables: {
+        shopperId: { id: props.user.shopperx.id }
+      }
+    })
+  })
+)(Likes)
 // 10000048005

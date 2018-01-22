@@ -430,6 +430,29 @@ query(
   }
 }`
 
+const GetLikesForShopper = gql`
+query(
+  $shopperId: ShopperFilter!
+){
+  allLikes(
+    filter: {
+      AND: [
+        { shopperx: $shopperId },
+        { doesLike: true }
+      ]
+    }
+  ){
+    colorx {
+      id
+      name
+      rgb
+      status
+      tone
+      finish
+    }
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,GetAdminChats
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper
 }

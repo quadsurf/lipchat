@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 
 // LIBS
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons,FontAwesome } from '@expo/vector-icons'
 
 // LOCALS
 import { FontPoiret,FontMatilde } from '../assets/fonts/Fonts'
@@ -74,6 +74,36 @@ const ColorCard = props => {
     </View>
   )
 }
+// rgb
+// status
+// onPressClaim
+// name
+// tone
+// finish
+const LikeCard = props => {
+  let { status,name,tone,finish } = props.like
+  return (
+    <View style={{width:screen.width,height:170,backgroundColor:props.rgb,
+        paddingBottom:4,paddingHorizontal:4,bottom:14}}>
+      <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
+        <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
+        <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
+      </View>
+      <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+        <TouchableOpacity onPress={props.onPressClaim}>
+          <FontAwesome name="star-o" size={50} color={Colors.white}/>
+        </TouchableOpacity>
+      </View>
+      <View style={{...Views.middle,marginTop:20}}>
+        <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
+      </View>
+      <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
+        <FontPoiret text={`${tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
+        <FontPoiret text={`${finish.toLowerCase()} finish`} size={medium} color={Colors.white}/>
+      </View>
+    </View>
+  )
+}
 
 const MyButton = props => {
   return (
@@ -103,5 +133,5 @@ const CardLines = props => {
 }
 
 export {
-  ColorCard,MyButton,CardLines
+  ColorCard,LikeCard,MyButton,CardLines
 }
