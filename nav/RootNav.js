@@ -14,6 +14,7 @@ import Login from '../screens/Login'
 import UserMeta  from '../screens/UserMeta'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
+import Claims from '../screens/Likes/Claims'
 
 // const LoggedOutStack = StackNavigator(
 //   {
@@ -37,12 +38,28 @@ import Messages from '../screens/Chat/Messages'
 //   }
 // )
 
+const ClaimsNavigator = StackNavigator(
+  {
+    Root: { screen:Claims }
+  },
+  {
+    initialRouteName: 'Root',
+    headerMode: 'none',
+    mode: 'modal',
+    direction: 'bottomToTop',
+    navigationOptions: {
+      gesturesEnabled: true
+    }
+  }
+)
+
 const RootStack = StackNavigator(
   {
     Root: { screen:AuthState },
     LoggedOut: { screen:Login },
     LoggedIn: { screen:TabNav },
-    Messages: { screen:Messages }
+    Messages: { screen:Messages },
+    Claims: { screen:ClaimsNavigator }
   },
   {
     initialRouteName: 'Root',

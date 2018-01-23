@@ -84,7 +84,6 @@ const ChatCardLayout = props => {
     return (
       <TouchableOpacity style={cardStyle} onPress={()=>{
           nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
-          // console.log('chatId',chatId);
         }}>
         <View style={cardLeft}>
           <Image source={{uri}} style={imgSize}/>

@@ -11,16 +11,16 @@ import {
 import { compose,graphql } from 'react-apollo'
 
 //LOCALS
-import { Views,Colors,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import MyStatusBar from '../common/MyStatusBar'
-import { err,Modals } from '../utils/Helpers'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import MyStatusBar from '../../common/MyStatusBar'
+import { err,Modals } from '../../utils/Helpers'
 
 //GQL
-import { GetLikesForShopper } from './../api/db/queries'
+import { GetLikesForShopper } from './../../api/db/queries'
 
 //COMPONENTS
-import { LikeCard } from './Components'
+import { LikeCard } from './../Components'
 
 class Likes extends Component {
 
@@ -29,6 +29,10 @@ class Likes extends Component {
     modalType: 'processing',
     modalContent: {},
     likes: []
+  }
+  
+  componentWillMount(){
+    console.log('nav: ',this.props.nav);
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -87,7 +91,8 @@ class Likes extends Component {
   )
   
   onPressClaim(like){
-    console.log('onPressClaim func called for: ',like);
+    // console.log('onPressClaim func called for: ',like)
+    this.props.nav.navigate('Claims',{like})
   }
   
   renderLikes(){

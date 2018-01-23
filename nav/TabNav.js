@@ -16,7 +16,7 @@ import { SubToUserType,SubToDistributorStatus } from '../api/db/pubsub'
 import { AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr } from '../api/db/mutations'
 
 //SCREENS
-import Likes from '../screens/Likes'
+import Likes from '../screens/Likes/Likes'
 import Chat from '../screens/Chat/Chat'
 import Selfie from '../screens/Selfie'
 import LipColors from '../screens/LipColors'
@@ -49,7 +49,7 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 1,
+      index: 0,
       routes: [
         { key: '0', title: 'LIKES', icon: 'ios-heart' },
         { key: '1', title: 'CHAT', icon: 'chat' },
