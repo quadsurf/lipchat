@@ -74,37 +74,39 @@ const ColorCard = props => {
     </View>
   )
 }
-// rgb
-// status
-// onPressClaim
-// name
-// tone
-// finish
+
 const LikeCard = props => {
   let { status,name,tone,finish } = props.like
   return (
-    <View style={{width:screen.width,height:170,backgroundColor:props.rgb,
-        paddingBottom:4,paddingHorizontal:4,bottom:14}}>
-      <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
-        <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
-        <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
-      </View>
-      <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
-        <TouchableOpacity onPress={props.onPressClaim}>
-          <FontAwesome name="star-o" size={50} color={Colors.white}/>
-        </TouchableOpacity>
-      </View>
-      <View style={{...Views.middle,marginTop:20}}>
-        <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
-      </View>
-      <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
-        <FontPoiret text={`${tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
-        <FontPoiret text={`${finish.toLowerCase()} finish`} size={medium} color={Colors.white}/>
-      </View>
+    <View style={{
+      width:screen.width,height:170,
+      backgroundColor:props.rgb,
+      paddingBottom:4,paddingHorizontal:4,bottom:14
+    }}>
+      <TouchableOpacity style={{flex:1}} onPress={props.onPressClaim}>
+        <View style={{
+          flex:1,justifyContent:'space-between',
+          alignItems:'center',flexDirection:'row',
+          paddingBottom:20
+        }}>
+          <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
+          <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
+        </View>
+        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+          <FontMatilde color={Colors.white} text="request this color" size={40} vspace={20}/>
+        </View>
+        <View style={{...Views.middle,marginTop:20}}>
+          <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
+        </View>
+        <View style={{flex:1,alignItems:'center',justifyContent:'space-between',flexDirection:'row'}}>
+          <FontPoiret text={`${tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
+          <FontPoiret text={`${finish.toLowerCase()} finish`} size={medium} color={Colors.white}/>
+        </View>
+      </TouchableOpacity>
     </View>
   )
 }
-
+// <FontAwesome name="star-o" size={50} color={Colors.white}/>
 const MyButton = props => {
   return (
     <TouchableHighlight underlayColor={Colors.transparentWhite} style={{borderRadius:6,marginVertical:20,paddingHorizontal:20,paddingVertical:10}} onPress={props.onPress}>

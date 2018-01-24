@@ -32,7 +32,7 @@ class Likes extends Component {
   }
   
   componentWillMount(){
-    console.log('nav: ',this.props.nav);
+    // console.log('nav: ',this.props.nav);
   }
 
   shouldComponentUpdate(nextProps,nextState){
