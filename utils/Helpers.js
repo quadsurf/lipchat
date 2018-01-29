@@ -67,10 +67,13 @@ class Modals extends Component {
       return null
     } else if (type === 'processing') {
       return (
-        <DotsLoader
-          size={15}
-          color={Colors.pink}
-          frequency={5000}/>
+        <View
+          style={{...Views.middle}}>
+          <DotsLoader
+            size={15}
+            color={Colors.pinkly}
+            frequency={5000}/>
+        </View>
       )
     } else if (type === 'err') {
       let { title,description } = this.props.content

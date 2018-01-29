@@ -32,7 +32,7 @@ class Likes extends Component {
   }
   
   componentWillMount(){
-    // console.log('nav: ',this.props.nav);
+    console.log('tab userType: ',this.props.user.type);
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -91,8 +91,13 @@ class Likes extends Component {
   )
   
   onPressClaim(like){
-    // console.log('onPressClaim func called for: ',like)
-    this.props.nav.navigate('Claims',{like})
+    this.props.nav.navigate('Claims',{
+      like,
+      shopperId:this.props.user.shopperx.id,
+      gcToken:this.props.localStorage.gcToken,
+      userId: this.props.user.id,
+      sadvrId: this.props.sadvrId
+    })
   }
   
   renderLikes(){

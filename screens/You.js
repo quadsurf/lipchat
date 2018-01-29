@@ -768,28 +768,43 @@ class You extends Component {
   }
 
   updateUserTypeInDb(userType){
-    let { id } = this.state.user
-    let errText = 'updating your account type'
-    this.props.updateUserType({
-      variables: {
-        userId: id,
-        type: userType
-      }
-    }).then( res => {
-      if (res && res.data && res.data.updateUser) {
-        this.setState({isUserTypeSubmitModalOpen:false})
-        if (res.data.updateUser.type && res.data.updateUser.type === 'DIST') {
-          this.checkIfDistributorHasGroupChat()
-        }
-      } else {
-        this.showModal('err','Profile',errText)
-      }
-    }).catch( e => {
-      this.setState({isUserTypeSubmitModalOpen:false},()=>{
-        setTimeout(()=>{
-          this.showModal('err','Profile',errText)
-        },700)
-      })
+    this.setState({isUserTypeSubmitModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('processing')
+      },700)
+      setTimeout(()=>{
+        let { id } = this.state.user
+        let errText = 'updating your account type'
+        this.props.updateUserType({
+          variables: {
+            userId: id,
+            type: userType
+          }
+        }).then( res => {
+          if (res && res.data && res.data.updateUser) {
+            // this.setState({isUserTypeSubmitModalOpen:false})
+            setTimeout(()=>{
+              this.setState({isModalOpen:false})
+            },700)
+            if (res.data.updateUser.type && res.data.updateUser.type === 'DIST') {
+              this.checkIfDistributorHasGroupChat()
+            }
+          } else {
+            this.showModal('err','Profile',errText)
+          }
+        }).catch( e => {
+          setTimeout(()=>{
+            this.setState({
+              isModalOpen:false
+              // isUserTypeSubmitModalOpen:false
+            },()=>{
+              setTimeout(()=>{
+                this.showModal('err','Profile',errText)
+              },700)
+            })
+          },700)
+        })
+      },1400)
     })
   }
 

@@ -393,17 +393,40 @@ const CheckIfShopperHasDmChatWithDistributor = `
 query(
   $shoppersx: ShopperFilter
   $distributorsx: DistributorFilter
+  $type: ChatType!
 ){
   allChats(
     filter: {
       AND: [
         { shoppersx_some: $shoppersx },
         { distributorsx_some: $distributorsx },
-        { type: DMSH2DIST }
+        { type: $type  }
       ]
     }
   ){
     id
+    distributorsx {
+      bizName
+      userx {
+        fbkFirstName
+        fbkLastName
+      }
+    }
+  }
+}`
+
+const GetShoppersDistributor = gql`
+query(
+  $shopperId: ID!
+){
+  Shopper(
+    id: $shopperId
+  ){
+    id
+    distributorsx {
+      id
+      status
+    }
   }
 }`
 
@@ -454,5 +477,5 @@ query(
 }`
 
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper
 }

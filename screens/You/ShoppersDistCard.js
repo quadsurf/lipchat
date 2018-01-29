@@ -7,9 +7,6 @@ import {
   View,Image,Text
 } from 'react-native'
 
-//ENV VARS
-import { PROJECT_ID } from 'react-native-dotenv'
-
 //LIBS
 import axios from 'axios'
 import { compose,graphql } from 'react-apollo'
@@ -30,13 +27,12 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Colors,Texts } from '../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 import { clipText,shortenUrl } from '../../utils/Helpers'
+import { method,url } from '../../config/Defaults'
 
 // CONSTs
 const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const screen = getDimensions()
-const method = 'post'
-const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 
 class ShoppersDistCard extends Component {
 
@@ -125,7 +121,7 @@ class ShoppersDistCard extends Component {
         console.log('successfully linked Shopper to NEXT Distributor');
         if (res && res.data && res.data.addToShopperOnDistributor) {
             this.setState({ShoppersDist:nextDist},()=>{
-              this.checkIfShopperHasDmChatWithDistributor(nextDist.id,this.props.shopperId)
+              this.checkIfShopperHasDmChatWithDistributorInDb(this.props.shopperId,nextDist.id)
               if (nextDist.chatsx.length > 0) {
                 this.addShopperToDistributorsGroupChatInDb(nextDist.chatsx[0].id,this.props.shopperId)
               }
@@ -203,8 +199,8 @@ class ShoppersDistCard extends Component {
   }
 
 //NEEDS ERROR HANDLING
-  checkIfShopperHasDmChatWithDistributor(distributorsx,shoppersx){
-    console.log('checkIfShopperHasDmChatWithDistributor func called');
+  checkIfShopperHasDmChatWithDistributorInDb(shoppersx,distributorsx){
+    console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
     if (shoppersx && distributorsx) {
       let { headers } = this.state
       axios({
@@ -213,7 +209,8 @@ class ShoppersDistCard extends Component {
           query: CheckIfShopperHasDmChatWithDistributor,
           variables: {
             shoppersx: { id:shoppersx },
-            distributorsx: { id:distributorsx }
+            distributorsx: { id:distributorsx },
+            type: 'DMSH2DIST'
           }
         }
       }).then( res => {
@@ -232,7 +229,7 @@ class ShoppersDistCard extends Component {
         console.log('failed to check if shopper has DM chat with Distributor',e.message);
       })
     } else {
-      console.log('insufficient inputs to run checkIfShopperHasDmChatWithDistributor query');
+      console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
     }
   }
 

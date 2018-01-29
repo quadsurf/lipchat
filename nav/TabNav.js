@@ -9,6 +9,7 @@ import { Ionicons,Entypo,MaterialCommunityIcons } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
 import { compose,graphql } from 'react-apollo'
+import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { GetUserType,GetDistributorStatus,GetAdminChats } from '../api/db/queries'
@@ -62,7 +63,8 @@ class TabNav extends PureComponent<void, *, State> {
       distributorStatus: this.props.navigation.state.params.user.distributorx.status,
       notificationsHasShopper: false,
       user2AdminDmExists: false,
-      adminChats: []
+      adminChats: [],
+      sadvrId: null
     }
 
   componentWillMount(){
@@ -94,6 +96,8 @@ class TabNav extends PureComponent<void, *, State> {
       let newUserType = newProps.getUserType.User.type
       if (newUserType !== exUserType) {
         this.updateUserTypeLocally(newUserType)
+        console.log('exUserType: ',exUserType);
+        console.log('newUserType: ',newUserType);
       }
     }
     if (
@@ -122,13 +126,15 @@ class TabNav extends PureComponent<void, *, State> {
             return chat.type === 'DMU2ADMIN'
           })
           this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
-          if (!dmChat) {
-            console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
-            this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
-          } else {
-            this.setState({user2AdminDmExists:true})
-            console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
-          }
+          this.setState({sadvrId:groupChat.distributorsx[0].id},()=>{
+            if (!dmChat) {
+              console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
+              this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
+            } else {
+              this.setState({user2AdminDmExists:true})
+              console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
+            }
+          })
         })
       }
     }
@@ -260,7 +266,7 @@ class TabNav extends PureComponent<void, *, State> {
   renderScene = ({ route,focused }) => {
     let { user,localStorage } = this.props.navigation.state.params
     let { navigation } = this.props
-    let { userType,distributorStatus } = this.state
+    let { userType,distributorStatus,sadvrId } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -272,7 +278,8 @@ class TabNav extends PureComponent<void, *, State> {
             userType={userType}
             distributorStatus={distributorStatus}
             nav={navigation}
-            localStorage={localStorage}
+            localStorage={localStorage} 
+            sadvrId={sadvrId}
           />
         )
       case '1':
@@ -290,9 +297,10 @@ class TabNav extends PureComponent<void, *, State> {
             />
           )
         } else {
-          return (
-            <View style={{...Views.middle,backgroundColor:Colors.bgColor}} />
-          ) 
+          return <DotsLoader
+            size={15}
+            color={Colors.pinkly}
+            frequency={5000}/>
         }
       case '2':
         return (
