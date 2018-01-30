@@ -247,6 +247,38 @@ subscription SubToChatsMessages(
   }
 }`
 
+const SubToLikesForShopper = gql`
+subscription(
+  $shopperId: ShopperFilter!
+){
+  Like(
+    filter: {
+      mutation_in: [CREATED,UPDATED]
+      node: {
+        shopperx: $shopperId
+      }
+    }
+  ){
+    mutation
+    previousValues {
+      id
+      doesLike
+    }
+    node {
+      id
+      doesLike
+      colorx {
+        id
+        name
+        rgb
+        status
+        tone
+        finish
+      }
+    }
+  }
+}`
+
 export {
-  SubToUserType,SubToShoppersChats,SubToDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper,SubToChatsMessages
+  SubToUserType,SubToShoppersChats,SubToDistributorsChats,SubToDistributorStatus,SubToDistributorsForShopper,SubToChatsMessages,SubToLikesForShopper
 }

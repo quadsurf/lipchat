@@ -9,6 +9,7 @@ import {
 
 //GQL
 import { GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor } from '../../api/db/queries'
+import { CreateChatMessage,TriggerEventOnChat } from '../../api/db/mutations'
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
@@ -32,7 +33,7 @@ class Claims extends Component {
   
   state = {
     count: 0,
-    colorName: this.props.navigation.state.params.like.colorx.name,
+    colorName: this.props.navigation.state.params.like.name,
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
@@ -41,7 +42,7 @@ class Claims extends Component {
   }
   
   componentWillMount(){
-    // console.log('Shoppers Distributor on Claims.js: ',this.props.navigation);
+    
   }
   
   componentWillReceiveProps(newProps){
@@ -74,7 +75,6 @@ class Claims extends Component {
   
 //NEEDS ERROR HANDLING
   checkIfShopperHasDmChatWithDistributorInDb(shopperId,distributorId,withDist){
-    console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
     if (shopperId && distributorId) {
       let headers = { Authorization: `Bearer ${this.props.navigation.state.params.gcToken}` }
       axios({
@@ -113,7 +113,8 @@ class Claims extends Component {
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
-        title,description,message
+        title,description,message,
+        onConfirmPress: this.sendClaim
       }},()=>{
         this.setState({isModalOpen:true})
       })
@@ -130,7 +131,8 @@ class Claims extends Component {
         isOpen={this.state.isModalOpen}
         close={() => this.setState({ isModalOpen:false })}
         type={this.state.modalType}
-        content={this.state.modalContent}/>
+        content={this.state.modalContent} 
+        onConfirmPress={this.state.onConfirmPress}/>
     )
   }
   
@@ -149,20 +151,53 @@ class Claims extends Component {
     this.props.navigation.dispatch(NavigationActions.back())
   }
   
-  sendClaim(){
-    let { newClaimMessage } = this.state
-    let claim = {
-      ...newClaimMessage,
-      text: `${newClaimText} ${this.state.count} ${this.state.colorName}${this.state.count !== 1 ? 's.' : '.'} ${newClaimText2}`
-    }
-    console.log('sendClaim func called with',claim);
+//NEEDS ERROR HANDLING
+  triggerEventOnChatInDb(chatId){
+    this.props.triggerEventOnChat({
+      variables: {
+        chatId,
+        updater: JSON.stringify(new Date())
+      }
+    }).then( () => {
+      setTimeout(()=>{
+        this.closeModal()
+      },700)
+    }).catch( e => {
+      console.log('could not trigger event on Chat node',e.message);
+    })
+  }
+
+//NEEDS ERROR HANDLING  
+  sendClaim = () => {
+    this.setState({isModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('processing')
+        let { newClaimMessage } = this.state
+        let claim = {
+          ...newClaimMessage,
+          text: `${newClaimText} ${this.state.count} ${this.state.colorName}${this.state.count !== 1 ? 's.' : '.'} ${newClaimText2}`
+        }
+        // console.log('sendClaim func called with',claim);
+        this.props.createChatMessage({
+          variables: {
+            ChatId: claim.chatId,
+            text: claim.text,
+            writer: claim.writer,
+            audience: claim.audience
+          }
+        }).then( res => {
+          if (res && res.data && res.data.createMessage) {
+            this.triggerEventOnChatInDb(claim.chatId)
+          }
+        }).catch( e => console.log('sendClaim error:',e.message))
+      },700)
+    })
   }
   
-  prepareClaim(){
+  openClaimConfirmation(){
     let { bizName,fbkFirstName,fbkLastName,isVerified,count,colorName } = this.state
     let distName = bizName ? bizName : `${fbkFirstName} ${fbkLastName}`
-    this.showModal('prompt','Confirm Desire',`${AppName} will notify ${isVerified ? distName : 'your distributor'} of your desire to reserve/claim from their inventory the following:${"\n"}${"\n"}Color: ${colorName}${"\n"}Quantity: ${count}${"\n"}${"\n"}If you are also needing other beauty products such as gloss, please send her a private chat.`)
-    this.sendClaim()
+    this.showModal('confirm','Confirm Desire',`${AppName} will notify ${isVerified ? distName : 'your distributor'} of your desire to reserve/claim from their inventory the following:${"\n"}${"\n"}Color: ${colorName}${"\n"}Quantity: ${count}${"\n"}${"\n"}If you are also needing other beauty products such as gloss, please send her a private chat.`)
   }
   
   renderRequestButton(){
@@ -170,7 +205,7 @@ class Claims extends Component {
       return (
         <TouchableOpacity 
           style={{...Views.middle,backgroundColor:Colors.purple}}
-          onPress={() => this.prepareClaim()}>
+          onPress={() => this.openClaimConfirmation()}>
             <FontPoiret 
               text="next" 
               size={34} 
@@ -264,5 +299,11 @@ export default compose(
       },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(CreateChatMessage,{
+    name: 'createChatMessage'
+  }),
+  graphql(TriggerEventOnChat,{
+    name: 'triggerEventOnChat'
   })
 )(Claims)

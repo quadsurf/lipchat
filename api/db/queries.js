@@ -465,6 +465,8 @@ query(
       ]
     }
   ){
+    id
+    doesLike
     colorx {
       id
       name

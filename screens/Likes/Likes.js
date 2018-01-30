@@ -18,6 +18,7 @@ import { err,Modals } from '../../utils/Helpers'
 
 //GQL
 import { GetLikesForShopper } from './../../api/db/queries'
+import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 //COMPONENTS
 import { LikeCard } from './../Components'
@@ -33,6 +34,49 @@ class Likes extends Component {
   
   componentWillMount(){
     console.log('tab userType: ',this.props.user.type);
+  }
+  
+  subToLikesInDb(){
+    this.props.getLikesForShopper.subscribeToMore({
+      document: SubToLikesForShopper,
+      variables: {
+        shopperId: { id: this.props.user.shopperx.id }
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        const { node: { colorx:like,doesLike },mutation,previousValues } = subscriptionData.data.Like
+        const { node } = subscriptionData.data.Like
+        console.log('previous doesLike value:',previousValues.doesLike);
+        console.log('mutation:',mutation);
+        console.log('new doesLike value:',doesLike);
+        if (mutation === 'CREATED') {
+          this.addLikeToLikesList(node)
+        }
+        if (mutation === 'UPDATED') {
+          if (!doesLike) {
+            let likes = this.state.likes.filter( ({ colorx: { id } }) => {
+              return like.id !== id
+            })
+            this.setState({likes})
+          } else {
+            this.addLikeToLikesList(node)
+          }
+        }
+      }
+    })
+  }
+  
+  addLikeToLikesList(like){
+    console.log('addLikeToLikesList func called');
+    this.setState({
+      likes: [
+        like,
+        ...this.state.likes
+      ]
+    })
+  }
+  
+  componentDidMount(){
+    this.subToLikesInDb()
   }
 
   shouldComponentUpdate(nextProps,nextState){
@@ -102,12 +146,12 @@ class Likes extends Component {
   
   renderLikes(){
     if (this.state.likes.length > 0) {
-      return this.state.likes.map( like => {
+      return this.state.likes.map( ({ colorx:like }) => {
         return <LikeCard 
-          key={like.colorx.id} 
-          like={like.colorx} 
+          key={like.id} 
+          like={like} 
           onPressClaim={() => this.onPressClaim(like)} 
-          rgb={like.colorx.rgb ? `rgb(${like.colorx.rgb})` : Colors.purpleText}/>
+          rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
       })
     } else {
       return this.renderNoLikes()
