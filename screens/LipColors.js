@@ -15,7 +15,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { GetColorsAndInventories,GetUserType } from '../api/db/queries'
-import { SubUserType } from '../api/db/pubsub'
+// import { SubUserType } from '../api/db/pubsub'
 import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
 
 // LOCALS
@@ -55,16 +55,6 @@ class LipColors extends Component {
     hasColors: false
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
@@ -88,20 +78,17 @@ class LipColors extends Component {
     }
   }
 
-  componentDidMount(){
-    // this.subToUserType()
-  }
-
-  subToUserType(){
-    this.props.getUserType.subscribeToMore({
-      document: SubUserType,
-      variables: {UserId:this.state.user.id},
-      updateQuery: (previous, { subscriptionData }) => {
-        // console.log('previous',previous);
-        // console.log('new',subscriptionData);
-      }
-    })
-  }
+  // componentDidMount(){
+  //   this.subToUserType()
+  // }
+  // 
+  // subToUserType(){
+  //   this.props.getUserType.subscribeToMore({
+  //     document: SubUserType,
+  //     variables: {UserId:this.state.user.id},
+  //     updateQuery: (previous, { subscriptionData }) => {}
+  //   })
+  // }
 
   processColors(colors){
     if (this.state.hasColors === false) {
@@ -227,7 +214,7 @@ class LipColors extends Component {
         return <ColorCard
           key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
           doesLike={this.state[`${color.id}`].like.doesLike}
-          onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
+          onLikePress={() => this.checkIfLikeExistsInDb(color.like.id,color.id)}
           finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
           onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
           onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
@@ -397,7 +384,7 @@ class LipColors extends Component {
     }
   }
 
-  checkIfLikeExists(LikeId,ColorId){
+  checkIfLikeExistsInDb(LikeId,ColorId){
     let ShopperId = this.state.user.shopperx.id
     let bool = !this.state[`${ColorId}`].like.doesLike
     if (LikeId) {

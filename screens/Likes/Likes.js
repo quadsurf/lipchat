@@ -9,6 +9,7 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { DotsLoader } from 'react-native-indicator'
 
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -29,7 +30,7 @@ class Likes extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    likes: []
+    likes: null
   }
   
   subToLikesInDb(){
@@ -107,18 +108,40 @@ class Likes extends Component {
   componentWillReceiveProps(newProps){
     if (
       newProps.getLikesForShopper && 
-      newProps.getLikesForShopper.allLikes && 
-      newProps.getLikesForShopper.allLikes.length > 0
+      newProps.getLikesForShopper.allLikes
     ) {
-      if (newProps !== this.state.likes) {
+      if (newProps.getLikesForShopper.allLikes !== this.state.likes) {
         this.setState({likes:newProps.getLikesForShopper.allLikes})
       }
     }
   }
+
+  renderNoLikes = () => {
+    let { likes } = this.state
+    if (likes === null) {
+      return (
+        <View style={{...Views.middle,marginTop:200}}>
+          <DotsLoader
+            size={15}
+            color={Colors.pinkly}
+            frequency={5000}/>
+        </View>
+      )
+    } else {
+      return (
+        <View style={{...Views.middle,marginTop:200}}>
+          <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
+          <FontPoiret text="Colors You Favorite Will Appear Here" size={Texts.medium.fontSize} vspace={12}/>
+        </View>
+      )
+    }
+  }
   
-  renderNoLikes = () => (
-    <View style={{...Views.middle}}>
-      <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
+  renderDistScreen = () => (
+    <View style={{...Views.middle,marginTop:200}}>
+      <FontPoiret text="This Screen is meant for your" size={Texts.large.fontSize}/>
+      <FontPoiret text="Shoppers to help 'em reserve" size={Texts.large.fontSize}/>
+      <FontPoiret text="Colors from your Inventory" size={Texts.large.fontSize}/>
     </View>
   )
   
@@ -134,16 +157,20 @@ class Likes extends Component {
   
   renderLikes(){
     let { likes } = this.state
-    if (likes.length > 0) {
-      return likes.map( ({ colorx:like,id }) => {
-        return <LikeCard 
-          key={id} 
-          like={like} 
-          onPressClaim={() => this.onPressClaim(like)} 
-          rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
-      })
+    if (this.props.userType === 'DIST') {
+      return this.renderDistScreen()
     } else {
-      return this.renderNoLikes()
+      if (likes && likes.length > 0) {
+        return likes.map( ({ colorx:like,id }) => {
+          return <LikeCard 
+            key={id} 
+            like={like} 
+            onPressClaim={() => this.onPressClaim(like)} 
+            rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
+        })
+      } else {
+        return this.renderNoLikes()
+      }
     }
   }
 
@@ -159,7 +186,7 @@ class Likes extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Likes" size={Texts.xlarge.fontSize}/>
+        <FontPoiret text="Add" size={Texts.xlarge.fontSize}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

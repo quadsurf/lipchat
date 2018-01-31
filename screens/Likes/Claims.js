@@ -55,19 +55,15 @@ class Claims extends Component {
       let { shopperId,sadvrId } = this.props.navigation.state.params
       if (newProps.getShoppersDistributor.Shopper.distributorsx.length > 0) {
         // DIST EXISTS
-        console.log('DIST EXISTS');
         if (status !== false) {
           // DIST IS VERIFIED
-          console.log('IS VERIFIED');
           this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,id,true)
         } else {
           // DIST IS NOT VERIFIED
-          console.log('IS NOT VERIFIED');
           this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,sadvrId,false)
         }
       } else {
         // DIST DOES NOT EXIST
-        console.log('DIST DOES NOT EXIST');
         this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,sadvrId,false)
       }
     }
@@ -89,8 +85,6 @@ class Claims extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.allChats) {
-          let who = withDist ? 'distributor' : 'admin'
-          console.log('successfully retrieved shoppers DM chat with',who);
           if (res.data.data.allChats.length > 0) {
             let dist = res.data.data.allChats[0]
             let { id } = dist
@@ -177,7 +171,6 @@ class Claims extends Component {
           ...newClaimMessage,
           text: `${newClaimText} ${this.state.count} ${this.state.colorName}${this.state.count !== 1 ? 's.' : '.'} ${newClaimText2}`
         }
-        // console.log('sendClaim func called with',claim);
         this.props.createChatMessage({
           variables: {
             ChatId: claim.chatId,

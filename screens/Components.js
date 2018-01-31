@@ -93,7 +93,7 @@ const LikeCard = props => {
           <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
         </View>
         <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
-          <FontMatilde color={Colors.white} text="request this color" size={40} vspace={20}/>
+          <FontMatilde color={Colors.white} text="request this color" size={44} vspace={20}/>
         </View>
         <View style={{...Views.middle,marginTop:20}}>
           <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
