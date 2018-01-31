@@ -32,10 +32,6 @@ class Likes extends Component {
     likes: []
   }
   
-  componentWillMount(){
-    console.log('tab userType: ',this.props.user.type);
-  }
-  
   subToLikesInDb(){
     this.props.getLikesForShopper.subscribeToMore({
       document: SubToLikesForShopper,
@@ -45,53 +41,45 @@ class Likes extends Component {
       updateQuery: (previous,{ subscriptionData }) => {
         const { node: { colorx:like,doesLike },mutation,previousValues } = subscriptionData.data.Like
         const { node } = subscriptionData.data.Like
-        console.log('previous doesLike value:',previousValues.doesLike);
-        console.log('mutation:',mutation);
-        console.log('new doesLike value:',doesLike);
         if (mutation === 'CREATED') {
-          this.addLikeToLikesList(node)
+          this.addLikeToLikesList(node,this.state.likes)
         }
         if (mutation === 'UPDATED') {
           if (!doesLike) {
-            let likes = this.state.likes.filter( ({ colorx: { id } }) => {
-              return like.id !== id
-            })
-            this.setState({likes})
+            this.removeLikeFromLikesList(like.id)
           } else {
-            this.addLikeToLikesList(node)
+            this.addLikeToLikesList(node,this.state.likes)
           }
         }
       }
     })
   }
   
-  addLikeToLikesList(like){
-    console.log('addLikeToLikesList func called');
-    this.setState({
-      likes: [
-        like,
-        ...this.state.likes
-      ]
+  removeLikeFromLikesList(likeId){
+    let likes = this.state.likes.filter( ({ colorx: { id } }) => {
+      return likeId !== id
     })
+    this.setState({likes})
+  }
+  
+  addLikeToLikesList(like,likes){
+    let hasLike = likes.findIndex( ({ id }) => {
+      return id === like.id
+    })
+    if (hasLike === -1) {
+      this.setState({
+        likes: [
+          like,
+          ...likes
+        ]
+      })
+    }
   }
   
   componentDidMount(){
     this.subToLikesInDb()
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -145,10 +133,11 @@ class Likes extends Component {
   }
   
   renderLikes(){
-    if (this.state.likes.length > 0) {
-      return this.state.likes.map( ({ colorx:like }) => {
+    let { likes } = this.state
+    if (likes.length > 0) {
+      return likes.map( ({ colorx:like,id }) => {
         return <LikeCard 
-          key={like.id} 
+          key={id} 
           like={like} 
           onPressClaim={() => this.onPressClaim(like)} 
           rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
