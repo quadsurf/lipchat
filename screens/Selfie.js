@@ -32,7 +32,7 @@ class Selfie extends Component {
     colors: [],
     userType: this.props.userType
   }
-// {id:likeId=null,doesLike=null}
+
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
