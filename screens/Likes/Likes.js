@@ -10,6 +10,7 @@ import {
 //LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -136,12 +137,24 @@ class Likes extends Component {
       )
     }
   }
-  
+
   renderDistScreen = () => (
-    <View style={{...Views.middle,marginTop:200}}>
+    <View style={{...Views.middle,marginTop:20}}>
       <FontPoiret text="This Screen is meant for your" size={Texts.large.fontSize}/>
-      <FontPoiret text="Shoppers to help 'em reserve" size={Texts.large.fontSize}/>
+      <FontPoiret text="Shoppers to help them reserve" size={Texts.large.fontSize}/>
       <FontPoiret text="Colors from your Inventory" size={Texts.large.fontSize}/>
+      <MaterialCommunityIcons 
+        name="ray-start-end" 
+        size={30} 
+        color={Colors.transparentWhite} 
+        style={{marginVertical:24}}/>
+      <FontPoiret text="In order to keep you in" size={Texts.large.fontSize}/>
+      <FontPoiret text="compliance, this is not a" size={Texts.large.fontSize}/>
+      <FontPoiret text="shopping cart ordering system," size={Texts.large.fontSize}/>
+      <FontPoiret text="but rather, a way for them to" size={Texts.large.fontSize}/>
+      <FontPoiret text="reserve and deduct colors" size={Texts.large.fontSize}/>
+      <FontPoiret text="from your inventory and" size={Texts.large.fontSize}/>
+      <FontPoiret text="improve communication." size={Texts.large.fontSize}/>
     </View>
   )
   
@@ -156,10 +169,10 @@ class Likes extends Component {
   }
   
   renderLikes(){
-    let { likes } = this.state
     if (this.props.userType === 'DIST') {
       return this.renderDistScreen()
     } else {
+      let { likes } = this.state
       if (likes && likes.length > 0) {
         return likes.map( ({ colorx:like,id }) => {
           return <LikeCard 

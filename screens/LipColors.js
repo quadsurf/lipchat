@@ -214,7 +214,7 @@ class LipColors extends Component {
         return <ColorCard
           key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
           doesLike={this.state[`${color.id}`].like.doesLike}
-          onLikePress={() => this.checkIfLikeExistsInDb(color.like.id,color.id)}
+          onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
           finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
           onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
           onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
@@ -384,7 +384,7 @@ class LipColors extends Component {
     }
   }
 
-  checkIfLikeExistsInDb(LikeId,ColorId){
+  checkIfLikeExists(LikeId,ColorId){
     let ShopperId = this.state.user.shopperx.id
     let bool = !this.state[`${ColorId}`].like.doesLike
     if (LikeId) {
