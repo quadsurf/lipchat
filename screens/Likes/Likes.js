@@ -9,6 +9,8 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { DotsLoader } from 'react-native-indicator'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -18,6 +20,7 @@ import { err,Modals } from '../../utils/Helpers'
 
 //GQL
 import { GetLikesForShopper } from './../../api/db/queries'
+import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 //COMPONENTS
 import { LikeCard } from './../Components'
@@ -28,26 +31,57 @@ class Likes extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    likes: []
+    likes: null
   }
   
-  componentWillMount(){
-    console.log('tab userType: ',this.props.user.type);
+  subToLikesInDb(){
+    this.props.getLikesForShopper.subscribeToMore({
+      document: SubToLikesForShopper,
+      variables: {
+        shopperId: { id: this.props.user.shopperx.id }
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        const { node: { colorx:like,doesLike },mutation,previousValues } = subscriptionData.data.Like
+        const { node } = subscriptionData.data.Like
+        if (mutation === 'CREATED') {
+          this.addLikeToLikesList(node,this.state.likes)
+        }
+        if (mutation === 'UPDATED') {
+          if (!doesLike) {
+            this.removeLikeFromLikesList(like.id)
+          } else {
+            this.addLikeToLikesList(node,this.state.likes)
+          }
+        }
+      }
+    })
+  }
+  
+  removeLikeFromLikesList(likeId){
+    let likes = this.state.likes.filter( ({ colorx: { id } }) => {
+      return likeId !== id
+    })
+    this.setState({likes})
+  }
+  
+  addLikeToLikesList(like,likes){
+    let hasLike = likes.findIndex( ({ id }) => {
+      return id === like.id
+    })
+    if (hasLike === -1) {
+      this.setState({
+        likes: [
+          like,
+          ...likes
+        ]
+      })
+    }
+  }
+  
+  componentDidMount(){
+    this.subToLikesInDb()
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -75,18 +109,52 @@ class Likes extends Component {
   componentWillReceiveProps(newProps){
     if (
       newProps.getLikesForShopper && 
-      newProps.getLikesForShopper.allLikes && 
-      newProps.getLikesForShopper.allLikes.length > 0
+      newProps.getLikesForShopper.allLikes
     ) {
-      if (newProps !== this.state.likes) {
+      if (newProps.getLikesForShopper.allLikes !== this.state.likes) {
         this.setState({likes:newProps.getLikesForShopper.allLikes})
       }
     }
   }
-  
-  renderNoLikes = () => (
-    <View style={{...Views.middle}}>
-      <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
+
+  renderNoLikes = () => {
+    let { likes } = this.state
+    if (likes === null) {
+      return (
+        <View style={{...Views.middle,marginTop:200}}>
+          <DotsLoader
+            size={15}
+            color={Colors.pinkly}
+            frequency={5000}/>
+        </View>
+      )
+    } else {
+      return (
+        <View style={{...Views.middle,marginTop:200}}>
+          <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
+          <FontPoiret text="Colors You Favorite Will Appear Here" size={Texts.medium.fontSize} vspace={12}/>
+        </View>
+      )
+    }
+  }
+
+  renderDistScreen = () => (
+    <View style={{...Views.middle,marginTop:20}}>
+      <FontPoiret text="This Screen is meant for your" size={Texts.large.fontSize}/>
+      <FontPoiret text="Shoppers to help them reserve" size={Texts.large.fontSize}/>
+      <FontPoiret text="Colors from your Inventory" size={Texts.large.fontSize}/>
+      <MaterialCommunityIcons 
+        name="ray-start-end" 
+        size={30} 
+        color={Colors.transparentWhite} 
+        style={{marginVertical:24}}/>
+      <FontPoiret text="In order to keep you in" size={Texts.large.fontSize}/>
+      <FontPoiret text="compliance, this is not a" size={Texts.large.fontSize}/>
+      <FontPoiret text="shopping cart ordering system," size={Texts.large.fontSize}/>
+      <FontPoiret text="but rather, a way for them to" size={Texts.large.fontSize}/>
+      <FontPoiret text="reserve and deduct colors" size={Texts.large.fontSize}/>
+      <FontPoiret text="from your inventory and" size={Texts.large.fontSize}/>
+      <FontPoiret text="improve communication." size={Texts.large.fontSize}/>
     </View>
   )
   
@@ -101,16 +169,21 @@ class Likes extends Component {
   }
   
   renderLikes(){
-    if (this.state.likes.length > 0) {
-      return this.state.likes.map( like => {
-        return <LikeCard 
-          key={like.colorx.id} 
-          like={like.colorx} 
-          onPressClaim={() => this.onPressClaim(like)} 
-          rgb={like.colorx.rgb ? `rgb(${like.colorx.rgb})` : Colors.purpleText}/>
-      })
+    if (this.props.userType === 'DIST') {
+      return this.renderDistScreen()
     } else {
-      return this.renderNoLikes()
+      let { likes } = this.state
+      if (likes && likes.length > 0) {
+        return likes.map( ({ colorx:like,id }) => {
+          return <LikeCard 
+            key={id} 
+            like={like} 
+            onPressClaim={() => this.onPressClaim(like)} 
+            rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
+        })
+      } else {
+        return this.renderNoLikes()
+      }
     }
   }
 
@@ -126,7 +199,7 @@ class Likes extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Likes" size={Texts.xlarge.fontSize}/>
+        <FontPoiret text="Add" size={Texts.xlarge.fontSize}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

@@ -102,11 +102,8 @@ class Messages extends Component {
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
-        // console.log('newProps.getMessagesForChat: ',newProps.getMessagesForChat);
         if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
-          this.setState({messages:newProps.getMessagesForChat.allMessages},()=>{
-            // console.log('messages: ',this.state.messages);
-          })
+          this.setState({messages:newProps.getMessagesForChat.allMessages})
         }
       }
     }

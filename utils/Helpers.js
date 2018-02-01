@@ -21,6 +21,9 @@ import { Colors,Views,Texts } from '../css/Styles'
 import { FontLato,FontMatilde,FontPoiret } from '../assets/fonts/Fonts'
 import { AppName } from '../config/Defaults'
 
+// CONSTS
+const large = Texts.large.fontSize
+
 const getDimensions = () => {
   let { height, width } = Dimensions.get("window")
   let dimensions = {width,height}
@@ -216,6 +219,54 @@ class Modals extends Component {
             onPress={this.props.close}
             underlayColor={Colors.purple}>
             <Entypo name="check" size={32} color={Colors.blue} />
+          </TouchableHighlight>
+        </View>
+      )
+    } else if (type === 'confirm') {
+      let { title,description,onConfirmPress } = this.props.content
+      let modalWidth = getDimensions().width*.85
+      let modalHeight = getDimensions().height*.75
+      let button = {
+        width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.blue,marginTop:18,marginBottom:10
+      }
+      let buttonText = {fontFamily:'Poiret',fontSize:large}
+      return (
+        <View
+          onPress={this.props.close}
+          style={{
+            ...Views.middleNoFlex,
+            width: modalWidth,
+            backgroundColor: Colors.purple,
+            borderRadius: 15,
+            padding: 20,
+            maxHeight: 420
+          }}>
+          <FontPoiret text={title} size={Texts.large.fontSize} color={Colors.blue}/>
+          <ScrollView style={{marginTop:10}}>
+            <Text
+              style={{color: Colors.transparentWhite,...Texts.medium}}>
+              {description}
+            </Text>
+          </ScrollView>
+          <TouchableHighlight
+            onPress={onConfirmPress}
+            underlayColor={Colors.pinkly} style={{...button}}>
+            <Text style={{...buttonText,color:Colors.purple}}>confirm</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={{
+              width: 100,
+              height: 50,
+              position: 'absolute',
+              bottom: -50,
+              backgroundColor: Colors.purple,
+              borderBottomLeftRadius: 50,
+              borderBottomRightRadius: 50,
+              ...Views.middleNoFlex
+            }}
+            onPress={this.props.close}
+            underlayColor={Colors.purple}>
+            <EvilIcons name="close" size={32} color={Colors.blue} />
           </TouchableHighlight>
         </View>
       )

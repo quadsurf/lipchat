@@ -15,7 +15,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import { GetColorsAndInventories,GetUserType } from '../api/db/queries'
-import { SubUserType } from '../api/db/pubsub'
+// import { SubUserType } from '../api/db/pubsub'
 import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
 
 // LOCALS
@@ -55,16 +55,6 @@ class LipColors extends Component {
     hasColors: false
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
@@ -88,20 +78,17 @@ class LipColors extends Component {
     }
   }
 
-  componentDidMount(){
-    // this.subToUserType()
-  }
-
-  subToUserType(){
-    this.props.getUserType.subscribeToMore({
-      document: SubUserType,
-      variables: {UserId:this.state.user.id},
-      updateQuery: (previous, { subscriptionData }) => {
-        // console.log('previous',previous);
-        // console.log('new',subscriptionData);
-      }
-    })
-  }
+  // componentDidMount(){
+  //   this.subToUserType()
+  // }
+  // 
+  // subToUserType(){
+  //   this.props.getUserType.subscribeToMore({
+  //     document: SubUserType,
+  //     variables: {UserId:this.state.user.id},
+  //     updateQuery: (previous, { subscriptionData }) => {}
+  //   })
+  // }
 
   processColors(colors){
     if (this.state.hasColors === false) {

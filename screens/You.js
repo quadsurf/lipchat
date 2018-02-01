@@ -771,8 +771,6 @@ class You extends Component {
     this.setState({isUserTypeSubmitModalOpen:false},()=>{
       setTimeout(()=>{
         this.showModal('processing')
-      },700)
-      setTimeout(()=>{
         let { id } = this.state.user
         let errText = 'updating your account type'
         this.props.updateUserType({
@@ -790,7 +788,9 @@ class You extends Component {
               this.checkIfDistributorHasGroupChat()
             }
           } else {
-            this.showModal('err','Profile',errText)
+            setTimeout(()=>{
+              this.showModal('err','Profile',errText)
+            },700)
           }
         }).catch( e => {
           setTimeout(()=>{
@@ -804,7 +804,7 @@ class You extends Component {
             })
           },700)
         })
-      },1400)
+      },700)
     })
   }
 

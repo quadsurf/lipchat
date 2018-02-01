@@ -46,13 +46,13 @@ type Route = {
 }
 
 type State = NavigationState<Route>;
-
+// ios-heart
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 0,
+      index: 2,
       routes: [
-        { key: '0', title: 'LIKES', icon: 'ios-heart' },
+        { key: '0', title: 'ADD', icon: 'md-basket' },
         { key: '1', title: 'CHAT', icon: 'chat' },
         { key: '2', title: 'SELFIE', icon: 'camera' },
         { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
@@ -223,9 +223,10 @@ class TabNav extends PureComponent<void, *, State> {
   renderBadge = ({ route }) => {
     if (route.key === '1') {
       return (
-        <View style={styles.badge}>
-          <Text style={styles.count}>42</Text>
-        </View>
+        null
+        // <View style={styles.badge}>
+        //   <Text style={styles.count}>42</Text>
+        // </View>
       )
     }
     return null
@@ -344,7 +345,7 @@ class TabNav extends PureComponent<void, *, State> {
       default:
         return (
           <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-            <Text style={{color:Colors.blue}}>Tabs Failed to Load</Text>
+            <Text style={{color:Colors.blue}}>Tab Failed to Load</Text>
           </View>
         )
     }
