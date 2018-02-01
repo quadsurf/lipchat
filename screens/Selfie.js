@@ -1,11 +1,12 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
+import { View,Text,TouchableOpacity } from 'react-native'
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { Camera, Permissions } from 'expo'
 
 // GQL
 import { GetColorsAndInventories } from '../api/db/queries'
@@ -20,7 +21,7 @@ import { Modals,getDimensions } from '../utils/Helpers'
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
-const debugging = true
+const debugging = false
 
 class Selfie extends Component {
 
@@ -30,7 +31,14 @@ class Selfie extends Component {
     modalContent: {},
     user: this.props.user,
     colors: [],
-    userType: this.props.userType
+    userType: this.props.userType,
+    hasCameraPermission: null,
+    type: Camera.Constants.Type.back
+  }
+
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' });
   }
 
   componentWillReceiveProps(newProps){
@@ -44,7 +52,7 @@ class Selfie extends Component {
             status,tone,
             likesx:[like={}]
           }) => {
-            let { id:likeId=null,doesLike=null } = like
+            let { id:likeId=null,doesLike=false } = like
             colors.push({
               colorId,family,finish,name,
               rgb: `rgb(${rgb})`,
@@ -60,22 +68,6 @@ class Selfie extends Component {
     }
   }
 
-  componentDidMount(){
-    setTimeout(()=>{
-      let { colors } = this.state
-      let index = Math.floor(Math.random() * colors.length)
-      console.log('index:',index);
-      console.log('color:',colors[index]);
-      this.checkIfLikeExists(colors[index])
-      setTimeout(()=>{
-        this.checkIfLikeExists(colors[index])
-      },10000)
-      setTimeout(()=>{
-        this.checkIfLikeExists(colors[index])
-      },20000)
-    },5000)
-  }
-  
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -126,12 +118,14 @@ class Selfie extends Component {
     if (ShopperId && ColorId) {
       this.props.createLike({
         variables: {ShopperId,ColorId}
-      }).then( ({ data: { createLike={} }={} }) => {
+      }).then( ({ data: { createLike=null }=null }) => {
         if (createLike) {
           color.likeId = createLike.id
           color.doesLike = createLike.doesLike
           this.updateDoesLikeInApp(color)
-          this.setState({isModalOpen:false})
+          setTimeout(()=>{
+            this.setState({isModalOpen:false})
+          },1400)
         } else {
           this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }
@@ -155,48 +149,74 @@ class Selfie extends Component {
     })
     if (index !== -1) {
       colors.splice(index,1,color)
-      this.setState({colors},()=>{
-        console.log('updated:',this.state.colors[index]);
-      })
+      this.setState({colors})
     }
   }
   
-  updateDoesLikeInDb({likeId:LikeId,doesLike:bool,colorId}){
+  updateDoesLikeInDb(color){
+    let {likeId:LikeId,doesLike:bool,colorId} = color
     let errText = 'updating the like status for this color'
     if (LikeId) {
       this.props.updateDoesLikeOnLike({
         variables: {LikeId,bool}
-      }).then( res => {
-        if (res && res.data && res.data.updateLike) {
+      }).then( ({ data: { updateLike=null }=null }) => {
+        if (updateLike) {
           let { colors } = this.state
           let index = colors.findIndex( el => {
             return el.colorId === colorId
           })
           if (index !== -1) {
-            if (this.state.colors[index].doesLike !== res.data.updateLike.doesLike) {
-              this.setState( ({colors}) => {
-                return { colors }
-              },()=>{
-                this.openError(`${errText} (error code: 1-${LikeId}-${bool})`)
-              })
+            if (this.state.colors[index].doesLike !== updateLike.doesLike) {
+              this.openError(`${errText} (error code: 1-${LikeId}-${bool})`)
+              color.doesLike = updateLike.doesLike
+              this.updateDoesLikeInApp(color)
             }
           }
         } else {
           this.openError(`${errText} (error code: 2-${LikeId}-${bool})`)
+          color.doesLike = !color.doesLike
+          this.updateDoesLikeInApp(color)
         }
       }).catch( e => {
         this.openError(`${errText} (error code: 3-${LikeId}-${bool}, message: ${e.message})`)
+        color.doesLike = !color.doesLike
+        this.updateDoesLikeInApp(color)
       })
     } else {
       this.openError(`${errText} (error code: 4-${LikeId}-${bool})`)
+      color.doesLike = !color.doesLike
+      this.updateDoesLikeInApp(color)
     }
   }
 
+  renderCameraView(){
+    const { hasCameraPermission } = this.state
+    if (hasCameraPermission === null) {
+      return <View />
+    } else if (hasCameraPermission === false) {
+      return <FontPoiret text="no access to camera" size={Texts.large.fontSize}/>
+    } else {
+      return (
+        <Camera style={{flex:1}} type={Camera.Constants.Type.front}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'transparent',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+            <FontPoiret text="Manpreet, work your magic!!!" size={Texts.large.fontSize}/>
+          </View>
+        </Camera>
+      )
+    }
+  }
+  
   render(){
     return(
-      <View style={{...Views.middle,backgroundColor:Colors.purple}}>
+      <View style={{flex:1,backgroundColor:Colors.purple}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Manpreet, work your magic!!!" size={Texts.large.fontSize}/>
+        {this.renderCameraView()}
         {this.renderModal()}
       </View>
     )

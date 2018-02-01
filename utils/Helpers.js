@@ -23,6 +23,7 @@ import { AppName } from '../config/Defaults'
 
 // CONSTS
 const large = Texts.large.fontSize
+const debugging = false
 
 const getDimensions = () => {
   let { height, width } = Dimensions.get("window")
@@ -296,9 +297,9 @@ const clearIdentifiers = () => {
 }
 
 const getGQLerror = e => {
-  console.log('e',e);
+  if (debugging) console.log('e',e);
   const errors = e.graphQLErrors[0]
-  console.log('e array',errors);
+  if (debugging) console.log('e array',errors);
   const messages = []
 
   if (errors.hasOwnProperty('functionError')) {

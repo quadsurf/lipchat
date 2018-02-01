@@ -137,26 +137,26 @@ class Chat extends Component {
           }
         },
         onError: e => {
-          console.log('subToShoppersChats error:',e);
+          if (debugging) console.log('subToShoppersChats error:',e);
         }
       })
     }
   }
   
   addChatToChatList(chat,cameFrom){
-    console.log('addChatToChatList func called');
-    console.log('Came From: ',cameFrom);
+    if (debugging) console.log('addChatToChatList func called');
+    if (debugging) console.log('Came From: ',cameFrom);
     let chats = JSON.parse(JSON.stringify(this.state.chats))
     let i = chats.findIndex( chatIndex => {
       return chatIndex.id === chat.id
     })
     if (i !== -1) {
-      console.log('findIndex match found, so remove then add');
+      if (debugging) console.log('findIndex match found, so remove then add');
       chats.splice(i,1)
       chats.unshift(chat)
       this.setState({chats})
     } else {
-      console.log('no findIndex match found, so just add');
+      if (debugging) console.log('no findIndex match found, so just add');
       this.setState({
         chats: [
           chat,
@@ -167,7 +167,7 @@ class Chat extends Component {
   }
   
   updateChatOnChatList(prevChat,nextChat){
-    console.log('updateChatOnChatList func called');
+    if (debugging) console.log('updateChatOnChatList func called');
     let subjectChat = this.state.chats.find( chat => {
       return chat.id === nextChat.id
     })
@@ -188,13 +188,13 @@ class Chat extends Component {
           this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (updater is diff)')
         }
       } else {
-        console.log('no prevChat value');
+        if (debugging) console.log('no prevChat value');
       }
     }
   }
   
   removeChatFromChatList(prevChat,cameFrom){
-    console.log('removeChatFromChatList func called',cameFrom);
+    if (debugging) console.log('removeChatFromChatList func called',cameFrom);
     if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
       let chats = JSON.parse(JSON.stringify(this.state.chats))
       let i = chats.findIndex( chat => {
@@ -222,7 +222,7 @@ class Chat extends Component {
           }
         },
         onError: e => {
-          console.log('subToShoppersChats error:',e);
+          if (debugging) console.log('subToShoppersChats error:',e);
         }
       })
     }
