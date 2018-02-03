@@ -33,6 +33,7 @@ import { method,url } from '../../config/Defaults'
 const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const screen = getDimensions()
+const debugging = false
 
 class ShoppersDistCard extends Component {
 
@@ -77,16 +78,16 @@ class ShoppersDistCard extends Component {
         let nextDistExists = nextDist.length > 0 ? true : false
         if (nextDistExists) {
           if (prevDistExists) {
-            console.log('current and new distributor exists, so deLink and link with new')
+            if (debugging) console.log('current and new distributor exists, so deLink and link with new')
             this.deLinkShopperFromDistributorInDb(nextDist[0],prevDist[0],true)
           } else {
-            console.log('there is a new distributor but no current distributor, so add-only')
+            if (debugging) console.log('there is a new distributor but no current distributor, so add-only')
             this.linkShopperToDistributorInDb(nextDist[0])
           }
         } else {
-          console.log('new distributor does not exist');
+          if (debugging) console.log('new distributor does not exist');
           if (prevDistExists) {
-            console.log('current distributor exists and needs to be removed')
+            if (debugging) console.log('current distributor exists and needs to be removed')
             this.deLinkShopperFromDistributorInDb(false,prevDist[0],false)
           }
         }
@@ -110,7 +111,7 @@ class ShoppersDistCard extends Component {
   }
 
   linkShopperToDistributorInDb(nextDist){
-    console.log('linkShopperToDistributorInDb func called with:',nextDist.distId)
+    if (debugging) console.log('linkShopperToDistributorInDb func called with:',nextDist.distId)
     if (this.props.shopperId && nextDist.id) {
       this.props.linkShopperToDistributor({
         variables: {
@@ -118,7 +119,7 @@ class ShoppersDistCard extends Component {
           DistributorId: nextDist.id
         }
       }).then( res => {
-        console.log('successfully linked Shopper to NEXT Distributor');
+        if (debugging) console.log('successfully linked Shopper to NEXT Distributor');
         if (res && res.data && res.data.addToShopperOnDistributor) {
             this.setState({ShoppersDist:nextDist},()=>{
               this.checkIfShopperHasDmChatWithDistributorInDb(this.props.shopperId,nextDist.id)
@@ -127,19 +128,19 @@ class ShoppersDistCard extends Component {
               }
             })
         } else {
-          console.log('1. no regular response from link request');
+          if (debugging) console.log('1. no regular response from link request');
         }
       }).catch( e => {
-        console.log('failed to link Shopper to NEXT Distributor',e.message)
+        if (debugging) console.log('failed to link Shopper to NEXT Distributor',e.message)
       })
     } else {
-      console.log('not enuf valid inputs for gql linkShopperToDistributor method');
+      if (debugging) console.log('not enuf valid inputs for gql linkShopperToDistributor method');
     }
   }
 
   deLinkShopperFromDistributorInDb(nextDist,prevDist,replaceWithNew){
-    console.log('deLinkShopperFromDistributorInDb func called');
-    console.log('replace with New Dist? ',replaceWithNew);
+    if (debugging) console.log('deLinkShopperFromDistributorInDb func called');
+    if (debugging) console.log('replace with New Dist? ',replaceWithNew);
     if (this.props.shopperId && prevDist.id) {
       this.props.deLinkShopperFromDistributor({
         variables: {
@@ -147,7 +148,7 @@ class ShoppersDistCard extends Component {
           DistributorId: prevDist.id
         }
       }).then( () => {
-        console.log('successfully delinked Shopper from Distributor');
+        if (debugging) console.log('successfully delinked Shopper from Distributor');
         if (prevDist.chatsx.length > 0) {
           this.removeShopperFromDistributorsGroupChatInDb(
             this.props.shopperId,prevDist.chatsx[0].id
@@ -159,48 +160,48 @@ class ShoppersDistCard extends Component {
           this.setState({ShoppersDist:null})
         }
       }).catch( e => {
-        console.log('failed to delink Shopper from Distributor',e.message);
+        if (debugging) console.log('failed to delink Shopper from Distributor',e.message);
       })
     } else {
-      console.log('not enuf valid inputs for gql deLinkShopperFromDistributor method');
+      if (debugging) console.log('not enuf valid inputs for gql deLinkShopperFromDistributor method');
     }
   }
 
   addShopperToDistributorsGroupChatInDb(chatsxChatId,shoppersxShopperId){
-    console.log('addShopperToDistributorsGroupChatInDb func called');
+    if (debugging) console.log('addShopperToDistributorsGroupChatInDb func called');
     if (this.props.shopperId && chatsxChatId) {
       this.props.addShopperToDistributorsGroupChat({
         variables: {
           chatsxChatId,shoppersxShopperId
         }
       }).then( () => {
-        console.log('successfully added Shopper To Distributors Group Chat In Db');
+        if (debugging) console.log('successfully added Shopper To Distributors Group Chat In Db');
         this.triggerEventOnChatInDb(chatsxChatId)
       }).catch( e => {
-        console.log('failed to add Shopper To Distributors Group Chat In Db',e.message);
+        if (debugging) console.log('failed to add Shopper To Distributors Group Chat In Db',e.message);
       })
     }
   }
   
   removeShopperFromDistributorsGroupChatInDb(shopperId,chatId){
-    console.log('removeShopperFromDistributorsGroupChatInDb func called');
+    if (debugging) console.log('removeShopperFromDistributorsGroupChatInDb func called');
     if (shopperId && chatId) {
       this.props.removeShopperFromDistributorsGroupChat({
         variables: {
           shopperId,chatId
         }
       }).then( () => {
-        console.log('successfully removed Shopper from Distributors Group Chat in DB');
+        if (debugging) console.log('successfully removed Shopper from Distributors Group Chat in DB');
         this.triggerEventOnChatInDb(chatId)
       }).catch( e => {
-        console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message);
+        if (debugging) console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message);
       })
     }
   }
 
 //NEEDS ERROR HANDLING
   checkIfShopperHasDmChatWithDistributorInDb(shoppersx,distributorsx){
-    console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
+    if (debugging) console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
     if (shoppersx && distributorsx) {
       let { headers } = this.state
       axios({
@@ -215,27 +216,27 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.allChats) {
-          console.log('successfully checked if shopper has DM chat with Distributor');
+          if (debugging) console.log('successfully checked if shopper has DM chat with Distributor');
           if (res.data.data.allChats.length < 1) {
-            console.log('shopper does not have DM chat with Distributor, call create func');
+            if (debugging) console.log('shopper does not have DM chat with Distributor, call create func');
             this.createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx)
           } else {
-            console.log('shopper has DM chat with Distributor, no need to create');
+            if (debugging) console.log('shopper has DM chat with Distributor, no need to create');
           }
         } else {
-          console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
+          if (debugging) console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
         }
       }).catch( e => {
-        console.log('failed to check if shopper has DM chat with Distributor',e.message);
+        if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message);
       })
     } else {
-      console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
+      if (debugging) console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
     }
   }
 
 //NEEDS ERROR HANDLING  
   createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx){
-    console.log('createDmChatForShopperAndDistributorInDb func called');
+    if (debugging) console.log('createDmChatForShopperAndDistributorInDb func called');
     if (distributorsx && shoppersx) {
       let { headers } = this.state
       axios({
@@ -246,15 +247,15 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.createChat) {
-          console.log('successfully created dm chat for shopper and distributor');
+          if (debugging) console.log('successfully created dm chat for shopper and distributor');
         } else {
-          console.log('no response received for CreateDmChatForShopperAndDistributor request');
+          if (debugging) console.log('no response received for CreateDmChatForShopperAndDistributor request');
         }
       }).catch( e => {
-        console.log('failed to create dm chat for shopper and distributor',e.message);
+        if (debugging) console.log('failed to create dm chat for shopper and distributor',e.message);
       })
     } else {
-      console.log('insufficient inputs to run createDmChatForShopperAndDistributorInDb mutation');
+      if (debugging) console.log('insufficient inputs to run createDmChatForShopperAndDistributorInDb mutation');
     }
   }
   
@@ -265,9 +266,9 @@ class ShoppersDistCard extends Component {
         updater: JSON.stringify(new Date())
       }
     }).then( res => {
-      console.log('event successfully triggered on chat node');
+      if (debugging) console.log('event successfully triggered on chat node');
     }).catch( e => {
-      console.log('could not trigger event on Chat node',e.message);
+      if (debugging) console.log('could not trigger event on Chat node',e.message);
     })
   }
 

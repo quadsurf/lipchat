@@ -93,13 +93,13 @@ class Claims extends Component {
             this.saveNewClaimMessage(id,bizName,fbkFirstName,fbkLastName)
           }
         } else {
-          console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
+          if (debugging) console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
         }
       }).catch( e => {
-        console.log('failed to check if shopper has DM chat with Distributor',e.message);
+        if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message);
       })
     } else {
-      console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
+      if (debugging) console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
     }
     this.setState({isVerified:withDist})
   }
@@ -157,7 +157,7 @@ class Claims extends Component {
         this.closeModal()
       },700)
     }).catch( e => {
-      console.log('could not trigger event on Chat node',e.message);
+      if (debugging) console.log('could not trigger event on Chat node',e.message);
     })
   }
 
@@ -182,7 +182,7 @@ class Claims extends Component {
           if (res && res.data && res.data.createMessage) {
             this.triggerEventOnChatInDb(claim.chatId)
           }
-        }).catch( e => console.log('sendClaim error:',e.message))
+        }).catch( e => {if (debugging) console.log('sendClaim error:',e.message)})
       },700)
     })
   }

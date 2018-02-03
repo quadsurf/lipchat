@@ -23,6 +23,9 @@ import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
 
+// CONSTs
+const debugging = false
+
 export default class App extends React.Component {
   constructor(props) {
     super(props)
@@ -122,13 +125,7 @@ export default class App extends React.Component {
         Font.loadAsync(this.state.fontsToPreLoad),
       ])
     } catch (e) {
-      // In this case, you might want to report the error to your error
-      // reporting service, for example Sentry
-      console.warn(
-        'There was an error caching assets (see: App.js), perhaps due to a ' +
-          'network timeout, so we skipped caching. Reload the app to try again.'
-      )
-      console.log(e)
+      if (debugging) console.log(e.message)
     } finally {
       setTimeout(()=>{
         this.setState({ assetsAreLoaded: true })

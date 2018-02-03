@@ -35,19 +35,19 @@ import {
   UpdateDistributorDistId,UpdateDistributorBizName,
   UpdateDistributorBizUri,UpdateDistributorLogoUri,
   CreateGroupChatForDistributor
-} from '../api/db/mutations'
-import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../api/db/queries'
+} from '../../api/db/mutations'
+import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../../api/db/queries'
 
 // LOCALS
-import { Views,Colors,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import MyStatusBar from '../common/MyStatusBar'
-import { Modals,getDimensions,shortenUrl,clipText } from '../utils/Helpers'
-import { AppName } from '../config/Defaults'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import MyStatusBar from '../../common/MyStatusBar'
+import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
+import { AppName } from '../../config/Defaults'
 
 // COMPONENTS
-import { MyButton,CardLines } from './Components'
-import ShoppersDistCard from './You/ShoppersDistCard'
+import { MyButton,CardLines } from '../Components'
+import ShoppersDistCard from './ShoppersDistCard'
 
 // CONSTs
 const small = Texts.small.fontSize
@@ -68,6 +68,7 @@ const distributorInputStyle = {
 const inputStyleMedium = {fontSize:medium,height:32,color:Colors.pinkly}
 const inputStyleLarge = {fontSize:large,height:32}
 const inputStyleLarger = {fontSize:larger,height:64}
+const debugging = false
 
 class You extends Component {
 
@@ -295,7 +296,7 @@ class You extends Component {
         return (
           <View style={cardStyle}>
             <View style={cardLeft}>
-              <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+              <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
             </View>
             <View style={noExist}>
               <FontPoiret text="distributor exists but hasn't" size={medium} color={Colors.white}/>
@@ -319,7 +320,7 @@ class You extends Component {
       return (
         <View style={cardStyle}>
           <View style={cardLeft}>
-            <Image source={require('../assets/images/avatar.png')} style={imgSize}/>
+            <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
           </View>
           <CardLines style={cardRight}/>
         </View>
@@ -826,12 +827,12 @@ class You extends Component {
       }
     }).then( res => {
       if (res.data.data.allChats.length > 0) {
-        console.log('distributor already has a group chat, so no need to create');
+        if (debugging) console.log('distributor already has a group chat, so no need to create');
       } else {
         this.createGroupChatForDistributorInDb()
       }
     }).catch( e => {
-      console.log('e',e.message);
+      if (debugging) console.log('e',e.message);
     })
   }
 
@@ -851,10 +852,10 @@ class You extends Component {
           //
         }
       }).catch( e => {
-        console.log('failed to create group chat for distributor in db',e.message);
+        if (debugging) console.log('failed to create group chat for distributor in db',e.message);
       })
     } else {
-      console.log('insufficient inputs to create group chat for distributor in db');
+      if (debugging) console.log('insufficient inputs to create group chat for distributor in db');
     }
   }
 
@@ -958,7 +959,7 @@ class You extends Component {
             this.showModal('err','Profile',errText)
           }
         }).catch( e => {
-          console.log('Error: ',e.message);
+          if (debugging) console.log('Error: ',e.message);
           this.showModal('err','Profile',errText)
         })
       } else {

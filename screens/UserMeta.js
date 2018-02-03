@@ -21,7 +21,7 @@ class UserMeta extends Component {
   }
 
   render() {
-    console.log(this.props.navigation);
+    if (debugging) console.log(this.props.navigation);
     return (
       <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:'yellow'}}>
         <Text>UserMeta</Text>

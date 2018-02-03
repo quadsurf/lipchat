@@ -43,6 +43,7 @@ const textInputStyle = {
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 const chatCount = 5
+const debugging = false
 
 // COMPONENTS
 import Message from './Message'
@@ -298,7 +299,7 @@ class Messages extends Component {
       }
     }).then( () => {
     }).catch( e => {
-      console.log('could not trigger event on Chat node',e.message);
+      if (debugging) console.log('could not trigger event on Chat node',e.message);
     })
   }
   
