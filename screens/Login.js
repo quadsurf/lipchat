@@ -1,6 +1,7 @@
 
 
-import Expo, { Components,Util } from 'expo'
+// import Expo, { Components,Util } from 'expo'
+import Expo from 'expo'
 import React, { Component } from 'react'
 import {
   Text,

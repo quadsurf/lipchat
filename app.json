@@ -4,7 +4,7 @@
     "description": "Browse & Claim Lip Colors",
     "slug": "lips",
     "privacy": "unlisted",
-    "sdkVersion": "21.0.0",
+    "sdkVersion": "22.0.0",
     "version": "1.0.1",
     "orientation": "portrait",
     "primaryColor": "#371A85",
@@ -13,10 +13,9 @@
       "icon": "./assets/icons/icon.png",
       "color": "#371A85"
     },
-    "loading": {
-      "backgroundColor": "#371A85",
-      "hideExponentText": true,
-      "loadingIndicatorStyleExperimental": "light"
+    "splash": {
+      "image": "./assets/icons/icon.png",
+      "backgroundColor": "#371A85"
     },
     "packagerOpts": {
       "assetExts": ["ttf","mp4"]
@@ -26,3 +25,6 @@
     }
   }
 }
+/* ,
+"hideExponentText": true,
+"loadingIndicatorStyleExperimental": "light" */

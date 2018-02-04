@@ -134,6 +134,27 @@ const CardLines = props => {
   )
 }
 
+const Switch = ({checked,onSwitchPress}) => {
+  return (
+    <TouchableOpacity style={{
+      width:40,height:40,backgroundColor:'transparent',marginLeft:10,
+      marginRight:8,justifyContent:'center',alignItems:'center'
+    }} 
+      onPress={onSwitchPress}>
+      <View 
+        style={{
+          width:40,height:12,backgroundColor:Colors.transparentWhite,
+          borderRadius:20,alignItems:checked?'flex-end':'flex-start'
+        }}>
+        <View style={{
+          width:20,height:20,borderRadius:10,
+          backgroundColor:checked?Colors.pinkly:Colors.blue,top:-4
+        }}/>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
 export {
-  ColorCard,LikeCard,MyButton,CardLines
+  ColorCard,LikeCard,MyButton,CardLines,Switch
 }

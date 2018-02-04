@@ -23,7 +23,6 @@ import { PROJECT_ID } from 'react-native-dotenv'
 // LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
-import { MKSwitch } from 'react-native-material-kit'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
@@ -46,7 +45,7 @@ import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName } from '../../config/Defaults'
 
 // COMPONENTS
-import { MyButton,CardLines } from '../Components'
+import { MyButton,CardLines,Switch } from '../Components'
 import ShoppersDistCard from './ShoppersDistCard'
 
 // CONSTs
@@ -242,19 +241,10 @@ class You extends Component {
     return (
       <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
         <FontPoiret text="shopper" size={large} color={type === 'SHOPPER' ? Colors.blue : Colors.transparentWhite} style={{paddingBottom:8}}/>
-        <MKSwitch
-          checked={type === "DIST" ? true : false}
-          trackSize={15}
-          trackLength={40}
-          onColor={Colors.transparentWhite}
-          offColor={Colors.transparentWhite}
-          thumbOnColor={Colors.pinkly}
-          thumbOffColor={Colors.blue}
-          rippleColor={Colors.transparentPurplest}
-          rippleAniDuration={100}
-          onPress={() => this.setState({isUserTypeSubmitModalOpen:true})}
-        />
-      <FontPoiret text="distributor" size={large} color={type === 'DIST' ? Colors.pinkly : Colors.transparentWhite} style={{paddingBottom:6}}/>
+        <Switch 
+          onSwitchPress={() => this.setState({isUserTypeSubmitModalOpen:true})} 
+          checked={type === "DIST" ? true : false}/>
+        <FontPoiret text="distributor" size={large} color={type === 'DIST' ? Colors.pinkly : Colors.transparentWhite} style={{paddingBottom:6}}/>
       </View>
     )
   }

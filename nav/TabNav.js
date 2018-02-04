@@ -348,7 +348,7 @@ class TabNav extends PureComponent<void, *, State> {
         navigationState={this.state}
         renderScene={this.renderScene}
         renderFooter={this.renderFooter}
-        onRequestChangeTab={this.handleChangeTab}
+        onIndexChange={this.handleChangeTab}
       />
     )
   }
