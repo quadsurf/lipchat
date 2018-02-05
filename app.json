@@ -4,27 +4,27 @@
     "description": "Browse & Claim Lip Colors",
     "slug": "lips",
     "privacy": "unlisted",
-    "sdkVersion": "22.0.0",
+    "sdkVersion": "25.0.0",
     "version": "1.0.1",
     "orientation": "portrait",
     "primaryColor": "#371A85",
-    "icon": "./assets/icons/icon.png",
+    "icon": "./assets/icons/logicon-square.png",
     "notification": {
       "icon": "./assets/icons/icon.png",
       "color": "#371A85"
     },
     "splash": {
-      "image": "./assets/icons/icon.png",
+      "image": "./assets/images/logicon-splash.png",
       "backgroundColor": "#371A85"
     },
     "packagerOpts": {
       "assetExts": ["ttf","mp4"]
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need permission to access your front-facing camera so that you virtually try on different lip colors."
+      }
     }
   }
 }
-/* ,
-"hideExponentText": true,
-"loadingIndicatorStyleExperimental": "light" */

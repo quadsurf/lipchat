@@ -1,6 +1,6 @@
 
 
-import React from 'react'
+import React, { Component } from 'react'
 import { View,AsyncStorage } from 'react-native'
 import { Asset, Font } from 'expo'
 
@@ -26,29 +26,33 @@ import MyStatusBar from './common/MyStatusBar'
 // CONSTs
 const debugging = false
 
-export default class App extends React.Component {
+export default class App extends Component {
   constructor(props) {
     super(props)
+    
     this.state = {
       assetsAreLoaded: false,
-      imagesToPreload: [
-        require('./assets/icons/icon.png'),
-        require('./assets/images/splash.jpg'),
-        require('./assets/images/water-proof.jpg'),
-        require('./assets/images/kiss-proof.jpg'),
-        require('./assets/images/smudge-proof.jpg'),
-        require('./assets/images/cruelty-free.jpg'),
-        require('./assets/images/avatar.png')
-      ],
-      fontsToPreLoad: [
-        { 'Matilde': require('./assets/fonts/Matilde.ttf') },
-        { 'Poiret': require('./assets/fonts/Poiret.ttf') }
-      ],
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
       localStorage: null
     }
+    
+    this.imagesToPreload = [
+      require('./assets/icons/icon.png'),
+      require('./assets/images/splash.jpg'),
+      require('./assets/images/water-proof.jpg'),
+      require('./assets/images/kiss-proof.jpg'),
+      require('./assets/images/smudge-proof.jpg'),
+      require('./assets/images/cruelty-free.jpg'),
+      require('./assets/images/avatar.png')
+    ]
+    
+    this.fontsToPreLoad = {
+      Matilde: require('./assets/fonts/Matilde.ttf'),
+      Poiret: require('./assets/fonts/Poiret.ttf')
+    }
+    
     this.handler = this.handler.bind(this)
   }
 
@@ -121,8 +125,8 @@ export default class App extends React.Component {
   async loadAssetsAsync() {
     try {
       await Promise.all([
-        Asset.loadAsync(this.state.imagesToPreload),
-        Font.loadAsync(this.state.fontsToPreLoad),
+        Asset.loadAsync(this.imagesToPreload),
+        Font.loadAsync(this.fontsToPreLoad),
       ])
     } catch (e) {
       if (debugging) console.log(e.message)
