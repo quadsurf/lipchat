@@ -8,13 +8,16 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "primaryColor": "#371A85",
-    "icon": "./assets/icons/logicon-square.png",
+    "icon": "./assets/icons/iconWithBorder.png",
     "notification": {
-      "icon": "./assets/icons/icon.png",
+      "icon": "./assets/icons/iconWithBorder.png",
       "color": "#371A85"
     },
+    "facebookAppId": "438344266552679",
+    "facebookDisplayName": "LipChat",
+    "facebookScheme": "fb438344266552679",
     "splash": {
-      "image": "./assets/images/logicon-splash.png",
+      "image": "./assets/images/splashTransparent.png",
       "backgroundColor": "#371A85"
     },
     "packagerOpts": {
