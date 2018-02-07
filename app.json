@@ -13,21 +13,43 @@
       "icon": "./assets/icons/iconWithBorder.png",
       "color": "#371A85"
     },
-    "facebookAppId": "438344266552679",
-    "facebookDisplayName": "LipChat",
-    "facebookScheme": "fb438344266552679",
-    "splash": {
-      "image": "./assets/images/splashTransparent.png",
+    "androidStatusBar": {
+      "barStyle": "light-content",
       "backgroundColor": "#371A85"
     },
+    "scheme": "lipchat",
     "packagerOpts": {
       "assetExts": ["ttf","mp4"]
     },
     "ios": {
+      "icon": "./assets/icons/iconWithBorder.png",
+      "isRemoteJSEnabled": true,
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "We need permission to access your front-facing camera so that you virtually try on different lip colors."
+      },
+      "splash": {
+        "backgroundColor": "#371A85",
+        "resizeMode": "contain",
+        "image": "./assets/images/splashTransparent.png",
+        "tabletImage": "./assets/images/splashTransparent.png"
       }
-    }
+    },
+    "android": {
+      "icon": "./assets/icons/iconWithBorder.png",
+      "splash": {
+        "backgroundColor": "#371A85",
+        "resizeMode": "contain",
+        "ldpi": "./assets/images/splashTransparent.png",
+        "mdpi": "./assets/images/splashTransparent.png",
+        "hdpi": "./assets/images/splashTransparent.png",
+        "xhdpi": "./assets/images/splashTransparent.png",
+        "xxhdpi": "./assets/images/splashTransparent.png",
+        "xxxhdpi": "./assets/images/splashTransparent.png"
+      }
+    },
+    "facebookAppId": "438344266552679",
+    "facebookDisplayName": "LipChat",
+    "facebookScheme": "fb438344266552679"
   }
 }
