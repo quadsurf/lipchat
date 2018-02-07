@@ -39,8 +39,8 @@ export default class App extends Component {
     }
     
     this.imagesToPreload = [
-      require('./assets/icons/icon.png'),
-      require('./assets/images/splash.jpg'),
+      require('./assets/icons/iconWithBorder.png'),
+      require('./assets/images/splashTransparent.png'),
       require('./assets/images/water-proof.jpg'),
       require('./assets/images/kiss-proof.jpg'),
       require('./assets/images/smudge-proof.jpg'),
