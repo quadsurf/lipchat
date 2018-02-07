@@ -16,53 +16,39 @@ import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
 
-// const LoggedOutStack = StackNavigator(
-//   {
-//     Login: { screen:Login },
-//     UserMeta: { screen:UserMeta }
-//   },
-//   {
-//     initialRouteName: 'Login',
-//     headerMode: 'none'
-//   }
-// )
-//
-// const LoggedInStack = StackNavigator(
-//   {
-//     TabNav: { screen:TabNav }
-//   },
-//   {
-//     headerMode: 'none',
-//     mode: 'modal',
-//     direction: 'bottomToTop'
-//   }
-// )
-
-const ClaimsNavigator = StackNavigator(
+const ClaimsModal = StackNavigator(
   {
-    Root: { screen:Claims }
+    ClaimsModalIndex: { screen:Claims }
   },
   {
-    initialRouteName: 'Root',
     headerMode: 'none',
-    mode: 'modal',
-    direction: 'bottomToTop',
     navigationOptions: {
       gesturesEnabled: true
     }
   }
 )
 
-const RootStack = StackNavigator(
+const AppStack = StackNavigator(
   {
-    Root: { screen:AuthState },
+    AppStackIndex: { screen:AuthState },
     LoggedOut: { screen:Login },
     LoggedIn: { screen:TabNav },
-    Messages: { screen:Messages },
-    Claims: { screen:ClaimsNavigator }
+    Messages: { screen:Messages }
   },
   {
-    initialRouteName: 'Root',
+    initialRouteName: 'AppStackIndex',
+    headerMode: 'none'
+  }
+)
+
+const RootStack = StackNavigator(
+  {
+    AppStack: { screen:AppStack },
+    Claims: { screen:ClaimsModal }
+  },
+  {
+    initialRouteName: 'AppStack',
+    mode: 'modal',
     headerMode: 'none'
   }
 )

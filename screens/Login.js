@@ -7,7 +7,7 @@ import {
   Text,
   View,
   TouchableHighlight,
-  Image,
+  ImageBackground,
   AsyncStorage
 } from 'react-native'
 
@@ -121,7 +121,7 @@ class Login extends Component {
         width={getDimensions().width}
         >
         <View style={{...Views.middle}}>
-          <Image
+          <ImageBackground
             source={require('../assets/images/splash.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter,marginBottom:this.state.bottomMargin}}>
@@ -129,10 +129,10 @@ class Login extends Component {
               <FontPoiret text="overlay lip colors" size={32} />
               <FontPoiret text="onto your selfie" size={32} />
             </View>
-          </Image>
+          </ImageBackground>
         </View>
         <View style={{...Views.middle}}>
-          <Image
+          <ImageBackground
             source={require('../assets/images/water-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
@@ -140,10 +140,10 @@ class Login extends Component {
               {this.renderFacebookButton()}
               {this.renderTermsPrivacy()}
             </View>
-          </Image>
+          </ImageBackground>
         </View>
         <View style={{...Views.middle}}>
-          <Image
+          <ImageBackground
             source={require('../assets/images/kiss-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
@@ -151,10 +151,10 @@ class Login extends Component {
               {this.renderFacebookButton()}
               {this.renderTermsPrivacy()}
             </View>
-          </Image>
+          </ImageBackground>
         </View>
         <View style={{...Views.middle}}>
-          <Image
+          <ImageBackground
             source={require('../assets/images/smudge-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
@@ -162,10 +162,10 @@ class Login extends Component {
               {this.renderFacebookButton()}
               {this.renderTermsPrivacy()}
             </View>
-          </Image>
+          </ImageBackground>
         </View>
         <View style={{...Views.middle}}>
-          <Image
+          <ImageBackground
             source={require('../assets/images/cruelty-free.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
@@ -176,7 +176,7 @@ class Login extends Component {
               {this.renderFacebookButton()}
               {this.renderTermsPrivacy()}
             </View>
-          </Image>
+          </ImageBackground>
         </View>
       </Swiper>
     )

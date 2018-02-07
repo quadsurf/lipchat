@@ -970,7 +970,7 @@ class You extends Component {
               const resetAction = NavigationActions.reset({
                 index: 0,
                 actions: [
-                  NavigationActions.navigate({ routeName: 'Root'})
+                  NavigationActions.navigate({ routeName: 'AppStackIndex'})
                 ]
               })
               this.props.nav.dispatch(resetAction)
