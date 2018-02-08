@@ -105,10 +105,6 @@ class You extends Component {
     return false
   }
 
-  componentDidMount(){
-    
-  }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (
@@ -159,10 +155,16 @@ class You extends Component {
     }
   }
 
-  isSsl(url){
+  isValidUri(url){
+    console.log('url',url);
     let el4 = url.split('')[4]
-    if (el4 === 's') {
-      return true
+    let last4 = url.substr(url.length - 4)
+    if (last4 === '.png' || last4 === '.jpg') {
+      if (el4 === 's') {
+        return true
+      } else {
+        return false
+      }
     } else {
       return false
     }
@@ -933,8 +935,8 @@ class You extends Component {
     let DistributorId = this.state.user.distributorx.id
     let { id } = this.state.user
     let errText = 'saving your Logo URL'
-    if (!this.isSsl(DistributorLogoUri)) {
-      this.showModal('error','Profile',"Your URL must begin with 'https'.")
+    if (!this.isValidUri(DistributorLogoUri)) {
+      this.showModal('error','Profile',"Your URL must begin with 'https' and end with '.jpg' or 'png'.")
     } else {
       if (DistributorId && DistributorLogoUri) {
         this.props.updateDistributorLogoUri({
