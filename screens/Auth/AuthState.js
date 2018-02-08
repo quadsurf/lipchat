@@ -8,13 +8,13 @@ import {  compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // LOCALS
-import { Views,Colors } from '../css/Styles'
-import { err,clearIdentifiers,getGQLerror } from '../utils/Helpers'
-import { AppName } from '../config/Defaults'
+import { Views,Colors } from '../../css/Styles'
+import { err,clearIdentifiers,getGQLerror } from '../../utils/Helpers'
+import { AppName } from '../../config/Defaults'
 
 //GQL
-import { GetUser } from '../api/db/queries'
-import { UpdateFbkFriends } from '../api/db/mutations'
+import { GetUser } from '../../api/db/queries'
+import { UpdateFbkFriends } from '../../api/db/mutations'
 
 const debugging = false
 

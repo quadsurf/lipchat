@@ -19,8 +19,8 @@ import { AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr } f
 //SCREENS
 import Likes from '../screens/Likes/Likes'
 import Chat from '../screens/Chat/Chat'
-import Selfie from '../screens/Selfie'
-import LipColors from '../screens/LipColors'
+import Selfie from '../screens/Selfie/Selfie'
+import LipColors from '../screens/LipColors/LipColors'
 import You from '../screens/You/You'
 
 //LOCALS

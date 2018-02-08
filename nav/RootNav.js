@@ -9,9 +9,8 @@ import { StackNavigator } from 'react-navigation'
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
 
 // SCREENS
-import AuthState from '../screens/AuthState'
-import Login from '../screens/Login'
-import UserMeta  from '../screens/UserMeta'
+import AuthState from '../screens/Auth/AuthState'
+import Login from '../screens/Auth/Login'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'

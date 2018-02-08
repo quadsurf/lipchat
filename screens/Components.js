@@ -106,7 +106,7 @@ const LikeCard = props => {
     </View>
   )
 }
-// <FontAwesome name="star-o" size={50} color={Colors.white}/>
+
 const MyButton = props => {
   return (
     <TouchableHighlight underlayColor={Colors.transparentWhite} style={{borderRadius:6,marginVertical:20,paddingHorizontal:20,paddingVertical:10}} onPress={props.onPress}>

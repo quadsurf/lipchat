@@ -9,14 +9,14 @@ import { DotsLoader } from 'react-native-indicator'
 import { Camera, Permissions } from 'expo'
 
 // GQL
-import { GetColorsAndInventories } from '../api/db/queries'
-import { CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
+import { GetColorsAndInventories } from '../../api/db/queries'
+import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
 
 // LOCALS
-import { Views,Colors,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import MyStatusBar from '../common/MyStatusBar'
-import { Modals,getDimensions } from '../utils/Helpers'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import MyStatusBar from '../../common/MyStatusBar'
+import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTS
 const large = Texts.large.fontSize

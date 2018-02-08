@@ -16,16 +16,16 @@ import { compose,graphql } from 'react-apollo'
 import Swiper from 'react-native-swiper'
 
 //LOCALS
-import { Colors,Views,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import { getDimensions,Modals } from '../utils/Helpers'
-import { terms } from '../config/Defaults'
+import { Colors,Views,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import { getDimensions,Modals } from '../../utils/Helpers'
+import { terms } from '../../config/Defaults'
 
 //ENV VARS
 import { FBK_APP_ID } from 'react-native-dotenv'
 
 //GQL
-import { AuthenticateFacebookUser,UpdateFbkFriends } from '../api/db/mutations'
+import { AuthenticateFacebookUser,UpdateFbkFriends } from '../../api/db/mutations'
 
 class Login extends Component {
 
@@ -122,7 +122,7 @@ class Login extends Component {
         >
         <View style={{...Views.middle}}>
           <ImageBackground
-            source={require('../assets/images/splash.jpg')}
+            source={require('../../assets/images/splash.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter,marginBottom:this.state.bottomMargin}}>
               <FontPoiret text="Find Your Sexy" size={48} underline={true} />
@@ -133,7 +133,7 @@ class Login extends Component {
         </View>
         <View style={{...Views.middle}}>
           <ImageBackground
-            source={require('../assets/images/water-proof.jpg')}
+            source={require('../../assets/images/water-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="waterproof" size={68} />
@@ -144,7 +144,7 @@ class Login extends Component {
         </View>
         <View style={{...Views.middle}}>
           <ImageBackground
-            source={require('../assets/images/kiss-proof.jpg')}
+            source={require('../../assets/images/kiss-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="kissproof" />
@@ -155,7 +155,7 @@ class Login extends Component {
         </View>
         <View style={{...Views.middle}}>
           <ImageBackground
-            source={require('../assets/images/smudge-proof.jpg')}
+            source={require('../../assets/images/smudge-proof.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="smudgeproof" size={57} />
@@ -166,7 +166,7 @@ class Login extends Component {
         </View>
         <View style={{...Views.middle}}>
           <ImageBackground
-            source={require('../assets/images/cruelty-free.jpg')}
+            source={require('../../assets/images/cruelty-free.jpg')}
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="cruelty-free," size={63} />

@@ -14,19 +14,19 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetColorsAndInventories,GetUserType } from '../api/db/queries'
+import { GetColorsAndInventories,GetUserType } from '../../api/db/queries'
 // import { SubUserType } from '../api/db/pubsub'
-import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../api/db/mutations'
+import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
 
 // LOCALS
-import { Views,Colors,Texts } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
-import MyStatusBar from '../common/MyStatusBar'
-import { Modals,getDimensions } from '../utils/Helpers'
-import { AppName } from '../config/Defaults'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import MyStatusBar from '../../common/MyStatusBar'
+import { Modals,getDimensions } from '../../utils/Helpers'
+import { AppName } from '../../config/Defaults'
 
 // COMPONENTS
-import { ColorCard } from './Components'
+import { ColorCard } from '../Components'
 
 // CONSTS
 const small = Texts.small.fontSize
