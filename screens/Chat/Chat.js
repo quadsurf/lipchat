@@ -29,7 +29,7 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
-
+const debugging = false
 
 // COMPONENTS
 import ChatCard from './ChatCard'

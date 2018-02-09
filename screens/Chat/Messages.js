@@ -12,9 +12,6 @@ import {
   Keyboard
 } from 'react-native'
 
-// ENV VARS
-
-
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { Entypo } from '@expo/vector-icons'

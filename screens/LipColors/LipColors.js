@@ -26,7 +26,7 @@ import { Modals,getDimensions } from '../../utils/Helpers'
 import { AppName } from '../../config/Defaults'
 
 // COMPONENTS
-import { ColorCard } from '../Components'
+import ColorCard from './ColorCard'
 
 // CONSTS
 const small = Texts.small.fontSize

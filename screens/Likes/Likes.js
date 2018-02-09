@@ -22,8 +22,8 @@ import { err,Modals } from '../../utils/Helpers'
 import { GetLikesForShopper } from './../../api/db/queries'
 import { SubToLikesForShopper } from './../../api/db/pubsub'
 
-//COMPONENTS
-import { LikeCard } from './../Components'
+//COMPS
+import LikeCard from './LikeCard'
 
 class Likes extends Component {
 

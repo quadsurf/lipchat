@@ -26,6 +26,8 @@ import { getDimensions } from '../../utils/Helpers'
 import { AppName,method,url,newClaimText,newClaimText2 } from '../../config/Defaults'
 import { Modals } from '../../utils/Helpers'
 
+//CONSTs
+const debugging = false
 const { width,height } = getDimensions()
 
 @withNavigation

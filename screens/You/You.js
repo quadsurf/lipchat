@@ -42,10 +42,10 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
-import { AppName } from '../../config/Defaults'
+import { AppName,AccountTypeExplainer } from '../../config/Defaults'
 
 // COMPONENTS
-import { MyButton,CardLines,Switch } from '../Components'
+import { LinkButton,CardLines,Switch } from '../Common'
 import ShoppersDistCard from './ShoppersDistCard'
 
 // CONSTs
@@ -206,7 +206,7 @@ class You extends Component {
               {this.renderDistributorFields()}
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
-              <MyButton text="logout" onPress={() => this.logOut()}/>
+              <LinkButton text="logout" onPress={() => this.logOut()}/>
           </KeyboardAwareScrollView>
         </View>
     )
@@ -594,10 +594,7 @@ class You extends Component {
           <ScrollView style={{marginVertical:10}}>
             <Text
               style={{color: Colors.transparentWhite,...Texts.medium}}>
-              {`\n`}SHOPPER ACCOUNT{`\n`}
-              With a shopper account, you can find a distributor, browse lip colors and test how they look on your lips. When you find colors that look great on you, like or thumbs up them, and your distributor will be automatically notified to reach out to you via chat or by phone.{`\n\n`}
-              DISTRIBUTOR ACCOUNT{`\n`}
-              With a distributor account, marketing to your customers and prospective customers has never been so awesome. Manage your customers with tools like inventory tracking, chat, and lite order tracking. Provide your customers with your distributor ID so that when they use {AppName} and express interest in a lip color, only you their distributor will be able to engage them in chat (or phone call) to help convert their lip color interests, into a completed sale! After your customer has paid for their lip colors outside of the app (which keeps you in compliance with Senegence), labeling those lip colors as an officially "claimed" or "requested" lip color, will automatically update your inventory so it always stays in sync with your order fulfillment practices outside of {AppName}.
+              { AccountTypeExplainer }
             </Text>
           </ScrollView>
           <TouchableHighlight

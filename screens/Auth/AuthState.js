@@ -16,6 +16,7 @@ import { AppName } from '../../config/Defaults'
 import { GetUser } from '../../api/db/queries'
 import { UpdateFbkFriends } from '../../api/db/mutations'
 
+//CONSTs
 const debugging = false
 
 class AuthState extends Component {

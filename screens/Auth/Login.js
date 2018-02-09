@@ -116,7 +116,7 @@ class Login extends Component {
         loop={false}
         showsPagination={true}
         index={0}
-        activeDotColor={Colors.pink}
+        activeDotColor={Colors.pinkly}
         height={getDimensions().height}
         width={getDimensions().width}
         >

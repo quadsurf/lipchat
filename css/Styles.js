@@ -74,7 +74,7 @@ const Texts = {
     fontSize: 25
   },
   larger: {
-    fontSize: 40
+    fontSize: 44
   },
   xlarge: {
     fontSize: 74
