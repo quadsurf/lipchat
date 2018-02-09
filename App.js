@@ -89,7 +89,7 @@ export default class App extends Component {
           <MyStatusBar hidden={true} />
           <DotsLoader
             size={15}
-            color={Colors.pink}
+            color={Colors.pinkly}
             frequency={5000}/>
         </View>
       )
@@ -114,7 +114,7 @@ export default class App extends Component {
             <MyStatusBar hidden={true} />
             <DotsLoader
               size={15}
-              color={Colors.pink}
+              color={Colors.pinkly}
               frequency={5000}/>
           </View>
         )

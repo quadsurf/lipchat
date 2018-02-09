@@ -199,7 +199,7 @@ class Likes extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Add" size={Texts.xlarge.fontSize}/>
+        <FontPoiret text="Faves" size={Texts.xlarge.fontSize}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

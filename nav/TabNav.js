@@ -1,11 +1,11 @@
 
 
-// import { ImagePicker } from 'expo'
+import { Constants } from 'expo'
 import React, { PureComponent } from 'react'
 import { Animated, View, Text, StyleSheet } from 'react-native'
 
 //LIBS
-import { Ionicons,Entypo,MaterialCommunityIcons } from '@expo/vector-icons'
+import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
 import { compose,graphql } from 'react-apollo'
@@ -42,7 +42,7 @@ class TabNav extends PureComponent<void, *, State> {
   state: State = {
       index: 2,
       routes: [
-        { key: '0', title: 'ADD', icon: 'md-basket' },
+        { key: '0', title: 'FAVORITES', icon: 'star' },
         { key: '1', title: 'CHAT', icon: 'chat' },
         { key: '2', title: 'SELFIE', icon: 'camera' },
         { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
@@ -189,22 +189,27 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderIcon = ({ route,focused }) => {
+    let { iconActive,iconInactive,favSpacer } = styles
     switch(route.key){
+      case '0':
+        return <FontAwesome name={route.icon} size={30} style={
+            route.key == this.state.index ? [iconActive,favSpacer] : [iconInactive,favSpacer]
+          }/>
       case '1':
         return <Entypo name={route.icon} size={30} style={
-            route.key == this.state.index ? styles.iconActive : styles.iconInactive
+            route.key == this.state.index ? iconActive : iconInactive
           }/>
       case '2':
         return <Entypo name={route.icon} size={30} style={
-            route.key == this.state.index ? styles.iconActive : styles.iconInactive
+            route.key == this.state.index ? iconActive : iconInactive
           }/>
       case '4':
         return <MaterialCommunityIcons name={route.icon} size={30} style={
-            route.key == this.state.index ? styles.iconActive : styles.iconInactive
+            route.key == this.state.index ? iconActive : iconInactive
           }/>
       default:
         return <Ionicons name={route.icon} size={30} style={
-            route.key == this.state.index ? styles.iconActive : styles.iconInactive
+            route.key == this.state.index ? iconActive : iconInactive
           }/>
     }
 
@@ -233,17 +238,22 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderFooter = props => {
-    return (
-      <TabBar
-        {...props}
-        renderIcon={this.renderIcon}
-        renderBadge={this.renderBadge}
-        renderIndicator={this.renderIndicator}
-        style={styles.tabbar}
-        tabStyle={styles.tab}
-        renderLabel={this.renderLabel}
-      />
-    )
+    let { deviceYearClass:year } = Constants
+    if (year >= 2016) {
+      return (
+        <TabBar
+          {...props}
+          renderIcon={this.renderIcon}
+          renderBadge={this.renderBadge}
+          renderIndicator={this.renderIndicator}
+          style={styles.tabbar}
+          tabStyle={styles.tab}
+          renderLabel={this.renderLabel}
+        />
+      )
+    } else {
+      return null
+    }
   }
 
   // renderSceneMap = SceneMap({
@@ -390,7 +400,7 @@ export default compose(
   })
 )(TabNav)
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
@@ -427,6 +437,9 @@ const styles = StyleSheet.create({
     margin: 0,
     padding: 0
   },
+  favSpacer: {
+    marginBottom:4
+  },
   indicator: {
     flex: 1,
     backgroundColor: Colors.purple,
@@ -450,6 +463,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: -1,
   }
-})
+}
 
 // updateQuery: (previous, { subscriptionData }) => {}

@@ -71,18 +71,22 @@ class AuthState extends Component {
 
   async compareFbkFriends(){
     if (this.state.localStorage.fbkToken) {
-      const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
-      let fetchedFacebookFriends = await response.json()
-      let fetchedFbkFriends = fetchedFacebookFriends.friends.data || []
-      let { id,fbkUserId } = this.state.user
-      let localFbkFriends = this.state.user.fbkFriends
-      if (fetchedFacebookFriends.id === fbkUserId) {
-        if (this.compareArrays(fetchedFbkFriends,localFbkFriends)) {
-          this.syncFbkFriends(id,fetchedFbkFriends)
+      try {
+        const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
+        let fetchedFacebookFriends = await response.json()
+        let fetchedFbkFriends = fetchedFacebookFriends.friends.data || []
+        let { id,fbkUserId } = this.state.user
+        let localFbkFriends = this.state.user.fbkFriends
+        if (fetchedFacebookFriends.id === fbkUserId) {
+          if (this.compareArrays(fetchedFbkFriends,localFbkFriends)) {
+            this.syncFbkFriends(id,fetchedFbkFriends)
+          } else {
+            this.determineAuthStatus()
+          }
         } else {
           this.determineAuthStatus()
         }
-      } else {
+      } catch(e){
         this.determineAuthStatus()
       }
     } else {

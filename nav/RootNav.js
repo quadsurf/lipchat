@@ -5,8 +5,11 @@ import React, { Component } from 'react'
 
 // LIBS
 import { StackNavigator } from 'react-navigation'
+import { DotsLoader } from 'react-native-indicator'
 
+// LOCALS
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
+import { Colors } from '../css/Styles'
 
 // SCREENS
 import AuthState from '../screens/Auth/AuthState'
@@ -53,8 +56,29 @@ const RootStack = StackNavigator(
 )
 
 export default class RootNav extends Component {
+  state = {
+    isConnected: false
+  }
+  
+  componentWillMount(){
+    // this.setState({isConnected:this.props.isConnected})
+  }
+  
   componentDidMount() {
     this._notificationSubscription = this._registerForPushNotifications()
+  }
+  
+  componentWillReceiveProps(newProps){
+    return
+    // code below is to resurrect network monitoring
+    let { isConnected } = this.state
+    if (newProps.isConnected !== isConnected) {
+      if (isConnected === true && newProps.isConnected === false) {
+        this.setState({isConnected:'offline'})
+      } else {
+        this.setState({isConnected:newProps.isConnected})
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -63,6 +87,19 @@ export default class RootNav extends Component {
 
   render() {
     return <RootStack screenProps={this.props.localStorage} />
+    // code below is to resurrect network monitoring
+    let { localStorage,connectionType } = this.props
+    let { isConnected } = this.state
+    if (isConnected || isConnected === 'offline') {
+      return <RootStack screenProps={localStorage} />
+    } else {
+      return (
+        <DotsLoader
+          size={15}
+          color={Colors.pinkly}
+          frequency={5000}/>
+      )
+    }
   }
 
   _registerForPushNotifications() {

@@ -10,7 +10,7 @@ const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
 const newClaimText2 = 'What are next steps?'
 const AccountTypeExplainer = `${`\n`}SHOPPER ACCOUNT${`\n`}
-With a shopper account, use the "Selfie" tab to test how each color looks on your lips. When you find colors that look great on you, just like or "thumbs up" them. Your distributor will be automatically notified when you reserve these liked colors in the "Add" tab.${`\n\n\n`}
+With a shopper account, use the "Selfie" tab to test how each color looks on your lips. When you find colors that look great on you, just tap the "heart" icon to add that color to your "Favorites" tab. When you're ready to claim/reserve a color from your distributor's inventory, use the "Favorites" tab to request that color, and your distributor will be automatically notified.${`\n\n\n`}
 DISTRIBUTOR ACCOUNT${`\n`}
 With a distributor account, marketing to your customers and prospective customers has never been so awesome. Manage your customers with tools like inventory tracking, chat, and lite order tracking. Provide your customers with your distributor ID so that when they use ${AppName} and express interest in a lip color, only you their distributor will be able to engage them in chat (or phone call) to help convert their lip color interests, into a completed sale! After your customer has paid for their lip colors outside of the app (which keeps you in compliance with Senegence), labeling those lip colors as an officially "claimed" or "requested" lip color, will automatically update your inventory so it always stays in sync with your order fulfillment practices outside of ${AppName}.`
 
