@@ -87,16 +87,6 @@ class Messages extends Component {
     // this.setState({keyboardHeight:0})
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
@@ -227,10 +217,11 @@ class Messages extends Component {
           this.openError(errText)
         }
       }).catch( e => {
-        this.setState({isModalOpen:false},()=>{
-          this.openError(errText)
-        })
+        this.openError(errText)
+        debugging && console.log(e.message)
       })
+    } else {
+      this.openError(errText)
     }
   }
 
@@ -257,14 +248,11 @@ class Messages extends Component {
           this.openError(errText)
         }
       }).catch( e => {
-        if (this.state.isModalOpen) {
-          this.setState({isModalOpen:false},()=>{
-            this.openError(errText)
-          })
-        } else {
-          this.openError(errText)
-        }
+        this.openError(errText)
+        debugging && console.log(e.message)
       })
+    } else {
+      this.openError(errText)
     }
   }
 
@@ -283,11 +271,13 @@ class Messages extends Component {
         }
       }).catch( e => {
         this.openError(errText)
+        debugging && console.log(e.message)
       })
+    } else {
+      this.openError(errText)
     }
   }
 
-//NEEDS ERROR HANDLING  
   triggerEventOnChatInDb(){
     this.props.triggerEventOnChat({
       variables: {
@@ -296,7 +286,7 @@ class Messages extends Component {
       }
     }).then( () => {
     }).catch( e => {
-      if (debugging) console.log('could not trigger event on Chat node',e.message);
+      debugging && console.log(e.message)
     })
   }
   

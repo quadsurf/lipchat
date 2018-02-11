@@ -38,8 +38,6 @@ const screen = getDimensions()
 const vspace = 10
 const screenPadding = 15
 const screenPaddingHorizontal =  2*screenPadding
-const inventoryCreateError = 'setting up inventory for this color'
-const inventoryUpdateError = 'updating your inventory for this color'
 const debugging = false
 
 class LipColors extends Component {
@@ -77,18 +75,6 @@ class LipColors extends Component {
       }
     }
   }
-
-  // componentDidMount(){
-  //   this.subToUserType()
-  // }
-  // 
-  // subToUserType(){
-  //   this.props.getUserType.subscribeToMore({
-  //     document: SubUserType,
-  //     variables: {UserId:this.state.user.id},
-  //     updateQuery: (previous, { subscriptionData }) => {}
-  //   })
-  // }
 
   processColors(colors){
     if (this.state.hasColors === false) {
@@ -316,13 +302,14 @@ class LipColors extends Component {
     let DistributorId = this.state.user.distributorx.id
     let InventoryCount = this.state[`${ColorId}`].inventory.count
     if (InventoryId) {
-      this.updateInventory(InventoryId,ColorId,InventoryCount)
+      this.updateInventoryInDb(InventoryId,ColorId,InventoryCount)
     } else {
-      this.createInventory(DistributorId,ColorId,InventoryCount)
+      this.createInventoryInDb(DistributorId,ColorId,InventoryCount)
     }
   }
 
-  createInventory(DistributorId,ColorId,InventoryCount){
+  createInventoryInDb(DistributorId,ColorId,InventoryCount){
+    let errText = 'setting up inventory for this color'
     if (DistributorId && ColorId && InventoryCount) {
       this.props.connectColorToDistributor({
         variables: {
@@ -349,17 +336,18 @@ class LipColors extends Component {
             },1000)
           })
         } else {
-          this.openError(inventoryCreateError)
+          this.openError(errText)
         }
       }).catch( e => {
-        this.openError(inventoryCreateError)
+        this.openError(errText)
       })
     } else {
-      this.openError(inventoryCreateError)
+      this.openError(errText)
     }
   }
 
-  updateInventory(InventoryId,ColorId,InventoryCount){
+  updateInventoryInDb(InventoryId,ColorId,InventoryCount){
+    let errText = 'updating your inventory for this color'
     if (InventoryId && Number.isInteger(InventoryCount) && InventoryCount >= 0) {
       this.props.updateCountOnInventory({
         variables: {InventoryId,InventoryCount}
@@ -374,13 +362,13 @@ class LipColors extends Component {
             })
           },1000)
         } else {
-          this.openError(inventoryUpdateError)
+          this.openError(errText)
         }
       }).catch( e => {
-        this.openError(inventoryUpdateError)
+        this.openError(errText)
       })
     } else {
-      this.openError(inventoryUpdateError)
+      this.openError(errText)
     }
   }
 
@@ -388,7 +376,7 @@ class LipColors extends Component {
     let ShopperId = this.state.user.shopperx.id
     let bool = !this.state[`${ColorId}`].like.doesLike
     if (LikeId) {
-      this.updateDoesLikeOnLike(LikeId,ColorId,bool)
+      this.updateDoesLikeOnLikeInDb(LikeId,ColorId,bool)
     } else {
       this.createLikeInDb(ShopperId,ColorId)
     }
@@ -421,7 +409,7 @@ class LipColors extends Component {
     }
   }
 
-  updateDoesLikeOnLike(LikeId,ColorId,bool){
+  updateDoesLikeOnLikeInDb(LikeId,ColorId,bool){
     let errText = 'updating the like status for this color'
     if (LikeId && ColorId) {
       this.setState({

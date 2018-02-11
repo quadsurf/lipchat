@@ -155,6 +155,14 @@ class You extends Component {
     }
   }
 
+  openError(errText){
+    this.setState({isModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('err','Profile',errText)
+      },700)
+    })
+  }
+
   isValidUri(url){
     console.log('url',url);
     let el4 = url.split('')[4]
@@ -711,10 +719,10 @@ class You extends Component {
             }
           })
         } else {
-          this.showModal('err','Profile',errText)
+          this.openError(errText)
         }
       }).catch( e => {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       })
     } else {
       this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
@@ -749,11 +757,11 @@ class You extends Component {
           isCellSubmitModalOpen:false
         })
       } else {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       }
     })
     .catch( e => {
-      this.showModal('err','Profile',errText)
+      this.openError(errText)
     })
   }
 
@@ -779,7 +787,7 @@ class You extends Component {
             }
           } else {
             setTimeout(()=>{
-              this.showModal('err','Profile',errText)
+              this.openError(errText)
             },700)
           }
         }).catch( e => {
@@ -789,7 +797,7 @@ class You extends Component {
               // isUserTypeSubmitModalOpen:false
             },()=>{
               setTimeout(()=>{
-                this.showModal('err','Profile',errText)
+                this.openError(errText)
               },700)
             })
           },700)
@@ -863,13 +871,13 @@ class You extends Component {
         if (res && res.data && res.data.updateDistributor) {
           this.setState({DistributorDistId:res.data.updateDistributor.distId})
         } else {
-          this.showModal('err','Profile',errText)
+          this.openError(errText)
         }
       }).catch( e => {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       })
     } else {
-      this.showModal('err','Profile',errText)
+      this.openError(errText)
     }
   }
 
@@ -888,13 +896,13 @@ class You extends Component {
         if (res && res.data && res.data.updateDistributor) {
           this.setState({DistributorBizName:res.data.updateDistributor.bizName})
         } else {
-          this.showModal('err','Profile',errText)
+          this.openError(errText)
         }
       }).catch( e => {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       })
     } else {
-      this.showModal('err','Profile',errText)
+      this.openError(errText)
     }
   }
 
@@ -916,13 +924,13 @@ class You extends Component {
           if (res && res.data && res.data.updateDistributor) {
             this.setState({DistributorBizUri:res.data.updateDistributor.bizUri})
           } else {
-            this.showModal('err','Profile',errText)
+            this.openError(errText)
           }
         }).catch( e => {
-          this.showModal('err','Profile',errText)
+          this.openError(errText)
         })
       } else {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       }
     }
   }
@@ -945,14 +953,14 @@ class You extends Component {
           if (res && res.data && res.data.updateDistributor) {
             this.setState({DistributorLogoUri:res.data.updateDistributor.logoUri})
           } else {
-            this.showModal('err','Profile',errText)
+            this.openError(errText)
           }
         }).catch( e => {
           if (debugging) console.log('Error: ',e.message);
-          this.showModal('err','Profile',errText)
+          this.openError(errText)
         })
       } else {
-        this.showModal('err','Profile',errText)
+        this.openError(errText)
       }
     }
   }

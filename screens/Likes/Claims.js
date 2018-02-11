@@ -40,11 +40,6 @@ class Claims extends Component {
     modalType: 'processing',
     modalContent: {},
     isVerified: null
-    // distributorId: ''
-  }
-  
-  componentWillMount(){
-    
   }
   
   componentWillReceiveProps(newProps){
@@ -71,7 +66,6 @@ class Claims extends Component {
     }
   }
   
-//NEEDS ERROR HANDLING
   checkIfShopperHasDmChatWithDistributorInDb(shopperId,distributorId,withDist){
     if (shopperId && distributorId) {
       let headers = { Authorization: `Bearer ${this.props.navigation.state.params.gcToken}` }
@@ -95,13 +89,13 @@ class Claims extends Component {
             this.saveNewClaimMessage(id,bizName,fbkFirstName,fbkLastName)
           }
         } else {
-          if (debugging) console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
+          if (debugging) console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request')
         }
       }).catch( e => {
-        if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message);
+        if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message)
       })
     } else {
-      if (debugging) console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
+      if (debugging) console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query')
     }
     this.setState({isVerified:withDist})
   }
@@ -119,6 +113,14 @@ class Claims extends Component {
         this.setState({isModalOpen:true})
       })
     }
+  }
+
+  openError(errText){
+    this.setState({isModalOpen:false},()=>{
+      setTimeout(()=>{
+        this.showModal('err','Color Requester',errText)
+      },700)
+    })
   }
 
   renderModal(){
@@ -147,7 +149,6 @@ class Claims extends Component {
     this.props.navigation.dispatch(NavigationActions.back())
   }
   
-//NEEDS ERROR HANDLING
   triggerEventOnChatInDb(chatId){
     this.props.triggerEventOnChat({
       variables: {
@@ -159,12 +160,15 @@ class Claims extends Component {
         this.closeModal()
       },700)
     }).catch( e => {
+      setTimeout(()=>{
+        this.closeModal()
+      },700)
       if (debugging) console.log('could not trigger event on Chat node',e.message);
     })
   }
 
-//NEEDS ERROR HANDLING  
   sendClaim = () => {
+    let errText = 'notifying your distributor about this color request'
     this.setState({isModalOpen:false},()=>{
       setTimeout(()=>{
         this.showModal('processing')
@@ -173,18 +177,23 @@ class Claims extends Component {
           ...newClaimMessage,
           text: `${newClaimText} ${this.state.count} ${this.state.colorName}${this.state.count !== 1 ? 's.' : '.'} ${newClaimText2}`
         }
-        this.props.createChatMessage({
-          variables: {
-            ChatId: claim.chatId,
-            text: claim.text,
-            writer: claim.writer,
-            audience: claim.audience
-          }
-        }).then( res => {
-          if (res && res.data && res.data.createMessage) {
-            this.triggerEventOnChatInDb(claim.chatId)
-          }
-        }).catch( e => {if (debugging) console.log('sendClaim error:',e.message)})
+        let { chatId:ChatId,text,writer,audience } = claim
+        if (ChatId && text && writer && audience) {
+          this.props.createChatMessage({
+            variables: { ChatId,text,writer,audience }
+          }).then( res => {
+            if (res && res.data && res.data.createMessage) {
+              this.triggerEventOnChatInDb(claim.chatId)
+            } else {
+              this.openError(errText)
+            }
+          }).catch( e => {
+            this.openError(errText)
+            debugging && console.log(e.message)
+          })
+        } else {
+          this.openError(errText)
+        }
       },700)
     })
   }
