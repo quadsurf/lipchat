@@ -1,8 +1,8 @@
 
 
-import { Constants } from 'expo'
 import React, { PureComponent } from 'react'
 import { Animated, View, Text, StyleSheet } from 'react-native'
+import { Constants,Permissions,Notifications } from 'expo'
 
 //LIBS
 import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
@@ -36,30 +36,55 @@ type Route = {
 }
 
 type State = NavigationState<Route>;
-// ios-heart
+
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-      index: 2,
-      routes: [
-        { key: '0', title: 'FAVORITES', icon: 'star' },
-        { key: '1', title: 'CHAT', icon: 'chat' },
-        { key: '2', title: 'SELFIE', icon: 'camera' },
-        { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
-        { key: '4', title: 'YOU', icon: 'account' }
-      ],
-      loaded: false,
-      userType: this.props.navigation.state.params.user.type,
-      distributorStatus: this.props.navigation.state.params.user.distributorx.status,
-      notificationsHasShopper: false,
-      user2AdminDmExists: false,
-      adminChats: [],
-      sadvrId: null
-    }
+    index: 3,
+    routes: [
+      { key: '0', title: 'FAVORITES', icon: 'star' },
+      { key: '1', title: 'CHAT', icon: 'chat' },
+      { key: '2', title: 'SELFIE', icon: 'camera' },
+      { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
+      { key: '4', title: 'YOU', icon: 'account' }
+    ],
+    loaded: false,
+    userType: this.props.navigation.state.params.user.type,
+    distributorStatus: this.props.navigation.state.params.user.distributorx.status,
+    notificationsHasShopper: false,
+    user2AdminDmExists: false,
+    adminChats: [],
+    sadvrId: null
+  }
 
   componentWillMount(){
     this.subToUserType()
     this.subToDistributorStatus()
+  }
+  
+  componentDidMount(){
+    // this.registerForPushNotificationsAsync()
+  }
+  
+  registerForPushNotificationsAsync = async () => {
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    )
+    let finalStatus = existingStatus
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+      finalStatus = status
+    }
+
+    if (finalStatus !== 'granted') {
+      console.log('finalStatus:',finalStatus)
+      return
+    }
+
+    let token = await Notifications.getExpoPushTokenAsync()
+
+    console.log('this token recd',token)
   }
 
   subToUserType(){

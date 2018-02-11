@@ -1,14 +1,14 @@
 
 
-import { Notifications } from 'expo'
 import React, { Component } from 'react'
+// import { Notifications } from 'expo'
 
 // LIBS
 import { StackNavigator } from 'react-navigation'
 import { DotsLoader } from 'react-native-indicator'
 
 // LOCALS
-import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
+// import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
 import { Colors } from '../css/Styles'
 
 // SCREENS
@@ -57,7 +57,7 @@ const RootStack = StackNavigator(
 
 export default class RootNav extends Component {
   state = {
-    isConnected: false
+    // isConnected: false
   }
   
   componentWillMount(){
@@ -65,7 +65,7 @@ export default class RootNav extends Component {
   }
   
   componentDidMount() {
-    this._notificationSubscription = this._registerForPushNotifications()
+    // this._notificationSubscription = this._registerForPushNotifications()
   }
   
   componentWillReceiveProps(newProps){
@@ -82,7 +82,7 @@ export default class RootNav extends Component {
   }
 
   componentWillUnmount() {
-    this._notificationSubscription && this._notificationSubscription.remove()
+    // this._notificationSubscription && this._notificationSubscription.remove()
   }
 
   render() {

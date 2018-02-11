@@ -41,14 +41,14 @@ class Likes extends Component {
         shopperId: { id: this.props.user.shopperx.id }
       },
       updateQuery: (previous,{ subscriptionData }) => {
-        const { node: { colorx:like,doesLike },mutation,previousValues } = subscriptionData.data.Like
+        const { node: { id,doesLike },mutation,previousValues } = subscriptionData.data.Like
         const { node } = subscriptionData.data.Like
         if (mutation === 'CREATED') {
           this.addLikeToLikesList(node,this.state.likes)
         }
         if (mutation === 'UPDATED') {
           if (!doesLike) {
-            this.removeLikeFromLikesList(like.id)
+            this.removeLikeFromLikesList(id)
           } else {
             this.addLikeToLikesList(node,this.state.likes)
           }
@@ -58,7 +58,7 @@ class Likes extends Component {
   }
   
   removeLikeFromLikesList(likeId){
-    let likes = this.state.likes.filter( ({ colorx: { id } }) => {
+    let likes = this.state.likes.filter( ({ id }) => {
       return likeId !== id
     })
     this.setState({likes})
@@ -108,12 +108,11 @@ class Likes extends Component {
   
   componentWillReceiveProps(newProps){
     if (
-      newProps.getLikesForShopper && 
-      newProps.getLikesForShopper.allLikes
+      newProps.getLikesForShopper
+      && newProps.getLikesForShopper.allLikes
+      && this.state.likes === null
     ) {
-      if (newProps.getLikesForShopper.allLikes !== this.state.likes) {
-        this.setState({likes:newProps.getLikesForShopper.allLikes})
-      }
+      this.setState({likes:newProps.getLikesForShopper.allLikes})
     }
   }
 
@@ -128,7 +127,8 @@ class Likes extends Component {
             frequency={5000}/>
         </View>
       )
-    } else {
+    }
+    if (likes.length === 0) {
       return (
         <View style={{...Views.middle,marginTop:200}}>
           <FontPoiret text="No Like History Yet" size={Texts.large.fontSize}/>
@@ -136,6 +136,11 @@ class Likes extends Component {
         </View>
       )
     }
+    return (
+      <View style={{...Views.middle,marginTop:200}}>
+        <FontPoiret text="Something's not right :-(" size={Texts.large.fontSize}/>
+      </View>
+    )
   }
 
   renderDistScreen = () => (
@@ -169,10 +174,10 @@ class Likes extends Component {
   }
   
   renderLikes(){
+    let { likes } = this.state
     if (this.props.userType === 'DIST') {
       return this.renderDistScreen()
     } else {
-      let { likes } = this.state
       if (likes && likes.length > 0) {
         return likes.map( ({ colorx:like,id }) => {
           return <LikeCard 
@@ -212,10 +217,12 @@ export default compose(
   graphql(GetLikesForShopper,{
     name: 'getLikesForShopper',
     options: props => ({
+      // pollInterval: 20000,
       variables: {
         shopperId: { id: props.user.shopperx.id }
       }
-    })
+    }),
+    fetchPolicy: 'network-only'
   })
 )(Likes)
 // 10000048005

@@ -23,7 +23,7 @@ export default (props) => {
       backgroundColor:props.rgb,
       paddingBottom:4,paddingHorizontal:4,bottom:14
     }}>
-      <TouchableOpacity style={{flex:1}} onPress={props.onPressClaim}>
+      <View style={{flex:1}}>
         <View style={{
           flex:1,justifyContent:'space-between',
           alignItems:'center',flexDirection:'row',
@@ -32,9 +32,11 @@ export default (props) => {
           <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
           <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
         </View>
-        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
-          <FontMatilde color={Colors.white} text="request this color" size={larger} vspace={20}/>
-        </View>
+        <TouchableOpacity 
+          style={Views.middle}
+          onPress={props.onPressClaim}>
+            <FontMatilde color={Colors.white} text="request this color" size={larger} vspace={20}/>
+        </TouchableOpacity>
         <View style={{...Views.middle,marginTop:20}}>
           <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
         </View>
@@ -42,7 +44,7 @@ export default (props) => {
           <FontPoiret text={`${tone.toLowerCase()} tone`} size={medium} color={Colors.white}/>
           <FontPoiret text={`${finish.toLowerCase()} finish`} size={medium} color={Colors.white}/>
         </View>
-      </TouchableOpacity>
+      </View>
     </View>
   )
 }

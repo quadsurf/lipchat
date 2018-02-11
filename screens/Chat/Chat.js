@@ -46,20 +46,6 @@ class Chat extends Component {
     chats: []
   }
 
-  componentWillMount(){
-    
-  }
-
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
-
   componentWillReceiveProps(newProps){
     if (
       newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
@@ -81,15 +67,6 @@ class Chat extends Component {
     ) {
       this.distributorsStatusForShopper(newProps.getAllDistributorsStatusForShopper.allDistributors=[])
     }
-      // let type = this.props.userType
-      // if (type === 'DIST') {
-      //     this.chatsForDist(newProps)
-      //     // filter to find only the DMU2ADMIN and SADVR2ALL chats
-      //     this.chatsForShopper(newProps)
-      // }
-      // if (type === 'SHOPPER') {
-      //     this.chatsForShopper(newProps)
-      // }
   }
 
   chatsForDist(chats){
