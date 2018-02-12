@@ -48,9 +48,9 @@ class Claims extends Component {
        && newProps.getShoppersDistributor.Shopper
        && newProps.getShoppersDistributor.Shopper.distributorsx
     ) {
-      let { status,id } = newProps.getShoppersDistributor.Shopper.distributorsx[0]
       let { shopperId,sadvrId } = this.props.navigation.state.params
       if (newProps.getShoppersDistributor.Shopper.distributorsx.length > 0) {
+        let { status,id } = newProps.getShoppersDistributor.Shopper.distributorsx[0]
         // DIST EXISTS
         if (status !== false) {
           // DIST IS VERIFIED

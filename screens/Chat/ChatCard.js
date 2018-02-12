@@ -140,7 +140,7 @@ const ChatCard = props => {
   } else {
     if (status === false) {
       // viewing unapproved DIST [tested,passed]
-      return <ChatCardLayout approved={false} line1="distributor exists but has" line2="not been verified yet"/>
+      return <ChatCardLayout approved={false} line1="distributor exists but" line2="hasn't been verified yet"/>
     } else {
       // viewing shoppers since they have no status
       if (userType === 'DIST') {

@@ -299,8 +299,8 @@ class You extends Component {
               <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
             </View>
             <View style={noExist}>
-              <FontPoiret text="distributor exists but hasn't" size={medium} color={Colors.white}/>
-              <FontPoiret text="been approved yet" size={medium} color={Colors.white}/>
+              <FontPoiret text="distributor exists but" size={medium} color={Colors.white}/>
+              <FontPoiret text="hasn't been verified yet" size={medium} color={Colors.white}/>
             </View>
           </View>
         )

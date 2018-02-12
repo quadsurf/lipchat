@@ -94,10 +94,6 @@ class ShoppersDistCard extends Component {
       }))
   }
 
-  componentWillMount(){
-    // this.sendRequests()
-  }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.distId) {
@@ -199,7 +195,6 @@ class ShoppersDistCard extends Component {
     }
   }
 
-//NEEDS ERROR HANDLING
   checkIfShopperHasDmChatWithDistributorInDb(shoppersx,distributorsx){
     if (debugging) console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
     if (shoppersx && distributorsx) {
@@ -234,7 +229,6 @@ class ShoppersDistCard extends Component {
     }
   }
 
-//NEEDS ERROR HANDLING  
   createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx){
     if (debugging) console.log('createDmChatForShopperAndDistributorInDb func called');
     if (distributorsx && shoppersx) {
@@ -320,8 +314,8 @@ class ShoppersDistCard extends Component {
               <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
             </View>
             <View style={noExist}>
-              <FontPoiret text="distributor exists, but" size={medium} color={Colors.white}/>
-              <FontPoiret text="hasn't signed up yet" size={medium} color={Colors.white}/>
+              <FontPoiret text="distributor exists but" size={medium} color={Colors.white}/>
+              <FontPoiret text="hasn't been verified yet" size={medium} color={Colors.white}/>
             </View>
           </View>
         )
