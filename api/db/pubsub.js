@@ -169,7 +169,7 @@ subscription SubToDistributorStatus(
 }`
 
 const SubToDistributorsForShopper = gql`
-subscription SubToDistributorsForShopper(
+subscription(
   $ShopperId: ShopperFilter!
 ){
   Distributor(
@@ -180,9 +180,13 @@ subscription SubToDistributorsForShopper(
       }
     }
   ){
+    mutation
     node {
       id
     	status
+      bizName
+      bizUri
+      logoUri
     }
   }
 }`

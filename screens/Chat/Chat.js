@@ -7,19 +7,16 @@ import {
   ScrollView
 } from 'react-native'
 
-//ENV VARS
-
-
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import {
-  GetChatsForShopper,GetChatsForDistributor,GetAllDistributorsStatusForShopper
+  GetChatsForShopper,GetChatsForDistributor
 } from '../../api/db/queries'
 import {
-  SubToShoppersChats,SubToDistributorsChats,SubToDistributorsForShopper
+  SubToShoppersChats,SubToDistributorsChats
 } from '../../api/db/pubsub'
 
 // LOCALS
@@ -61,12 +58,6 @@ class Chat extends Component {
         this.chatsForShopper(newProps.getChatsForShopper.allChats)
       }
     }
-    if (
-      newProps.getAllDistributorsStatusForShopper
-      && newProps.getAllDistributorsStatusForShopper.allDistributors
-    ) {
-      this.distributorsStatusForShopper(newProps.getAllDistributorsStatusForShopper.allDistributors=[])
-    }
   }
 
   chatsForDist(chats){
@@ -87,16 +78,9 @@ class Chat extends Component {
     }
   }
   
-  distributorsStatusForShopper(allDistributorsStatusForShopper){
-    // if (allDistributorsStatusForShopper !== this.state.allDistributorsStatusForShopper) {
-    //   this.setState({allDistributorsStatusForShopper})
-    // }
-  }
-
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
-    this.subToAllDistributorsStatusForShopper()
   }
 
   subToShoppersChats(){
@@ -205,15 +189,6 @@ class Chat extends Component {
     }
   }
 
-  subToAllDistributorsStatusForShopper(){
-    if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
-      this.props.getAllDistributorsStatusForShopper.subscribeToMore({
-        document: SubToDistributorsForShopper,
-        variables: {ShopperId:{"id":this.props.user.shopperx.id}}
-      })
-    }
-  }
-
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -302,17 +277,6 @@ export default compose(
     name: 'getChatsForShopper',
     options: props => ({
       // pollInterval: 15000,
-      variables: {
-        ShopperId: {
-          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
-        }
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(GetAllDistributorsStatusForShopper,{
-    name: 'getAllDistributorsStatusForShopper',
-    options: props => ({
       variables: {
         ShopperId: {
           id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''

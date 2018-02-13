@@ -287,7 +287,7 @@ query GetDistributorStatus(
 }`
 
 const GetAllDistributorsStatusForShopper = gql`
-query GetDistributorsForShopper(
+query(
   $ShopperId: ShopperFilter!
 ){
   allDistributors(
@@ -297,6 +297,9 @@ query GetDistributorsForShopper(
   ){
     id
     status
+    bizName
+    bizUri
+    logoUri
   }
 }`
 

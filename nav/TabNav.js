@@ -12,8 +12,8 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetUserType,GetDistributorStatus,GetAdminChats } from '../api/db/queries'
-import { SubToUserType,SubToDistributorStatus } from '../api/db/pubsub'
+import { GetUserType,GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper } from '../api/db/queries'
+import { SubToUserType,SubToDistributorStatus,SubToDistributorsForShopper } from '../api/db/pubsub'
 import { AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr } from '../api/db/mutations'
 
 //SCREENS
@@ -54,39 +54,17 @@ class TabNav extends PureComponent<void, *, State> {
     notificationsHasShopper: false,
     user2AdminDmExists: false,
     adminChats: [],
-    sadvrId: null
+    sadvrId: null,
+    shoppersDistributor: 'updatedAt'
   }
 
-  componentWillMount(){
+  componentDidMount(){
     this.subToUserType()
     this.subToDistributorStatus()
-  }
-  
-  componentDidMount(){
+    this.subToAllDistributorsStatusForShopper()
     // this.registerForPushNotificationsAsync()
   }
   
-  registerForPushNotificationsAsync = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    )
-    let finalStatus = existingStatus
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
-      finalStatus = status
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('finalStatus:',finalStatus)
-      return
-    }
-
-    let token = await Notifications.getExpoPushTokenAsync()
-
-    console.log('this token recd',token)
-  }
-
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubToUserType,
@@ -99,6 +77,25 @@ class TabNav extends PureComponent<void, *, State> {
       document: SubToDistributorStatus,
       variables: {DistributorId:this.props.navigation.state.params.user.distributorx.id}
     })
+  }
+
+  subToAllDistributorsStatusForShopper(){
+    if (
+      this.props.navigation.state.params.user 
+      && this.props.navigation.state.params.user.shopperx 
+      && this.props.navigation.state.params.user.shopperx.id
+    ) {
+      this.props.getAllDistributorsStatusForShopper.subscribeToMore({
+        document: SubToDistributorsForShopper,
+        variables: {ShopperId:{"id":this.props.navigation.state.params.user.shopperx.id}},
+        updateQuery: (previous,{subscriptionData}) => {
+          let { mutation } = subscriptionData.data.Distributor
+          if (mutation === 'UPDATED') {
+            this.setState({shoppersDistributor: `updatedAt-${new Date()}`})
+          }
+        }
+      })
+    }
   }
 
   componentWillReceiveProps(newProps){
@@ -155,7 +152,6 @@ class TabNav extends PureComponent<void, *, State> {
     }
   }
 
-//NEEDS ERROR HANDLING
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
     if (chatId && shopperId) {
       this.props.addShopperToAppNotificationGroupChat({
@@ -172,7 +168,6 @@ class TabNav extends PureComponent<void, *, State> {
     }
   }
 
-//NEEDS ERROR HANDLING  
   createDmChatForShopperAndSadvrInDb(shopperId,distributorId){
     if (debugging) console.log('createDmChatForShopperAndDistributor func called');
     if (shopperId && distributorId) {
@@ -292,7 +287,7 @@ class TabNav extends PureComponent<void, *, State> {
   renderScene = ({ route,focused }) => {
     let { user,localStorage } = this.props.navigation.state.params
     let { navigation } = this.props
-    let { userType,distributorStatus,sadvrId } = this.state
+    let { userType,distributorStatus,sadvrId,shoppersDistributor } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -303,6 +298,7 @@ class TabNav extends PureComponent<void, *, State> {
             user={user}
             userType={userType}
             distributorStatus={distributorStatus}
+            shoppersDistributor={shoppersDistributor}
             nav={navigation}
             localStorage={localStorage} 
             sadvrId={sadvrId}
@@ -318,6 +314,7 @@ class TabNav extends PureComponent<void, *, State> {
               user={user}
               userType={userType}
               distributorStatus={distributorStatus}
+              shoppersDistributor={shoppersDistributor}
               nav={navigation}
               localStorage={localStorage}
             />
@@ -337,6 +334,7 @@ class TabNav extends PureComponent<void, *, State> {
             user={user}
             userType={userType}
             distributorStatus={distributorStatus}
+            shoppersDistributor={shoppersDistributor}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -350,6 +348,7 @@ class TabNav extends PureComponent<void, *, State> {
             user={user}
             userType={userType}
             distributorStatus={distributorStatus}
+            shoppersDistributor={shoppersDistributor}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -363,6 +362,7 @@ class TabNav extends PureComponent<void, *, State> {
             user={user}
             userType={userType}
             distributorStatus={distributorStatus}
+            shoppersDistributor={shoppersDistributor}
             nav={navigation}
             localStorage={localStorage}
           />
@@ -386,6 +386,27 @@ class TabNav extends PureComponent<void, *, State> {
         onIndexChange={this.handleChangeTab}
       />
     )
+  }
+  
+  registerForPushNotificationsAsync = async () => {
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    )
+    let finalStatus = existingStatus
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+      finalStatus = status
+    }
+
+    if (finalStatus !== 'granted') {
+      console.log('finalStatus:',finalStatus)
+      return
+    }
+
+    let token = await Notifications.getExpoPushTokenAsync()
+
+    console.log('this token recd',token)
   }
 
 }
@@ -422,6 +443,17 @@ export default compose(
   }),
   graphql(CreateDmChatForShopperAndSadvr,{
     name: 'createDmChatForShopperAndSadvr'
+  }),
+  graphql(GetAllDistributorsStatusForShopper,{
+    name: 'getAllDistributorsStatusForShopper',
+    options: props => ({
+      variables: {
+        ShopperId: {
+          id: props.navigation.state.params.user.shopperx.id
+        }
+      },
+      fetchPolicy: 'network-only'
+    })
   })
 )(TabNav)
 
