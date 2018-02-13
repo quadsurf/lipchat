@@ -1,6 +1,11 @@
 
 
-import { MARK_UNREAD,MARK_READ,INCREMENT_UNREAD_COUNT,DECREMENT_UNREAD_COUNT } from './types'
+import {
+  MARK_UNREAD,
+  MARK_READ,
+  INCREMENT_UNREAD_COUNT,
+  DECREMENT_UNREAD_COUNT
+} from './types'
 
 export const markUnread = (chat,chats) => {
   type: MARK_UNREAD,
@@ -8,9 +13,10 @@ export const markUnread = (chat,chats) => {
   chats
 }
 
-export const markRead = (chat) => {
+export const markRead = (chat,chats) => {
   type: MARK_READ,
-  chat
+  chat,
+  chats
 }
 
 export const incrementUnreadCount = () => {
