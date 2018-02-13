@@ -114,10 +114,12 @@ class Chat extends Component {
     if (i !== -1) {
       if (debugging) console.log('findIndex match found, so remove then add');
       chats.splice(i,1)
+      // dispatch here
       chats.unshift(chat)
       this.setState({chats})
     } else {
       if (debugging) console.log('no findIndex match found, so just add');
+      // dispatch here
       this.setState({
         chats: [
           chat,
