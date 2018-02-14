@@ -11,6 +11,15 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
+// STORE
+import { connect } from 'react-redux'
+import {
+  markUnread,
+  markRead,
+  incrementUnreadCount,
+  decrementUnreadCount
+} from '../../screens/Chat/store/actions'
+
 // GQL
 import {
   GetChatsForShopper,GetChatsForDistributor
@@ -81,6 +90,9 @@ class Chat extends Component {
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
+    // console.log('this.props',this.props);
+    console.log('chatsWithStatus',this.props.chatsWithStatus);
+    console.log('unreadCount',this.props.unreadCount);
   }
 
   subToShoppersChats(){
@@ -260,7 +272,12 @@ class Chat extends Component {
 
 }
 
-export default compose(
+const mapStateToProps = state => ({
+  chatsWithStatus: state.chatsWithStatus,
+  unreadCount: state.unreadCount
+})
+
+const ChatContainer = compose(
   graphql(GetChatsForDistributor,{
     name: 'getChatsForDistributor',
     options: props => ({
@@ -288,3 +305,10 @@ export default compose(
     })
   })
 )(Chat)
+
+export default connect(mapStateToProps,{
+  markUnread,
+  markRead,
+  incrementUnreadCount,
+  decrementUnreadCount
+})(ChatContainer)

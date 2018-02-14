@@ -23,7 +23,6 @@ import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
-import { incrementUnreadCount,decrementUnreadCount } from './screens/Chat/store/actions'
 
 // CONSTs
 const debugging = false
@@ -72,11 +71,6 @@ export default class App extends Component {
   
   // componentDidMount(){
   //   store.dispatch(incrementUnreadCount())
-  //   store.dispatch(incrementUnreadCount())
-  //   store.dispatch(incrementUnreadCount())
-  //   store.dispatch(incrementUnreadCount())
-  //   store.dispatch(incrementUnreadCount())
-  //   store.dispatch(decrementUnreadCount())
   //   console.log('store',store.getState());
   // }
 
