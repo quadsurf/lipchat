@@ -7,22 +7,22 @@ import {
   DECREMENT_UNREAD_COUNT
 } from './types'
 
-export const markUnread = (chat,chats) => {
+export const markUnread = (chat,chats) => ({
   type: MARK_UNREAD,
   chat,
   chats
-}
+})
 
-export const markRead = (chat,chats) => {
+export const markRead = (chat,chats) => ({
   type: MARK_READ,
   chat,
   chats
-}
+})
 
-export const incrementUnreadCount = () => {
+export const incrementUnreadCount = () => ({
   type: INCREMENT_UNREAD_COUNT
-}
+})
 
-export const decrementUnreadCount = () => {
+export const decrementUnreadCount = () => ({
   type: DECREMENT_UNREAD_COUNT
-}
+})

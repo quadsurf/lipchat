@@ -9,21 +9,22 @@ import {
 
 const initialChats = []
 export const chatStatusReducer = (state = initialChats,actions) => {
+  let chats
   switch(actions.type){
     case MARK_UNREAD:
-      let chat = {
+      let unreadChat = {
         ...actions.chat,
         status: 'unread'
       }
-      let chats = actions.chats.unshift(chat)
+      chats = actions.chats.unshift(unreadChat)
       return chats
     case MARK_READ:
-      let chat = actions.chat
-      let chats = JSON.parse(JSON.stringify(actions.chats))
-      let index = chats.findIndex( item => chat.id === item.id)
+      let readChat = actions.chat
+      chats = JSON.parse(JSON.stringify(actions.chats))
+      let index = chats.findIndex( chat => readChat.id === chat.id)
       if (index !== -1) {
-        delete chat.status
-        chats.splice(index,1,chat)
+        delete readChat.status
+        chats.splice(index,1,readChat)
         return chats
       } else {
         return chats
