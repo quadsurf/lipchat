@@ -67,6 +67,13 @@ class Chat extends Component {
         this.chatsForShopper(newProps.getChatsForShopper.allChats)
       }
     }
+    if (newProps.chatsWithStatus.length > 0) {
+      console.log('new chatsWithStatus',newProps.chatsWithStatus[0].status)
+      this.setState({chats:newProps.chatsWithStatus})
+    }
+    if (newProps.unreadCount) {
+      console.log('unreadCount',newProps.unreadCount);
+    }
   }
 
   chatsForDist(chats){
@@ -90,9 +97,6 @@ class Chat extends Component {
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
-    // console.log('this.props',this.props);
-    console.log('chatsWithStatus',this.props.chatsWithStatus);
-    console.log('unreadCount',this.props.unreadCount);
   }
 
   subToShoppersChats(){
@@ -123,21 +127,27 @@ class Chat extends Component {
     let i = chats.findIndex( chatIndex => {
       return chatIndex.id === chat.id
     })
+    let isSelf
+    if (chat.messages.length > 0 && chat.messages[0].writerx.id === this.props.user.id) {
+      isSelf = true
+    } else {
+      isSelf = false
+    }
     if (i !== -1) {
       if (debugging) console.log('findIndex match found, so remove then add');
       chats.splice(i,1)
-      // dispatch here
-      chats.unshift(chat)
-      this.setState({chats})
+      this.props.markUnread(chat,isSelf,chats)
+      // chats.unshift(chat)
+      // this.setState({chats})
     } else {
       if (debugging) console.log('no findIndex match found, so just add');
-      // dispatch here
-      this.setState({
-        chats: [
-          chat,
-          ...this.state.chats
-        ]
-      })
+      this.props.markUnread(chat,chats,isSelf)
+      // this.setState({
+      //   chats: [
+      //     chat,
+      //     ...this.state.chats
+      //   ]
+      // })
     }
   }
   
@@ -146,16 +156,20 @@ class Chat extends Component {
     let subjectChat = this.state.chats.find( chat => {
       return chat.id === nextChat.id
     })
+    debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat)
     if (!subjectChat) {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
       if (prevChat && nextChat) {
         if (nextChat.type === 'DIST2SHPRS') {
-          let shopperExists = subjectChat.shoppersx.find( shopper => {
-            return shopper.id === this.props.user.shopperx.id
-          })
-          if (!shopperExists) {
-            this.removeChatFromChatList(prevChat,'updateChatOnChatList')
+          if (this.props.userType === 'SHOPPER') {
+            let shopperExists = subjectChat.shoppersx.find( shopper => {
+              return shopper.id === this.props.user.shopperx.id
+            })
+            console.log('shopperExists',shopperExists)
+            if (!shopperExists) {
+              this.removeChatFromChatList(prevChat,'updateChatOnChatList')
+            }
           }
         } else if (nextChat.type === 'SADVR2ALL') {
             this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (SADVR2ALL)')
@@ -192,6 +206,7 @@ class Chat extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
+          console.log('mutation on subToDistributorsChats',mutation);
           if (mutation === 'UPDATED') {
             this.updateChatOnChatList(previousValues,node)
           }

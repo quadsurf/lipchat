@@ -19,16 +19,27 @@ class FontLato extends Component {
         break;
       default: whichLato = 'Lato'
     }
-    return whichLato;
+    return 'LatoBold';
   }
 
   render() {
     return (
       <Text
         {...this.props}
-        style={[this.props.style, { fontFamily: this.getLato() }]}
+        style={[
+          this.props.style,
+          {
+            fontFamily: this.getLato(),
+            fontSize:this.props.size || Texts.xlarge.fontSize,
+            color:this.props.color || Colors.blue,
+            backgroundColor:'transparent'
+          }
+        ]}
         allowFontScaling={false}
-      />
+        selectable={true}
+        numberOfLines={1}>
+        {this.props.text}
+      </Text>
     );
   }
 }

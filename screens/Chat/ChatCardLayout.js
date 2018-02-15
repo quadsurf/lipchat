@@ -18,7 +18,7 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 const size = 90
 
 const ChatCardLayout = props => {
-  let { chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,level,message,date,line1,line2,nav } = props
+  let { chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,level,message,date,line1,line2,nav,chatStatus } = props
   let screen = getDimensions()
   let small = Texts.small.fontSize
   let medium = Texts.medium.fontSize
@@ -32,6 +32,9 @@ const ChatCardLayout = props => {
   let imgSize = {...cardLeft,borderRadius:bR}
   let cardStyle = {
     width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
+  }
+  let unread = {
+    position:'absolute',top:6,right:6,width:10,height:10,borderRadius:5,backgroundColor:Colors.blue
   }
   let textWidth = width-size-20
   let audiences = {}
@@ -102,6 +105,9 @@ const ChatCardLayout = props => {
           }
           <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
         </View>
+        {
+          chatStatus === 'unread' ? <View style={unread}/> : <View/>
+        }
       </TouchableOpacity>
     )
   } else {

@@ -26,7 +26,7 @@
       "isRemoteJSEnabled": true,
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "We need permission to access your front-facing camera so that you virtually try on different lip colors."
+        "NSCameraUsageDescription": "We need permission to access your front-facing camera in order for us to create an augmented reality that lets you try on different virtual lip colors."
       },
       "splash": {
         "backgroundColor": "#371A85",

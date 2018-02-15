@@ -68,6 +68,9 @@ subscription SubToShoppersChats(
       ){
         text
         updatedAt
+        writerx {
+          id
+        }
       }
     }
   }
@@ -109,6 +112,11 @@ subscription(
       ]
     }
   ){
+    mutation
+    previousValues {
+      id
+      updater
+    }
     node {
       id
       alias
@@ -143,6 +151,9 @@ subscription(
       ){
         text
         updatedAt
+        writerx {
+          id
+        }
       }
     }
   }

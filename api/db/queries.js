@@ -227,6 +227,9 @@ query GetChatsForDistributor(
     ){
       text
       updatedAt
+      writerx {
+        id
+      }
     }
   }
 }`
@@ -270,6 +273,9 @@ query GetChatsForShopper(
     ){
       text
       updatedAt
+      writerx {
+        id
+      }
     }
   }
 }`

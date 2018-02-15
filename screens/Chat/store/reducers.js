@@ -14,9 +14,10 @@ export const chatStatusReducer = (state = initialChats,actions) => {
     case MARK_UNREAD:
       let unreadChat = {
         ...actions.chat,
-        status: 'unread'
+        status: actions.isSelf === true ? '' : 'unread'
       }
-      chats = actions.chats.unshift(unreadChat)
+      chats = actions.chats
+      chats.unshift(unreadChat)
       return chats
     case MARK_READ:
       let readChat = actions.chat

@@ -52,7 +52,8 @@ export default class App extends Component {
     
     this.fontsToPreLoad = {
       Matilde: require('./assets/fonts/Matilde.ttf'),
-      Poiret: require('./assets/fonts/Poiret.ttf')
+      Poiret: require('./assets/fonts/Poiret.ttf'),
+      // LatoBold: require('./assets/fonts/LatoBold.ttf')
     }
     
     this.handler = this.handler.bind(this)
