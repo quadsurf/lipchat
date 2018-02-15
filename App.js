@@ -110,7 +110,7 @@ export default class App extends Component {
         }
         return (
           <ApolloProvider client={client} store={store}>
-            <View style={{flex:1}}>
+            <View style={{flex:1,backgroundColor:Colors.bgColor}}>
               <MyStatusBar hidden={true} />
               <RootNav localStorage={localStorage}/>
             </View>

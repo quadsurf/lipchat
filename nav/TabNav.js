@@ -25,6 +25,7 @@ import You from '../screens/You/You'
 
 //LOCALS
 import { Views,Colors } from '../css/Styles'
+import { FontPoiret } from '../assets/fonts/Fonts'
 
 //CONSTs
 const debugging = false
@@ -320,10 +321,11 @@ class TabNav extends PureComponent<void, *, State> {
             />
           )
         } else {
-          return <DotsLoader
-            size={15}
-            color={Colors.pinkly}
-            frequency={5000}/>
+          return (
+            <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
+              <FontPoiret text="loading chats..." color={Colors.blue} size={44}/>
+            </View>
+          )
         }
       case '2':
         return (
