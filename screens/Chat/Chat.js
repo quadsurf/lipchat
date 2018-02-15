@@ -47,7 +47,6 @@ class Chat extends Component {
     modalType: 'processing',
     modalContent: {},
     user: this.props.user ? this.props.user : null,
-    // userType: this.props.user && this.props.user.type ? this.props.user.type : null,
     userType: this.props.userType ? this.props.userType : null,
     chats: []
   }
@@ -68,11 +67,11 @@ class Chat extends Component {
       }
     }
     if (newProps.chatsWithStatus.length > 0) {
-      console.log('new chatsWithStatus',newProps.chatsWithStatus[0].status)
       this.setState({chats:newProps.chatsWithStatus})
+      debugging && console.log('new chatsWithStatus',newProps.chatsWithStatus[0].status)
     }
     if (newProps.unreadCount) {
-      console.log('unreadCount',newProps.unreadCount);
+      console.log('unreadCount',newProps.unreadCount)
     }
   }
 
@@ -114,15 +113,14 @@ class Chat extends Component {
           }
         },
         onError: e => {
-          if (debugging) console.log('subToShoppersChats error:',e);
+          this.openError('retrieving new real-time chats')
+          debugging && console.log('subToShoppersChats error:',e.message)
         }
       })
     }
   }
   
   addChatToChatList(chat,cameFrom){
-    if (debugging) console.log('addChatToChatList func called');
-    if (debugging) console.log('Came From: ',cameFrom);
     let chats = JSON.parse(JSON.stringify(this.state.chats))
     let i = chats.findIndex( chatIndex => {
       return chatIndex.id === chat.id
@@ -134,29 +132,29 @@ class Chat extends Component {
       isSelf = false
     }
     if (i !== -1) {
-      if (debugging) console.log('findIndex match found, so remove then add');
       chats.splice(i,1)
       this.props.markUnread(chat,isSelf,chats)
       // chats.unshift(chat)
       // this.setState({chats})
+      debugging && console.log('findIndex match found, so remove then add')
     } else {
-      if (debugging) console.log('no findIndex match found, so just add');
-      this.props.markUnread(chat,chats,isSelf)
+      this.props.markUnread(chat,isSelf,chats)
       // this.setState({
       //   chats: [
       //     chat,
       //     ...this.state.chats
       //   ]
       // })
+      debugging && console.log('no findIndex match found, so just add')
     }
+    debugging && console.log('addChatToChatList func called')
+    debugging && console.log('Came From: ',cameFrom)
   }
   
   updateChatOnChatList(prevChat,nextChat){
-    if (debugging) console.log('updateChatOnChatList func called');
     let subjectChat = this.state.chats.find( chat => {
       return chat.id === nextChat.id
     })
-    debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat)
     if (!subjectChat) {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
@@ -166,10 +164,14 @@ class Chat extends Component {
             let shopperExists = subjectChat.shoppersx.find( shopper => {
               return shopper.id === this.props.user.shopperx.id
             })
-            console.log('shopperExists',shopperExists)
             if (!shopperExists) {
               this.removeChatFromChatList(prevChat,'updateChatOnChatList')
+            } else {
+              this.addChatToChatList(nextChat,'updateChatOnChatList, shopper does exist')
             }
+            debugging && console.log('shopperExists',shopperExists)
+          } else {
+            this.addChatToChatList(nextChat,'updateChatOnChatList, userType is not a shopper')
           }
         } else if (nextChat.type === 'SADVR2ALL') {
             this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (SADVR2ALL)')
@@ -177,13 +179,14 @@ class Chat extends Component {
           this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (updater is diff)')
         }
       } else {
-        if (debugging) console.log('no prevChat value');
+        debugging && console.log('no prevChat value')
       }
     }
+    debugging && console.log('updateChatOnChatList func called')
+    debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat.id)
   }
   
   removeChatFromChatList(prevChat,cameFrom){
-    if (debugging) console.log('removeChatFromChatList func called',cameFrom);
     if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
       let chats = JSON.parse(JSON.stringify(this.state.chats))
       let i = chats.findIndex( chat => {
@@ -194,6 +197,7 @@ class Chat extends Component {
         this.setState({chats})
       }
     }
+    debugging && console.log('removeChatFromChatList func called',cameFrom)
   }
 
   subToDistributorsChats(){
@@ -206,13 +210,14 @@ class Chat extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
-          console.log('mutation on subToDistributorsChats',mutation);
+          console.log('mutation on subToDistributorsChats',mutation)
           if (mutation === 'UPDATED') {
             this.updateChatOnChatList(previousValues,node)
           }
         },
         onError: e => {
-          if (debugging) console.log('subToShoppersChats error:',e);
+          this.openError('retrieving new real-time chats')
+          debugging && console.log('subToDistributorsChats error:',e.message)
         }
       })
     }
