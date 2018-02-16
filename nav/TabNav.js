@@ -323,7 +323,10 @@ class TabNav extends PureComponent<void, *, State> {
         } else {
           return (
             <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-              <FontPoiret text="loading chats..." color={Colors.blue} size={44}/>
+              <DotsLoader
+                size={15}
+                color={Colors.pinkly}
+                frequency={5000}/>
             </View>
           )
         }

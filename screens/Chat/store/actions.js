@@ -1,23 +1,27 @@
 
 
 import {
+  SET_CHATS,
   MARK_UNREAD,
   MARK_READ,
   INCREMENT_UNREAD_COUNT,
   DECREMENT_UNREAD_COUNT
 } from './types'
 
-export const markUnread = (chat,isSelf,chats) => ({
-  type: MARK_UNREAD,
-  chat,
-  isSelf,
+export const setChats = (chats) => ({
+  type: SET_CHATS,
   chats
 })
 
-export const markRead = (chat,chats) => ({
-  type: MARK_READ,
+export const markUnread = (chat,isSelf) => ({
+  type: MARK_UNREAD,
   chat,
-  chats
+  isSelf
+})
+
+export const markRead = (chat) => ({
+  type: MARK_READ,
+  chat
 })
 
 export const incrementUnreadCount = () => ({

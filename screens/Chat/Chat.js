@@ -9,11 +9,11 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 
 // STORE
 import { connect } from 'react-redux'
 import {
+  setChats,
   markUnread,
   markRead,
   incrementUnreadCount,
@@ -48,48 +48,31 @@ class Chat extends Component {
     modalContent: {},
     user: this.props.user ? this.props.user : null,
     userType: this.props.userType ? this.props.userType : null,
-    chats: []
+    chats: null
   }
 
   componentWillReceiveProps(newProps){
+    let { setChats } = this.props
     if (
       newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
     ) {
-      if (this.props.userType === 'DIST') {
-        this.chatsForDist(newProps.getChatsForDistributor.allChats)
+      if (this.props.userType === 'DIST' && this.state.chats === null) {
+        setChats(newProps.getChatsForDistributor.allChats)
       }
     }
     if (
       newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
     ) {
-      if (this.props.userType === 'SHOPPER') {
-        this.chatsForShopper(newProps.getChatsForShopper.allChats)
+      if (this.props.userType === 'SHOPPER' && this.state.chats === null) {
+        setChats(newProps.getChatsForShopper.allChats)
       }
     }
-    if (newProps.chatsWithStatus.length > 0) {
-      this.setState({chats:newProps.chatsWithStatus})
-      debugging && console.log('new chatsWithStatus',newProps.chatsWithStatus[0].status)
+    if (newProps.chats && newProps.chats !== this.state.chats) {
+      this.setState({chats:newProps.chats})
+      debugging && console.log('new chats',newProps.chats[0])
     }
     if (newProps.unreadCount) {
       console.log('unreadCount',newProps.unreadCount)
-    }
-  }
-
-  chatsForDist(chats){
-    this.updateChatsList(chats)
-  }
-
-  chatsForShopper(chats){
-    this.updateChatsList(chats)
-  }
-  
-  updateChatsList(allChats){
-    let chats = JSON.parse(JSON.stringify(allChats))
-    chats.sort( (a,b) => {
-      return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
-    })
-    if (chats !== this.state.chats) {
-      this.setState({chats})
     }
   }
   
@@ -263,17 +246,19 @@ class Chat extends Component {
       })
     } else {
       return (
-        <DotsLoader
-          size={15}
-          color={Colors.pinkly}
-          frequency={5000}/>
+        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
+          <FontPoiret text="loading chats..." color={Colors.blue} size={Texts.larger.fontSize}/>
+        </View>
       )
     }
   }
 
   renderMainContent(){
     return (
-      <ScrollView contentContainerStyle={{flex:0,paddingBottom:6}}>
+      <ScrollView contentContainerStyle={{
+        flex: this.state.chats ? 0 : 1,
+        paddingBottom:6
+      }}>
         {this.renderChats()}
       </ScrollView>
     )
@@ -283,7 +268,7 @@ class Chat extends Component {
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <MyStatusBar hidden={false} />
-        <FontPoiret text="Chats" style={{fontSize:Texts.xlarge.fontSize,color:Colors.blue}}/>
+        <FontPoiret text="Chats" size={Texts.xlarge.fontSize} color={Colors.blue}/>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>
@@ -293,7 +278,7 @@ class Chat extends Component {
 }
 
 const mapStateToProps = state => ({
-  chatsWithStatus: state.chatsWithStatus,
+  chats: state.chats,
   unreadCount: state.unreadCount
 })
 
@@ -327,6 +312,7 @@ const ChatContainer = compose(
 )(Chat)
 
 export default connect(mapStateToProps,{
+  setChats,
   markUnread,
   markRead,
   incrementUnreadCount,

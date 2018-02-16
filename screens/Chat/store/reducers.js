@@ -1,6 +1,7 @@
 
 
 import {
+  SET_CHATS,
   MARK_UNREAD,
   MARK_READ,
   INCREMENT_UNREAD_COUNT,
@@ -8,9 +9,15 @@ import {
 } from './types'
 
 const initialChats = []
-export const chatStatusReducer = (state = initialChats,actions) => {
+export const chatsReducer = (state = initialChats,actions) => {
   let chats
   switch(actions.type){
+    case SET_CHATS:
+      chats = JSON.parse(JSON.stringify(actions.chats))
+      chats.sort( (a,b) => {
+        return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
+      })
+      return chats
     case MARK_UNREAD:
       let unreadChat = {
         ...actions.chat,

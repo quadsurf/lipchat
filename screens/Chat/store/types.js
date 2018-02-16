@@ -1,5 +1,6 @@
 
 
+export const SET_CHATS = 'set_chats'
 export const MARK_UNREAD = 'mark_unread'
 export const MARK_READ = 'mark_read'
 export const INCREMENT_UNREAD_COUNT = 'increment_unread_count'
