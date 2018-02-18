@@ -18,7 +18,7 @@ import {
   markRead,
   incrementUnreadCount,
   decrementUnreadCount
-} from '../../screens/Chat/store/actions'
+} from './store/actions'
 
 // GQL
 import {
@@ -48,32 +48,50 @@ class Chat extends Component {
     modalContent: {},
     user: this.props.user ? this.props.user : null,
     userType: this.props.userType ? this.props.userType : null,
-    chats: null
+    chats: null,
+    // expectedChatId: null
   }
 
   componentWillReceiveProps(newProps){
-    let { setChats } = this.props
     if (
-      newProps.getChatsForDistributor && newProps.getChatsForDistributor.allChats
+      newProps.getChatsForDistributor && 
+      newProps.getChatsForDistributor.allChats && 
+      newProps.getChatsForDistributor.allChats !== this.props.getChatsForDistributor.allChats
     ) {
       if (this.props.userType === 'DIST' && this.state.chats === null) {
-        setChats(newProps.getChatsForDistributor.allChats)
+        this.props.setChats(newProps.getChatsForDistributor.allChats)
       }
     }
     if (
-      newProps.getChatsForShopper && newProps.getChatsForShopper.allChats
+      newProps.getChatsForShopper && 
+      newProps.getChatsForShopper.allChats && 
+      newProps.getChatsForShopper.allChats !== this.props.getChatsForShopper.allChats
     ) {
       if (this.props.userType === 'SHOPPER' && this.state.chats === null) {
-        setChats(newProps.getChatsForShopper.allChats)
+        this.props.setChats(newProps.getChatsForShopper.allChats)
       }
     }
-    if (newProps.chats && newProps.chats !== this.state.chats) {
-      this.setState({chats:newProps.chats})
+    if (
+      newProps.chats && 
+      newProps.chats.length > 0
+    ) {
+      console.log('newProps recd');
+      setTimeout(()=>{
+        this.setState({chats:newProps.chats},()=>{
+          console.log('state text:',this.state.chats[0].messages[0].text);
+        })
+      },1000)
       debugging && console.log('new chats',newProps.chats[0])
     }
     if (newProps.unreadCount) {
       console.log('unreadCount',newProps.unreadCount)
     }
+  }
+  
+  setChats(allChats){
+    let chats = JSON.parse(JSON.stringify(allChats))
+    chats.sort( (a,b) => Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt))
+    this.setState({chats})
   }
   
   componentDidMount(){
@@ -104,32 +122,13 @@ class Chat extends Component {
   }
   
   addChatToChatList(chat,cameFrom){
-    let chats = JSON.parse(JSON.stringify(this.state.chats))
-    let i = chats.findIndex( chatIndex => {
-      return chatIndex.id === chat.id
-    })
     let isSelf
     if (chat.messages.length > 0 && chat.messages[0].writerx.id === this.props.user.id) {
       isSelf = true
     } else {
       isSelf = false
     }
-    if (i !== -1) {
-      chats.splice(i,1)
-      this.props.markUnread(chat,isSelf,chats)
-      // chats.unshift(chat)
-      // this.setState({chats})
-      debugging && console.log('findIndex match found, so remove then add')
-    } else {
-      this.props.markUnread(chat,isSelf,chats)
-      // this.setState({
-      //   chats: [
-      //     chat,
-      //     ...this.state.chats
-      //   ]
-      // })
-      debugging && console.log('no findIndex match found, so just add')
-    }
+    this.props.markUnread(chat,isSelf)
     debugging && console.log('addChatToChatList func called')
     debugging && console.log('Came From: ',cameFrom)
   }

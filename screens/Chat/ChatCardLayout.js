@@ -9,6 +9,10 @@ import {
 import moment from 'moment'
 import { Foundation } from '@expo/vector-icons'
 
+//STORE
+import { connect } from 'react-redux'
+import { markRead } from './store/actions'
+
 // LOCALS
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Colors,Texts } from '../../css/Styles'
@@ -17,8 +21,10 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 // CONSTs
 const size = 90
 
-const ChatCardLayout = props => {
-  let { chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,level,message,date,line1,line2,nav,chatStatus } = props
+const ChatCardLayout = ({
+  chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
+  level,message,date,line1,line2,nav,chatStatus,chat,markRead,thisChat
+}) => {
   let screen = getDimensions()
   let small = Texts.small.fontSize
   let medium = Texts.medium.fontSize
@@ -86,7 +92,16 @@ const ChatCardLayout = props => {
     // the person being viewed is approved
     return (
       <TouchableOpacity style={cardStyle} onPress={()=>{
-          nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
+          // console.log('this chats status',thisChat.status);
+          // return
+          if (thisChat.status && thisChat.status === 'unread') {
+            markRead(chat)
+            setTimeout(()=>{
+              nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
+            },5000)
+          } else {
+            nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
+          }
         }}>
         <View style={cardLeft}>
           <Image source={{uri}} style={imgSize}/>
@@ -106,7 +121,7 @@ const ChatCardLayout = props => {
           <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
         </View>
         {
-          chatStatus === 'unread' ? <View style={unread}/> : <View/>
+          thisChat.status === 'unread' ? <View style={unread}/> : <View/>
         }
       </TouchableOpacity>
     )
@@ -127,4 +142,13 @@ const ChatCardLayout = props => {
   }
 }
 
-export default ChatCardLayout
+const mapStateToProps = (state,props) => {
+  let i = state.chats.findIndex( chat => {
+    return chat.id === props.chatId
+  })
+  return {
+    thisChat: state.chats[i]
+  }
+}
+
+export default connect(mapStateToProps,{markRead})(ChatCardLayout)

@@ -124,18 +124,18 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing an approved DIST
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
           } else {
             // unapproved DIST viewing an approved DIST
             if (chat.type === 'DMU2ADMIN') {
-              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
             } else {
               return <ChatCardLayout approved={false} line1="your fellow distributors are" line2="waiting for you to get verified"/>
             }
           }
       } else {
         // shopper viewing an approved DIST [tested,passed]
-        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="SHPS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="SHPS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
       }
   } else {
     if (status === false) {
@@ -146,7 +146,7 @@ const ChatCard = props => {
       if (userType === 'DIST') {
           if (viewersStatus) {
             // approved DIST viewing a shopper's chat
-            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+            return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience={level === 'A' ? 'ANY' : 'APPS'} level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
             // covers DIST2SHPRS
             // covers SADVR2ALL
           } else {
@@ -157,14 +157,14 @@ const ChatCard = props => {
               return <ChatCardLayout approved={false} line1="get verified to group" line2="chat with your shoppers"/>
             } else if (chat.type === 'SADVR2ALL') {
               // unapproved DIST (as Shopper), viewing a DMU2ADMIN
-              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+              return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="PNDS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
             } else {
               return <ChatCardLayout approved={false} line1="there was a problem" line2="loading this chat"/>
             }
           }
       } else {
         // shopper viewing shopper
-        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="SHPS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus}/>
+        return <ChatCardLayout chatId={id} approved={true} uri={uri} chatTitle={chatTitle} chatSubTitle={chatSubTitle} chatType={chat.type} audience="SHPS" level={level} message={message} date={date} nav={props.nav} chatStatus={chatStatus} chat={chat}/>
       }
     }
   }

@@ -8,7 +8,7 @@ import {
   DECREMENT_UNREAD_COUNT
 } from './types'
 
-export const setChats = (chats) => ({
+export const setChats = chats => ({
   type: SET_CHATS,
   chats
 })
@@ -19,7 +19,7 @@ export const markUnread = (chat,isSelf) => ({
   isSelf
 })
 
-export const markRead = (chat) => ({
+export const markRead = chat => ({
   type: MARK_READ,
   chat
 })

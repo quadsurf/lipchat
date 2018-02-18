@@ -10,7 +10,7 @@ import {
 
 const initialChats = []
 export const chatsReducer = (state = initialChats,actions) => {
-  let chats
+  let chats,i
   switch(actions.type){
     case SET_CHATS:
       chats = JSON.parse(JSON.stringify(actions.chats))
@@ -23,20 +23,26 @@ export const chatsReducer = (state = initialChats,actions) => {
         ...actions.chat,
         status: actions.isSelf === true ? 'neither' : 'unread'
       }
-      chats = actions.chats
+      chats = state
+      i = chats.findIndex( chatIndex => {
+        return chatIndex.id === unreadChat.id
+      })
+      if (i !== -1) {
+        chats.splice(i,1)
+      }
       chats.unshift(unreadChat)
+      console.log('reducer text',chats[0].messages[0].text);
       return chats
     case MARK_READ:
       let readChat = actions.chat
-      chats = JSON.parse(JSON.stringify(actions.chats))
-      let index = chats.findIndex( chat => readChat.id === chat.id)
-      if (index !== -1) {
+      chats = state
+      i = chats.findIndex( chat => readChat.id === chat.id)
+      if (i !== -1) {
+        console.log('reducer needs status deletion for chat')
         delete readChat.status
-        chats.splice(index,1,readChat)
-        return chats
-      } else {
-        return chats
+        chats.splice(i,1,readChat)
       }
+      return chats
     default: return state
   }
 }
