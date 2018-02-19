@@ -75,11 +75,8 @@ class Chat extends Component {
       newProps.chats && 
       newProps.chats.length > 0
     ) {
-      console.log('newProps recd');
       setTimeout(()=>{
-        this.setState({chats:newProps.chats},()=>{
-          console.log('state text:',this.state.chats[0].messages[0].text);
-        })
+        this.setState({chats:newProps.chats})
       },1000)
       debugging && console.log('new chats',newProps.chats[0])
     }

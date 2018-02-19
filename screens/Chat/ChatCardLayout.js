@@ -1,6 +1,6 @@
 
 
-import React from 'react'
+import React, { Component } from 'react'
 import {
   View,Image,TouchableOpacity
 } from 'react-native'
@@ -21,125 +21,158 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 // CONSTs
 const size = 90
 
-const ChatCardLayout = ({
-  chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
-  level,message,date,line1,line2,nav,chatStatus,chat,markRead,thisChat
-}) => {
-  let screen = getDimensions()
-  let small = Texts.small.fontSize
-  let medium = Texts.medium.fontSize
-  let bR = 6
-  let width = screen.width*.95
-  let cardLeft = {width:size,height:size}
-  let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
-  let noExist = {
-    height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
+class ChatCardLayout extends Component {
+  
+  state = {
+    readStatus: this.props.chat.status ? this.props.chat.status : 'read'
   }
-  let imgSize = {...cardLeft,borderRadius:bR}
-  let cardStyle = {
-    width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
-  }
-  let unread = {
-    position:'absolute',top:6,right:6,width:10,height:10,borderRadius:5,backgroundColor:Colors.blue
-  }
-  let textWidth = width-size-20
-  let audiences = {}
-  if (audience === 'SHPS') {
-    audiences = {
-      aud1: 'SHOPPERS',
-      aud2: 'SHPSAPPS',
-      aud3: 'SHPSPNDS',
-      aud4: 'ANY',
-      aud5: 'ANY',
-      aud6: 'ANY',
-      aud7: 'SHPSDSTS'
+  
+  componentWillReceiveProps(newProps){
+    if (newProps.thisChat) {
+      this.setState({
+        readStatus: newProps.thisChat.status ? newProps.thisChat.status : 'read'
+      })
     }
   }
-  if (audience === 'APPS') {
-    audiences = {
-      aud1: 'APPROVED',
-      aud2: 'SHPSAPPS',
-      aud3: 'APPSPNDS',
-      aud4: 'ANY',
-      aud5: 'ANY',
-      aud6: 'ANY',
-      aud7: 'SHPSDSTS'
+  
+  render(){
+    let {
+      chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
+      level,message,date,line1,line2,nav,chatStatus,chat,markRead,thisChat
+    } = this.props
+    let screen = getDimensions()
+    let small = Texts.small.fontSize
+    let medium = Texts.medium.fontSize
+    let bR = 6
+    let width = screen.width*.95
+    let cardLeft = {width:size,height:size}
+    let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
+    let noExist = {
+      height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
     }
-  }
-  if (audience === 'PNDS') {
-    audiences = {
-      aud1: 'PENDINGS',
-      aud2: 'APPSPNDS',
-      aud3: 'SHPSPNDS',
-      aud4: 'ANY',
-      aud5: 'ANY',
-      aud6: 'ANY',
-      aud7: 'SHPSDSTS'
+    let imgSize = {...cardLeft,borderRadius:bR}
+    let cardStyle = {
+      width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:bR,marginVertical:6
     }
-  }
-  if (audience === 'ANY') {
-    audiences = {
-      aud1: 'SHOPPERS',
-      aud2: 'APPROVED',
-      aud3: 'PENDINGS',
-      aud4: 'SHPSAPPS',
-      aud5: 'SHPSPNDS',
-      aud6: 'APPSPNDS',
-      aud7: 'SHPSDSTS'
+    let unread = {
+      position:'absolute',top:6,right:6,width:10,height:10,borderRadius:5,backgroundColor:Colors.blue
     }
-  }
-  if (approved) {
-    // the person being viewed is approved
-    return (
-      <TouchableOpacity style={cardStyle} onPress={()=>{
-          // console.log('this chats status',thisChat.status);
-          // return
-          if (thisChat.status && thisChat.status === 'unread') {
-            markRead(chat)
-            setTimeout(()=>{
-              nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
-            },5000)
-          } else {
+    let textWidth = width-size-20
+    let audiences = {}
+    if (audience === 'SHPS') {
+      audiences = {
+        aud1: 'SHOPPERS',
+        aud2: 'SHPSAPPS',
+        aud3: 'SHPSPNDS',
+        aud4: 'ANY',
+        aud5: 'ANY',
+        aud6: 'ANY',
+        aud7: 'SHPSDSTS'
+      }
+    }
+    if (audience === 'APPS') {
+      audiences = {
+        aud1: 'APPROVED',
+        aud2: 'SHPSAPPS',
+        aud3: 'APPSPNDS',
+        aud4: 'ANY',
+        aud5: 'ANY',
+        aud6: 'ANY',
+        aud7: 'SHPSDSTS'
+      }
+    }
+    if (audience === 'PNDS') {
+      audiences = {
+        aud1: 'PENDINGS',
+        aud2: 'APPSPNDS',
+        aud3: 'SHPSPNDS',
+        aud4: 'ANY',
+        aud5: 'ANY',
+        aud6: 'ANY',
+        aud7: 'SHPSDSTS'
+      }
+    }
+    if (audience === 'ANY') {
+      audiences = {
+        aud1: 'SHOPPERS',
+        aud2: 'APPROVED',
+        aud3: 'PENDINGS',
+        aud4: 'SHPSAPPS',
+        aud5: 'SHPSPNDS',
+        aud6: 'APPSPNDS',
+        aud7: 'SHPSDSTS'
+      }
+    }
+    
+    let { readStatus } = this.state
+    
+    if (approved) {
+      // the person being viewed is approved
+      return (
+        <TouchableOpacity style={cardStyle} onPress={()=>{
+            if (readStatus === 'unread') {
+              markRead(chat)
+            }
             nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
-          }
-        }}>
-        <View style={cardLeft}>
-          <Image source={{uri}} style={imgSize}/>
-        </View>
-        <View style={cardRight}>
-          <FontPoiret text={clipText(chatTitle,30)} size={medium} color={Colors.white}/>
+          }}>
+          <View style={cardLeft}>
+            <Image source={{uri}} style={imgSize}/>
+          </View>
+          <View style={cardRight}>
+            <FontPoiret text={clipText(chatTitle,30)} size={medium} color={Colors.white}/>
+            {
+              chatSubTitle ?
+              <FontPoiret text={clipText(chatSubTitle,30)} size={small} color={Colors.white}/> :
+                null
+            }
+            {
+              message !== 'isTypingNow' ?
+              <View style={{width:textWidth}}><FontPoiret text={message} size={small} color={Colors.white}/></View> :
+              <View style={{width:textWidth}}><FontPoiret text="typing..." size={small} color={Colors.white}/></View>
+            }
+            <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
+          </View>
           {
-            chatSubTitle ?
-            <FontPoiret text={clipText(chatSubTitle,30)} size={small} color={Colors.white}/> :
-              null
+            readStatus === 'unread' ? <View style={unread}/> : <View/>
           }
-          {
-            message !== 'isTypingNow' ?
-            <View style={{width:textWidth}}><FontPoiret text={message} size={small} color={Colors.white}/></View> :
-            <View style={{width:textWidth}}><FontPoiret text="typing..." size={small} color={Colors.white}/></View>
-          }
-          <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
+        </TouchableOpacity>
+      )
+    } else {
+      // the person being viewed is unapproved
+      return (
+        <View style={cardStyle}>
+          <View style={cardLeft}>
+            <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
+          </View>
+          <View style={noExist}>
+            <Foundation name="lock" size={30} color={Colors.white}/>
+            <FontPoiret text={line1} size={medium} color={Colors.white}/>
+            <FontPoiret text={line2} size={medium} color={Colors.white}/>
+          </View>
         </View>
-        {
-          thisChat.status === 'unread' ? <View style={unread}/> : <View/>
-        }
-      </TouchableOpacity>
-    )
-  } else {
-    // the person being viewed is unapproved
-    return (
-      <View style={cardStyle}>
-        <View style={cardLeft}>
-          <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
-        </View>
-        <View style={noExist}>
-          <Foundation name="lock" size={30} color={Colors.white}/>
-          <FontPoiret text={line1} size={medium} color={Colors.white}/>
-          <FontPoiret text={line2} size={medium} color={Colors.white}/>
-        </View>
-      </View>
-    )
+      )
+    }
   }
+  
+  // constructor(props){
+  //   super(props)
+  //   this.i = this.props.chats.findIndex( chat => {
+  //     return chat.id === this.props.chatId
+  //   })
+  //   this.state = {
+  //     readStatus: this.props.chats[this.i].status
+  //   }
+  // }
+  
+  // componentWillReceiveProps(newProps){
+  //   if (newProps.chats) {
+  //     console.log('newProps.chats recd on ChatCardLayout called after markRead dispatch???');
+  //     if (newProps.chats[this.i]) {
+  //       console.log('prev readStatus',this.state.readStatus);
+  //       this.setState({readStatus: newProps.chats[this.i].status ? newProps.chats[this.i].status : 'read'},()=>console.log('next readStatus',this.state.readStatus))
+  //     }
+  //   }
+  // }
 }
 
 const mapStateToProps = (state,props) => {
@@ -148,6 +181,7 @@ const mapStateToProps = (state,props) => {
   })
   return {
     thisChat: state.chats[i]
+    // chats: state.chats
   }
 }
 

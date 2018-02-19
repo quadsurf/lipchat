@@ -23,7 +23,7 @@ export const chatsReducer = (state = initialChats,actions) => {
         ...actions.chat,
         status: actions.isSelf === true ? 'neither' : 'unread'
       }
-      chats = state
+      chats = [...state]
       i = chats.findIndex( chatIndex => {
         return chatIndex.id === unreadChat.id
       })
@@ -31,14 +31,12 @@ export const chatsReducer = (state = initialChats,actions) => {
         chats.splice(i,1)
       }
       chats.unshift(unreadChat)
-      console.log('reducer text',chats[0].messages[0].text);
       return chats
     case MARK_READ:
       let readChat = actions.chat
-      chats = state
+      chats = [...state]
       i = chats.findIndex( chat => readChat.id === chat.id)
       if (i !== -1) {
-        console.log('reducer needs status deletion for chat')
         delete readChat.status
         chats.splice(i,1,readChat)
       }
