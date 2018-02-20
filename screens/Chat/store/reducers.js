@@ -13,7 +13,8 @@ export const chatsReducer = (state = initialChats,actions) => {
   let chats,i
   switch(actions.type){
     case SET_CHATS:
-      chats = JSON.parse(JSON.stringify(actions.chats))
+      // chats = JSON.parse(JSON.stringify(actions.chats))
+      chats = [...actions.chats]
       chats.sort( (a,b) => {
         return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
       })

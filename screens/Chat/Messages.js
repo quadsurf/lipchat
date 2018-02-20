@@ -14,8 +14,7 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
-import { Entypo } from '@expo/vector-icons'
-import { NavigationActions } from 'react-navigation'
+import { Entypo,EvilIcons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
 // import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -61,18 +60,22 @@ class Messages extends Component {
     audience: 'ANY',
     SHOPPERS: false,
     APPROVED: false,
-    PENDINGS: false
+    PENDINGS: false,
+    isMounted: false,
+    isRefreshing: false
   }
 
   componentWillMount(){
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+    this.setState({isMounted:true})
   }
 
   componentWillUnmount(){
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
     this.deleteMessage()
+    this.setState({isMounted:false})
   }
 
   keyboardDidShow = (e) => {
@@ -121,7 +124,9 @@ class Messages extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
-          if (mutation === 'CREATED') {
+          let { isMounted } = this.state
+          if (mutation === 'CREATED' && isMounted) {
+            debugging && console.log('isMounted for CREATED mutation:',isMounted);
             this.setState({
               messages: [
                 subscriptionData.data.Message.node,
@@ -129,7 +134,8 @@ class Messages extends Component {
               ]
             })
           }
-          if (mutation === 'UPDATED') {
+          if (mutation === 'UPDATED' && isMounted) {
+            debugging && console.log('isMounted for UPDATED mutation:',isMounted);
             let messages = JSON.parse(JSON.stringify(this.state.messages))
             let i = messages.findIndex( message => {
             	return message.id === subscriptionData.data.Message.node.id
@@ -137,7 +143,8 @@ class Messages extends Component {
             messages[i] = subscriptionData.data.Message.node
             this.setState({messages})
           }
-          if (mutation === 'DELETED') {
+          if (mutation === 'DELETED' && isMounted) {
+            debugging && console.log('isMounted for DELETED mutation:',isMounted);
             let messages = JSON.parse(JSON.stringify(this.state.messages))
             let i = messages.findIndex( message => {
             	return message.id === subscriptionData.data.Message.previousValues.id
@@ -265,7 +272,7 @@ class Messages extends Component {
         }
       }).then((res)=>{
         if (res && res.data && res.data.deleteMessage) {
-          this.setState({messageId:null})
+          // this.setState({messageId:null})
         } else {
           this.openError(errText)
         }
@@ -274,7 +281,7 @@ class Messages extends Component {
         debugging && console.log(e.message)
       })
     } else {
-      this.openError(errText)
+      // this.openError(errText)
     }
   }
 
@@ -402,28 +409,38 @@ class Messages extends Component {
   )
   
   fetchMoreChats = () => {
-    this.props.getMessagesForChat.fetchMore({
-      variables: {
-        skipCount: this.state.messages.length
-      },
-      updateQuery: (prev,{fetchMoreResult}) => {
-        if (
-          fetchMoreResult && 
-          fetchMoreResult.allMessages && 
-          fetchMoreResult.allMessages.length > 0
-        ) {
-          this.setState({
-            messages: [
-              ...this.state.messages,
-              ...fetchMoreResult.allMessages
-            ]
-          })
+    this.setState({isRefreshing:true},()=>{
+      this.props.getMessagesForChat.fetchMore({
+        variables: {
+          skipCount: this.state.messages.length
+        },
+        updateQuery: (prev,{fetchMoreResult}) => {
+            if (
+              fetchMoreResult && 
+              fetchMoreResult.allMessages && 
+              fetchMoreResult.allMessages.length > 0
+            ) {
+              this.setState({
+                messages: [
+                  ...this.state.messages,
+                  ...fetchMoreResult.allMessages
+                ],
+                isRefreshing: false
+              },()=>{
+                this.flatListRef.scrollToEnd()
+              })
+            } else {
+              this.setState({isRefreshing:false})
+            }
         }
-      }
+      })
     })
   }
 
   renderMessageList(){
+    // this.props.getMessagesForChat.networkStatus === 4 
+    // refreshing={this.state.isRefreshing} 
+    // onRefresh={this.fetchMoreChats}
     if (this.state.messages) {
       return (
         <FlatList
@@ -443,9 +460,7 @@ class Messages extends Component {
           keyExtractor={item => item.id}
           ListHeaderComponent={this.renderInputBox}
           ListEmptyComponent={this.renderNoChats}
-          style={{marginBottom:0}} 
-          refreshing={this.props.getMessagesForChat.networkStatus === 4} 
-          onRefresh={this.fetchMoreChats}/>
+          style={{marginBottom:0}}/>
       )
     } else {
       return (
@@ -473,7 +488,7 @@ class Messages extends Component {
         <MyStatusBar hidden={false} />
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
           <View style={{justifyContent:'center'}}>
-            <TouchableOpacity onPress={() => this.props.navigation.dispatch(NavigationActions.back())}>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack(null)}>
               <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
             </TouchableOpacity>
           </View>
@@ -484,8 +499,10 @@ class Messages extends Component {
               size={Texts.small.fontSize} 
               style={{color:Colors.blue}}/>
           </View>
-          <View>
-            <Entypo name="dot-single" size={50} style={{color:Colors.purple}}/>
+          <View style={{justifyContent:'center'}}>
+            <TouchableOpacity onPress={this.fetchMoreChats}>
+              <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
+            </TouchableOpacity>
           </View>
         </View>
         {this.renderMainContent()}
@@ -539,3 +556,5 @@ export default compose(
 // i need an iPhone 5 and 6 to test on
 // virtualized list trimming, i.e. last 10, or convert to PureComponent
 // test concurrency of 2 people typing at same time and how it affects updatedAt
+// import { NavigationActions } from 'react-navigation'
+// this.props.navigation.dispatch(NavigationActions.back())

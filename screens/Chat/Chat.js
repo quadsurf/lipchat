@@ -189,7 +189,6 @@ class Chat extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
-          console.log('mutation on subToDistributorsChats',mutation)
           if (mutation === 'UPDATED') {
             this.updateChatOnChatList(previousValues,node)
           }
