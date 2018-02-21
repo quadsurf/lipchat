@@ -14,10 +14,7 @@ import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import {
   setChats,
-  markUnread,
-  markRead,
-  incrementUnreadCount,
-  decrementUnreadCount
+  handleNewChat
 } from './store/actions'
 
 // GQL
@@ -49,6 +46,7 @@ class Chat extends Component {
     user: this.props.user ? this.props.user : null,
     userType: this.props.userType ? this.props.userType : null,
     chats: null,
+    isFocused: true
     // expectedChatId: null
   }
 
@@ -80,9 +78,6 @@ class Chat extends Component {
       },1000)
       debugging && console.log('new chats',newProps.chats[0])
     }
-    if (newProps.unreadCount) {
-      console.log('unreadCount',newProps.unreadCount)
-    }
   }
   
   setChats(allChats){
@@ -91,11 +86,33 @@ class Chat extends Component {
     this.setState({chats})
   }
   
+  componentWillMount(){
+    this.didFocusSubscription = this.props.nav.addListener(
+      'didFocus',
+      ({ action:{ key } }) => {
+        debugging && console.log('didFocus:',key);
+        if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({isFocused:true})
+      }
+    )
+    this.didBlurSubscription = this.props.nav.addListener(
+      'didBlur',
+      ({ action:{ key } }) => {
+        debugging && console.log('didBlur:',key);
+        key !== 'StackRouterRoot' && this.setState({isFocused:false})
+      }
+    )
+  }
+  
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
   }
 
+  componentWillUnmount(){
+    this.didFocusSubscription.remove()
+    this.didBlurSubscription.remove()
+  }
+  
   subToShoppersChats(){
     if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
       this.props.getChatsForShopper.subscribeToMore({
@@ -125,7 +142,7 @@ class Chat extends Component {
     } else {
       isSelf = false
     }
-    this.props.markUnread(chat,isSelf)
+    this.props.handleNewChat(chat,isSelf,this.state.isFocused)
     debugging && console.log('addChatToChatList func called')
     debugging && console.log('Came From: ',cameFrom)
   }
@@ -272,12 +289,7 @@ class Chat extends Component {
 
 }
 
-const mapStateToProps = state => ({
-  chats: state.chats,
-  unreadCount: state.unreadCount
-})
-
-const ChatContainer = compose(
+const ChatWithData = compose(
   graphql(GetChatsForDistributor,{
     name: 'getChatsForDistributor',
     options: props => ({
@@ -306,10 +318,9 @@ const ChatContainer = compose(
   })
 )(Chat)
 
+const mapStateToProps = state => ({ chats: state.chats })
+
 export default connect(mapStateToProps,{
   setChats,
-  markUnread,
-  markRead,
-  incrementUnreadCount,
-  decrementUnreadCount
-})(ChatContainer)
+  handleNewChat
+})(ChatWithData)

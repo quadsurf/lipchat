@@ -13,10 +13,11 @@ export const setChats = chats => ({
   chats
 })
 
-export const markUnread = (chat,isSelf) => ({
+export const markUnread = (chat,isSelf,isFocused) => ({
   type: MARK_UNREAD,
   chat,
-  isSelf
+  isSelf,
+  isFocused
 })
 
 export const markRead = chat => ({
@@ -31,3 +32,18 @@ export const incrementUnreadCount = () => ({
 export const decrementUnreadCount = () => ({
   type: DECREMENT_UNREAD_COUNT
 })
+
+export const handleNewChat = (chat,isSelf,isFocused) => {
+  return (dispatch) => {
+    dispatch(markUnread(chat,isSelf,isFocused))
+    isFocused && dispatch(incrementUnreadCount())
+  }
+}
+
+export const handleClearedChat = chat => {
+  return (dispatch,getState) => {
+    dispatch(markRead(chat))
+    console.log('unreadCount on handleClearedChat:',getState().unreadCount);
+    if (getState().unreadCount > 0) dispatch(decrementUnreadCount())
+  }
+}

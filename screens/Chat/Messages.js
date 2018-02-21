@@ -14,7 +14,7 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
-import { Entypo,EvilIcons } from '@expo/vector-icons'
+import { Entypo,SimpleLineIcons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
 // import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -66,8 +66,8 @@ class Messages extends Component {
   }
 
   componentWillMount(){
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow)
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide)
     this.setState({isMounted:true})
   }
 
@@ -501,7 +501,7 @@ class Messages extends Component {
           </View>
           <View style={{justifyContent:'center'}}>
             <TouchableOpacity onPress={this.fetchMoreChats}>
-              <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
+              <SimpleLineIcons name="cloud-download" size={47} style={{color:Colors.blue,marginRight:14,marginTop:3}}/>
             </TouchableOpacity>
           </View>
         </View>
@@ -512,7 +512,7 @@ class Messages extends Component {
   }
 
 }
-
+// <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
 export default compose(
   graphql(GetMessagesForChat,{
     name: 'getMessagesForChat',

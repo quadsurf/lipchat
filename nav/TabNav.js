@@ -5,6 +5,7 @@ import { Animated, View, Text, StyleSheet } from 'react-native'
 import { Constants,Permissions,Notifications } from 'expo'
 
 //LIBS
+import { connect } from 'react-redux'
 import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
@@ -26,6 +27,7 @@ import You from '../screens/You/You'
 //LOCALS
 import { Views,Colors } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
+import styles from './Styles'
 
 //CONSTs
 const debugging = false
@@ -56,7 +58,8 @@ class TabNav extends PureComponent<void, *, State> {
     user2AdminDmExists: false,
     adminChats: [],
     sadvrId: null,
-    shoppersDistributor: 'updatedAt'
+    shoppersDistributor: 'updatedAt',
+    unreadCount: this.props.unreadCount
   }
 
   componentDidMount(){
@@ -151,6 +154,14 @@ class TabNav extends PureComponent<void, *, State> {
         })
       }
     }
+    if (newProps.unreadCount && newProps.unreadCount !== this.props.unreadCount) {
+      if (newProps.unreadCount !== this.state.unreadCount) {
+        this.setState({unreadCount:newProps.unreadCount},()=>{
+          console.log('newProps.unreadCount',this.state.unreadCount)
+        })
+      }
+    }
+    // if (newProps.unreadCount) console.log('newProps.unreadCount recd',newProps.unreadCount);
   }
 
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
@@ -237,15 +248,15 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderBadge = ({ route }) => {
-    if (route.key === '1') {
+    if (route.key === '1' && this.state.unreadCount > 0) {
       return (
-        null
-        // <View style={styles.badge}>
-        //   <Text style={styles.count}>42</Text>
-        // </View>
+        <View style={styles.badge}>
+          <Text style={styles.count}>{this.state.unreadCount}</Text>
+        </View>
       )
+    } else {
+      return <View/>
     }
-    return null
   }
 
   renderLabel = ({ route,index }) => {
@@ -416,7 +427,7 @@ class TabNav extends PureComponent<void, *, State> {
 
 }
 
-export default compose(
+const TabNavWithData = compose(
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
@@ -440,7 +451,8 @@ export default compose(
     options: props => ({
       variables: {
         shopperId: {"id": props.navigation.state.params.user.shopperx.id || ""}
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(AddShopperToAppNotificationGroupChat,{
@@ -462,69 +474,8 @@ export default compose(
   })
 )(TabNav)
 
-const styles = {
-  container: {
-    flex: 1,
-  },
-  tabbar: {
-    backgroundColor: Colors.purpleText
-  },
-  tab: {
-    padding: 0,
-    margin: 0,
-    paddingTop: 6,
-    paddingBottom: 8
-  },
-  labelActive: {
-    backgroundColor: 'transparent',
-    fontSize: 10,
-    color: Colors.blue,
-    marginTop: 0
-  },
-  labelInactive: {
-    backgroundColor: 'transparent',
-    fontSize: 10,
-    color: Colors.offWhite,
-    marginTop: 0
-  },
-  iconActive: {
-    backgroundColor: 'transparent',
-    color: Colors.blue,
-    margin: 0,
-    padding: 0
-  },
-  iconInactive: {
-    backgroundColor: 'transparent',
-    color: Colors.purpleDarker,
-    margin: 0,
-    padding: 0
-  },
-  favSpacer: {
-    marginBottom:4
-  },
-  indicator: {
-    flex: 1,
-    backgroundColor: Colors.purple,
-    margin: 4,
-    borderRadius: 4,
-  },
-  badge: {
-    marginTop: 1,
-    marginRight: 6,
-    backgroundColor: Colors.transparentPurplest,
-    height: 24,
-    width: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4
-  },
-  count: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginTop: -1,
-  }
-}
+const mapStateToProps = state => ({ unreadCount:state.unreadCount })
+
+export default connect(mapStateToProps)(TabNavWithData)
 
 // updateQuery: (previous, { subscriptionData }) => {}

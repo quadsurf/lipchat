@@ -11,7 +11,7 @@ import { Foundation } from '@expo/vector-icons'
 
 //STORE
 import { connect } from 'react-redux'
-import { markRead } from './store/actions'
+import { handleClearedChat } from './store/actions'
 
 // LOCALS
 import { FontPoiret } from '../../assets/fonts/Fonts'
@@ -38,7 +38,7 @@ class ChatCardLayout extends Component {
   render(){
     let {
       chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
-      level,message,date,line1,line2,nav,chatStatus,chat,markRead,thisChat
+      level,message,date,line1,line2,nav,chatStatus,chat,handleClearedChat
     } = this.props
     let screen = getDimensions()
     let small = Texts.small.fontSize
@@ -111,7 +111,7 @@ class ChatCardLayout extends Component {
       return (
         <TouchableOpacity style={cardStyle} onPress={()=>{
             if (readStatus === 'unread') {
-              markRead(chat)
+              handleClearedChat(chat)
             }
             nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
           }}>
@@ -185,4 +185,4 @@ const mapStateToProps = (state,props) => {
   }
 }
 
-export default connect(mapStateToProps,{markRead})(ChatCardLayout)
+export default connect(mapStateToProps,{ handleClearedChat })(ChatCardLayout)

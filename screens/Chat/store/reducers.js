@@ -22,7 +22,7 @@ export const chatsReducer = (state = initialChats,actions) => {
     case MARK_UNREAD:
       let unreadChat = {
         ...actions.chat,
-        status: actions.isSelf === true ? 'neither' : 'unread'
+        status: actions.isSelf === true ? 'neither' : actions.isFocused === true ? 'unread' : 'neither'
       }
       chats = [...state]
       i = chats.findIndex( chatIndex => {
@@ -32,6 +32,7 @@ export const chatsReducer = (state = initialChats,actions) => {
         chats.splice(i,1)
       }
       chats.unshift(unreadChat)
+      console.log('markUnread called')
       return chats
     case MARK_READ:
       let readChat = actions.chat
@@ -41,6 +42,7 @@ export const chatsReducer = (state = initialChats,actions) => {
         delete readChat.status
         chats.splice(i,1,readChat)
       }
+      console.log('markRead called')
       return chats
     default: return state
   }
@@ -48,11 +50,16 @@ export const chatsReducer = (state = initialChats,actions) => {
 
 const initialUnreadCount = 0
 export const unreadCountReducer = (state = initialUnreadCount,actions) => {
+  let newState
   switch(actions.type){
     case INCREMENT_UNREAD_COUNT:
-      return state+1
+      newState = state+1
+      console.log('incrementUnreadCount called',state,newState)
+      return newState
     case DECREMENT_UNREAD_COUNT:
-      return state-1
+      newState = state-1
+      console.log('decrementUnreadCount called',state,newState)
+      return newState
     default: return state
   }
 }
