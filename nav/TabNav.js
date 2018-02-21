@@ -154,14 +154,13 @@ class TabNav extends PureComponent<void, *, State> {
         })
       }
     }
-    if (newProps.unreadCount && newProps.unreadCount !== this.props.unreadCount) {
-      if (newProps.unreadCount !== this.state.unreadCount) {
-        this.setState({unreadCount:newProps.unreadCount},()=>{
-          console.log('newProps.unreadCount',this.state.unreadCount)
-        })
-      }
-    }
-    // if (newProps.unreadCount) console.log('newProps.unreadCount recd',newProps.unreadCount);
+    // if (newProps.unreadCount) {
+    //   if (newProps.unreadCount !== this.props.unreadCount) {
+    //     if (newProps.unreadCount !== this.state.unreadCount) {
+    //       this.setState({unreadCount:newProps.unreadCount})
+    //     }
+    //   }
+    // }
   }
 
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
@@ -248,10 +247,10 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderBadge = ({ route }) => {
-    if (route.key === '1' && this.state.unreadCount > 0) {
+    if (route.key === '1' && this.props.unreadCount > 0) {
       return (
         <View style={styles.badge}>
-          <Text style={styles.count}>{this.state.unreadCount}</Text>
+          <Text style={styles.count}>{this.props.unreadCount}</Text>
         </View>
       )
     } else {
