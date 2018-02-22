@@ -90,15 +90,15 @@ class Chat extends Component {
     this.didFocusSubscription = this.props.nav.addListener(
       'didFocus',
       ({ action:{ key } }) => {
-        debugging && console.log('didFocus:',key);
         if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({isFocused:true})
+        debugging && console.log('didFocus:',key)
       }
     )
     this.didBlurSubscription = this.props.nav.addListener(
       'didBlur',
       ({ action:{ key } }) => {
-        debugging && console.log('didBlur:',key);
         key !== 'StackRouterRoot' && this.setState({isFocused:false})
+        debugging && console.log('didBlur:',key)
       }
     )
   }
