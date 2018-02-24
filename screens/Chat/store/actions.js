@@ -36,14 +36,13 @@ export const decrementUnreadCount = () => ({
 export const handleNewChat = (chat,isSelf,isFocused) => {
   return (dispatch) => {
     dispatch(markUnread(chat,isSelf,isFocused))
-    isFocused && dispatch(incrementUnreadCount())
+    // isFocused && dispatch(incrementUnreadCount())
   }
 }
 
 export const handleClearedChat = chat => {
   return (dispatch,getState) => {
     dispatch(markRead(chat))
-    console.log('unreadCount on handleClearedChat:',getState().unreadCount);
-    if (getState().unreadCount > 0) dispatch(decrementUnreadCount())
+    // if (getState().unreadCount > 0) dispatch(decrementUnreadCount())
   }
 }

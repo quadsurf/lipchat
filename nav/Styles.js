@@ -51,7 +51,7 @@ export default {
   badge: {
     marginTop: 1,
     marginRight: 6,
-    backgroundColor: Colors.transparentPurplest,
+    backgroundColor: Colors.pinkly,
     height: 24,
     width: 24,
     borderRadius: 12,

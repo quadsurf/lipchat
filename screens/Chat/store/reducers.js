@@ -18,31 +18,47 @@ export const chatsReducer = (state = initialChats,actions) => {
       chats.sort( (a,b) => {
         return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
       })
-      return chats
+      let newChats = chats.map( chat => {
+        return {
+          ...chat,
+          unreadStatus: false,
+          unreadCount: 0
+        }
+      })
+      return newChats
     case MARK_UNREAD:
+      let chatFromState = state.find( chat => chat.id === actions.chat.id )
       let unreadChat = {
         ...actions.chat,
-        status: actions.isSelf === true ? 'neither' : actions.isFocused === true ? 'unread' : 'neither'
+        unreadStatus: chatFromState.unreadStatus,
+        unreadCount: chatFromState.unreadCount
+      }
+      if (!actions.isSelf) {
+          if (actions.isFocused) {
+            unreadChat.unreadStatus = true
+            unreadChat.unreadCount = ++unreadChat.unreadCount
+          }
       }
       chats = [...state]
-      i = chats.findIndex( chatIndex => {
-        return chatIndex.id === unreadChat.id
-      })
+      i = chats.findIndex( chat => chat.id === actions.chat.id )
       if (i !== -1) {
         chats.splice(i,1)
       }
       chats.unshift(unreadChat)
-      console.log('markUnread called')
       return chats
     case MARK_READ:
-      let readChat = actions.chat
+      let readChat = {
+        ...actions.chat,
+        unreadStatus: false,
+        unreadCount: 0
+      }
       chats = [...state]
       i = chats.findIndex( chat => readChat.id === chat.id)
       if (i !== -1) {
-        delete readChat.status
         chats.splice(i,1,readChat)
+      } else {
+        chats.unshift(readChat)
       }
-      console.log('markRead called')
       return chats
     default: return state
   }

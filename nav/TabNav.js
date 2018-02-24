@@ -247,12 +247,21 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderBadge = ({ route }) => {
-    if (route.key === '1' && this.props.unreadCount > 0) {
-      return (
-        <View style={styles.badge}>
-          <Text style={styles.count}>{this.props.unreadCount}</Text>
-        </View>
-      )
+    if (
+      route.key === '1' && 
+      this.props.chats && 
+      this.props.chats.length > 0
+    ) {
+      let newUnreadCount = this.props.chats.reduce((accumulator, {unreadCount}) => accumulator + unreadCount, 0)
+      if (newUnreadCount > 0) {
+        return (
+          <View style={styles.badge}>
+            <Text style={styles.count}>{newUnreadCount}</Text>
+          </View>
+        )
+      } else {
+        return <View/>
+      }
     } else {
       return <View/>
     }
@@ -473,7 +482,7 @@ const TabNavWithData = compose(
   })
 )(TabNav)
 
-const mapStateToProps = state => ({ unreadCount:state.unreadCount })
+const mapStateToProps = state => ({ unreadCount:state.unreadCount,chats:state.chats })
 
 export default connect(mapStateToProps)(TabNavWithData)
 

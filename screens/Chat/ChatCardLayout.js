@@ -24,13 +24,13 @@ const size = 90
 class ChatCardLayout extends Component {
   
   state = {
-    readStatus: this.props.chat.status ? this.props.chat.status : 'read'
+    unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
   }
   
   componentWillReceiveProps(newProps){
     if (newProps.thisChat) {
       this.setState({
-        readStatus: newProps.thisChat.status ? newProps.thisChat.status : 'read'
+        unreadStatus: newProps.thisChat.unreadStatus ? newProps.thisChat.unreadStatus : false
       })
     }
   }
@@ -38,7 +38,7 @@ class ChatCardLayout extends Component {
   render(){
     let {
       chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
-      level,message,date,line1,line2,nav,chatStatus,chat,handleClearedChat
+      level,message,date,line1,line2,nav,chat,handleClearedChat
     } = this.props
     let screen = getDimensions()
     let small = Texts.small.fontSize
@@ -104,13 +104,13 @@ class ChatCardLayout extends Component {
       }
     }
     
-    let { readStatus } = this.state
+    let { unreadStatus } = this.state
     
     if (approved) {
       // the person being viewed is approved
       return (
         <TouchableOpacity style={cardStyle} onPress={()=>{
-            if (readStatus === 'unread') {
+            if (unreadStatus) {
               handleClearedChat(chat)
             }
             nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
@@ -133,7 +133,7 @@ class ChatCardLayout extends Component {
             <FontPoiret text={moment(date).fromNow()} size={small} color={Colors.white}/>
           </View>
           {
-            readStatus === 'unread' ? <View style={unread}/> : <View/>
+            unreadStatus ? <View style={unread}/> : <View/>
           }
         </TouchableOpacity>
       )
@@ -153,26 +153,6 @@ class ChatCardLayout extends Component {
       )
     }
   }
-  
-  // constructor(props){
-  //   super(props)
-  //   this.i = this.props.chats.findIndex( chat => {
-  //     return chat.id === this.props.chatId
-  //   })
-  //   this.state = {
-  //     readStatus: this.props.chats[this.i].status
-  //   }
-  // }
-  
-  // componentWillReceiveProps(newProps){
-  //   if (newProps.chats) {
-  //     console.log('newProps.chats recd on ChatCardLayout called after markRead dispatch???');
-  //     if (newProps.chats[this.i]) {
-  //       console.log('prev readStatus',this.state.readStatus);
-  //       this.setState({readStatus: newProps.chats[this.i].status ? newProps.chats[this.i].status : 'read'},()=>console.log('next readStatus',this.state.readStatus))
-  //     }
-  //   }
-  // }
 }
 
 const mapStateToProps = (state,props) => {
