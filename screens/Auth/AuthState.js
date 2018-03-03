@@ -32,7 +32,7 @@ class AuthState extends Component {
   // componentWillMount(){
   //   AsyncStorage.setItem('rootKey',this.props.navigation.state.key)
   //     .catch( (e) => {
-  //       if (debugging) {console.log(e)}
+  //       debugging && console.log(e)
   //     })
   // }
 
@@ -52,14 +52,14 @@ class AuthState extends Component {
           })
         }
       } else if (newProps.getUser.error) {
-        if (debugging) {console.log('loggedout8')}
+        debugging && console.log('loggedout8')
         this.setState({newPropsErrorCount: this.state.newPropsErrorCount + 1},()=>{
           if (this.state.newPropsErrorCount < 2) {
             this.determineAuthStatus()
           }
         })
       } else {
-        if (debugging) {console.log('loggedout9')}
+        debugging && console.log('loggedout9')
         this.setState({newPropsElseCount: this.state.newPropsElseCount + 1},()=>{
           if (this.state.newPropsElseCount < 2) {
             this.determineAuthStatus()
@@ -90,7 +90,7 @@ class AuthState extends Component {
         this.determineAuthStatus()
       }
     } else {
-      if (debugging) {console.log('loggedout10')}
+      debugging && console.log('loggedout10')
       await clearIdentifiers()
       this.goTo('LoggedOut')
     }
@@ -146,35 +146,35 @@ class AuthState extends Component {
           if (tokenStatus) {
             if (tokenStatus.expires_in) {
               if (tokenStatus.expires_in > 259200) {
-                if (debugging) {console.log('LoggedIn Redirect')}
+                debugging && console.log('LoggedIn Redirect')
                 this.goTo('LoggedIn')
               } else {
                 await clearIdentifiers()
-                if (debugging) {console.log('loggedout1')}
+                debugging && console.log('loggedout1')
                 this.goTo('LoggedOut')
               }
             } else if (tokenStatus.error) {
-              if (debugging) {console.log('loggedout2')}
+              debugging && console.log('loggedout2')
               this.goTo('LoggedOut')
             } else {
-              if (debugging) {console.log('loggedout3')}
+              debugging && console.log('loggedout3')
               this.goTo('LoggedOut')
             }
           } else {
             await clearIdentifiers()
-            if (debugging) {console.log('loggedout4')}
+            debugging && console.log('loggedout4')
             this.goTo('LoggedOut')
           }
         } else {
-          if (debugging) {console.log('loggedout5')}
+          debugging && console.log('loggedout5')
           this.goTo('LoggedOut')
         }
       } catch (e) {
-        if (debugging) {console.log('loggedout6')}
+        debugging && console.log('loggedout6')
         this.goTo('LoggedOut')
       }
     } else {
-      if (debugging) {console.log('loggedout7')}
+      debugging && console.log('loggedout7')
       await clearIdentifiers()
       this.goTo('LoggedOut')
     }

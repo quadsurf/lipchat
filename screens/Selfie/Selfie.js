@@ -1,12 +1,16 @@
 
 
+import { Camera, Permissions, FaceDetector } from 'expo'
 import React, { Component } from 'react'
-import { View,Text,TouchableOpacity } from 'react-native'
+import {
+  View,Text,TouchableOpacity,
+  Slider,Vibration
+} from 'react-native'
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
-import { Camera, Permissions } from 'expo'
+import isIPhoneX from 'react-native-is-iphonex'
 
 // GQL
 import { GetColorsAndInventories } from '../../api/db/queries'
@@ -17,11 +21,13 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
+import styles from './Styles'
 
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
 const debugging = false
+const landmarkSize = 2
 
 class Selfie extends Component {
 
@@ -32,14 +38,120 @@ class Selfie extends Component {
     user: this.props.user,
     colors: [],
     userType: this.props.userType,
-    hasCameraPermission: null,
-    type: Camera.Constants.Type.back
+    hasCameraPermission: false,
+    photoId: 1,
+    photos: [],
+    faces: []
+  }
+  
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA)
+    this.setState({ hasCameraPermission: status === 'granted' })
+  }
+  
+  onFacesDetected = ({ faces }) => this.setState({ faces })
+  onFaceDetectionError = state => console.warn('Faces detection error:', state)
+
+  renderFace({ bounds, faceID, rollAngle, yawAngle }) {
+    return (
+      <View
+        key={faceID}
+        transform={[
+          { perspective: 600 },
+          { rotateZ: `${rollAngle.toFixed(0)}deg` },
+          { rotateY: `${yawAngle.toFixed(0)}deg` },
+        ]}
+        style={[
+          styles.face,
+          {
+            ...bounds.size,
+            left: bounds.origin.x,
+            top: bounds.origin.y,
+          },
+        ]}>
+        <Text style={styles.faceText}>ID: {faceID}</Text>
+        <Text style={styles.faceText}>rollAngle: {rollAngle.toFixed(0)}</Text>
+        <Text style={styles.faceText}>yawAngle: {yawAngle.toFixed(0)}</Text>
+      </View>
+    )
   }
 
-  async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+  renderLandmarksOfFace(face) {
+    const renderLandmark = position =>
+      position && (
+        <View
+          style={[
+            styles.landmark,
+            {
+              left: position.x - landmarkSize / 2,
+              top: position.y - landmarkSize / 2,
+            },
+          ]}
+        />
+      )
+    return (
+      <View key={`landmarks-${face.faceID}`}>
+        {renderLandmark(face.leftMouthPosition)}
+        {renderLandmark(face.mouthPosition)}
+        {renderLandmark(face.rightMouthPosition)}
+        {renderLandmark(face.bottomMouthPosition)}
+      </View>
+    )
   }
+
+  renderFaces() {
+    return (
+      <View style={styles.facesContainer} pointerEvents="none">
+        {this.state.faces.map(this.renderFace)}
+      </View>
+    )
+  }
+
+  renderLandmarks() {
+    return (
+      <View style={styles.facesContainer} pointerEvents="none">
+        {this.state.faces.map(this.renderLandmarksOfFace)}
+      </View>
+    )
+  }
+
+  renderCamera() {
+    return (
+      <Camera
+        ref={ref => this.camera = ref}
+        style={{flex: 1}}
+        type={Camera.Constants.Type.front}
+        flashMode="off"
+        autoFocus="on"
+        zoom={0}
+        whiteBalance="auto"
+        ratio="16:9"
+        faceDetectionLandmarks={FaceDetector.Constants.Landmarks.all}
+        faceDetectionMode={FaceDetector.Constants.Mode.fast}
+        onFacesDetected={this.onFacesDetected}
+        onFaceDetectionError={this.onFaceDetectionError}
+        focusDepth={0}>
+        {this.renderFaces()}
+        {this.renderLandmarks()}
+      </Camera>
+    )
+  }
+
+  render() {
+    const cameraScreenContent = this.state.hasCameraPermission
+      ? this.renderCamera()
+      : this.renderNoPermissions()
+    return <View style={styles.container}>{cameraScreenContent}</View>
+  }
+  
+  // 
+  // async detectFaces(imageUri){
+  //   const options = {
+  //     mode: FaceDetector.Constants.Mode.accurate,
+  //     detectLandmarks: FaceDetector.Constants.Landmarks.all
+  //   }
+  //   return await FaceDetector.detectFaces(imageUri, options)
+  // }
 
   componentWillReceiveProps(newProps){
     if (newProps) {
@@ -212,15 +324,23 @@ class Selfie extends Component {
     }
   }
   
-  render(){
-    return(
-      <View style={{flex:1,backgroundColor:Colors.purple}}>
-        <MyStatusBar hidden={false} />
-        {this.renderCameraView()}
-        {this.renderModal()}
+  renderNoPermissions() {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+        <FontPoiret text="no access to camera" size={Texts.large.fontSize}/>
       </View>
     )
   }
+
+  // render(){
+  //   return(
+  //     <View style={{flex:1,backgroundColor:Colors.purple}}>
+  //       <MyStatusBar hidden={false} />
+  //       {this.renderCameraView()}
+  //       {this.renderModal()}
+  //     </View>
+  //   )
+  // }
 
 }
 

@@ -43,7 +43,7 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 1,
+    index: 2,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
@@ -112,8 +112,8 @@ class TabNav extends PureComponent<void, *, State> {
       let newUserType = newProps.getUserType.User.type
       if (newUserType !== exUserType) {
         this.updateUserTypeLocally(newUserType)
-        if (debugging) console.log('exUserType: ',exUserType);
-        if (debugging) console.log('newUserType: ',newUserType);
+        debugging && console.log('exUserType: ',exUserType);
+        debugging && console.log('newUserType: ',newUserType);
       }
     }
     if (
@@ -144,11 +144,11 @@ class TabNav extends PureComponent<void, *, State> {
           this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
           this.setState({sadvrId:groupChat.distributorsx[0].id},()=>{
             if (!dmChat) {
-              if (debugging) console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
+              debugging && console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
               this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
             } else {
               this.setState({user2AdminDmExists:true})
-              if (debugging) console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
+              debugging && console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
             }
           })
         })
@@ -171,31 +171,31 @@ class TabNav extends PureComponent<void, *, State> {
         if (res && res.data && res.data.addToChatOnShopper) {
           this.setState({notificationsHasShopper:true})
         } else {
-          if (debugging) console.log('no response received from addShopperToAppNotificationGroupChat mutation');
+          debugging && console.log('no response received from addShopperToAppNotificationGroupChat mutation');
         }
-      }).catch( e => {if (debugging) console.log('failed to addShopperToAppNotificationGroupChat in DB',e.message)})
+      }).catch( e => {debugging && console.log('failed to addShopperToAppNotificationGroupChat in DB',e.message)})
     } else {
-      if (debugging) console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
+      debugging && console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
     }
   }
 
   createDmChatForShopperAndSadvrInDb(shopperId,distributorId){
-    if (debugging) console.log('createDmChatForShopperAndDistributor func called');
+    debugging && console.log('createDmChatForShopperAndDistributor func called');
     if (shopperId && distributorId) {
       this.props.createDmChatForShopperAndSadvr({
         variables: { shopperId,distributorId }
       }).then( res => {
         if (res && res.data && res.data.createChat) {
           this.setState({user2AdminDmExists:true})
-          if (debugging) console.log('successfully received res from createDmChatForShopperAndDistributor mutation');
+          debugging && console.log('successfully received res from createDmChatForShopperAndDistributor mutation');
         } else {
-          if (debugging) console.log('failed to receive res from createDmChatForShopperAndDistributor mutation');
+          debugging && console.log('failed to receive res from createDmChatForShopperAndDistributor mutation');
         }
       }).catch( e => {
-        if (debugging) console.log('failed to process createDmChatForShopperAndDistributor mutation',e.message);
+        debugging && console.log('failed to process createDmChatForShopperAndDistributor mutation',e.message);
       })
     } else {
-      if (debugging) console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
+      debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
     }
   }
 
@@ -403,7 +403,7 @@ class TabNav extends PureComponent<void, *, State> {
   render() {
     return (
       <TabViewAnimated
-        style={[styles.container, this.props.style]}
+        style={[styles.container,this.props.style]}
         navigationState={this.state}
         renderScene={this.renderScene}
         renderFooter={this.renderFooter}
