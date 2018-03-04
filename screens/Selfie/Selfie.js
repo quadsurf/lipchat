@@ -1,6 +1,6 @@
 
 
-import { Camera, Permissions, FaceDetector } from 'expo'
+import { Camera,Permissions,FaceDetector,Svg } from 'expo'
 import React, { Component } from 'react'
 import {
   View,Text,TouchableOpacity,
@@ -77,7 +77,7 @@ class Selfie extends Component {
   }
 
   renderLandmarksOfFace(face) {
-    const renderLandmark = position =>
+    const renderLandmark = (position,coord) =>
       position && (
         <View
           style={[
@@ -86,19 +86,72 @@ class Selfie extends Component {
               left: position.x - landmarkSize / 2,
               top: position.y - landmarkSize / 2,
             },
+            {
+              backgroundColor: coord === 'mouth' ? 'yellow' : coord === 'bottom' ? 'green' : 'red'
+            }
           ]}
         />
       )
+    const renderTopLip = ({
+      leftMouthPosition:{x:lx,y:ly},
+      mouthPosition:{x:cx,y:cy},
+      rightMouthPosition:{x:rx,y:ry},
+      bottomMouthPosition:{x:bx,y:by}
+    }) => {
+      let delta = 5
+      let peakDeltaX = 10
+      let peakDelatY = 6
+      let tltcy = cy-delta
+      let tlbcy = cy+delta
+      let tlplx = cx-peakDeltaX
+      let tlply = tltcy-peakDelatY
+      let tlprx = cx+peakDeltaX
+      let tlpry = tltcy-peakDelatY
+      let lm = `${lx},${ly}`
+      let tlpl = `${tlplx},${tlply}`
+      let tltc = `${cx},${tltcy}`
+      let tlpr = `${tlprx},${tlpry}`
+      let rm = `${rx},${ry}`
+      let tlbc = `${cx},${tlbcy}`
+      return (
+        <Svg
+            width={screenWidth}
+            height={screenHeight}
+        >
+            <Svg.Polygon
+                points={`${lm} ${tlpl} ${tltc} ${tlpr} ${rm} ${tlbc}`}
+                fill="rgba(255,64,129,0.3)"
+            />
+        </Svg>
+      )
+    }
     return (
       <View key={`landmarks-${face.faceID}`}>
-        {renderLandmark(face.leftMouthPosition)}
-        {renderLandmark(face.mouthPosition)}
-        {renderLandmark(face.rightMouthPosition)}
-        {renderLandmark(face.bottomMouthPosition)}
+        {renderTopLip(face)}
+      </View>
+    )
+    return (
+      <View key={`landmarks-${face.faceID}`}>
+        {renderLandmark(face.leftMouthPosition,'left')}
+        {renderLandmark(face.mouthPosition,'mouth')}
+        {renderLandmark(face.rightMouthPosition,'right')}
+        {renderLandmark(face.bottomMouthPosition,'bottom')}
       </View>
     )
   }
-
+  // {renderLandmark(face.leftMouthPosition)}
+  // {renderLandmark(face.mouthPosition)}
+  // {renderLandmark(face.rightMouthPosition)}
+  // {renderLandmark(face.bottomMouthPosition)}
+  // <View
+  //   style={[
+  //     styles.landmark,
+  //     {
+  //       left: x,
+  //       top: y
+  //     }
+  //   ]}
+  // />
   renderFaces() {
     return (
       <View style={styles.facesContainer} pointerEvents="none">
@@ -116,6 +169,7 @@ class Selfie extends Component {
   }
 
   renderCamera() {
+    // {this.renderFaces()}
     return (
       <Camera
         ref={ref => this.camera = ref}
@@ -131,7 +185,6 @@ class Selfie extends Component {
         onFacesDetected={this.onFacesDetected}
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
-        {this.renderFaces()}
         {this.renderLandmarks()}
       </Camera>
     )

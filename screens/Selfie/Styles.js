@@ -3,7 +3,7 @@
 import { getDimensions } from '../../utils/Helpers'
 
 const { width,height } = getDimensions()
-const landmarkSize = 2
+const landmarkSize = 6
 
 export default {
   container: {
@@ -30,8 +30,7 @@ export default {
   landmark: {
     width: landmarkSize,
     height: landmarkSize,
-    position: 'absolute',
-    backgroundColor: 'red',
+    position: 'absolute'
   },
   faceText: {
     color: '#FFD700',
