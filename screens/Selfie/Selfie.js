@@ -100,7 +100,7 @@ class Selfie extends Component {
     }) => {
       
       let topSteps = 10 // top lip's # of coordinates between landmarks
-      let topRisesY = Math.round(.2*topSteps) // the # of initial y rises till y changes direction
+      let topRisesY = Math.round(.4*topSteps) // the # of initial y rises till y changes direction
       let topCenterY = cy - 6 // adjusted top center y
       
       // amount of progressive movement from one landmark to the next
@@ -114,53 +114,28 @@ class Selfie extends Component {
       let topRightXs = [cx]
       let topRightYs = [topCenterY]
       
-      let topReducerArray = new Array(topSteps - 1)
-      
-      // X Reducers
-      let topLeftXsReducer = (tally, curVal) => {
-        let nextEl = tally - topLeftRunRateX
-        topLeftXs.push(nextEl)
-        return nextEl
-      }
-      let topRightXsReducer = (tally, curVal) => {
-        let nextEl = tally + topRightRunRateX
-        topRightXs.push(nextEl)
-        return nextEl
-      }
-      
-      // Y Reducers
-      let topLeftYsReducer = (tally, curVal) => {
-        let nextEl
-        if (topLeftYs.length < topRisesY+1) {
-          nextEl = tally - topLeftRunRateY
+      for (var i = 0; i < topSteps-1; i++) {
+        topLeftXs.push(topLeftXs[topLeftXs.length-1] - topLeftRunRateX)
+        topRightXs.push(topRightXs[topRightXs.length-1] + topRightRunRateX)
+        let nextTopLeftY,nextTopRightY
+        if (topLeftYs.length < topRisesY + 1) {
+          nextTopLeftY = topLeftYs[topLeftYs.length-1] - topLeftRunRateY
         } else {
-          nextEl = tally + topLeftRunRateY
+          nextTopLeftY = topLeftYs[topLeftYs.length-1] + topLeftRunRateY
         }
-        topLeftYs.push(nextEl)
-        return nextEl
-      }
-      let topRightYsReducer = (tally, curVal) => {
-        let nextEl
-        if (topRightYs.length < topRisesY+1) {
-          nextEl = tally - topRightRunRateY
+        topLeftYs.push(nextTopLeftY)
+        if (topRightYs.length < topRisesY + 1) {
+          nextTopRightY = topRightYs[topRightYs.length-1] - topRightRunRateY
         } else {
-          nextEl = tally + topRightRunRateY
+          nextTopRightY = topRightYs[topRightYs.length-1] + topRightRunRateY
         }
-        topRightYs.push(nextEl)
-        return nextEl
+        topRightYs.push(nextTopRightY)
       }
       
-      topReducerArray.reduce(topLeftXsReducer,cx)
-      topReducerArray.reduce(topLeftYsReducer,topCenterY)
-      topReducerArray.reduce(topRightXsReducer,cx)
-      topReducerArray.reduce(topRightYsReducer,topCenterY)
-      
-      // topLeftXs
-      // topLeftYs
-      // topRightXs
-      // topRightYs
-      console.log('topLeftXs',topLeftXs)
-      console.log('topLeftYs',topLeftYs)
+      topLeftXs.push(lx)
+      topLeftYs.push(ly)
+      topRightXs.push(rx)
+      topRightYs.push(ry)
       
       let topLeftCoordsWOTrim = ''
       let topRightCoordsWOTrim = ''
@@ -171,8 +146,8 @@ class Selfie extends Component {
       let topLeftCoords = topLeftCoordsWOTrim.trim()
       let topRightCoords = topRightCoordsWOTrim.trim()
       
-      console.log('topLeftCoords',topLeftCoords)
-      console.log('topRightCoords',topRightCoords)
+      // console.log('topLeftCoords',topLeftCoords)
+      // console.log('topRightCoords',topRightCoords)
       
       // let botSteps = 10 // bottom lip's # of coordinates between landmarks
       // let botCenterY = cy + 4 // adjusted bottom center y
@@ -200,8 +175,8 @@ class Selfie extends Component {
             height={screenHeight}
         >
             <Svg.Polygon
-                points={`${topLeftCoords} ${topRightCoords} ${tlbc}`}
-                fill="rgba(255,64,129,0.3)"
+                points={`${topLeftCoords} ${topRightCoords} ${tlbc} ${lm}`}
+                fill="rgba(255,64,129,0.7)"
             />
         </Svg>
       )
