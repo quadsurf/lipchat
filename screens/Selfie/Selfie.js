@@ -98,86 +98,55 @@ class Selfie extends Component {
       rightMouthPosition:{x:rx,y:ry},
       bottomMouthPosition:{x:bx,y:by}
     }) => {
+      let acx = cx // adjusted center x
+      let tcy = cy - 8 // adjusted top center y
+      let bcy = cy + 6 // adjusted bottom center y
+      let alx = lx - 9 // adjusted left x
+      let aly = ly // adjusted left y
+      let arx = rx + 9 // adjusted right x
+      let ary = ry // adjusted right y
       
-      let topSteps = 10 // top lip's # of coordinates between landmarks
-      let topRisesY = Math.round(.4*topSteps) // the # of initial y rises till y changes direction
-      let topCenterY = cy - 6 // adjusted top center y
+      let lm = `${alx},${ly}`
+      let tc = `${acx},${tcy}`
+      let rm = `${arx},${ry}`
+      let bc = `${acx},${bcy}`
       
-      // amount of progressive movement from one landmark to the next
-      let topLeftRunRateX = (Math.abs(cx - lx))/topSteps
-      let topLeftRunRateY = (Math.abs(topCenterY - ly))/topSteps
-      let topRightRunRateX = (Math.abs(cx - rx))/topSteps
-      let topRightRunRateY = (Math.abs(topCenterY - ry))/topSteps
+      let txDelta = 7
+      let tyDelta = 9
+      let tcxDelta = 20
+      let tcyDelta = 28
       
-      let topLeftXs = [cx]
-      let topLeftYs = [topCenterY]
-      let topRightXs = [cx]
-      let topRightYs = [topCenterY]
+      let bxDelta = 10
+      let byDelta = 3
+      let bcxDelta = 10
+      let bcyDelta = 3
+      let acxDelta = 5
       
-      for (var i = 0; i < topSteps-1; i++) {
-        topLeftXs.push(topLeftXs[topLeftXs.length-1] - topLeftRunRateX)
-        topRightXs.push(topRightXs[topRightXs.length-1] + topRightRunRateX)
-        let nextTopLeftY,nextTopRightY
-        if (topLeftYs.length < topRisesY + 1) {
-          nextTopLeftY = topLeftYs[topLeftYs.length-1] - topLeftRunRateY
-        } else {
-          nextTopLeftY = topLeftYs[topLeftYs.length-1] + topLeftRunRateY
-        }
-        topLeftYs.push(nextTopLeftY)
-        if (topRightYs.length < topRisesY + 1) {
-          nextTopRightY = topRightYs[topRightYs.length-1] - topRightRunRateY
-        } else {
-          nextTopRightY = topRightYs[topRightYs.length-1] + topRightRunRateY
-        }
-        topRightYs.push(nextTopRightY)
-      }
+      let tl = `C${alx+txDelta},${ly+tyDelta} ${acx-tcxDelta},${tcy-tcyDelta} ${tc}`
+      let tr = `C${acx+tcxDelta},${tcy-tcyDelta} ${arx-txDelta},${ry+tyDelta} ${rm}`
+      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+bcxDelta},${bcy-bcyDelta} ${acx+acxDelta},${bcy}`
+      let bl = `C${acx-acxDelta},${bcy-bcyDelta} ${arx-bxDelta},${ary+byDelta} ${alx},${aly}`
       
-      topLeftXs.push(lx)
-      topLeftYs.push(ly)
-      topRightXs.push(rx)
-      topRightYs.push(ry)
-      
-      let topLeftCoordsWOTrim = ''
-      let topRightCoordsWOTrim = ''
-      for (var i = 0; i < topLeftXs.length; i++) {
-        topLeftCoordsWOTrim = `${topLeftCoordsWOTrim} ${topLeftXs[i].toFixed(0)},${topLeftYs[i].toFixed(0)}`
-        topRightCoordsWOTrim = `${topRightCoordsWOTrim} ${topRightXs[i].toFixed(0)},${topRightYs[i].toFixed(0)}`
-      }
-      let topLeftCoords = topLeftCoordsWOTrim.trim()
-      let topRightCoords = topRightCoordsWOTrim.trim()
-      
-      // console.log('topLeftCoords',topLeftCoords)
-      // console.log('topRightCoords',topRightCoords)
-      
-      // let botSteps = 10 // bottom lip's # of coordinates between landmarks
-      // let botCenterY = cy + 4 // adjusted bottom center y
-      // let botReducerArray = new Array(botSteps - 1)
-      
-      let delta = 5
-      let peakDeltaX = 10
-      let peakDelatY = 6
-      let tltcy = cy-delta
-      let tlbcy = cy+delta
-      let tlplx = cx-peakDeltaX
-      let tlply = tltcy-peakDelatY
-      let tlprx = cx+peakDeltaX
-      let tlpry = tltcy-peakDelatY
-      let lm = `${lx},${ly}`
-      let tlpl = `${tlplx},${tlply}`
-      let tltc = `${cx},${tltcy}`
-      let tlpr = `${tlprx},${tlpry}`
-      let rm = `${rx},${ry}`
-      let tlbc = `${cx},${tlbcy}`
-      // ${lm} ${tlpl} ${tltc} ${tlpr} ${rm} ${tlbc}
       return (
         <Svg
-            width={screenWidth}
-            height={screenHeight}
+          width={screenWidth}
+          height={screenHeight}
         >
-            <Svg.Polygon
-                points={`${topLeftCoords} ${topRightCoords} ${tlbc} ${lm}`}
-                fill="rgba(255,64,129,0.7)"
-            />
+          <Svg.Path
+              fill="rgba(255,64,129,0.3)"
+              d={`M${lm} ${tl} ${tr} ${br} ${bl} Z`}
+          />
+        </Svg>
+      )
+      return (
+        <Svg
+          width={screenWidth}
+          height={screenHeight}
+        >
+          <Svg.Polygon
+              points={`${topLeftCoords} ${topRightCoords}`}
+              fill="rgba(255,64,129,0.5)"
+          />
         </Svg>
       )
     }
