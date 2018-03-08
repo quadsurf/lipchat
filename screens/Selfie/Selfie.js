@@ -99,34 +99,35 @@ class Selfie extends Component {
       bottomMouthPosition:{x:bx,y:by}
     }) => {
       let acx = cx // adjusted center x
-      let acyt = cy - 8 // adjusted top center y
-      let acyb = cy + 6 // adjusted bottom center y
+      let tacy = cy - 8 // adjusted top center y
+      let bacy = cy + 6 // adjusted bottom center y
       let alx = lx - 9 // adjusted left x
       let aly = ly // adjusted left y
       let arx = rx + 9 // adjusted right x
       let ary = ry // adjusted right y
       
       let lm = `${alx},${aly}`
-      let tc = `${acx},${acyt}`
+      let tc = `${acx},${tacy}`
       let rm = `${arx},${ary}`
-      // let bc = `${acx},${acyb}`
       
-      let txDelta = 7
-      let tyDelta = 9
-      let tcxDelta = 20
-      let acytDelta = 28
+      // top of top lip
+      let txDelta = 7 // control point distance from alx/arx
+      let tyDelta = 9 // control point distance from aly/ary
+      let tacxDeltaCP = 20 // control point distance from acx
+      let tacyDeltaCP = 28 // control point distance from acy
       
+      // bottom of top lip
       let bxDelta = 20 // control point distance from alx/arx
-      let byDelta = 10
-      let bcxDelta = 50 // control point distance from bottom center x
-      let acybDelta = 2
-      let acxDelta = 16 //
+      let byDelta = 10 // control point distance from aly/ary
+      let bacyDeltaCP = 3 // control point distance from bacy
+      let acxDeltaEP = 16 // end point distance from acx
+      let acxDeltaCP = acxDeltaEP * 3 // control point distance from acx
       
-      let tl = `C${alx+txDelta},${aly+tyDelta} ${acx-tcxDelta},${acyt-acytDelta} ${tc}`
-      let tr = `C${acx+tcxDelta},${acyt-acytDelta} ${arx-txDelta},${ry+tyDelta} ${rm}`
-      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+bcxDelta},${acyb-acybDelta} ${acx+acxDelta},${acyb}`
-      let bc = `C${acx},${acyb+acybDelta} ${acx},${acyb+acybDelta} ${acx-acxDelta},${acyb}`
-      let bl = `C${acx-acxDelta},${acyb-acybDelta} ${alx+bxDelta},${aly+byDelta} ${lm}`
+      let tl = `C${alx+txDelta},${aly+tyDelta} ${acx-tacxDeltaCP},${tacy-tacyDeltaCP} ${tc}`
+      let tr = `C${acx+tacxDeltaCP},${tacy-tacyDeltaCP} ${arx-txDelta},${ry+tyDelta} ${rm}`
+      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+acxDeltaCP},${bacy-bacyDeltaCP} ${acx+acxDeltaEP},${bacy}`
+      let bc = `C${acx},${bacy+bacyDeltaCP} ${acx},${bacy+bacyDeltaCP} ${acx-acxDeltaEP},${bacy}`
+      let bl = `C${acx-acxDeltaCP},${bacy-bacyDeltaCP} ${alx+bxDelta},${aly+byDelta} ${lm}`
       
       return (
         <Svg
@@ -134,19 +135,8 @@ class Selfie extends Component {
           height={screenHeight}
         >
           <Svg.Path
-              fill="rgba(255,64,129,0.3)"
+              fill="rgba(255,64,129,0.75)"
               d={`M${lm} ${tl} ${tr} ${br} ${bc} ${bl} Z`}
-          />
-        </Svg>
-      )
-      return (
-        <Svg
-          width={screenWidth}
-          height={screenHeight}
-        >
-          <Svg.Polygon
-              points={`${topLeftCoords} ${topRightCoords}`}
-              fill="rgba(255,64,129,0.5)"
           />
         </Svg>
       )
