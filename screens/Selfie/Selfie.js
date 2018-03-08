@@ -159,10 +159,10 @@ class Selfie extends Component {
       let cp4 = `${acxLower + ctrXsTop},${tacyLower + ctrYsTop}` // top mid section
       let cp5 = `${acxLower + midXsTop},${tacyLower - midYsTop}` // top right
       let cp6 = `${arx - lrXsTop},${aly + lrYsTop}` // top right
-      let cp7 = `${},${}`
-      let cp8 = `${},${}`
-      let cp9 = `${},${}`
-      let cp10 = `${},${}`
+      let cp7 = `${arx - lrXsBot},${aly - lrYsBot}`
+      let cp8 = `${acxLower + midXsBot},${bacyLower + midYsBot}`
+      let cp9 = `${acxLower - midXsBot},${bacyLower + midYsBot}`
+      let cp10 = `${alx + lrXsBot},${aly - lrYsBot}`
       
       // bottom lip regions
       let tlLower = `C${cp1} ${cp2} ${}`
