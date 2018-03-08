@@ -99,33 +99,34 @@ class Selfie extends Component {
       bottomMouthPosition:{x:bx,y:by}
     }) => {
       let acx = cx // adjusted center x
-      let tcy = cy - 8 // adjusted top center y
-      let bcy = cy + 6 // adjusted bottom center y
+      let acyt = cy - 8 // adjusted top center y
+      let acyb = cy + 6 // adjusted bottom center y
       let alx = lx - 9 // adjusted left x
       let aly = ly // adjusted left y
       let arx = rx + 9 // adjusted right x
       let ary = ry // adjusted right y
       
-      let lm = `${alx},${ly}`
-      let tc = `${acx},${tcy}`
-      let rm = `${arx},${ry}`
-      let bc = `${acx},${bcy}`
+      let lm = `${alx},${aly}`
+      let tc = `${acx},${acyt}`
+      let rm = `${arx},${ary}`
+      // let bc = `${acx},${acyb}`
       
       let txDelta = 7
       let tyDelta = 9
       let tcxDelta = 20
-      let tcyDelta = 28
+      let acytDelta = 28
       
-      let bxDelta = 10
-      let byDelta = 3
-      let bcxDelta = 10
-      let bcyDelta = 3
-      let acxDelta = 5
+      let bxDelta = 20 // control point distance from alx/arx
+      let byDelta = 10
+      let bcxDelta = 50 // control point distance from bottom center x
+      let acybDelta = 2
+      let acxDelta = 16 //
       
-      let tl = `C${alx+txDelta},${ly+tyDelta} ${acx-tcxDelta},${tcy-tcyDelta} ${tc}`
-      let tr = `C${acx+tcxDelta},${tcy-tcyDelta} ${arx-txDelta},${ry+tyDelta} ${rm}`
-      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+bcxDelta},${bcy-bcyDelta} ${acx+acxDelta},${bcy}`
-      let bl = `C${acx-acxDelta},${bcy-bcyDelta} ${arx-bxDelta},${ary+byDelta} ${alx},${aly}`
+      let tl = `C${alx+txDelta},${aly+tyDelta} ${acx-tcxDelta},${acyt-acytDelta} ${tc}`
+      let tr = `C${acx+tcxDelta},${acyt-acytDelta} ${arx-txDelta},${ry+tyDelta} ${rm}`
+      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+bcxDelta},${acyb-acybDelta} ${acx+acxDelta},${acyb}`
+      let bc = `C${acx},${acyb+acybDelta} ${acx},${acyb+acybDelta} ${acx-acxDelta},${acyb}`
+      let bl = `C${acx-acxDelta},${acyb-acybDelta} ${alx+bxDelta},${aly+byDelta} ${lm}`
       
       return (
         <Svg
@@ -134,7 +135,7 @@ class Selfie extends Component {
         >
           <Svg.Path
               fill="rgba(255,64,129,0.3)"
-              d={`M${lm} ${tl} ${tr} ${br} ${bl} Z`}
+              d={`M${lm} ${tl} ${tr} ${br} ${bc} ${bl} Z`}
           />
         </Svg>
       )
