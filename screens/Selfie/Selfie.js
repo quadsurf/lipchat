@@ -98,36 +98,78 @@ class Selfie extends Component {
       rightMouthPosition:{x:rx,y:ry},
       bottomMouthPosition:{x:bx,y:by}
     }) => {
+      // UPPER LIP
+      // adjustments
       let acx = cx // adjusted center x
-      let tacy = cy - 8 // adjusted top center y
-      let bacy = cy + 6 // adjusted bottom center y
+      let tacyUpper = cy - 8 // top adjusted center y
+      let bacyUpper = cy + 6 // bottom adjusted center y
       let alx = lx - 9 // adjusted left x
       let aly = ly // adjusted left y
       let arx = rx + 9 // adjusted right x
       let ary = ry // adjusted right y
       
+      // landmark coords
       let lm = `${alx},${aly}`
-      let tc = `${acx},${tacy}`
+      let tc = `${acx},${tacyUpper}`
       let rm = `${arx},${ary}`
       
-      // top of top lip
+      // top of upper lip
       let txDelta = 7 // control point distance from alx/arx
       let tyDelta = 9 // control point distance from aly/ary
       let tacxDeltaCP = 20 // control point distance from acx
-      let tacyDeltaCP = 28 // control point distance from acy
+      let tacyUpperDeltaCP = 28 // control point distance from acy
       
-      // bottom of top lip
+      // bottom of upper lip
       let bxDelta = 20 // control point distance from alx/arx
       let byDelta = 10 // control point distance from aly/ary
-      let bacyDeltaCP = 3 // control point distance from bacy
+      let bacyUpperDeltaCP = 3 // control point distance from bacyUpper
       let acxDeltaEP = 16 // end point distance from acx
       let acxDeltaCP = acxDeltaEP * 3 // control point distance from acx
       
-      let tl = `C${alx+txDelta},${aly+tyDelta} ${acx-tacxDeltaCP},${tacy-tacyDeltaCP} ${tc}`
-      let tr = `C${acx+tacxDeltaCP},${tacy-tacyDeltaCP} ${arx-txDelta},${ry+tyDelta} ${rm}`
-      let br = `C${arx-bxDelta},${ary+byDelta} ${acx+acxDeltaCP},${bacy-bacyDeltaCP} ${acx+acxDeltaEP},${bacy}`
-      let bc = `C${acx},${bacy+bacyDeltaCP} ${acx},${bacy+bacyDeltaCP} ${acx-acxDeltaEP},${bacy}`
-      let bl = `C${acx-acxDeltaCP},${bacy-bacyDeltaCP} ${alx+bxDelta},${aly+byDelta} ${lm}`
+      // upper lip regions
+      let tlUpper = `C${alx+txDelta},${aly+tyDelta} ${acx-tacxDeltaCP},${tacyUpper-tacyUpperDeltaCP} ${tc}`
+      let trUpper = `C${acx+tacxDeltaCP},${tacyUpper-tacyUpperDeltaCP} ${arx-txDelta},${ry+tyDelta} ${rm}`
+      let brUpper = `C${arx-bxDelta},${ary+byDelta} ${acx+acxDeltaCP},${bacyUpper-bacyUpperDeltaCP} ${acx+acxDeltaEP},${bacyUpper}`
+      let bcUpper = `C${acx},${bacyUpper+bacyUpperDeltaCP} ${acx},${bacyUpper+bacyUpperDeltaCP} ${acx-acxDeltaEP},${bacyUpper}`
+      let blUpper = `C${acx-acxDeltaCP},${bacyUpper-bacyUpperDeltaCP} ${alx+bxDelta},${aly+byDelta} ${lm}`
+      
+      // LOWER LIP
+      // adjustments
+      let acxLower = bx // bottom of lower lip's adjsuted center x
+      let bacyLower = by // bottom of lower lip's adjusted center y
+      let tacyLower = bacyLower - 20 // height of the lower lip
+      
+      // control point OFFSETS for Xs
+      let lrXsTop = 20
+      let midXsTop = 20
+      let ctrXsTop = .5 * midXsTop
+      let lrXsBot = 
+      let midXsBot = 
+      
+      // control point OFFSETS for Ys
+      let lrYsTop = 10
+      let midYsTop = 
+      let ctrYsTop = tacyLower * 1.2
+      let lrYsBot = 
+      let midYsBot = 
+      
+      let cp1 = `${alx + lrXsTop},${aly + lrYsTop}` // top left
+      let cp2 = `${acxLower - midXsTop},${tacyLower - midYsTop}` // top left
+      let cp3 = `${acxLower - ctrXsTop},${tacyLower + ctrYsTop}` // top mid section
+      let cp4 = `${acxLower + ctrXsTop},${tacyLower + ctrYsTop}` // top mid section
+      let cp5 = `${acxLower + midXsTop},${tacyLower - midYsTop}` // top right
+      let cp6 = `${arx - lrXsTop},${aly + lrYsTop}` // top right
+      let cp7 = `${},${}`
+      let cp8 = `${},${}`
+      let cp9 = `${},${}`
+      let cp10 = `${},${}`
+      
+      // bottom lip regions
+      let tlLower = `C${cp1} ${cp2} ${}`
+      let tMidLower = `C${cp3} ${cp4} ${}`
+      let trLower = `C${cp5} ${cp6} ${}`
+      let brLower = `C${cp7} ${cp8} ${}`
+      let blLower = `C${cp9} ${cp10} ${lm}`
       
       return (
         <Svg
@@ -135,8 +177,12 @@ class Selfie extends Component {
           height={screenHeight}
         >
           <Svg.Path
-              fill="rgba(255,64,129,0.75)"
-              d={`M${lm} ${tl} ${tr} ${br} ${bc} ${bl} Z`}
+              fill="rgba(255,64,129,0.81)"
+              d={`M${lm} ${tlUpper} ${trUpper} ${brUpper} ${bcUpper} ${blUpper}`}
+          />
+          <Svg.Path
+              fill="rgb(55,26,133,0.75)"
+              d={`M${lm} ${tlLower} ${tMidLower} ${trLower} ${brLower} ${blLower}`}
           />
         </Svg>
       )
