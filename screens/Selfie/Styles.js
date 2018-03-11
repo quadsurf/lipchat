@@ -8,7 +8,7 @@ const landmarkSize = 6
 export default {
   container: {
     width,height,
-    backgroundColor: '#000'
+    // backgroundColor: 'transparent'
     // flex: 1,
   },
   facesContainer: {
@@ -25,7 +25,7 @@ export default {
     position: 'absolute',
     borderColor: '#FFD700',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
   landmark: {
     width: landmarkSize,

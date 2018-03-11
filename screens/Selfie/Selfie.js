@@ -23,6 +23,8 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 
+import ColorListItem from './Color'
+
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
@@ -41,7 +43,9 @@ class Selfie extends Component {
     hasCameraPermission: false,
     photoId: 1,
     photos: [],
-    faces: []
+    faces: [],
+    activeAlpha: 0.6,
+    activeColor: 'rgba(0,0,0,0)'
   }
   
   async componentWillMount() {
@@ -77,21 +81,6 @@ class Selfie extends Component {
   }
 
   renderLandmarksOfFace(face) {
-    const renderLandmark = (position,coord) =>
-      position && (
-        <View
-          style={[
-            styles.landmark,
-            {
-              left: position.x - landmarkSize / 2,
-              top: position.y - landmarkSize / 2,
-            },
-            {
-              backgroundColor: coord === 'mouth' ? 'yellow' : coord === 'bottom' ? 'green' : 'red'
-            }
-          ]}
-        />
-      )
     const renderTopLip = ({
       leftMouthPosition:{x:lx,y:ly},
       mouthPosition:{x:cx,y:cy},
@@ -166,18 +155,18 @@ class Selfie extends Component {
       let blLower = `C${acxLower-((acxLower-alx)/2)},${bacyLower} 
                       ${alx},${ary+((bacyLower-aly)/2)} 
                       ${lm}`
-      
+      let { activeColor } = this.state
       return (
         <Svg
           width={screenWidth}
           height={screenHeight}
         >
           <Svg.Path
-              fill="rgba(255,64,129,0.6)"
+              fill={activeColor}
               d={`M${lm} ${tlUpper} ${trUpper} ${brUpper} ${bMidUpper} ${blUpper}`}
           />
           <Svg.Path
-              fill="rgba(255,64,129,0.6)"
+              fill={activeColor}
               d={`M${lm} ${tlLower} ${tMidLower} ${trLower} ${brLower} ${blLower}`}
           />
         </Svg>
@@ -188,29 +177,8 @@ class Selfie extends Component {
         {renderTopLip(face)}
       </View>
     )
-    return (
-      <View key={`landmarks-${face.faceID}`}>
-        {renderLandmark(face.leftMouthPosition,'left')}
-        {renderLandmark(face.mouthPosition,'mouth')}
-        {renderLandmark(face.rightMouthPosition,'right')}
-        {renderLandmark(face.bottomMouthPosition,'bottom')}
-      </View>
-    )
   }
-  // rgb(55,26,133,0.5)
-  // {renderLandmark(face.leftMouthPosition)}
-  // {renderLandmark(face.mouthPosition)}
-  // {renderLandmark(face.rightMouthPosition)}
-  // {renderLandmark(face.bottomMouthPosition)}
-  // <View
-  //   style={[
-  //     styles.landmark,
-  //     {
-  //       left: x,
-  //       top: y
-  //     }
-  //   ]}
-  // />
+  
   renderFaces() {
     return (
       <View style={styles.facesContainer} pointerEvents="none">
@@ -222,7 +190,7 @@ class Selfie extends Component {
   renderLandmarks() {
     return (
       <View style={styles.facesContainer} pointerEvents="none">
-        {this.state.faces.map(this.renderLandmarksOfFace)}
+        {this.state.faces.map((face) => this.renderLandmarksOfFace(face))}
       </View>
     )
   }
@@ -245,26 +213,47 @@ class Selfie extends Component {
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
         {this.renderLandmarks()}
+        {this.renderColors()}
       </Camera>
     )
+  }
+  
+  onPressColor(rgb){
+    this.setState({activeColor:`rgba(${rgb},${this.state.activeAlpha})`})
+  }
+  
+  renderColor({ name,rgb,colorId }){
+    return (
+      <ColorListItem 
+        key={colorId} 
+        name={name} 
+        rgb={rgb} 
+        onPressColor={() => this.onPressColor(rgb)} />
+    )
+  }
+  
+  renderColors(){
+    let { colors } = this.state
+    if (colors && colors.length > 0) {
+      return colors.map((color) => this.renderColor(color))
+    }
   }
 
   render() {
     const cameraScreenContent = this.state.hasCameraPermission
       ? this.renderCamera()
       : this.renderNoPermissions()
-    return <View style={styles.container}>{cameraScreenContent}</View>
+    return (
+      <View style={{flex:1,backgroundColor:Colors.purple}}>
+        <MyStatusBar hidden={false} />
+        <View style={styles.container}>
+          {cameraScreenContent}
+        </View>
+        {this.renderModal()}
+      </View>
+    )
   }
   
-  // 
-  // async detectFaces(imageUri){
-  //   const options = {
-  //     mode: FaceDetector.Constants.Mode.accurate,
-  //     detectLandmarks: FaceDetector.Constants.Landmarks.all
-  //   }
-  //   return await FaceDetector.detectFaces(imageUri, options)
-  // }
-
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
@@ -278,14 +267,13 @@ class Selfie extends Component {
           }) => {
             let { id:likeId=null,doesLike=false } = like
             colors.push({
-              colorId,family,finish,name,
-              rgb: `rgb(${rgb})`,
+              colorId,family,finish,name,rgb,
               status,tone,
               likeId,doesLike
             })
           })
           this.setState({colors},()=>{
-            if (debugging) console.log('this.state.colors:',this.state.colors)
+            debugging && console.log('this.state.colors:',this.state.colors)
           })
         }
       }
@@ -443,16 +431,6 @@ class Selfie extends Component {
       </View>
     )
   }
-
-  // render(){
-  //   return(
-  //     <View style={{flex:1,backgroundColor:Colors.purple}}>
-  //       <MyStatusBar hidden={false} />
-  //       {this.renderCameraView()}
-  //       {this.renderModal()}
-  //     </View>
-  //   )
-  // }
 
 }
 
