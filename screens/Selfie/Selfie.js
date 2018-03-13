@@ -4,6 +4,7 @@ import { Camera,Permissions,FaceDetector,Svg } from 'expo'
 import React, { Component } from 'react'
 import {
   View,Text,TouchableOpacity,
+  ScrollView,
   Slider,Vibration
 } from 'react-native'
 
@@ -23,7 +24,7 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 
-import ColorListItem from './Color'
+import ColorListItem from './ColorListItem'
 
 // CONSTS
 const large = Texts.large.fontSize
@@ -45,7 +46,9 @@ class Selfie extends Component {
     photos: [],
     faces: [],
     activeAlpha: 0.6,
-    activeColor: 'rgba(0,0,0,0)'
+    activeColor: 'rgba(0,0,0,0)',
+    layersMode: false,
+    selectedColors: []
   }
   
   async componentWillMount() {
@@ -213,22 +216,51 @@ class Selfie extends Component {
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
         {this.renderLandmarks()}
-        {this.renderColors()}
+        <ScrollView contentContainerStyle={{
+          height:((this.state.colors.length+1)*60),
+          alignSelf: 'flex-end'
+        }}>
+          {this.renderColors()}
+        </ScrollView>
       </Camera>
     )
   }
   
-  onPressColor(rgb){
-    this.setState({activeColor:`rgba(${rgb},${this.state.activeAlpha})`})
+  onPressColor(colorId,rgb){
+    let { layersMode } = this.state
+    let i = this.state.selectedColors.findIndex( selectedColorId => {
+      return selectedColorId === colorId
+    })
+    let { selectedColors } = this.state
+    let activeColor
+    if (i === -1) {
+      if (!layersMode) {
+        selectedColors = []
+      }
+      selectedColors.push(colorId)
+      activeColor = `rgba(${rgb},${this.state.activeAlpha})`
+    } else {
+      selectedColors.splice(i,1)
+      activeColor = 'rgba(0,0,0,0)'
+    }
+    this.setState({
+      activeColor,
+      selectedColors: [...selectedColors]
+    })
   }
   
-  renderColor({ name,rgb,colorId }){
+  renderColor({ name,rgb,colorId,doesLike }){
+    let isSelected = this.state.selectedColors.findIndex( selectedColorId => {
+      return selectedColorId === colorId
+    })
     return (
       <ColorListItem 
         key={colorId} 
         name={name} 
         rgb={rgb} 
-        onPressColor={() => this.onPressColor(rgb)} />
+        isSelected={isSelected === -1 ? false : true}
+        doesLike={doesLike}
+        onPressColor={() => this.onPressColor(colorId,rgb)} />
     )
   }
   
@@ -401,29 +433,6 @@ class Selfie extends Component {
     }
   }
 
-  renderCameraView(){
-    const { hasCameraPermission } = this.state
-    if (hasCameraPermission === null) {
-      return <View />
-    } else if (hasCameraPermission === false) {
-      return <FontPoiret text="no access to camera" size={Texts.large.fontSize}/>
-    } else {
-      return (
-        <Camera style={{flex:1}} type={Camera.Constants.Type.front}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'transparent',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-            <FontPoiret text="Manpreet, work your magic!!!" size={Texts.large.fontSize}/>
-          </View>
-        </Camera>
-      )
-    }
-  }
-  
   renderNoPermissions() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 10 }}>
