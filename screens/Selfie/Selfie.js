@@ -209,11 +209,13 @@ class Selfie extends Component {
         <View style={{
           position:'absolute',
           top: 120,
-          left:5,
+          left: 5,
+          width: 300,
           backgroundColor:Colors.transparentPurple,
-          alignItems:'flex-start'
+          alignItems:'flex-start',
+          padding: 12
         }}>
-          <Text>
+          <Text style={{color:"white"}}>
             selectedColors:{"\n"}
             {this.state.selectedColors[0]}{"\n"}
             {this.state.selectedColors[1]}{"\n"}
@@ -226,38 +228,35 @@ class Selfie extends Component {
     )
   }
   
-  extractRGBValuesFromString(text){
-    let colorCodes = text.split(',')
-    let codesArray = []
+  splitRGBStringIntoArrayOfNumbers(rgbString){
+    let colorCodes = rgbString.split(',')
+    let arrayOfRgbNumbers = []
     colorCodes.forEach( colorCode => {
-    	codesArray.push(parseInt(colorCode.match(/\d/g).join('')))
+    	arrayOfRgbNumbers.push(parseInt(colorCode.match(/\d/g).join('')))
     })
-    if (codesArray.length === 4) codesArray.pop()
-    return codesArray
+    if (arrayOfRgbNumbers.length === 4) arrayOfRgbNumbers.pop()
+    return arrayOfRgbNumbers
   }
   
-  async getNewRGB(rgb){
-    console.log('getNewRGB func called with:',rgb);
+  async getNewRGB(rgbString){
     let newRGB
-    if (!rgb) {
+    if (!rgbString) {
       let { activeColor } = this.state
       if (activeColor === 'rgba(0,0,0,0)') {
         newRGB = activeColor
       } else {
-        let arr = await this.extractRGBValuesFromString(activeColor)
+        let arr = await this.splitRGBStringIntoArrayOfNumbers(activeColor)
         newRGB = `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
       }
       return newRGB
     } else {
-      let extractedRGB = await this.extractRGBValuesFromString(rgb)
-      console.log('extractedRGB');
-      console.log(extractedRGB);
-      newRGB = await this.mergeRGBs(extractedRGB)
+      let arrayOfRgbNumbers = await this.splitRGBStringIntoArrayOfNumbers(rgbString)
+      newRGB = await this.consolidateRGBs(arrayOfRgbNumbers)
       return newRGB
     }
   }
   
-  getRGBsForSelectedColors(arr){
+  createArrayOfRGBStringsUsingIdsInSelectedColorsArray(arr){
     let matches = []
     arr.forEach( selectedColorId => {
       this.state.colors.forEach( color => {
@@ -269,38 +268,39 @@ class Selfie extends Component {
     return matches
   }
   
-  async mergeRGBs(rgb){
-    let matches = await this.getRGBsForSelectedColors(this.state.selectedColors)
+  async consolidateRGBs(rgb){
+    let matches = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray(this.state.selectedColors)
+    console.log('matches',matches);
     let rgbNumbers = []
     // matches array now has RGBs as comma-delimitted strings of colors that are selected
-    if (matches.length > 0) {
-      matches.forEach( async match => {
-        let rgbNumber = await this.extractRGBValuesFromString(match)
-        console.log('rgbNumber');
-        console.log(rgbNumber);
-        rgbNumbers.push(rgbNumber)
-      })
-    }
+    // if (matches.length > 0) {
+    // 
+    // }
+    await matches.forEach( async match => {
+      let rgbNumber = await this.splitRGBStringIntoArrayOfNumbers(match)
+      rgbNumbers.push(rgbNumber)
+    })
+    console.log('rgbNumbers',rgbNumbers);
     let mergedRGBs = await this.getLayeredRGB(rgb,rgbNumbers)
-    console.log('mergedRGBs');
-    console.log(mergedRGBs);
     return mergedRGBs
   }
   
   getLayeredRGB(rgb,rgbNumbers){
+    // console.log('getLayeredRGB func called with:',rgb);
+    // console.log(rgbNumbers);
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
       if (rgbNumbers.length === 2) {
-        red = (rgbNumbers[0][0] + rgbNumbers[1][0] + rgb[0]) / 3
-        green = (rgbNumbers[0][1] + rgbNumbers[1][1] + rgb[1]) / 3
-        blue = (rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3
-        alpha = layersModeAlpha * 3
+        red = Math.round((rgbNumbers[0][0] + rgbNumbers[1][0] + rgb[0]) / 3)
+        green = Math.round((rgbNumbers[0][1] + rgbNumbers[1][1] + rgb[1]) / 3)
+        blue = Math.round((rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3)
+        alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
       }
       if (rgbNumbers.length === 1) {
-        red = (rgbNumbers[0][0] + rgb[0]) / 2
-        green = (rgbNumbers[0][1] + rgb[1]) / 2
-        blue = (rgbNumbers[0][2] + rgb[2]) / 2
-        alpha = layersModeAlpha * 2
+        red = Math.round((rgbNumbers[0][0] + rgb[0]) / 2)
+        green = Math.round((rgbNumbers[0][1] + rgb[1]) / 2)
+        blue = Math.round((rgbNumbers[0][2] + rgb[2]) / 2)
+        alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
       }
       rgba = `rgba(${red},${green},${blue},${alpha})`
     } else {
@@ -316,7 +316,7 @@ class Selfie extends Component {
       let { selectedColors } = this.state
       let activeColor
       if (selectedColors.length > 0) {
-        let rgb = await this.getRGBsForSelectedColors([selectedColors[0]])[0]
+        let rgb = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray([selectedColors[0]])[0]
         activeColor = `rgba(${rgb},${singleCoatAlpha})`
       }
       this.setState({
@@ -336,26 +336,31 @@ class Selfie extends Component {
     }
   }
   
-  async onPressColor(colorId,rgb){
-    console.log('onPressColor func');
+  async onPressColor(colorId,rgbString){
     let { layersMode } = this.state
+    // run check to see if color is selected already
     let i = this.state.selectedColors.findIndex( selectedColorId => {
       return selectedColorId === colorId
     })
     let { selectedColors } = this.state
     let activeColor
     if (i === -1) {
-      // colorId is not a selected color
+      // color is not selected
       if (!layersMode) {
         selectedColors = []
-        activeColor = `rgba(${rgb},${singleCoatAlpha})`
+        activeColor = `rgba(${rgbString},${singleCoatAlpha})`
       } else {
-        activeColor = await this.getNewRGB(rgb)
+        activeColor = await this.getNewRGB(rgbString)
       }
       selectedColors.push(colorId)
     } else {
+      // color is selected
+      if (!layersMode) {
+        activeColor = 'rgba(0,0,0,0)'
+      } else {
+        activeColor = await this.getNewRGB(rgbString)
+      }
       selectedColors.splice(i,1)
-      activeColor = 'rgba(0,0,0,0)'
     }
     this.setState({
       activeColor,
@@ -562,8 +567,8 @@ export default compose(
     name: 'getColorsAndInventories',
     options: props => ({
       variables: {
-        distributorxId: props.user.distributorx ? props.user.distributorx.id : "",
-        shopperxId: props.user.shopperx ? props.user.shopperx.id : ""
+        distributorxId: props.user.distributorx.id,
+        shopperxId: props.user.shopperx.id
       },
       fetchPolicy: 'network-only'
     })
