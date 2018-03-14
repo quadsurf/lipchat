@@ -6,6 +6,7 @@ const purpleLight = '#545997'
 const purpleText = '#6E639E'//6E67A8
 const purpleLive = '#352976'
 const purple = '#371A85'
+const transparentPurple = 'rgba(55,26,133,0.5)'
 const purpleDarker = '#2C1872'
 const purplest = '#673ab7'
 const blue = '#6EFAFD'
@@ -27,7 +28,7 @@ const green = '#4caf50'
 
 const Colors = {
   purple,purpleDarker,purpleText,purpleLight,purpleLighter,purpleLightest,purpleLive,purplest,transparentPurplest,
-  blue,bluergba,blueLive,black,green,pinkest,pinkly,pink,pinkLive,white,offWhite,transparentWhite,gray,red,
+  blue,bluergba,blueLive,black,green,pinkest,pinkly,pink,pinkLive,white,offWhite,transparentWhite,gray,red,transparentPurple,
   bgColor: purple
 }
 

@@ -24,13 +24,17 @@ import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 
+// COMPONENTS
 import ColorListItem from './ColorListItem'
+import { Switch } from '../Common'
 
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
 const debugging = false
 const landmarkSize = 2
+const layersModeAlpha = 0.2
+const singleCoatAlpha = 0.6
 
 class Selfie extends Component {
 
@@ -45,7 +49,7 @@ class Selfie extends Component {
     photoId: 1,
     photos: [],
     faces: [],
-    activeAlpha: 0.6,
+    activeAlpha: singleCoatAlpha,
     activeColor: 'rgba(0,0,0,0)',
     layersMode: false,
     selectedColors: []
@@ -58,30 +62,6 @@ class Selfie extends Component {
   
   onFacesDetected = ({ faces }) => this.setState({ faces })
   onFaceDetectionError = state => console.warn('Faces detection error:', state)
-
-  renderFace({ bounds, faceID, rollAngle, yawAngle }) {
-    return (
-      <View
-        key={faceID}
-        transform={[
-          { perspective: 600 },
-          { rotateZ: `${rollAngle.toFixed(0)}deg` },
-          { rotateY: `${yawAngle.toFixed(0)}deg` },
-        ]}
-        style={[
-          styles.face,
-          {
-            ...bounds.size,
-            left: bounds.origin.x,
-            top: bounds.origin.y,
-          },
-        ]}>
-        <Text style={styles.faceText}>ID: {faceID}</Text>
-        <Text style={styles.faceText}>rollAngle: {rollAngle.toFixed(0)}</Text>
-        <Text style={styles.faceText}>yawAngle: {yawAngle.toFixed(0)}</Text>
-      </View>
-    )
-  }
 
   renderLandmarksOfFace(face) {
     const renderTopLip = ({
@@ -182,14 +162,6 @@ class Selfie extends Component {
     )
   }
   
-  renderFaces() {
-    return (
-      <View style={styles.facesContainer} pointerEvents="none">
-        {this.state.faces.map(this.renderFace)}
-      </View>
-    )
-  }
-
   renderLandmarks() {
     return (
       <View style={styles.facesContainer} pointerEvents="none">
@@ -199,7 +171,6 @@ class Selfie extends Component {
   }
 
   renderCamera() {
-    // {this.renderFaces()}
     return (
       <Camera
         ref={ref => this.camera = ref}
@@ -222,8 +193,75 @@ class Selfie extends Component {
         }}>
           {this.renderColors()}
         </ScrollView>
+        <View style={{
+          flexDirection:'row',position:'absolute',
+          top: isIPhoneX ? 36 : 6,
+          left:5,
+          backgroundColor:Colors.transparentPurple,borderRadius:24,
+          alignItems:'center',paddingHorizontal:12
+        }}>
+          <FontPoiret text="Single Coat" size={Texts.medium.fontSize} />
+          <Switch 
+            checked={this.state.layersMode}
+            onSwitchPress={() => this.toggleLayersMode()}/>
+          <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
+        </View>
       </Camera>
     )
+  }
+  
+  extractRGBValuesFromString(text){
+    let colorCodes = text.split(',')
+    let codesArray = []
+    colorCodes.forEach( colorCode => {
+    	codesArray.push(parseInt(colorCode.match(/\d/g).join('')))
+    })
+    if (codesArray.length === 4) codesArray.pop()
+    return codesArray
+  }
+  
+  getNewRGB(rgb){
+    let arr = extractRGBValuesFromString(this.state.activeColor)
+    if (!rgb) {
+      let newRGB = `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
+      return newRGB
+    } else {
+      return this.mergeRGBs(rgb)
+    }
+  }
+  
+  mergeRGBs(rgb){
+    let matches = []
+    this.state.selectedColors.forEach( selectedColorId => {
+      this.state.colors.forEach( color => {
+        if (color.colorId === selectedColorId) {
+          matches.push(color.rgb)
+        }
+      })
+    })
+    // matches now has RGBs as comma-delimitted strings of existing selected colors
+    matches.forEach( match => {
+      
+    })
+  }
+  
+  toggleLayersMode(){
+    let { layersMode } = this.state
+    if (layersMode) {
+      this.setState({
+        selectedColors: [],
+        layersMode: false,
+        activeAlpha: singleCoatAlpha,
+        activeColor: 'rgba(0,0,0,0)'
+      })
+    } else {
+      let activeColor = this.getNewRGB()
+      this.setState({
+        layersMode: true,
+        activeAlpha: layersModeAlpha,
+        activeColor
+      })
+    }
   }
   
   onPressColor(colorId,rgb){
@@ -234,11 +272,13 @@ class Selfie extends Component {
     let { selectedColors } = this.state
     let activeColor
     if (i === -1) {
+      // colorId is not a selected color
       if (!layersMode) {
         selectedColors = []
+        activeColor = `rgba(${rgb},${singleCoatAlpha})`
       }
       selectedColors.push(colorId)
-      activeColor = `rgba(${rgb},${this.state.activeAlpha})`
+      activeColor = this.getNewRGB(rgb)
     } else {
       selectedColors.splice(i,1)
       activeColor = 'rgba(0,0,0,0)'
