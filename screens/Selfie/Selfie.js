@@ -228,13 +228,12 @@ class Selfie extends Component {
     )
   }
   
-  // HOW DOES IT BEHAVE WHEN SUBTRACTING COLORS IN A DIFFERENT ORDER THAN WHAT THEY WERE ADDED IN
   // ADD STOPPER WITH ***VIBRATION*** IF SELECTED COLORS ARRAY IS ALREADY FULL
-  // ADD MODE CHECKER TO DETERMINE IF PLUS OR CHECK ICON
   // ADJUST LIP SHAPE
   // ADD TIPS MODALS
   // ADD/TEST LIP LIKER
-  // ADD APOLLO SUBSCRIPTION
+  // ADD APOLLO COLOR SUBSCRIPTION TO SELFIE AND LIPCOLORS.JS COMP
+  // ADD NEW COLORS TO DB
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
@@ -349,6 +348,7 @@ class Selfie extends Component {
       selectedColors.push(colorId)
     } else {
       // color is selected
+      // ARE WE REMOVING COLOR OR STRENGTHENING COLOR???
       if (!layersMode) {
         activeColor = 'rgba(0,0,0,0)'
       } else {
