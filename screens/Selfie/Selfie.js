@@ -49,7 +49,7 @@ class Selfie extends Component {
     photoId: 1,
     photos: [],
     faces: [],
-    activeAlpha: singleCoatAlpha,
+    // activeAlpha: singleCoatAlpha,
     activeColor: 'rgba(0,0,0,0)',
     layersMode: false,
     selectedColors: []
@@ -219,8 +219,8 @@ class Selfie extends Component {
             selectedColors:{"\n"}
             {this.state.selectedColors[0]}{"\n"}
             {this.state.selectedColors[1]}{"\n"}
-            {this.state.selectedColors[2]}{"\n"}{"\n"}
-            activeAlpha: {this.state.activeAlpha}{"\n"}
+            {this.state.selectedColors[2]}{"\n"}
+            {this.state.selectedColors[3]}{"\n"}{"\n"}
             activeColor: {this.state.activeColor}
           </Text>
         </View>
@@ -228,32 +228,55 @@ class Selfie extends Component {
     )
   }
   
-  splitRGBStringIntoArrayOfNumbers(rgbString){
-    let colorCodes = rgbString.split(',')
-    let arrayOfRgbNumbers = []
-    colorCodes.forEach( colorCode => {
-    	arrayOfRgbNumbers.push(parseInt(colorCode.match(/\d/g).join('')))
-    })
-    if (arrayOfRgbNumbers.length === 4) arrayOfRgbNumbers.pop()
-    return arrayOfRgbNumbers
-  }
-  
-  async getNewRGB(rgbString){
-    let newRGB
-    if (!rgbString) {
-      let { activeColor } = this.state
-      if (activeColor === 'rgba(0,0,0,0)') {
-        newRGB = activeColor
-      } else {
-        let arr = await this.splitRGBStringIntoArrayOfNumbers(activeColor)
-        newRGB = `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
+  // HOW DOES IT BEHAVE WHEN SUBTRACTING COLORS IN A DIFFERENT ORDER THAN WHAT THEY WERE ADDED IN
+  // ADD STOPPER WITH ***VIBRATION*** IF SELECTED COLORS ARRAY IS ALREADY FULL
+  // ADD MODE CHECKER TO DETERMINE IF PLUS OR CHECK ICON
+  // ADJUST LIP SHAPE
+  // ADD TIPS MODALS
+  // ADD/TEST LIP LIKER
+  // ADD APOLLO SUBSCRIPTION
+  getLayeredRGB(rgb,rgbNumbers,op){
+    let red,green,blue,alpha,rgba
+    if (rgbNumbers.length > 0) {
+      if (rgbNumbers.length === 3) {
+        if (op === '-') {
+          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0]) / 2 )
+          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1]) / 2 )
+          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2]) / 2 )
+          alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
+        }
       }
-      return newRGB
+      if (rgbNumbers.length === 2) {
+        if (op === '+') {
+          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgb[0]) / 3 )
+          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgb[1]) / 3 )
+          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3 )
+          alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
+        } else {
+          red = Math.round(rgbNumbers[0][0])
+          green = Math.round(rgbNumbers[0][1])
+          blue = Math.round(rgbNumbers[0][2])
+          alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
+        }
+      }
+      if (rgbNumbers.length === 1) {
+        if (op === '+') {
+          red = Math.round( (rgbNumbers[0][0] + rgb[0]) / 2 )
+          green = Math.round( (rgbNumbers[0][1] + rgb[1]) / 2 )
+          blue = Math.round( (rgbNumbers[0][2] + rgb[2]) / 2 )
+          alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
+        } else {
+          red = 0
+          green = 0
+          blue = 0
+          alpha = 0
+        }
+      }
+      rgba = `rgba(${red},${green},${blue},${alpha})`
     } else {
-      let arrayOfRgbNumbers = await this.splitRGBStringIntoArrayOfNumbers(rgbString)
-      newRGB = await this.consolidateRGBs(arrayOfRgbNumbers)
-      return newRGB
+      rgba = `rgba(${rgb},${layersModeAlpha})`
     }
+    return rgba
   }
   
   createArrayOfRGBStringsUsingIdsInSelectedColorsArray(arr){
@@ -268,71 +291,42 @@ class Selfie extends Component {
     return matches
   }
   
-  async consolidateRGBs(rgb){
+  async consolidateRGBs(arrayOfRgbNumbers,op){
     let matches = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray(this.state.selectedColors)
-    console.log('matches',matches);
     let rgbNumbers = []
-    // matches array now has RGBs as comma-delimitted strings of colors that are selected
-    // if (matches.length > 0) {
-    // 
-    // }
     await matches.forEach( async match => {
       let rgbNumber = await this.splitRGBStringIntoArrayOfNumbers(match)
       rgbNumbers.push(rgbNumber)
     })
-    console.log('rgbNumbers',rgbNumbers);
-    let mergedRGBs = await this.getLayeredRGB(rgb,rgbNumbers)
+    let mergedRGBs = await this.getLayeredRGB(arrayOfRgbNumbers,rgbNumbers,op)
     return mergedRGBs
   }
   
-  getLayeredRGB(rgb,rgbNumbers){
-    // console.log('getLayeredRGB func called with:',rgb);
-    // console.log(rgbNumbers);
-    let red,green,blue,alpha,rgba
-    if (rgbNumbers.length > 0) {
-      if (rgbNumbers.length === 2) {
-        red = Math.round((rgbNumbers[0][0] + rgbNumbers[1][0] + rgb[0]) / 3)
-        green = Math.round((rgbNumbers[0][1] + rgbNumbers[1][1] + rgb[1]) / 3)
-        blue = Math.round((rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3)
-        alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
-      }
-      if (rgbNumbers.length === 1) {
-        red = Math.round((rgbNumbers[0][0] + rgb[0]) / 2)
-        green = Math.round((rgbNumbers[0][1] + rgb[1]) / 2)
-        blue = Math.round((rgbNumbers[0][2] + rgb[2]) / 2)
-        alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
-      }
-      rgba = `rgba(${red},${green},${blue},${alpha})`
-    } else {
-      rgba = `rgba(${rgb},${layersModeAlpha})`
-    }
-    return rgba
+  splitRGBStringIntoArrayOfNumbers(rgbString){
+    let colorCodes = rgbString.split(',')
+    let arrayOfRgbNumbers = []
+    colorCodes.forEach( colorCode => {
+    	arrayOfRgbNumbers.push(parseInt(colorCode.match(/\d/g).join('')))
+    })
+    if (arrayOfRgbNumbers.length === 4) arrayOfRgbNumbers.pop()
+    return arrayOfRgbNumbers
   }
-  // HOW DOES IT BEHAVE WHEN SUBTRACTING COLORS IN A DIFFERENT ORDER THAN WHAT THEY WERE ADDED IN
-  // ALPHA NOT UPDATING FROM .2 TO .4
-  async toggleLayersMode(){
-    let { layersMode } = this.state
-    if (layersMode) {
-      let { selectedColors } = this.state
-      let activeColor
-      if (selectedColors.length > 0) {
-        let rgb = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray([selectedColors[0]])[0]
-        activeColor = `rgba(${rgb},${singleCoatAlpha})`
+  
+  async getNewRGB(rgbString,op){
+    let newRGB
+    if (!rgbString) {
+      let { activeColor } = this.state
+      if (activeColor === 'rgba(0,0,0,0)') {
+        newRGB = activeColor
+      } else {
+        let arr = await this.splitRGBStringIntoArrayOfNumbers(activeColor)
+        newRGB = `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
       }
-      this.setState({
-        selectedColors: selectedColors.length > 0 ? [selectedColors[0]] : [],
-        layersMode: false,
-        activeAlpha: singleCoatAlpha,
-        activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)'
-      })
+      return newRGB
     } else {
-      // singleCoatMode
-      let activeColor = await this.getNewRGB(null)
-      this.setState({
-        layersMode: true,
-        activeAlpha: layersModeAlpha,
-        activeColor
-      })
+      let arrayOfRgbNumbers = await this.splitRGBStringIntoArrayOfNumbers(rgbString)
+      newRGB = await this.consolidateRGBs(arrayOfRgbNumbers,op)
+      return newRGB
     }
   }
   
@@ -350,7 +344,7 @@ class Selfie extends Component {
         selectedColors = []
         activeColor = `rgba(${rgbString},${singleCoatAlpha})`
       } else {
-        activeColor = await this.getNewRGB(rgbString)
+        activeColor = await this.getNewRGB(rgbString,'+')
       }
       selectedColors.push(colorId)
     } else {
@@ -358,7 +352,7 @@ class Selfie extends Component {
       if (!layersMode) {
         activeColor = 'rgba(0,0,0,0)'
       } else {
-        activeColor = await this.getNewRGB(rgbString)
+        activeColor = await this.getNewRGB(rgbString,'-')
       }
       selectedColors.splice(i,1)
     }
@@ -366,6 +360,32 @@ class Selfie extends Component {
       activeColor,
       selectedColors: [...selectedColors]
     })
+  }
+  
+  async toggleLayersMode(){
+    let { layersMode } = this.state
+    if (layersMode) {
+      let { selectedColors } = this.state
+      let activeColor
+      if (selectedColors.length > 0) {
+        let rgb = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray([selectedColors[0]])[0]
+        activeColor = `rgba(${rgb},${singleCoatAlpha})`
+      }
+      this.setState({
+        selectedColors: selectedColors.length > 0 ? [selectedColors[0]] : [],
+        layersMode: false,
+        // activeAlpha: singleCoatAlpha,
+        activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)'
+      })
+    } else {
+      // singleCoatMode
+      let activeColor = await this.getNewRGB(null)
+      this.setState({
+        layersMode: true,
+        // activeAlpha: layersModeAlpha,
+        activeColor
+      })
+    }
   }
   
   renderColor({ name,rgb,colorId,doesLike }){
@@ -386,7 +406,7 @@ class Selfie extends Component {
   renderColors(){
     let { colors } = this.state
     if (colors && colors.length > 0) {
-      return colors.map((color) => this.renderColor(color))
+      return colors.map(color => this.renderColor(color))
     }
   }
 
