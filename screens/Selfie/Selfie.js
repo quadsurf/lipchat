@@ -228,20 +228,20 @@ class Selfie extends Component {
     )
   }
   
-  // ADD STOPPER WITH ***VIBRATION*** IF SELECTED COLORS ARRAY IS ALREADY FULL
-  // ADJUST LIP SHAPE
-  // ADD TIPS MODALS
   // ADD/TEST LIP LIKER
   // ADD APOLLO COLOR SUBSCRIPTION TO SELFIE AND LIPCOLORS.JS COMP
+  // ARE WE REMOVING COLOR OR STRENGTHENING COLOR??? (SEE BELOW)
+  // ADJUST LIP SHAPE
+  // ADD TIPS MODALS
   // ADD NEW COLORS TO DB
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
       if (rgbNumbers.length === 3) {
         if (op === '-') {
-          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0]) / 2 )
-          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1]) / 2 )
-          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2]) / 2 )
+          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbNumbers[2][0] - rgb[0]) / 2 )
+          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbNumbers[2][1] - rgb[1]) / 2 )
+          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbNumbers[2][2] - rgb[2]) / 2 )
           alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
         }
       }
@@ -252,9 +252,9 @@ class Selfie extends Component {
           blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3 )
           alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
         } else {
-          red = Math.round(rgbNumbers[0][0])
-          green = Math.round(rgbNumbers[0][1])
-          blue = Math.round(rgbNumbers[0][2])
+          red = Math.round(rgbNumbers[0][0] + rgbNumbers[1][0] - rgb[0])
+          green = Math.round(rgbNumbers[0][1] + rgbNumbers[1][1] - rgb[1])
+          blue = Math.round(rgbNumbers[0][2] + rgbNumbers[1][2] - rgb[2])
           alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
         }
       }
@@ -330,12 +330,11 @@ class Selfie extends Component {
   }
   
   async onPressColor(colorId,rgbString){
-    let { layersMode } = this.state
+    let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
-    let i = this.state.selectedColors.findIndex( selectedColorId => {
+    let i = selectedColors.findIndex( selectedColorId => {
       return selectedColorId === colorId
     })
-    let { selectedColors } = this.state
     let activeColor
     if (i === -1) {
       // color is not selected
@@ -343,7 +342,12 @@ class Selfie extends Component {
         selectedColors = []
         activeColor = `rgba(${rgbString},${singleCoatAlpha})`
       } else {
-        activeColor = await this.getNewRGB(rgbString,'+')
+        if (selectedColors.length >= 3) {
+          Vibration.vibrate()
+          return
+        } else {
+          activeColor = await this.getNewRGB(rgbString,'+')
+        }
       }
       selectedColors.push(colorId)
     } else {
