@@ -6,10 +6,10 @@ import {
 } from 'react-native'
 
 import { Ionicons } from '@expo/vector-icons'
-import { FontPoiret } from '../../../assets/fonts/Fonts'
-import { Texts } from '../../../css/Styles'
+import { FontPoiret } from '../../assets/fonts/Fonts'
+import { Texts } from '../../css/Styles'
 
-export default ({ color: { onPressLike,name,doesLike } }) => {
+export default ({ color: { name,doesLike },onPressLike }) => {
   return (
     <View style={{paddingHorizontal:6,flex:0.333}}>
       <TouchableOpacity 

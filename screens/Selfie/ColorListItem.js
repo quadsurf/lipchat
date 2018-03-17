@@ -9,16 +9,25 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Colors,Texts } from '../../css/Styles'
 
 export default ({ name,rgb,onPressColor,isSelected,doesLike }) => {
-  let name1,name2 = ''
+  let name1 = ''
+  let name2 = ''
   switch(name){
-    case 'sassy z': name2 = name
-    case 'mauve ice': name2 = name
-    case 'luv it': name2 = name
+    case 'sassy z':
+      name2 = name
+      break
+    case 'mauve ice':
+      name2 = name
+      break
+    case 'luv it':
+      name2 = name
+      break
     case 'kiss for a cause':
       name1 = 'kiss for'
       name2 = 'a cause'
       break
-    case 'fire n ice': name2 = name
+    case 'fire n ice':
+      name2 = name
+      break
     default:
       name1 = name.substr(0,name.indexOf(' '))
       name2 = name.substr(name.indexOf(' ')+1)

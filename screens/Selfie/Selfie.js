@@ -25,7 +25,7 @@ import styles from './Styles'
 // COMPONENTS
 import ColorListItem from './ColorListItem'
 import { Switch } from '../Common'
-import LikesOfSelectedColors from './ColorLiker/Likes'
+import Liker from './Liker'
 
 // CONSTS
 const large = Texts.large.fontSize
@@ -177,20 +177,28 @@ class Selfie extends Component {
     let likesOfSelectedColors = []
     this.state.selectedColors.forEach(id => {
       let color = this.getColorObj(id)
-      color.onPressLike = () => this.checkIfLikeExists(color)
       likesOfSelectedColors.push(color)
     })
     this.setState({likesOfSelectedColors})
   }
   
-  renderLikesOfSelectedColors(likesOfSelectedColors){
-    if (likesOfSelectedColors && likesOfSelectedColors.length > 0) {
-      return <LikesOfSelectedColors colors={likesOfSelectedColors} />
+  renderLiker(color){
+    return (
+      <Liker 
+        key={color.colorId} 
+        color={color} 
+        onPressLike={() => this.checkIfLikeExists(color)}/>
+    )
+  }
+  
+  renderLikers(colors){
+    if (colors && colors.length > 0) {
+      return colors.map(color => this.renderLiker(color))
     } else {
       return <View/>
     }
   }
-
+  
   renderCamera() {
     return (
       <Camera
@@ -208,6 +216,12 @@ class Selfie extends Component {
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
             {this.renderLandmarks()}
+            <ScrollView contentContainerStyle={{
+              height:((this.state.colors.length+1)*60),
+              alignSelf: 'flex-end'
+            }}>
+              {this.renderColors()}
+            </ScrollView>
             <View style={{
               position: 'absolute',
               bottom: 66,
@@ -217,14 +231,8 @@ class Selfie extends Component {
               justifyContent: 'flex-start',
               alignItems: 'flex-start'
             }}>
-              {this.renderLikesOfSelectedColors(this.state.likesOfSelectedColors)}
+              {this.renderLikers(this.state.likesOfSelectedColors)}
             </View>
-            <ScrollView contentContainerStyle={{
-              height:((this.state.colors.length+1)*60),
-              alignSelf: 'flex-end'
-            }}>
-              {this.renderColors()}
-            </ScrollView>
             <View style={{
               flexDirection:'row',position:'absolute',
               top: 30,left: 5,borderRadius:24,
@@ -237,10 +245,11 @@ class Selfie extends Component {
                 onSwitchPress={() => this.toggleLayersMode()}/>
               <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
             </View>
+            {this.renderModal()}
       </Camera>
     )
   }
-  
+  // kiss for cause duplicates
   // ADD/TEST LIP LIKER
   // ADD APOLLO COLOR SUBSCRIPTION TO SELFIE AND LIPCOLORS.JS COMP
   // ARE WE REMOVING COLOR OR STRENGTHENING COLOR??? (SEE BELOW)
@@ -291,7 +300,7 @@ class Selfie extends Component {
     return rgba
   }
   
-  createArrayOfRGBStringsUsingIdsInSelectedColorsArray(arr){
+  createArrayOfRGBStrings(arr){
     let matches = []
     arr.forEach( selectedColorId => {
       this.state.colors.forEach( color => {
@@ -304,7 +313,7 @@ class Selfie extends Component {
   }
   
   async consolidateRGBs(arrayOfRgbNumbers,op){
-    let matches = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray(this.state.selectedColors)
+    let matches = await this.createArrayOfRGBStrings(this.state.selectedColors)
     let rgbNumbers = []
     await matches.forEach( async match => {
       let rgbNumber = await this.splitRGBStringIntoArrayOfNumbers(match)
@@ -343,6 +352,7 @@ class Selfie extends Component {
   }
   
   async onPressColor(colorId,rgbString){
+    // this.showModal('processing')
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
     let i = selectedColors.findIndex( selectedColorId => {
@@ -357,7 +367,9 @@ class Selfie extends Component {
       } else {
         if (selectedColors.length >= 3) {
           Vibration.vibrate()
-          return
+          // setTimeout(()=>{
+          //   this.setState({isModalOpen:false})
+          // },1400)
         } else {
           activeColor = await this.getNewRGB(rgbString,'+')
         }
@@ -378,30 +390,32 @@ class Selfie extends Component {
       selectedColors: [...selectedColors]
     },()=>{
       this.updateLikesOfSelectedColors()
+      // setTimeout(()=>{
+      //   this.setState({isModalOpen:false})
+      // },1400)
     })
   }
   
   async toggleLayersMode(){
-    let { layersMode } = this.state
-    if (layersMode) {
-      let { selectedColors } = this.state
+    if (this.state.layersMode) {
+      this.setState({layersMode:false})
+      let { selectedColors,likesOfSelectedColors } = this.state
       let activeColor
       if (selectedColors.length > 0) {
-        let rgb = await this.createArrayOfRGBStringsUsingIdsInSelectedColorsArray([selectedColors[0]])[0]
+        let rgb = await this.createArrayOfRGBStrings([selectedColors[0]])[0]
+        console.log('rgb when toggling from on to off',rgb);
         activeColor = `rgba(${rgb},${singleCoatAlpha})`
       }
       this.setState({
         selectedColors: selectedColors.length > 0 ? [selectedColors[0]] : [],
-        layersMode: false,
-        activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)'
+        activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)',
+        likesOfSelectedColors: likesOfSelectedColors.length > 0 ? [likesOfSelectedColors[0]] : []
       })
     } else {
       // singleCoatMode
+      this.setState({layersMode:true})
       let activeColor = await this.getNewRGB(null)
-      this.setState({
-        layersMode: true,
-        activeColor
-      })
+      this.setState({activeColor})
     }
   }
   
@@ -436,7 +450,6 @@ class Selfie extends Component {
         <View style={styles.container}>
           {cameraScreenContent}
         </View>
-        {this.renderModal()}
       </View>
     )
   }
@@ -511,7 +524,7 @@ class Selfie extends Component {
   }
   
   createLikeInDb(ShopperId,color){
-    this.showModal('processing')
+    // this.showModal('processing')
     let errText = 'creating a like for this color'
     let { colorId:ColorId } = color
     if (ShopperId && ColorId) {
@@ -522,9 +535,9 @@ class Selfie extends Component {
           color.likeId = createLike.id
           color.doesLike = createLike.doesLike
           this.updateDoesLikeInApp(color)
-          setTimeout(()=>{
-            this.setState({isModalOpen:false})
-          },1400)
+          // setTimeout(()=>{
+          //   this.setState({isModalOpen:false})
+          // },1400)
         } else {
           this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }
