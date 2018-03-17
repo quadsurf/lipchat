@@ -4,14 +4,13 @@ import { Camera,Permissions,FaceDetector,Svg } from 'expo'
 import React, { Component } from 'react'
 import {
   View,Text,TouchableOpacity,
-  ScrollView,
-  Slider,Vibration
+  ScrollView,Vibration
 } from 'react-native'
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
-import isIPhoneX from 'react-native-is-iphonex'
+// import isIPhoneX from 'react-native-is-iphonex'
 
 // GQL
 import { GetColorsAndInventories } from '../../api/db/queries'
@@ -20,13 +19,13 @@ import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 
 // COMPONENTS
 import ColorListItem from './ColorListItem'
 import { Switch } from '../Common'
+import LikesOfSelectedColors from './ColorLiker/Likes'
 
 // CONSTS
 const large = Texts.large.fontSize
@@ -49,10 +48,10 @@ class Selfie extends Component {
     photoId: 1,
     photos: [],
     faces: [],
-    // activeAlpha: singleCoatAlpha,
     activeColor: 'rgba(0,0,0,0)',
     layersMode: false,
-    selectedColors: []
+    selectedColors: [],
+    likesOfSelectedColors: []
   }
   
   async componentWillMount() {
@@ -169,6 +168,28 @@ class Selfie extends Component {
       </View>
     )
   }
+  
+  getColorObj(id){
+    return this.state.colors.find( ({colorId}) => colorId === id)
+  }
+  
+  updateLikesOfSelectedColors(){
+    let likesOfSelectedColors = []
+    this.state.selectedColors.forEach(id => {
+      let color = this.getColorObj(id)
+      color.onPressLike = () => this.checkIfLikeExists(color)
+      likesOfSelectedColors.push(color)
+    })
+    this.setState({likesOfSelectedColors})
+  }
+  
+  renderLikesOfSelectedColors(likesOfSelectedColors){
+    if (likesOfSelectedColors && likesOfSelectedColors.length > 0) {
+      return <LikesOfSelectedColors colors={likesOfSelectedColors} />
+    } else {
+      return <View/>
+    }
+  }
 
   renderCamera() {
     return (
@@ -186,44 +207,36 @@ class Selfie extends Component {
         onFacesDetected={this.onFacesDetected}
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
-        {this.renderLandmarks()}
-        <ScrollView contentContainerStyle={{
-          height:((this.state.colors.length+1)*60),
-          alignSelf: 'flex-end'
-        }}>
-          {this.renderColors()}
-        </ScrollView>
-        <View style={{
-          flexDirection:'row',position:'absolute',
-          top: isIPhoneX ? 36 : 6,
-          left:5,
-          backgroundColor:Colors.transparentPurple,borderRadius:24,
-          alignItems:'center',paddingHorizontal:12
-        }}>
-          <FontPoiret text="Single Coat" size={Texts.medium.fontSize} />
-          <Switch 
-            checked={this.state.layersMode}
-            onSwitchPress={() => this.toggleLayersMode()}/>
-          <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
-        </View>
-        <View style={{
-          position:'absolute',
-          top: 120,
-          left: 5,
-          width: 300,
-          backgroundColor:Colors.transparentPurple,
-          alignItems:'flex-start',
-          padding: 12
-        }}>
-          <Text style={{color:"white"}}>
-            selectedColors:{"\n"}
-            {this.state.selectedColors[0]}{"\n"}
-            {this.state.selectedColors[1]}{"\n"}
-            {this.state.selectedColors[2]}{"\n"}
-            {this.state.selectedColors[3]}{"\n"}{"\n"}
-            activeColor: {this.state.activeColor}
-          </Text>
-        </View>
+            {this.renderLandmarks()}
+            <View style={{
+              position: 'absolute',
+              bottom: 66,
+              left: 0,
+              width:screenWidth*0.7,
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start'
+            }}>
+              {this.renderLikesOfSelectedColors(this.state.likesOfSelectedColors)}
+            </View>
+            <ScrollView contentContainerStyle={{
+              height:((this.state.colors.length+1)*60),
+              alignSelf: 'flex-end'
+            }}>
+              {this.renderColors()}
+            </ScrollView>
+            <View style={{
+              flexDirection:'row',position:'absolute',
+              top: 30,left: 5,borderRadius:24,
+              backgroundColor: Colors.transparentPurple,
+              alignItems: 'center',paddingHorizontal:12
+            }}>
+              <FontPoiret text="Single Coat" size={Texts.medium.fontSize} />
+              <Switch 
+                checked={this.state.layersMode}
+                onSwitchPress={() => this.toggleLayersMode()}/>
+              <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
+            </View>
       </Camera>
     )
   }
@@ -363,6 +376,8 @@ class Selfie extends Component {
     this.setState({
       activeColor,
       selectedColors: [...selectedColors]
+    },()=>{
+      this.updateLikesOfSelectedColors()
     })
   }
   
@@ -378,7 +393,6 @@ class Selfie extends Component {
       this.setState({
         selectedColors: selectedColors.length > 0 ? [selectedColors[0]] : [],
         layersMode: false,
-        // activeAlpha: singleCoatAlpha,
         activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)'
       })
     } else {
@@ -386,7 +400,6 @@ class Selfie extends Component {
       let activeColor = await this.getNewRGB(null)
       this.setState({
         layersMode: true,
-        // activeAlpha: layersModeAlpha,
         activeColor
       })
     }
@@ -420,7 +433,6 @@ class Selfie extends Component {
       : this.renderNoPermissions()
     return (
       <View style={{flex:1,backgroundColor:Colors.purple}}>
-        <MyStatusBar hidden={false} />
         <View style={styles.container}>
           {cameraScreenContent}
         </View>
@@ -487,7 +499,7 @@ class Selfie extends Component {
     })
   }
 
-  checkIfLikeExists(color={}){
+  checkIfLikeExists(color){
     let { likeId,doesLike,colorId } = color
     let { id:shopperId } = this.props.user.shopperx
     if (likeId) {

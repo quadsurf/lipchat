@@ -40,7 +40,6 @@ import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../..
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName,AccountTypeExplainer } from '../../config/Defaults'
 
@@ -632,7 +631,6 @@ class You extends Component {
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <MyStatusBar hidden={false} />
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

@@ -94,7 +94,7 @@ export default class App extends Component {
     if (!this.state.assetsAreLoaded && !this.props.skipLoadingScreen) {
       return (
         <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <MyStatusBar hidden={true} />
+          <MyStatusBar/>
           <DotsLoader
             size={15}
             color={Colors.pinkly}
@@ -111,7 +111,7 @@ export default class App extends Component {
         return (
           <ApolloProvider client={client} store={store}>
             <View style={{flex:1,backgroundColor:Colors.bgColor}}>
-              <MyStatusBar hidden={true} />
+              <MyStatusBar/>
               <RootNav localStorage={localStorage}/>
             </View>
           </ApolloProvider>
@@ -119,7 +119,7 @@ export default class App extends Component {
       } else {
         return (
           <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-            <MyStatusBar hidden={true} />
+            <MyStatusBar/>
             <DotsLoader
               size={15}
               color={Colors.pinkly}

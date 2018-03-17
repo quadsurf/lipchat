@@ -21,7 +21,6 @@ import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesL
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import { AppName } from '../../config/Defaults'
 
@@ -250,7 +249,6 @@ class LipColors extends Component {
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.purpleText}}>
-        <MyStatusBar hidden={false} />
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

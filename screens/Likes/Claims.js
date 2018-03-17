@@ -19,7 +19,6 @@ import axios from 'axios'
 import { NavigationActions } from 'react-navigation'
 
 //LOCALS
-import MyStatusBar from '../../common/MyStatusBar'
 import { Views,Colors } from '../../css/Styles'
 import { FontMatilde,FontPoiret } from '../../assets/fonts/Fonts'
 import { getDimensions } from '../../utils/Helpers'
@@ -285,7 +284,6 @@ class Claims extends Component {
   render(){
     return(
       <View style={{flex:1,backgroundColor:Colors.pinkly}}>
-        <MyStatusBar hidden={false} />
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

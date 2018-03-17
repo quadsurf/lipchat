@@ -15,7 +15,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import MyStatusBar from '../../common/MyStatusBar'
 import { err,Modals } from '../../utils/Helpers'
 
 //GQL
@@ -203,7 +202,6 @@ class Likes extends Component {
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <MyStatusBar hidden={false} />
         <FontPoiret text="Faves" size={Texts.xlarge.fontSize}/>
         {this.renderMainContent()}
         {this.renderModal()}

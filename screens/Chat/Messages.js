@@ -28,7 +28,6 @@ import {
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import MyStatusBar from '../../common/MyStatusBar'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
@@ -485,7 +484,6 @@ class Messages extends Component {
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <MyStatusBar hidden={false} />
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
           <View style={{justifyContent:'center'}}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack(null)}>
