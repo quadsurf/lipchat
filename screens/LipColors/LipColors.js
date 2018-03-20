@@ -14,9 +14,12 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetColorsAndInventories,GetUserType } from '../../api/db/queries'
+import { GetColorsAndInventories,GetUserType,GetLikesForShopper } from './../../api/db/queries'
 // import { SubUserType } from '../api/db/pubsub'
-import { ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
+import {
+  ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike
+} from '../../api/db/mutations'
+import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -52,6 +55,43 @@ class LipColors extends Component {
     hasColors: false
   }
 
+  subToLikesInDb(){
+    this.props.getLikesForShopper.subscribeToMore({
+      document: SubToLikesForShopper,
+      variables: {
+        shopperId: { id: this.props.user.shopperx.id }
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        const { node={},mutation='' } = subscriptionData.data.Like
+        if (mutation === 'CREATED' || mutation === 'UPDATED') {
+          if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+        }
+      }
+    })
+  }
+  
+  updateLikeOnColorsList(node){
+    let { colors } = this.state
+    let i = colors.findIndex(({id}) => id === node.colorx.id)
+    if (i !== -1) {
+      if (colors[i].likesx.length > 0 && colors[i].likesx[0].hasOwnProperty('id')) {
+        if (colors[i].likesx[0].doesLike !== node.doesLike) {
+          colors[i].likesx[0].doesLike = node.doesLike
+          this.setState({colors},() => this.processColors(this.state.colors))
+        } else {
+          this.processColors(colors)
+          // THIS CAN BE PERFORMANCE OPTIMIZED BY SEPARATING OUT THE FAMILY LISTS LIKE SO:
+          // let { neutralsColorIds } = this.state
+          // this.setState({neutralsColorIds:[...neutralsColorIds]})
+        }
+      }
+    }
+  }
+  
+  componentDidMount(){
+    this.subToLikesInDb()
+  }
+  
   componentWillReceiveProps(newProps){
     if (newProps) {
       if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
@@ -144,10 +184,13 @@ class LipColors extends Component {
         orangesColorIds,
         colorIdsCatcher
       },()=>{
-        if (debugging) {console.log('color',this.state.colors[0])}
+        debugging && console.log('color',this.state.colors[0])
         setTimeout(()=>{
-          this.setState({isListReady:true})
-        },2000)
+          this.setState({
+            isListReady: true,
+            hasColors: false
+          })
+        },1400)//2000
       })
     }
   }
@@ -481,5 +524,13 @@ export default compose(
   }),
   graphql(UpdateDoesLikeOnLike,{
     name: 'updateDoesLikeOnLike'
+  }),
+  graphql(GetLikesForShopper,{
+    name: 'getLikesForShopper',
+    options: props => ({
+      variables: {
+        shopperId: { id: props.user.shopperx.id }
+      }
+    })
   })
 )(LipColors)

@@ -283,14 +283,13 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  // ADD APOLLO COLOR SUBSCRIPTION TO SELFIE AND LIPCOLORS.JS COMP
-      // this.updateLikesOfSelectedColors() and 
-  // HIDE LIKES FOR USERTYPE DIST
+  // HIDE LIKES IN SWATCHES ONLY FOR USERTYPE DIST
   // ADD MODAL TO WARN DISTS WHEN THEY TRY TO LIKE A COLOR
   // ADJUST LIP SHAPE
   // ADD TIPS MODALS
+  // ADD PURPLE BACKGROUND TO LIKER.js
   // ADD NEW COLORS TO DB
-  // Clean up Styles
+  // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB
   // ADD PUSH NOTIFICATIONS
   // ADD VERSIONING
   getLayeredRGB(rgb,rgbNumbers,op){
@@ -483,7 +482,10 @@ class Selfie extends Component {
       : this.renderNoPermissions()
     return (
       <View style={{flex:1,backgroundColor:Colors.purple}}>
-        <View style={styles.container}>
+        <View style={{
+          width:screenWidth,
+          height:screenHeight
+        }}>
           {cameraScreenContent}
         </View>
       </View>
