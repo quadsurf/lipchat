@@ -15,6 +15,8 @@ import { DotsLoader } from 'react-native-indicator'
 // GQL
 import { GetColorsAndInventories } from '../../api/db/queries'
 import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
+import { GetLikesForShopper } from './../../api/db/queries'
+import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -23,7 +25,7 @@ import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 
 // COMPONENTS
-import ColorListItem from './ColorListItem'
+import ColorSwatch from './ColorSwatch'
 import { Switch } from '../Common'
 import Liker from './Liker'
 
@@ -54,9 +56,41 @@ class Selfie extends Component {
     likesOfSelectedColors: []
   }
   
+  subToLikesInDb(){
+    this.props.getLikesForShopper.subscribeToMore({
+      document: SubToLikesForShopper,
+      variables: {
+        shopperId: { id: this.props.user.shopperx.id }
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        const { node={},mutation='' } = subscriptionData.data.Like
+        if (mutation === 'CREATED' || mutation === 'UPDATED') {
+          if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+        }
+      }
+    })
+  }
+  
+  updateLikeOnColorsList(node){
+    let { colors } = this.state
+    let i = colors.findIndex(({colorId}) => colorId === node.colorx.id)
+    if (i !== -1) {
+      if (colors[i].doesLike !== node.doesLike) {
+        colors[i].doesLike = node.doesLike
+        this.setState({colors},() => this.updateLikesOfSelectedColors())
+      } else {
+        this.updateLikesOfSelectedColors()
+      }
+    }
+  }
+  
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA)
     this.setState({ hasCameraPermission: status === 'granted' })
+  }
+  
+  componentDidMount(){
+    this.subToLikesInDb()
   }
   
   onFacesDetected = ({ faces }) => this.setState({ faces })
@@ -249,13 +283,16 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  // kiss for cause duplicates
-  // ADD/TEST LIP LIKER
   // ADD APOLLO COLOR SUBSCRIPTION TO SELFIE AND LIPCOLORS.JS COMP
-  // ARE WE REMOVING COLOR OR STRENGTHENING COLOR??? (SEE BELOW)
+      // this.updateLikesOfSelectedColors() and 
+  // HIDE LIKES FOR USERTYPE DIST
+  // ADD MODAL TO WARN DISTS WHEN THEY TRY TO LIKE A COLOR
   // ADJUST LIP SHAPE
   // ADD TIPS MODALS
   // ADD NEW COLORS TO DB
+  // Clean up Styles
+  // ADD PUSH NOTIFICATIONS
+  // ADD VERSIONING
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
@@ -403,7 +440,6 @@ class Selfie extends Component {
       let activeColor
       if (selectedColors.length > 0) {
         let rgb = await this.createArrayOfRGBStrings([selectedColors[0]])[0]
-        console.log('rgb when toggling from on to off',rgb);
         activeColor = `rgba(${rgb},${singleCoatAlpha})`
       }
       this.setState({
@@ -424,7 +460,7 @@ class Selfie extends Component {
       return selectedColorId === colorId
     })
     return (
-      <ColorListItem 
+      <ColorSwatch 
         key={colorId} 
         name={name} 
         rgb={rgb} 
@@ -455,27 +491,25 @@ class Selfie extends Component {
   }
   
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-        if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
-          let newColors = newProps.getColorsAndInventories.allColors
-          let colors = []
-          newColors.forEach( ({
-            id:colorId,family,finish,name,rgb,
+    if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
+      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
+        let newColors = newProps.getColorsAndInventories.allColors
+        let colors = []
+        newColors.forEach( ({
+          id:colorId,family,finish,name,rgb,
+          status,tone,
+          likesx:[like={}]
+        }) => {
+          let { id:likeId=null,doesLike=false } = like
+          colors.push({
+            colorId,family,finish,name,rgb,
             status,tone,
-            likesx:[like={}]
-          }) => {
-            let { id:likeId=null,doesLike=false } = like
-            colors.push({
-              colorId,family,finish,name,rgb,
-              status,tone,
-              likeId,doesLike
-            })
+            likeId,doesLike
           })
-          this.setState({colors},()=>{
-            debugging && console.log('this.state.colors:',this.state.colors)
-          })
-        }
+        })
+        this.setState({colors},()=>{
+          debugging && console.log('this.state.colors:',this.state.colors)
+        })
       }
     }
   }
@@ -627,5 +661,13 @@ export default compose(
   }),
   graphql(UpdateDoesLikeOnLike,{
     name: 'updateDoesLikeOnLike'
+  }),
+  graphql(GetLikesForShopper,{
+    name: 'getLikesForShopper',
+    options: props => ({
+      variables: {
+        shopperId: { id: props.user.shopperx.id }
+      }
+    })
   })
 )(Selfie)
