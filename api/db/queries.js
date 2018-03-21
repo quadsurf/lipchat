@@ -66,7 +66,11 @@ query GetColorsAndInventories(
   $distributorxId: ID!,
   $shopperxId: ID!
 ){
-  allColors{
+  allColors(
+    filter: {
+      status_not: DISCONTINUED
+    }
+  ){
     id
     family
     finish
