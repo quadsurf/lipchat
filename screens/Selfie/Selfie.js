@@ -23,6 +23,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
+import { tips } from './../../config/Defaults'
 
 // COMPONENTS
 import ColorSwatch from './ColorSwatch'
@@ -254,7 +255,7 @@ class Selfie extends Component {
               height:((this.state.colors.length+1)*60),
               alignSelf: 'flex-end'
             }}>
-              {this.renderColors()}
+              {this.renderSwatches()}
             </ScrollView>
             <View style={{
               position: 'absolute',
@@ -269,7 +270,7 @@ class Selfie extends Component {
             </View>
             <View style={{
               flexDirection:'row',position:'absolute',
-              top: 30,left: 5,borderRadius:24,
+              top:30,left:5,borderRadius:24,
               backgroundColor: Colors.transparentPurple,
               alignItems: 'center',paddingHorizontal:12
             }}>
@@ -279,19 +280,32 @@ class Selfie extends Component {
                 onSwitchPress={() => this.toggleLayersMode()}/>
               <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
             </View>
+            <TouchableOpacity 
+              style={{
+              position:'absolute',
+              top:(screenHeight/2)-36,
+              left:5,borderRadius:24,
+              backgroundColor: Colors.transparentPurple,
+              alignItems: 'center',paddingHorizontal:12,
+              paddingVertical:14
+              }} 
+              onPress={() => this.showModal(
+                'prompt',
+                'A Better Experience',
+                tips
+              )}>
+              <FontPoiret text="Tips" size={Texts.medium.fontSize} />
+            </TouchableOpacity>
             {this.renderModal()}
       </Camera>
     )
   }
-  // HIDE LIKES IN SWATCHES ONLY FOR USERTYPE DIST
-  // ADD MODAL TO WARN DISTS WHEN THEY TRY TO LIKE A COLOR
-  // ADJUST LIP SHAPE
-  // ADD TIPS MODALS
-  // ADD PURPLE BACKGROUND TO LIKER.js
   // ADD NEW COLORS TO DB
+  // ADJUST LIP SHAPE
+  // ABILITY TO TOGGLE APPROVEDS
   // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB
-  // ADD PUSH NOTIFICATIONS
   // ADD VERSIONING
+  // ADD PUSH NOTIFICATIONS
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
@@ -454,7 +468,7 @@ class Selfie extends Component {
     }
   }
   
-  renderColor({ name,rgb,colorId,doesLike }){
+  renderSwatch({ name,rgb,colorId,doesLike }){
     let isSelected = this.state.selectedColors.findIndex( selectedColorId => {
       return selectedColorId === colorId
     })
@@ -464,15 +478,15 @@ class Selfie extends Component {
         name={name} 
         rgb={rgb} 
         isSelected={isSelected === -1 ? false : true}
-        doesLike={doesLike}
+        doesLike={this.props.userType === 'SHOPPER' ? doesLike : false}
         onPressColor={() => this.onPressColor(colorId,rgb)} />
     )
   }
   
-  renderColors(){
+  renderSwatches(){
     let { colors } = this.state
     if (colors && colors.length > 0) {
-      return colors.map(color => this.renderColor(color))
+      return colors.map(color => this.renderSwatch(color))
     }
   }
 
@@ -549,13 +563,17 @@ class Selfie extends Component {
   }
 
   checkIfLikeExists(color){
-    let { likeId,doesLike,colorId } = color
-    let { id:shopperId } = this.props.user.shopperx
-    if (likeId) {
-      color.doesLike = !doesLike
-      this.updateDoesLike(color)
+    if (this.props.userType === 'SHOPPER') {
+      let { likeId,doesLike,colorId } = color
+      let { id:shopperId } = this.props.user.shopperx
+      if (likeId) {
+        color.doesLike = !doesLike
+        this.updateDoesLike(color)
+      } else {
+        this.createLikeInDb(shopperId,color)
+      }
     } else {
-      this.createLikeInDb(shopperId,color)
+      this.showModal('prompt',"You're a Distributor",'Liking a Color is a feature we have reserved for Shoppers only.')
     }
   }
   

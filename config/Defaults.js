@@ -8,6 +8,19 @@ const method = 'post'
 const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
 const newClaimText2 = 'What are next steps?'
+
+export const tips = `We live by this quote:
+
+"Continuous Improvement is better than Delayed Perfection".
+
+This screen processes an insane amount of data in real-time, which causes an inconvenient slow-down in performance, which means the app will be slow to react to your finger taps/swipes. We apologize for this, and ask for your patience. While we will be improving/optimizing these features over the next several months, in the meantime we recommend the following practices to improve your experience for now:
+
+1. tap and/or swipe slowly
+
+2. wait for the app to react to your actions (turning a color on or off, liking/unliking a color, etc)
+
+3. IMPORTANT: adjust the distance between your face and your phone until the color overlay matches the shape of your lips (too far away causes lip shape distortion, too close and it produces an unsightly gap between your top and bottom lips; again, we hope to overcome these issues within the next several months)`
+
 const AccountTypeExplainer = `${`\n`}SHOPPER ACCOUNT${`\n`}
 With a shopper account, use the "Selfie" tab to test how each color virtually looks on your lips (augmented reality). When you find colors that look great on you, just "like" that color to add it to your "Favorites" tab. When you're ready to claim/reserve a color from your distributor's inventory, use the "Favorites" tab to request that color, and your distributor will be automatically notified.${`\n\n\n`}
 DISTRIBUTOR ACCOUNT${`\n`}

@@ -7,7 +7,7 @@ import {
 
 import { Ionicons } from '@expo/vector-icons'
 import { FontPoiret } from '../../assets/fonts/Fonts'
-import { Texts } from '../../css/Styles'
+import { Colors,Texts } from '../../css/Styles'
 
 export default ({ color: { name,doesLike },onPressLike }) => {
   return (
@@ -22,7 +22,16 @@ export default ({ color: { name,doesLike },onPressLike }) => {
             style={{
             marginBottom:-8
           }} />
-          <FontPoiret text={name} color="white" size={Texts.small.fontSize} />
+          <View 
+            style={{
+            borderRadius:4,
+            backgroundColor: Colors.transparentPurple,
+            paddingHorizontal:6,
+            paddingTop:2,
+            paddingBottom:4
+            }}>
+            <FontPoiret text={name} size={Texts.small.fontSize} />
+          </View>
       </TouchableOpacity>
     </View>
   )
