@@ -12,6 +12,15 @@ export default ({ name,rgb,onPressColor,isSelected,doesLike }) => {
   let name1 = ''
   let name2 = ''
   switch(name){
+    case 'dark pink':
+      name2 = name
+      break
+    case 'first love':
+      name2 = name
+      break
+    case 'fly girl':
+      name2 = name
+      break
     case 'sassy z':
       name2 = name
       break
@@ -25,7 +34,28 @@ export default ({ name,rgb,onPressColor,isSelected,doesLike }) => {
       name1 = 'kiss for'
       name2 = 'a cause'
       break
-    case 'fire n ice':
+    case "she's apples":
+      name2 = name
+      break
+    case 'fire opal':
+      name2 = name
+      break
+    case 'kiss me katie':
+      name2 = name
+      break
+    case 'honey rose':
+      name2 = name
+      break
+    case 'fleur de lisa':
+      name2 = name
+      break
+    case 'violet volt':
+      name2 = name
+      break
+    case 'be mine':
+      name2 = name
+      break
+    case 'pop art pink':
       name2 = name
       break
     default:
