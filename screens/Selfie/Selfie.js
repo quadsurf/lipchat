@@ -300,7 +300,7 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  // ADD NEW COLORS TO DB
+  // refactor all screens to manually load
   // ADJUST LIP SHAPE
   // ABILITY TO TOGGLE APPROVEDS
   // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB

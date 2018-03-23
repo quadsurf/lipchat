@@ -121,7 +121,6 @@ class LipColors extends Component {
       let neutralsColorIds = []
       let redsColorIds = []
       let pinksColorIds = []
-      let boldPinksColorIds = []
       let brownsColorIds = []
       let purplesColorIds = []
       let berriesColorIds = []
@@ -153,26 +152,23 @@ class LipColors extends Component {
                 case "PINKS":
                   pinksColorIds.push(color.id)
                   break;
-                  case "BOLDPINKS":
-                    boldPinksColorIds.push(color.id)
+                  case "BROWNS":
+                    brownsColorIds.push(color.id)
                     break;
-                    case "BROWNS":
-                      brownsColorIds.push(color.id)
+                    case "PURPLES":
+                      purplesColorIds.push(color.id)
                       break;
-                      case "PURPLES":
-                        purplesColorIds.push(color.id)
+                      case "BERRIES":
+                        berriesColorIds.push(color.id)
                         break;
-                        case "BERRIES":
-                          berriesColorIds.push(color.id)
+                        case "ORANGES":
+                          orangesColorIds.push(color.id)
                           break;
-                          case "ORANGES":
-                            orangesColorIds.push(color.id)
+                          case "BLUES":
+                            bluesColorIds.push(color.id)
                             break;
-                            case "BLUES":
-                              bluesColorIds.push(color.id)
-                              break;
-                          default:
-                            colorIdsCatcher.push(color.id)
+                        default:
+                          colorIdsCatcher.push(color.id)
           }
         })
       })
@@ -181,7 +177,6 @@ class LipColors extends Component {
         neutralsColorIds,
         redsColorIds,
         pinksColorIds,
-        boldPinksColorIds,
         brownsColorIds,
         purplesColorIds,
         berriesColorIds,
@@ -263,7 +258,6 @@ class LipColors extends Component {
       neutralsColorIds,
       redsColorIds,
       pinksColorIds,
-      boldPinksColorIds,
       brownsColorIds,
       purplesColorIds,
       berriesColorIds,
@@ -284,8 +278,6 @@ class LipColors extends Component {
             {this.renderColorsList(purplesColorIds)}
             <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:25,backgroundColor:'transparent'}}/>
             {this.renderColorsList(berriesColorIds)}
-            <FontPoiret text="bold pinks" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:26,backgroundColor:'transparent'}}/>
-            {this.renderColorsList(boldPinksColorIds)}
             <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:27,backgroundColor:'transparent'}}/>
             {this.renderColorsList(pinksColorIds)}
             <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:28,backgroundColor:'transparent'}}/>
