@@ -12,6 +12,7 @@ import {
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { Ionicons } from '@expo/vector-icons'
 
 // GQL
 import { GetColorsAndInventories,GetUserType,GetLikesForShopper } from './../../api/db/queries'
@@ -36,7 +37,7 @@ const medium = Texts.medium.fontSize
 const large = Texts.large.fontSize
 const larger = Texts.larger.fontSize
 const xlarge = Texts.xlarge.fontSize
-const screen = getDimensions()
+const { width:screenWidth,height:screenHeight } = getDimensions()
 const vspace = 10
 const screenPadding = 15
 const screenPaddingHorizontal =  2*screenPadding
@@ -52,7 +53,15 @@ class LipColors extends Component {
     colors: null,
     isListReady: false,
     userType: this.props.user.type,
-    hasColors: false
+    hasColors: false,
+    redsIsOpen: false,
+    orangesIsOpen: false,
+    bluesIsOpen: false,
+    purplesIsOpen: false,
+    pinksIsOpen: false,
+    berriesIsOpen: false,
+    brownsIsOpen: false,
+    neutralsIsOpen: false,
   }
 
   subToLikesInDb(){
@@ -93,24 +102,22 @@ class LipColors extends Component {
   }
   
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-        if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
-          this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
-            this.processColors(this.state.colors)
-          })
-        }
+    if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
+      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
+        this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
+          this.processColors(this.state.colors)
+        })
       }
-      if (
-        newProps.getUserType
-        && newProps.getUserType.User
-        && newProps.getUserType.User.type
-      ) {
-        let type = this.state.userType
-        let userType = newProps.getUserType.User.type
-        if (userType !== type) {
-          this.setState({userType})
-        }
+    }
+    if (
+      newProps.getUserType
+      && newProps.getUserType.User
+      && newProps.getUserType.User.type
+    ) {
+      let type = this.state.userType
+      let userType = newProps.getUserType.User.type
+      if (userType !== type) {
+        this.setState({userType})
       }
     }
   }
@@ -232,7 +239,7 @@ class LipColors extends Component {
       return (
         <DotsLoader
           size={15}
-          color={Colors.pink}
+          color={Colors.pinkly}
           frequency={5000}/>
       )
     } else {
@@ -252,6 +259,41 @@ class LipColors extends Component {
       })
     }
   }
+  
+  toggleFamilyOpenState(family){
+    console.log('before:',this.state[`${family}IsOpen`]);
+    this.setState({
+      [`${family}IsOpen`]: !this.state[`${family}IsOpen`]
+    },()=>{
+      console.log('after:',this.state[`${family}IsOpen`]);
+    })
+  }
+  
+  renderColorHeader(family,zIndex){
+    return (
+      <View style={{
+        width:screenWidth,
+        height:120,
+        backgroundColor:'transparent',
+        position:'absolute',
+        justifyContent:'flex-end',
+        alignItems:'center'
+      }}>
+        <TouchableOpacity
+          onPress={() => this.toggleFamilyOpenState(family)}
+          style={{
+            flexDirection:'row',
+            alignItems:'flex-end'
+          }}>
+          <FontPoiret text={family} size={xlarge} color={Colors.blue} style={{backgroundColor:'transparent'}}/>
+          <Ionicons 
+            name={this.state[`${family}IsOpen`] === true ? 'md-arrow-dropdown' : 'md-arrow-dropright'} 
+            size={60} 
+            color={Colors.purple}/>
+        </TouchableOpacity>
+      </View>
+    )
+  }
 
   renderMainContent(){
     let {
@@ -268,21 +310,32 @@ class LipColors extends Component {
       <View style={{flex:1}}>
         <ScrollView
           contentContainerStyle={{marginBottom:56,justifyContent:'center',alignItems:'center'}}>
-            <FontPoiret text="reds" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:21,backgroundColor:'transparent'}}/>
+            {this.renderColorHeader('reds',20)}
             {this.renderColorsList(redsColorIds)}
-            <FontPoiret text="oranges" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:22,backgroundColor:'transparent'}}/>
-            {this.renderColorsList(orangesColorIds)}
-            <FontPoiret text="blues" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:23,backgroundColor:'transparent'}}/>
+            
+            <View>
+              <View style={{marginTop:120}}>
+                {this.renderColorsList(orangesColorIds)}
+              </View>
+              {this.renderColorHeader('oranges',21)}
+            </View>
+            
+            {this.renderColorHeader('blues',23)}
             {this.renderColorsList(bluesColorIds)}
-            <FontPoiret text="purples" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:24,backgroundColor:'transparent'}}/>
+            
+            {this.renderColorHeader('purples',24)}
             {this.renderColorsList(purplesColorIds)}
-            <FontPoiret text="berries" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:25,backgroundColor:'transparent'}}/>
+            
+            {this.renderColorHeader('berries',25)}
             {this.renderColorsList(berriesColorIds)}
-            <FontPoiret text="pinks" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:27,backgroundColor:'transparent'}}/>
+            
+            {this.renderColorHeader('pinks',26)}
             {this.renderColorsList(pinksColorIds)}
-            <FontPoiret text="browns" size={xlarge} color={Colors.blue} style={{marginTop:30,zIndex:28,backgroundColor:'transparent'}}/>
+            
+            {this.renderColorHeader('browns',27)}
             {this.renderColorsList(brownsColorIds)}
-            <FontPoiret text="neutrals" size={xlarge} color={Colors.blue} style={{marginTop:10,zIndex:29,backgroundColor:'transparent'}}/>
+            
+            {this.renderColorHeader('neutrals',28)}
             {this.renderColorsList(neutralsColorIds)}
         </ScrollView>
       </View>
