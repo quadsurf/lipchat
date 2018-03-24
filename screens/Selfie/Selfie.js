@@ -12,6 +12,10 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 // import isIPhoneX from 'react-native-is-iphonex'
 
+// STORE
+import { connect } from 'react-redux'
+import { setColors } from './store/actions'
+
 // GQL
 import { GetColorsAndInventories } from '../../api/db/queries'
 import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
@@ -516,16 +520,20 @@ class Selfie extends Component {
         newColors.forEach( ({
           id:colorId,family,finish,name,rgb,
           status,tone,
-          likesx:[like={}]
+          likesx:[like={}],
+          inventoriesx:[inventory={}]
         }) => {
           let { id:likeId=null,doesLike=false } = like
+          let { id:inventoryId=null,count=0 } = inventory
           colors.push({
             colorId,family,finish,name,rgb,
             status,tone,
-            likeId,doesLike
+            likeId,doesLike,
+            inventoryId,count
           })
         })
         this.setState({colors},()=>{
+          this.props.setColors(this.state.colors)
           debugging && console.log('this.state.colors:',this.state.colors)
         })
       }
@@ -667,7 +675,7 @@ class Selfie extends Component {
 
 }
 
-export default compose(
+const SelfieWithData = compose(
   graphql(GetColorsAndInventories,{
     name: 'getColorsAndInventories',
     options: props => ({
@@ -693,3 +701,5 @@ export default compose(
     })
   })
 )(Selfie)
+
+export default connect(null,{setColors})(SelfieWithData)

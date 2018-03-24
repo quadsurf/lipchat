@@ -23,13 +23,14 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
-import { Modals } from '../../utils/Helpers'
+import { Modals,getDimensions } from '../../utils/Helpers'
 
 // COMPONENTS
 import ColorCard from './ColorCard'
 import ColorHeader from './ColorHeader'
 
 // CONSTS
+const { width:screenWidth } = getDimensions()
 const separatorOffset = 120
 const debugging = false
 
@@ -253,7 +254,7 @@ class LipColors extends Component {
             onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
         })
       } else {
-        return <View style={{width:300}}/>
+        return <View style={{width:screenWidth}}/>
       }
     }
   }
