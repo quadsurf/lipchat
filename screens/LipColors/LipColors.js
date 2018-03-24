@@ -5,14 +5,13 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
-  TouchableHighlight
+  TouchableOpacity
 } from 'react-native'
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
-import { Ionicons } from '@expo/vector-icons'
+
 
 // GQL
 import { GetColorsAndInventories,GetUserType,GetLikesForShopper } from './../../api/db/queries'
@@ -23,45 +22,40 @@ import {
 import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 // LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
-import { Modals,getDimensions } from '../../utils/Helpers'
-import { AppName } from '../../config/Defaults'
+import { Views,Colors } from '../../css/Styles'
+import { Modals } from '../../utils/Helpers'
 
 // COMPONENTS
 import ColorCard from './ColorCard'
+import ColorHeader from './ColorHeader'
 
 // CONSTS
-const small = Texts.small.fontSize
-const medium = Texts.medium.fontSize
-const large = Texts.large.fontSize
-const larger = Texts.larger.fontSize
-const xlarge = Texts.xlarge.fontSize
-const { width:screenWidth,height:screenHeight } = getDimensions()
-const vspace = 10
-const screenPadding = 15
-const screenPaddingHorizontal =  2*screenPadding
+const separatorOffset = 120
 const debugging = false
 
 class LipColors extends Component {
 
-  state = {
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    user: this.props.user,
-    colors: null,
-    isListReady: false,
-    userType: this.props.user.type,
-    hasColors: false,
-    redsIsOpen: false,
-    orangesIsOpen: false,
-    bluesIsOpen: false,
-    purplesIsOpen: false,
-    pinksIsOpen: false,
-    berriesIsOpen: false,
-    brownsIsOpen: false,
-    neutralsIsOpen: false,
+  constructor(props){
+    super(props)
+    this.state = {
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      user: this.props.user,
+      colors: null,
+      isListReady: false,
+      userType: this.props.user.type,
+      hasColors: false,
+      redsIsOpen: true,
+      orangesIsOpen: false,
+      bluesIsOpen: false,
+      purplesIsOpen: false,
+      pinksIsOpen: false,
+      berriesIsOpen: false,
+      brownsIsOpen: false,
+      neutralsIsOpen: false,
+    }
+    this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
   }
 
   subToLikesInDb(){
@@ -234,7 +228,7 @@ class LipColors extends Component {
     })
   }
 
-  renderColorsList(colorIds){
+  renderColorsList(colorIds,isOpen){
     if (!this.state.isListReady) {
       return (
         <DotsLoader
@@ -243,100 +237,125 @@ class LipColors extends Component {
           frequency={5000}/>
       )
     } else {
-      return colorIds.map(colorId => {
-        let color = this.state[`${colorId}`]
-        let { id,count } = color.inventory
-        return <ColorCard
-          key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
-          doesLike={this.state[`${color.id}`].like.doesLike}
-          onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
-          finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
-          onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
-          onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
-          isEditing={this.state[`isEditing-${color.id}`]}
-          onCancelPress={() => this.cancelInventoryUpdater(color)}
-          onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
-      })
+      if (isOpen) {
+        return colorIds.map(colorId => {
+          let color = this.state[`${colorId}`]
+          let { id,count } = color.inventory
+          return <ColorCard
+            key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
+            doesLike={this.state[`${color.id}`].like.doesLike}
+            onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
+            finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
+            onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
+            onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
+            isEditing={this.state[`isEditing-${color.id}`]}
+            onCancelPress={() => this.cancelInventoryUpdater(color)}
+            onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
+        })
+      } else {
+        return <View style={{width:300}}/>
+      }
     }
   }
   
   toggleFamilyOpenState(family){
-    console.log('before:',this.state[`${family}IsOpen`]);
     this.setState({
       [`${family}IsOpen`]: !this.state[`${family}IsOpen`]
-    },()=>{
-      console.log('after:',this.state[`${family}IsOpen`]);
     })
   }
   
-  renderColorHeader(family,zIndex){
+  renderColorHeader(family){
     return (
-      <View style={{
-        width:screenWidth,
-        height:120,
-        backgroundColor:'transparent',
-        position:'absolute',
-        justifyContent:'flex-end',
-        alignItems:'center'
-      }}>
-        <TouchableOpacity
-          onPress={() => this.toggleFamilyOpenState(family)}
-          style={{
-            flexDirection:'row',
-            alignItems:'flex-end'
-          }}>
-          <FontPoiret text={family} size={xlarge} color={Colors.blue} style={{backgroundColor:'transparent'}}/>
-          <Ionicons 
-            name={this.state[`${family}IsOpen`] === true ? 'md-arrow-dropdown' : 'md-arrow-dropright'} 
-            size={60} 
-            color={Colors.purple}/>
-        </TouchableOpacity>
-      </View>
+      <ColorHeader 
+        family={family}
+        onPressHeader={this.toggleFamilyOpenState}
+        isOpen={this.state[`${family}IsOpen`]}
+        offset={separatorOffset}/>
     )
   }
 
   renderMainContent(){
     let {
-      neutralsColorIds,
       redsColorIds,
-      pinksColorIds,
-      brownsColorIds,
+      orangesColorIds,
+      bluesColorIds,
       purplesColorIds,
       berriesColorIds,
-      orangesColorIds,
-      bluesColorIds
+      pinksColorIds,
+      brownsColorIds,
+      neutralsColorIds,
+      redsIsOpen,
+      orangesIsOpen,
+      bluesIsOpen,
+      purplesIsOpen,
+      berriesIsOpen,
+      pinksIsOpen,
+      brownsIsOpen,
+      neutralsIsOpen,
     } = this.state
     return (
       <View style={{flex:1}}>
         <ScrollView
-          contentContainerStyle={{marginBottom:56,justifyContent:'center',alignItems:'center'}}>
-            {this.renderColorHeader('reds',20)}
-            {this.renderColorsList(redsColorIds)}
-            
+          contentContainerStyle={{
+            marginBottom:56,
+            justifyContent:'center',
+            alignItems:'center'
+          }}>
             <View>
-              <View style={{marginTop:120}}>
-                {this.renderColorsList(orangesColorIds)}
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(redsColorIds,redsIsOpen)}
               </View>
-              {this.renderColorHeader('oranges',21)}
+              {this.renderColorHeader('reds')}
             </View>
             
-            {this.renderColorHeader('blues',23)}
-            {this.renderColorsList(bluesColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(orangesColorIds,orangesIsOpen)}
+              </View>
+              {this.renderColorHeader('oranges')}
+            </View>
             
-            {this.renderColorHeader('purples',24)}
-            {this.renderColorsList(purplesColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(bluesColorIds,bluesIsOpen)}
+              </View>
+              {this.renderColorHeader('blues')}
+            </View>
             
-            {this.renderColorHeader('berries',25)}
-            {this.renderColorsList(berriesColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(purplesColorIds,purplesIsOpen)}
+              </View>
+              {this.renderColorHeader('purples')}
+            </View>
             
-            {this.renderColorHeader('pinks',26)}
-            {this.renderColorsList(pinksColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(berriesColorIds,berriesIsOpen)}
+              </View>
+              {this.renderColorHeader('berries')}
+            </View>
             
-            {this.renderColorHeader('browns',27)}
-            {this.renderColorsList(brownsColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(pinksColorIds,pinksIsOpen)}
+              </View>
+              {this.renderColorHeader('pinks')}
+            </View>
             
-            {this.renderColorHeader('neutrals',28)}
-            {this.renderColorsList(neutralsColorIds)}
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(brownsColorIds,brownsIsOpen)}
+              </View>
+              {this.renderColorHeader('browns')}
+            </View>
+            
+            <View>
+              <View style={{marginTop:separatorOffset}}>
+                {this.renderColorsList(neutralsColorIds,neutralsIsOpen)}
+              </View>
+              {this.renderColorHeader('neutrals')}
+            </View>
         </ScrollView>
       </View>
     )
