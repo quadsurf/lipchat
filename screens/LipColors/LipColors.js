@@ -43,7 +43,7 @@ class LipColors extends Component {
       modalType: 'processing',
       modalContent: {},
       user: this.props.user,
-      colors: null,
+      colors: [],
       isListReady: false,
       userType: this.props.user.type,
       hasColors: false,
@@ -229,30 +229,38 @@ class LipColors extends Component {
     })
   }
 
+  renderLoading(){
+    return (
+      <DotsLoader
+        size={15}
+        color={Colors.pinkly}
+        frequency={5000}/>
+    )
+  }
+  
+  renderColorCards(colorIds){
+    return colorIds.map(colorId => {
+      let color = this.state[`${colorId}`]
+      let { id,count } = color.inventory
+      return <ColorCard
+        key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
+        doesLike={this.state[`${color.id}`].like.doesLike}
+        onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
+        finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
+        onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
+        onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
+        isEditing={this.state[`isEditing-${color.id}`]}
+        onCancelPress={() => this.cancelInventoryUpdater(color)}
+        onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
+    })
+  }
+  
   renderColorsList(colorIds,isOpen){
     if (!this.state.isListReady) {
-      return (
-        <DotsLoader
-          size={15}
-          color={Colors.pinkly}
-          frequency={5000}/>
-      )
+      return this.renderLoading()
     } else {
       if (isOpen) {
-        return colorIds.map(colorId => {
-          let color = this.state[`${colorId}`]
-          let { id,count } = color.inventory
-          return <ColorCard
-            key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
-            doesLike={this.state[`${color.id}`].like.doesLike}
-            onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
-            finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
-            onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
-            onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
-            isEditing={this.state[`isEditing-${color.id}`]}
-            onCancelPress={() => this.cancelInventoryUpdater(color)}
-            onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
-        })
+        return this.renderColorCards(colorIds)
       } else {
         return <View style={{width:screenWidth}}/>
       }
@@ -293,6 +301,7 @@ class LipColors extends Component {
       pinksIsOpen,
       brownsIsOpen,
       neutralsIsOpen,
+      isListReady
     } = this.state
     return (
       <View style={{flex:1}}>
@@ -304,56 +313,56 @@ class LipColors extends Component {
           }}>
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(redsColorIds,redsIsOpen)}
+                {isListReady ? this.renderColorsList(redsColorIds,redsIsOpen) : this.renderLoading()}
               </View>
               {this.renderColorHeader('reds')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(orangesColorIds,orangesIsOpen)}
+                {isListReady && this.renderColorsList(orangesColorIds,orangesIsOpen)}
               </View>
               {this.renderColorHeader('oranges')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(bluesColorIds,bluesIsOpen)}
+                {isListReady && this.renderColorsList(bluesColorIds,bluesIsOpen)}
               </View>
               {this.renderColorHeader('blues')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(purplesColorIds,purplesIsOpen)}
+                {isListReady && this.renderColorsList(purplesColorIds,purplesIsOpen)}
               </View>
               {this.renderColorHeader('purples')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(berriesColorIds,berriesIsOpen)}
+                {isListReady && this.renderColorsList(berriesColorIds,berriesIsOpen)}
               </View>
               {this.renderColorHeader('berries')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(pinksColorIds,pinksIsOpen)}
+                {isListReady && this.renderColorsList(pinksColorIds,pinksIsOpen)}
               </View>
               {this.renderColorHeader('pinks')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(brownsColorIds,brownsIsOpen)}
+                {isListReady && this.renderColorsList(brownsColorIds,brownsIsOpen)}
               </View>
               {this.renderColorHeader('browns')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {this.renderColorsList(neutralsColorIds,neutralsIsOpen)}
+                {isListReady && this.renderColorsList(neutralsColorIds,neutralsIsOpen)}
               </View>
               {this.renderColorHeader('neutrals')}
             </View>
