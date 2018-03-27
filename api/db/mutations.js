@@ -201,13 +201,13 @@ mutation DisconnectShopperFromDistributor(
 // LIP COLORS TAB
 const ConnectColorToDistributor = gql`
 mutation ConnectColorToDistributor(
-  $distributorxId: ID!,
-  $colorxId: ID!,
+  $distId: ID!,
+  $colorId: ID!,
   $count: Int!
 ){
   createInventory(
-    distributorxId: $distributorxId,
-    colorxId: $colorxId,
+    distributorxId: $distId,
+    colorxId: $colorId,
     count: $count
   ){
     id
@@ -216,13 +216,13 @@ mutation ConnectColorToDistributor(
 }`
 
 const UpdateCountOnInventory = gql`
-mutation UpdateInventory(
-  $InventoryId: ID!,
-  $InventoryCount: Int!
+mutation(
+  $inventoryId: ID!,
+  $count: Int!
 ){
   updateInventory(
-    id: $InventoryId,
-    count: $InventoryCount
+    id: $inventoryId,
+    count: $count
   ){
     id
     count

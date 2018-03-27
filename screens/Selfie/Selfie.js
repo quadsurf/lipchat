@@ -305,11 +305,10 @@ class Selfie extends Component {
     )
   }
   // refactor all screens to manually load
+  // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB
   // segment colors by family on LipColors.js
-  // if usertype === dist then lipcolors tab label = inventory
   // ADJUST LIP SHAPE
   // ABILITY TO TOGGLE APPROVEDS
-  // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB
   // ADD VERSIONING
   // ADD PUSH NOTIFICATIONS
   getLayeredRGB(rgb,rgbNumbers,op){

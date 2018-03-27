@@ -48,7 +48,9 @@ class TabNav extends PureComponent<void, *, State> {
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
       { key: '2', title: 'SELFIE', icon: 'camera' },
-      { key: '3', title: 'LIP COLORS', icon: 'ios-color-palette' },
+      { key: '3', 
+        title: this.props.navigation.state.params.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY', 
+        icon: 'ios-color-palette' },
       { key: '4', title: 'YOU', icon: 'account' }
     ],
     loaded: false,

@@ -12,9 +12,11 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
+// STORE
+import { connect } from 'react-redux'
 
 // GQL
-import { GetColorsAndInventories,GetUserType,GetLikesForShopper } from './../../api/db/queries'
+import { GetColorsAndInventories,GetLikesForShopper } from './../../api/db/queries'
 // import { SubUserType } from '../api/db/pubsub'
 import {
   ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike
@@ -45,7 +47,7 @@ class LipColors extends Component {
       user: this.props.user,
       colors: [],
       isListReady: false,
-      userType: this.props.user.type,
+      userType: this.props.userType,
       hasColors: false,
       redsIsOpen: true,
       orangesIsOpen: false,
@@ -74,6 +76,7 @@ class LipColors extends Component {
     })
   }
   
+  // NEEDS REFACTORING (perhaps by update state of single color rather than all colors???)
   updateLikeOnColorsList(node){
     let { colors } = this.state
     let i = colors.findIndex(({id}) => id === node.colorx.id)
@@ -97,23 +100,10 @@ class LipColors extends Component {
   }
   
   componentWillReceiveProps(newProps){
-    if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
-        this.setState({colors:newProps.getColorsAndInventories.allColors},()=>{
-          this.processColors(this.state.colors)
-        })
-      }
-    }
-    if (
-      newProps.getUserType
-      && newProps.getUserType.User
-      && newProps.getUserType.User.type
-    ) {
-      let type = this.state.userType
-      let userType = newProps.getUserType.User.type
-      if (userType !== type) {
-        this.setState({userType})
-      }
+    if (newProps.colors !== this.props.colors) {
+      this.setState({colors:newProps.colors},()=>{
+        this.processColors(this.state.colors)
+      })
     }
   }
 
@@ -131,46 +121,37 @@ class LipColors extends Component {
       let colorIdsCatcher = []
 
       colors.forEach(color => {
+        let { colorId,family } = color
         this.setState({
-          [`${color.id}`]:{
-            ...color,
-            inventory:{
-              id: color.inventoriesx.length > 0 ? color.inventoriesx[0].id : null,
-              count: color.inventoriesx.length > 0 ? color.inventoriesx[0].count : 0
-            },
-            like: {
-              id: color.likesx.length > 0 ? color.likesx[0].id : null,
-              doesLike: color.likesx.length > 0 ? color.likesx[0].doesLike : false
-            }
-          }
+          [`${colorId}`]:{...color}
         },()=>{
-          switch (color.family) {
+          switch (family) {
             case "NEUTRALS":
-              neutralsColorIds.push(color.id)
+              neutralsColorIds.push(colorId)
               break;
               case "REDS":
-                redsColorIds.push(color.id)
+                redsColorIds.push(colorId)
                 break;
                 case "PINKS":
-                  pinksColorIds.push(color.id)
+                  pinksColorIds.push(colorId)
                   break;
                   case "BROWNS":
-                    brownsColorIds.push(color.id)
+                    brownsColorIds.push(colorId)
                     break;
                     case "PURPLES":
-                      purplesColorIds.push(color.id)
+                      purplesColorIds.push(colorId)
                       break;
                       case "BERRIES":
-                        berriesColorIds.push(color.id)
+                        berriesColorIds.push(colorId)
                         break;
                         case "ORANGES":
-                          orangesColorIds.push(color.id)
+                          orangesColorIds.push(colorId)
                           break;
                           case "BLUES":
-                            bluesColorIds.push(color.id)
+                            bluesColorIds.push(colorId)
                             break;
                         default:
-                          colorIdsCatcher.push(color.id)
+                          colorIdsCatcher.push(colorId)
           }
         })
       })
@@ -186,7 +167,6 @@ class LipColors extends Component {
         bluesColorIds,
         colorIdsCatcher
       },()=>{
-        debugging && console.log('color',this.state.colors[0])
         setTimeout(()=>{
           this.setState({
             isListReady: true,
@@ -241,17 +221,25 @@ class LipColors extends Component {
   renderColorCards(colorIds){
     return colorIds.map(colorId => {
       let color = this.state[`${colorId}`]
-      let { id,count } = color.inventory
+      // let { id,count } = color.inventory
       return <ColorCard
-        key={color.id} family={color.family} tone={color.tone} name={color.name} rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} userType={this.state.userType}
-        doesLike={this.state[`${color.id}`].like.doesLike}
-        onLikePress={() => this.checkIfLikeExists(color.like.id,color.id)}
-        finish={color.finish} status={color.status} inventoryCount={count} inventoryId={id}
-        onAddPress={() => this.inventoryUpdater(id,color.id,count,'+')}
-        onMinusPress={() => this.inventoryUpdater(id,color.id,count,'-')}
-        isEditing={this.state[`isEditing-${color.id}`]}
+        key={color.colorId} 
+        family={color.family} 
+        tone={color.tone} 
+        name={color.name} 
+        rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} 
+        userType={this.props.userType}
+        doesLike={color.doesLike}
+        onLikePress={() => this.checkIfLikeExists(color.likeId,color.colorId)}
+        finish={color.finish} 
+        status={color.status} 
+        inventoryCount={color.count} 
+        inventoryId={color.inventoryId}
+        onAddPress={() => this.inventoryUpdater(color.colorId,color.count,'+')}
+        onMinusPress={() => this.inventoryUpdater(color.colorId,color.count,'-')}
+        isEditing={this.state[`isEditing-${color.colorId}`]}
         onCancelPress={() => this.cancelInventoryUpdater(color)}
-        onUpdatePress={() => this.checkIfInventoryExists(id,color.id)}/>
+        onUpdatePress={() => this.checkIfInventoryExists(color.inventoryId,color.colorId)}/>
     })
   }
   
@@ -380,79 +368,74 @@ class LipColors extends Component {
     )
   }
 
-  inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op){
+  inventoryStateUpdater(colorId,count,op){
     this.setState({
-      [`${ColorId}`]: {
-        ...this.state[`${ColorId}`],
-        inventory: {
-          id: InventoryId,
-          count: op === '+' ? InventoryCount+1 : InventoryCount > 0 ? InventoryCount-1 : 0
-        }
+      [`${colorId}`]: {
+        ...this.state[`${colorId}`],
+        count: op === '+' ? count+1 : count > 0 ? count-1 : 0
       }
     })
   }
 
-  inventoryUpdater(InventoryId,ColorId,InventoryCount,op){
-    if (this.state[`isEditing-${ColorId}`]) {
-      this.inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op)
+  inventoryUpdater(colorId,count,op){
+    if (this.state[`isEditing-${colorId}`]) {
+      this.inventoryStateUpdater(colorId,count,op)
     } else {
       this.setState({
-        [`isEditing-${ColorId}`]:true,
-        [`resetCountFor-${ColorId}`]:InventoryCount
+        [`isEditing-${colorId}`]:true,
+        [`resetCountFor-${colorId}`]:count
       },()=>{
-        this.inventoryStateUpdater(InventoryId,ColorId,InventoryCount,op)
+        this.inventoryStateUpdater(colorId,count,op)
       })
     }
   }
 
   cancelInventoryUpdater(color){
     this.setState({
-      [`isEditing-${color.id}`]: false,
-      [`${color.id}`]: {
+      [`isEditing-${color.colorId}`]: false,
+      [`${color.colorId}`]: {
         ...color,
-        inventory: {
-          id: this.state[`${color.id}`].inventory.id,
-          count: this.state[`resetCountFor-${color.id}`]
-        }
+        count: this.state[`resetCountFor-${color.colorId}`]
       }
     },()=>{
-      this.setState({[`resetCountFor-${color.id}`]:null})
+      this.setState({[`resetCountFor-${color.colorId}`]:null})
     })
   }
 
-  checkIfInventoryExists(InventoryId,ColorId){
+  checkIfInventoryExists(inventoryId,colorId){
     this.showModal('processing')
-    let DistributorId = this.state.user.distributorx.id
-    let InventoryCount = this.state[`${ColorId}`].inventory.count
-    if (InventoryId) {
-      this.updateInventoryInDb(InventoryId,ColorId,InventoryCount)
+    let distributorId = this.state.user.distributorx.id
+    let { count } = this.state[`${colorId}`]
+    if (inventoryId) {
+      this.updateInventoryInDb(inventoryId,colorId,count)
     } else {
-      this.createInventoryInDb(DistributorId,ColorId,InventoryCount)
+      this.createInventoryInDb(distributorId,colorId,count)
     }
   }
 
-  createInventoryInDb(DistributorId,ColorId,InventoryCount){
+  createInventoryInDb(distId,colorId,count){
     let errText = 'setting up inventory for this color'
-    if (DistributorId && ColorId && InventoryCount) {
+    if (distId && colorId && count) {
       this.props.connectColorToDistributor({
         variables: {
-          distributorxId: DistributorId,
-          colorxId: ColorId,
-          count: InventoryCount
+          distId,
+          colorId,
+          count
         }
-      }).then( res => {
-        if (res && res.data && res.data.createInventory) {
-          let { id,count } = res.data.createInventory
+      }).then( ({ data:{ createInventory=false } }) => {
+        if (createInventory) {
+          let { id,count } = createInventory
           this.setState({
-            [`${ColorId}`]: {
-              ...this.state[`${ColorId}`],
-              inventory: {id,count}
+            [`${colorId}`]: {
+              ...this.state[`${colorId}`],
+              inventoryId: id,
+              count
             }
           },()=>{
             setTimeout(()=>{
               this.setState({
-                [`isEditing-${ColorId}`]:false,
-                [`resetCountFor-${ColorId}`]:null
+                [`isEditing-${colorId}`]:false,
+                [`resetCountFor-${colorId}`]:null
               },()=>{
                 this.setState({isModalOpen:false})
               })
@@ -469,17 +452,17 @@ class LipColors extends Component {
     }
   }
 
-  updateInventoryInDb(InventoryId,ColorId,InventoryCount){
+  updateInventoryInDb(inventoryId,colorId,count){
     let errText = 'updating your inventory for this color'
-    if (InventoryId && Number.isInteger(InventoryCount) && InventoryCount >= 0) {
+    if (inventoryId && Number.isInteger(count) && count >= 0) {
       this.props.updateCountOnInventory({
-        variables: {InventoryId,InventoryCount}
-      }).then( res => {
-        if (res && res.data && res.data.updateInventory) {
+        variables: { inventoryId,count }
+      }).then( ({ data:{ updateInventory=false } }) => {
+        if (updateInventory) {
           setTimeout(()=>{
             this.setState({
-              [`isEditing-${ColorId}`]:false,
-              [`resetCountFor-${ColorId}`]:null
+              [`isEditing-${colorId}`]:false,
+              [`resetCountFor-${colorId}`]:null
             },()=>{
               this.setState({isModalOpen:false})
             })
@@ -495,13 +478,12 @@ class LipColors extends Component {
     }
   }
 
-  checkIfLikeExists(LikeId,ColorId){
-    let ShopperId = this.state.user.shopperx.id
-    let bool = !this.state[`${ColorId}`].like.doesLike
-    if (LikeId) {
-      this.updateDoesLikeOnLikeInDb(LikeId,ColorId,bool)
+  checkIfLikeExists(likeId,colorId){
+    let shopperId = this.state.user.shopperx.id
+    if (likeId) {
+      this.updateDoesLikeOnLikeInDb(likeId,colorId,!this.state[`${colorId}`].doesLike)
     } else {
-      this.createLikeInDb(ShopperId,ColorId)
+      this.createLikeInDb(shopperId,colorId)
     }
   }
 
@@ -509,16 +491,14 @@ class LipColors extends Component {
     let errText = 'creating a like for this color'
     if (ShopperId && ColorId) {
       this.props.createLike({
-        variables: {ShopperId,ColorId}
-      }).then( res => {
-        if (res && res.data && res.data.createLike) {
+        variables: { ShopperId,ColorId }
+      }).then( ({ data:{ createLike=false } }) => {
+        if (createLike) {
           this.setState({
             [`${ColorId}`]: {
               ...this.state[`${ColorId}`],
-              like: {
-                id: res.data.createLike.id,
-                doesLike: res.data.createLike.doesLike
-              }
+              likeId: createLike.id,
+              doesLike: createLike.doesLike
             }
           })
         } else {
@@ -532,30 +512,26 @@ class LipColors extends Component {
     }
   }
 
-  updateDoesLikeOnLikeInDb(LikeId,ColorId,bool){
+  updateDoesLikeOnLikeInDb(LikeId,colorId,bool){
     let errText = 'updating the like status for this color'
-    if (LikeId && ColorId) {
+    if (LikeId && colorId) {
       this.setState({
-        [`${ColorId}`]: {
-          ...this.state[`${ColorId}`],
-          like: {
-            id: LikeId,
-            doesLike: bool
-          }
+        [`${colorId}`]: {
+          ...this.state[`${colorId}`],
+          likeId: LikeId,
+          doesLike: bool
         }
       },()=>{
         this.props.updateDoesLikeOnLike({
           variables: {LikeId,bool}
-        }).then( res => {
-          if (res && res.data && res.data.updateLike) {
-            if (this.state[`${ColorId}`].like.doesLike !== res.data.updateLike.doesLike) {
+        }).then( ({ data:{ updateLike=false } }) => {
+          if (updateLike) {
+            if (this.state[`${colorId}`].doesLike !== updateLike.doesLike) {
               this.setState({
-                [`${ColorId}`]: {
-                  ...this.state[`${ColorId}`],
-                  like: {
-                    id: LikeId,
-                    doesLike: !bool
-                  }
+                [`${colorId}`]: {
+                  ...this.state[`${colorId}`],
+                  likeId: LikeId,
+                  doesLike: bool
                 }
               },()=>{
                 this.openError(`${errText}(1)`)
@@ -575,31 +551,13 @@ class LipColors extends Component {
 
 }
 
-export default compose(
-  graphql(GetColorsAndInventories,{
-    name: 'getColorsAndInventories',
-    options: props => ({
-      variables: {
-        distributorxId: props.user.distributorx ? props.user.distributorx.id : "",
-        shopperxId: props.user.shopperx ? props.user.shopperx.id : ""
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
+const LipColorsWithData = compose(
+  // inventory creator
   graphql(ConnectColorToDistributor,{
     name: 'connectColorToDistributor'
   }),
   graphql(UpdateCountOnInventory,{
     name: 'updateCountOnInventory'
-  }),
-  graphql(GetUserType,{
-    name: 'getUserType',
-    options: props => ({
-      variables: {
-        UserId: props.user.id || ""
-      },
-      fetchPolicy: 'network-only'
-    })
   }),
   graphql(CreateLike,{
     name: 'createLike'
@@ -616,3 +574,7 @@ export default compose(
     })
   })
 )(LipColors)
+
+const mapStateToProps = state => ({ colors: state.colors })
+
+export default connect(mapStateToProps)(LipColorsWithData)
