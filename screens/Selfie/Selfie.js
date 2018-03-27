@@ -81,6 +81,7 @@ class Selfie extends Component {
     let i = colors.findIndex(({colorId}) => colorId === node.colorx.id)
     if (i !== -1) {
       if (colors[i].doesLike !== node.doesLike) {
+        colors[i].likeId = node.id
         colors[i].doesLike = node.doesLike
         this.setState({colors},() => this.updateLikesOfSelectedColors())
       } else {
@@ -525,7 +526,9 @@ class Selfie extends Component {
           let { id:likeId=null,doesLike=false } = like
           let { id:inventoryId=null,count=0 } = inventory
           colors.push({
-            colorId,family,finish,name,rgb,
+            colorId,
+            family:family.toLowerCase(),
+            finish,name,rgb,
             status,tone,
             likeId,doesLike,
             inventoryId,count

@@ -9,7 +9,7 @@ import { FontPoiret } from './../../assets/fonts/Fonts'
 import { Colors,Texts } from './../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 
-export default ({ family,onPressHeader,isOpen,offset }) => {
+export default ({ family,onHeaderPress,isOpen,offset }) => {
   return (
     <View style={{
       width:getDimensions().width,
@@ -20,7 +20,7 @@ export default ({ family,onPressHeader,isOpen,offset }) => {
       alignItems:'center'
     }}>
       <TouchableOpacity
-        onPress={() => onPressHeader(family)}
+        onPress={() => onHeaderPress(family)}
         style={{
           flexDirection:'row',
           alignItems:'flex-end'

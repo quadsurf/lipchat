@@ -11,6 +11,7 @@ import {
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { debounce } from 'underscore'
 
 // STORE
 import { connect } from 'react-redux'
@@ -49,7 +50,7 @@ class LipColors extends Component {
       isListReady: false,
       userType: this.props.userType,
       hasColors: false,
-      redsIsOpen: true,
+      redsIsOpen: false,
       orangesIsOpen: false,
       bluesIsOpen: false,
       purplesIsOpen: false,
@@ -57,8 +58,25 @@ class LipColors extends Component {
       berriesIsOpen: false,
       brownsIsOpen: false,
       neutralsIsOpen: false,
+      reds: [],
+      oranges: [],
+      blues: [],
+      purples: [],
+      pinks: [],
+      berries: [],
+      browns: [],
+      neutrals: [],
+      redsIsLoading: false,
+      orangesIsLoading: false,
+      bluesIsLoading: false,
+      purplesIsLoading: false,
+      pinksIsLoading: false,
+      berriesIsLoading: false,
+      brownsIsLoading: false,
+      neutralsIsLoading: false
     }
     this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
+    this.filterColors = debounce(this.filterColors,1400,true)
   }
 
   subToLikesInDb(){
@@ -79,18 +97,14 @@ class LipColors extends Component {
   // NEEDS REFACTORING (perhaps by update state of single color rather than all colors???)
   updateLikeOnColorsList(node){
     let { colors } = this.state
-    let i = colors.findIndex(({id}) => id === node.colorx.id)
+    let i = colors.findIndex(({colorId}) => colorId === node.colorx.id)
     if (i !== -1) {
-      if (colors[i].likesx.length > 0 && colors[i].likesx[0].hasOwnProperty('id')) {
-        if (colors[i].likesx[0].doesLike !== node.doesLike) {
-          colors[i].likesx[0].doesLike = node.doesLike
-          this.setState({colors},() => this.processColors(this.state.colors))
-        } else {
-          this.processColors(colors)
-          // THIS CAN BE PERFORMANCE OPTIMIZED BY SEPARATING OUT THE FAMILY LISTS LIKE SO:
-          // let { neutralsColorIds } = this.state
-          // this.setState({neutralsColorIds:[...neutralsColorIds]})
-        }
+      if (colors[i].doesLike !== node.doesLike) {
+        colors[i].likeId = node.id
+        colors[i].doesLike = node.doesLike
+        this.setState({colors},() => this.processColors(this.state.colors))
+      } else {
+        this.processColors(colors)
       }
     }
   }
@@ -101,9 +115,11 @@ class LipColors extends Component {
   
   componentWillReceiveProps(newProps){
     if (newProps.colors !== this.props.colors) {
-      this.setState({colors:newProps.colors},()=>{
-        this.processColors(this.state.colors)
-      })
+      if (newProps.colors !== this.state.colors) {
+        this.setState({colors:newProps.colors},()=>{
+          this.filterColors('reds')
+        })
+      }
     }
   }
 
@@ -209,19 +225,15 @@ class LipColors extends Component {
     })
   }
 
-  renderLoading(){
-    return (
-      <DotsLoader
-        size={15}
-        color={Colors.pinkly}
-        frequency={5000}/>
-    )
+  filterColors(fam){
+    let filteredColors = this.state.colors.filter(({family}) => family === fam)
+    this.setState({[`${fam}`]:filteredColors},()=>{
+      this.toggleFamilyOpenState(fam)
+    })
   }
   
-  renderColorCards(colorIds){
-    return colorIds.map(colorId => {
-      let color = this.state[`${colorId}`]
-      // let { id,count } = color.inventory
+  renderColors(colors){
+    return colors.map(color => {
       return <ColorCard
         key={color.colorId} 
         family={color.family} 
@@ -235,37 +247,32 @@ class LipColors extends Component {
         status={color.status} 
         inventoryCount={color.count} 
         inventoryId={color.inventoryId}
-        onAddPress={() => this.inventoryUpdater(color.colorId,color.count,'+')}
-        onMinusPress={() => this.inventoryUpdater(color.colorId,color.count,'-')}
+        onAddPress={() => this.inventoryUpdater(color.family,color.colorId,color.count,'+')}
+        onMinusPress={() => this.inventoryUpdater(color.family,color.colorId,color.count,'-')}
         isEditing={this.state[`isEditing-${color.colorId}`]}
         onCancelPress={() => this.cancelInventoryUpdater(color)}
         onUpdatePress={() => this.checkIfInventoryExists(color.inventoryId,color.colorId)}/>
     })
   }
   
-  renderColorsList(colorIds,isOpen){
-    if (!this.state.isListReady) {
-      return this.renderLoading()
-    } else {
-      if (isOpen) {
-        return this.renderColorCards(colorIds)
-      } else {
-        return <View style={{width:screenWidth}}/>
-      }
-    }
-  }
-  
   toggleFamilyOpenState(family){
-    this.setState({
-      [`${family}IsOpen`]: !this.state[`${family}IsOpen`]
-    })
+    let isOpen = this.state[`${family}IsOpen`]
+    if (!isOpen) {
+      if (this.state[`${family}`].length === 0) {
+        this.filterColors(family)
+      } else {
+        this.setState({[`${family}IsOpen`]:!isOpen})
+      }
+    } else {
+      this.setState({[`${family}IsOpen`]:!isOpen})
+    }
   }
   
   renderColorHeader(family){
     return (
       <ColorHeader 
         family={family}
-        onPressHeader={this.toggleFamilyOpenState}
+        onHeaderPress={this.toggleFamilyOpenState}
         isOpen={this.state[`${family}IsOpen`]}
         offset={separatorOffset}/>
     )
@@ -289,7 +296,23 @@ class LipColors extends Component {
       pinksIsOpen,
       brownsIsOpen,
       neutralsIsOpen,
-      isListReady
+      isListReady,
+      reds,
+      oranges,
+      blues,
+      purples,
+      berries,
+      pinks,
+      browns,
+      neutrals,
+      redsIsLoading,
+      orangesIsLoading,
+      bluesIsLoading,
+      purplesIsLoading,
+      berriesIsLoading,
+      pinksIsLoading,
+      brownsIsLoading,
+      neutralsIsLoading
     } = this.state
     return (
       <View style={{flex:1}}>
@@ -301,56 +324,88 @@ class LipColors extends Component {
           }}>
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady ? this.renderColorsList(redsColorIds,redsIsOpen) : this.renderLoading()}
+                {
+                  redsIsOpen && reds.length > 0 
+                    ? this.renderColors(reds) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('reds')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(orangesColorIds,orangesIsOpen)}
+                {
+                  orangesIsOpen && oranges.length > 0 
+                    ? this.renderColors(oranges) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('oranges')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(bluesColorIds,bluesIsOpen)}
+                {
+                  bluesIsOpen && blues.length > 0 
+                    ? this.renderColors(blues) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('blues')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(purplesColorIds,purplesIsOpen)}
+                {
+                  purplesIsOpen && purples.length > 0 
+                    ? this.renderColors(purples) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('purples')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(berriesColorIds,berriesIsOpen)}
+                {
+                  berriesIsOpen && berries.length > 0 
+                    ? this.renderColors(berries) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('berries')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(pinksColorIds,pinksIsOpen)}
+                {
+                  pinksIsOpen && pinks.length > 0 
+                    ? this.renderColors(pinks) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('pinks')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(brownsColorIds,brownsIsOpen)}
+                {
+                  brownsIsOpen && browns.length > 0 
+                    ? this.renderColors(browns) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('browns')}
             </View>
             
             <View>
               <View style={{marginTop:separatorOffset}}>
-                {isListReady && this.renderColorsList(neutralsColorIds,neutralsIsOpen)}
+                {
+                  neutralsIsOpen && neutrals.length > 0 
+                    ? this.renderColors(neutrals) 
+                    : <View style={{width:screenWidth}}/>
+                }
               </View>
               {this.renderColorHeader('neutrals')}
             </View>
@@ -368,35 +423,47 @@ class LipColors extends Component {
     )
   }
 
-  inventoryStateUpdater(colorId,count,op){
-    this.setState({
-      [`${colorId}`]: {
-        ...this.state[`${colorId}`],
-        count: op === '+' ? count+1 : count > 0 ? count-1 : 0
+  updateCountState(family,cId,count,op){
+    let colors = this.state[`${family}`]
+    let i = colors.findIndex(({colorId}) => colorId === cId)
+    if (i !== 1) {
+      let color = {
+        ...colors[i],
+        count: op === '+' ? count+1 : op === '-' ? count-1 : count
       }
-    })
+      colors.splice(i,1,color)
+      this.setState({colors})
+    }
+  }
+  
+  inventoryStateUpdater(family,cId,count,op){
+    if (op === '-' && count < 1) {
+    } else {
+      this.updateCountState(family,cId,count,op)
+    }
   }
 
-  inventoryUpdater(colorId,count,op){
+  inventoryUpdater(family,colorId,count,op){
     if (this.state[`isEditing-${colorId}`]) {
-      this.inventoryStateUpdater(colorId,count,op)
+      this.inventoryStateUpdater(family,colorId,count,op)
     } else {
       this.setState({
         [`isEditing-${colorId}`]:true,
         [`resetCountFor-${colorId}`]:count
       },()=>{
-        this.inventoryStateUpdater(colorId,count,op)
+        this.inventoryStateUpdater(family,colorId,count,op)
       })
     }
   }
 
   cancelInventoryUpdater(color){
+    this.updateCountState(
+      color.family,
+      color.colorId,
+      this.state[`resetCountFor-${color.colorId}`]
+    )
     this.setState({
-      [`isEditing-${color.colorId}`]: false,
-      [`${color.colorId}`]: {
-        ...color,
-        count: this.state[`resetCountFor-${color.colorId}`]
-      }
+      [`isEditing-${color.colorId}`]: false
     },()=>{
       this.setState({[`resetCountFor-${color.colorId}`]:null})
     })
