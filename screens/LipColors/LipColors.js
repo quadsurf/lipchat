@@ -123,76 +123,6 @@ class LipColors extends Component {
     }
   }
 
-  processColors(colors){
-    if (this.state.hasColors === false) {
-      this.setState({hasColors:true})
-      let neutralsColorIds = []
-      let redsColorIds = []
-      let pinksColorIds = []
-      let brownsColorIds = []
-      let purplesColorIds = []
-      let berriesColorIds = []
-      let orangesColorIds = []
-      let bluesColorIds = []
-      let colorIdsCatcher = []
-
-      colors.forEach(color => {
-        let { colorId,family } = color
-        this.setState({
-          [`${colorId}`]:{...color}
-        },()=>{
-          switch (family) {
-            case "NEUTRALS":
-              neutralsColorIds.push(colorId)
-              break;
-              case "REDS":
-                redsColorIds.push(colorId)
-                break;
-                case "PINKS":
-                  pinksColorIds.push(colorId)
-                  break;
-                  case "BROWNS":
-                    brownsColorIds.push(colorId)
-                    break;
-                    case "PURPLES":
-                      purplesColorIds.push(colorId)
-                      break;
-                      case "BERRIES":
-                        berriesColorIds.push(colorId)
-                        break;
-                        case "ORANGES":
-                          orangesColorIds.push(colorId)
-                          break;
-                          case "BLUES":
-                            bluesColorIds.push(colorId)
-                            break;
-                        default:
-                          colorIdsCatcher.push(colorId)
-          }
-        })
-      })
-
-      this.setState({
-        neutralsColorIds,
-        redsColorIds,
-        pinksColorIds,
-        brownsColorIds,
-        purplesColorIds,
-        berriesColorIds,
-        orangesColorIds,
-        bluesColorIds,
-        colorIdsCatcher
-      },()=>{
-        setTimeout(()=>{
-          this.setState({
-            isListReady: true,
-            hasColors: false
-          })
-        },1400)//2000
-      })
-    }
-  }
-
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -247,11 +177,11 @@ class LipColors extends Component {
         status={color.status} 
         inventoryCount={color.count} 
         inventoryId={color.inventoryId}
-        onAddPress={() => this.inventoryUpdater(color.family,color.colorId,color.count,'+')}
-        onMinusPress={() => this.inventoryUpdater(color.family,color.colorId,color.count,'-')}
+        onAddPress={() => this.checkIsEditingMode(color,'+')}
+        onMinusPress={() => this.checkIsEditingMode(color,'-')}
         isEditing={this.state[`isEditing-${color.colorId}`]}
-        onCancelPress={() => this.cancelInventoryUpdater(color)}
-        onUpdatePress={() => this.checkIfInventoryExists(color.inventoryId,color.colorId)}/>
+        onCancelPress={() => this.cancelInventoryUpdater(color.colorId)}
+        onUpdatePress={() => this.checkIfInventoryExists(color)}/>
     })
   }
   
@@ -422,57 +352,71 @@ class LipColors extends Component {
       </View>
     )
   }
-
-  updateCountState(family,cId,count,op){
-    let colors = this.state[`${family}`]
-    let i = colors.findIndex(({colorId}) => colorId === cId)
-    if (i !== 1) {
-      let color = {
+// ADD 3RD VAR FOR WHETHER OR NOT TO CHANGE EDITING MODE
+  updateColorStateOnFamily(color,op){
+    console.log('updateColorStateOnFamily func called');
+    let colors = this.state[`${color.family}`]
+    let i = colors.findIndex(({colorId}) => colorId === color.colorId)
+    console.log('i',i);
+    if (i !== -1) {
+      let newColor = {
         ...colors[i],
-        count: op === '+' ? count+1 : op === '-' ? count-1 : count
+        ...color,
+        count: op === '+' ? color.count+1 : op === '-' ? color.count-1 : color.count
       }
-      colors.splice(i,1,color)
-      this.setState({colors})
+      console.log('color before',colors[i]);
+      console.log('color after',newColor);
+      colors.splice(i,1,newColor)
+      this.setState({
+        [`${color.family}`]:colors,
+        [`isEditing-${color.colorId}`]:false,
+        [`resetCountFor-${color.colorId}`]:null
+      })
+      if (this.state.isModalOpen) {
+        setTimeout(()=>{
+            this.setState({isModalOpen:false})
+          },1400)
+      }
     }
   }
   
-  inventoryStateUpdater(family,cId,count,op){
-    if (op === '-' && count < 1) {
+  checkCount(color,op){
+    if (op === '-' && color.count < 1) {
     } else {
-      this.updateCountState(family,cId,count,op)
+      this.updateColorStateOnFamily(color,op)
     }
   }
 
-  inventoryUpdater(family,colorId,count,op){
-    if (this.state[`isEditing-${colorId}`]) {
-      this.inventoryStateUpdater(family,colorId,count,op)
+  checkIsEditingMode(color,op){
+    if (this.state[`isEditing-${color.colorId}`]) {
+      this.checkCount(color,op)
     } else {
       this.setState({
-        [`isEditing-${colorId}`]:true,
-        [`resetCountFor-${colorId}`]:count
+        [`isEditing-${color.colorId}`]: true,
+        [`resetCountFor-${color.colorId}`]: color.count
       },()=>{
-        this.inventoryStateUpdater(family,colorId,count,op)
+        this.checkCount(color,op)
       })
     }
   }
 
-  cancelInventoryUpdater(color){
-    this.updateCountState(
-      color.family,
-      color.colorId,
-      this.state[`resetCountFor-${color.colorId}`]
-    )
-    this.setState({
-      [`isEditing-${color.colorId}`]: false
-    },()=>{
-      this.setState({[`resetCountFor-${color.colorId}`]:null})
-    })
+  cancelInventoryUpdater(colorId){
+    let updates = {
+      colorId,
+      count: this.state[`resetCountFor-${colorId}`]
+    }
+    this.updateColorStateOnFamily(updates)
+    // this.setState({
+    //   [`isEditing-${colorId}`]: false
+    // },()=>{
+    //   this.setState({[`resetCountFor-${colorId}`]:null})
+    // })
   }
 
-  checkIfInventoryExists(inventoryId,colorId){
+  checkIfInventoryExists({inventoryId,colorId,count}){
     this.showModal('processing')
     let distributorId = this.state.user.distributorx.id
-    let { count } = this.state[`${colorId}`]
+    // let { count } = this.state[`${colorId}`]
     if (inventoryId) {
       this.updateInventoryInDb(inventoryId,colorId,count)
     } else {
@@ -480,34 +424,25 @@ class LipColors extends Component {
     }
   }
 
-  createInventoryInDb(distId,colorId,count){
+  createInventoryInDb(distId,colorId,newCount){
     let errText = 'setting up inventory for this color'
-    if (distId && colorId && count) {
+    if (distId && colorId && newCount) {
       this.props.connectColorToDistributor({
         variables: {
           distId,
           colorId,
-          count
+          count: newCount
         }
       }).then( ({ data:{ createInventory=false } }) => {
-        if (createInventory) {
+        if (createInventory.hasOwnProperty('id')) {
           let { id,count } = createInventory
-          this.setState({
-            [`${colorId}`]: {
-              ...this.state[`${colorId}`],
-              inventoryId: id,
-              count
-            }
-          },()=>{
-            setTimeout(()=>{
-              this.setState({
-                [`isEditing-${colorId}`]:false,
-                [`resetCountFor-${colorId}`]:null
-              },()=>{
-                this.setState({isModalOpen:false})
-              })
-            },1000)
-          })
+          count = count !== newCount ? count : newCount
+          let updates = {
+            colorId,
+            inventoryId: id,
+            count
+          }
+          this.updateColorStateOnFamily(updates)
         } else {
           this.openError(errText)
         }
@@ -519,21 +454,20 @@ class LipColors extends Component {
     }
   }
 
-  updateInventoryInDb(inventoryId,colorId,count){
+  updateInventoryInDb(inventoryId,colorId,newCount){
     let errText = 'updating your inventory for this color'
     if (inventoryId && Number.isInteger(count) && count >= 0) {
       this.props.updateCountOnInventory({
-        variables: { inventoryId,count }
+        variables: { inventoryId,count:newCount }
       }).then( ({ data:{ updateInventory=false } }) => {
-        if (updateInventory) {
-          setTimeout(()=>{
-            this.setState({
-              [`isEditing-${colorId}`]:false,
-              [`resetCountFor-${colorId}`]:null
-            },()=>{
-              this.setState({isModalOpen:false})
-            })
-          },1000)
+        if (updateInventory.hasOwnProperty('count')) {
+          if (updateInventory.count !== newCount) {
+            let updates = {
+              colorId,
+              count
+            }
+            this.updateColorStateOnFamily(updates)
+          }
         } else {
           this.openError(errText)
         }
