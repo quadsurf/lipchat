@@ -352,26 +352,24 @@ class LipColors extends Component {
       </View>
     )
   }
-// ADD 3RD VAR FOR WHETHER OR NOT TO CHANGE EDITING MODE
-  updateColorStateOnFamily(color,op){
-    console.log('updateColorStateOnFamily func called');
+// READY FOR TEST
+  updateColorStateOnFamily(color,op,onType){
     let colors = this.state[`${color.family}`]
     let i = colors.findIndex(({colorId}) => colorId === color.colorId)
-    console.log('i',i);
     if (i !== -1) {
       let newColor = {
         ...colors[i],
         ...color,
         count: op === '+' ? color.count+1 : op === '-' ? color.count-1 : color.count
       }
-      console.log('color before',colors[i]);
-      console.log('color after',newColor);
       colors.splice(i,1,newColor)
-      this.setState({
-        [`${color.family}`]:colors,
-        [`isEditing-${color.colorId}`]:false,
-        [`resetCountFor-${color.colorId}`]:null
-      })
+      this.setState({[`${color.family}`]:colors})
+      if (onType !== 'onCount') {
+        this.setState({
+          [`isEditing-${color.colorId}`]:false,
+          [`resetCountFor-${color.colorId}`]:null
+        })
+      }
       if (this.state.isModalOpen) {
         setTimeout(()=>{
             this.setState({isModalOpen:false})
@@ -380,22 +378,22 @@ class LipColors extends Component {
     }
   }
   
-  checkCount(color,op){
+  checkCount(color,op,cameFrom){
     if (op === '-' && color.count < 1) {
     } else {
-      this.updateColorStateOnFamily(color,op)
+      this.updateColorStateOnFamily(color,op,'onCount')
     }
   }
 
   checkIsEditingMode(color,op){
     if (this.state[`isEditing-${color.colorId}`]) {
-      this.checkCount(color,op)
+      this.checkCount(color,op,cameFrom)
     } else {
       this.setState({
         [`isEditing-${color.colorId}`]: true,
         [`resetCountFor-${color.colorId}`]: color.count
       },()=>{
-        this.checkCount(color,op)
+        this.checkCount(color,op,cameFrom)
       })
     }
   }
@@ -405,18 +403,12 @@ class LipColors extends Component {
       colorId,
       count: this.state[`resetCountFor-${colorId}`]
     }
-    this.updateColorStateOnFamily(updates)
-    // this.setState({
-    //   [`isEditing-${colorId}`]: false
-    // },()=>{
-    //   this.setState({[`resetCountFor-${colorId}`]:null})
-    // })
+    this.updateColorStateOnFamily(updates,null,'onCancel')
   }
 
   checkIfInventoryExists({inventoryId,colorId,count}){
     this.showModal('processing')
     let distributorId = this.state.user.distributorx.id
-    // let { count } = this.state[`${colorId}`]
     if (inventoryId) {
       this.updateInventoryInDb(inventoryId,colorId,count)
     } else {
@@ -442,7 +434,7 @@ class LipColors extends Component {
             inventoryId: id,
             count
           }
-          this.updateColorStateOnFamily(updates)
+          this.updateColorStateOnFamily(updates,null,'onCreate')
         } else {
           this.openError(errText)
         }
@@ -454,20 +446,18 @@ class LipColors extends Component {
     }
   }
 
-  updateInventoryInDb(inventoryId,colorId,newCount){
+  updateInventoryInDb(inventoryId,colorId,count){
     let errText = 'updating your inventory for this color'
     if (inventoryId && Number.isInteger(count) && count >= 0) {
       this.props.updateCountOnInventory({
-        variables: { inventoryId,count:newCount }
+        variables: { inventoryId,count }
       }).then( ({ data:{ updateInventory=false } }) => {
         if (updateInventory.hasOwnProperty('count')) {
-          if (updateInventory.count !== newCount) {
-            let updates = {
-              colorId,
-              count
-            }
-            this.updateColorStateOnFamily(updates)
+          let updates = {
+            colorId,
+            count: updateInventory.count
           }
+          this.updateColorStateOnFamily(updates,null,'onUpdate')
         } else {
           this.openError(errText)
         }
