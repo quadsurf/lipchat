@@ -62,18 +62,20 @@ class Selfie extends Component {
   }
   
   subToLikesInDb(){
-    this.props.getLikesForShopper.subscribeToMore({
-      document: SubToLikesForShopper,
-      variables: {
-        shopperId: { id: this.props.user.shopperx.id }
-      },
-      updateQuery: (previous,{ subscriptionData }) => {
-        const { node={},mutation='' } = subscriptionData.data.Like
-        if (mutation === 'CREATED' || mutation === 'UPDATED') {
-          if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+    if (this.props.userType === 'SHOPPER') {
+      this.props.getLikesForShopper.subscribeToMore({
+        document: SubToLikesForShopper,
+        variables: {
+          shopperId: { id: this.props.user.shopperx.id }
+        },
+        updateQuery: (previous,{ subscriptionData }) => {
+          const { node={},mutation='' } = subscriptionData.data.Like
+          if (mutation === 'CREATED' || mutation === 'UPDATED') {
+            if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+          }
         }
-      }
-    })
+      })
+    }
   }
   
   updateLikeOnColorsList(node){
@@ -305,9 +307,9 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  // refactor all screens to manually load
-  // ADD MANUAL RENDER BUTTON TO EACH TAB EXCEPT SELFIE TAB
-  // segment colors by family on LipColors.js
+  // LIPCOLORS.js needs Liker refactoring
+  // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
+  // CHATS.js needs a manual loader
   // ADJUST LIP SHAPE
   // ABILITY TO TOGGLE APPROVEDS
   // ADD VERSIONING

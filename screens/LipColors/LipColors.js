@@ -66,34 +66,29 @@ class LipColors extends Component {
       berries: [],
       browns: [],
       neutrals: [],
-      redsIsLoading: false,
-      orangesIsLoading: false,
-      bluesIsLoading: false,
-      purplesIsLoading: false,
-      pinksIsLoading: false,
-      berriesIsLoading: false,
-      brownsIsLoading: false,
-      neutralsIsLoading: false
+      redsAutoLoadedCount: 0
     }
     this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
-    this.filterColors = debounce(this.filterColors,1400,true)
+    this.handleReds = debounce(this.handleReds,1400,true)
   }
 
   subToLikesInDb(){
-    this.props.getLikesForShopper.subscribeToMore({
-      document: SubToLikesForShopper,
-      variables: {
-        shopperId: { id: this.props.user.shopperx.id }
-      },
-      updateQuery: (previous,{ subscriptionData }) => {
-        const { node={},mutation='' } = subscriptionData.data.Like
-        if (mutation === 'CREATED' || mutation === 'UPDATED') {
-          if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+    if (this.props.userType === 'SHOPPER') {
+      this.props.getLikesForShopper.subscribeToMore({
+        document: SubToLikesForShopper,
+        variables: {
+          shopperId: { id: this.props.user.shopperx.id }
+        },
+        updateQuery: (previous,{ subscriptionData }) => {
+          const { node={},mutation='' } = subscriptionData.data.Like
+          if (mutation === 'CREATED' || mutation === 'UPDATED') {
+            if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+          }
         }
-      }
-    })
+      })
+    }
   }
-  
+  // FORCE ADD INVENTORY TO BE SOMETHING ONLY APPROVED DISTS CAN USE
   // NEEDS REFACTORING (perhaps by update state of single color rather than all colors???)
   updateLikeOnColorsList(node){
     let { colors } = this.state
@@ -117,7 +112,7 @@ class LipColors extends Component {
     if (newProps.colors !== this.props.colors) {
       if (newProps.colors !== this.state.colors) {
         this.setState({colors:newProps.colors},()=>{
-          this.filterColors('reds')
+          this.handleReds()
         })
       }
     }
@@ -155,6 +150,14 @@ class LipColors extends Component {
     })
   }
 
+  handleReds(){
+    this.setState({redsAutoLoadedCount:this.state.redsAutoLoadedCount+1},()=>{
+      if (this.state.redsAutoLoadedCount < 2) {
+        this.filterColors('reds')
+      }
+    })
+  }
+  
   filterColors(fam){
     let filteredColors = this.state.colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
@@ -180,7 +183,7 @@ class LipColors extends Component {
         onAddPress={() => this.checkIsEditingMode(color,'+')}
         onMinusPress={() => this.checkIsEditingMode(color,'-')}
         isEditing={this.state[`isEditing-${color.colorId}`]}
-        onCancelPress={() => this.cancelInventoryUpdater(color.colorId)}
+        onCancelPress={() => this.cancelInventoryUpdater(color)}
         onUpdatePress={() => this.checkIfInventoryExists(color)}/>
     })
   }
@@ -210,14 +213,6 @@ class LipColors extends Component {
 
   renderMainContent(){
     let {
-      redsColorIds,
-      orangesColorIds,
-      bluesColorIds,
-      purplesColorIds,
-      berriesColorIds,
-      pinksColorIds,
-      brownsColorIds,
-      neutralsColorIds,
       redsIsOpen,
       orangesIsOpen,
       bluesIsOpen,
@@ -234,15 +229,7 @@ class LipColors extends Component {
       berries,
       pinks,
       browns,
-      neutrals,
-      redsIsLoading,
-      orangesIsLoading,
-      bluesIsLoading,
-      purplesIsLoading,
-      berriesIsLoading,
-      pinksIsLoading,
-      brownsIsLoading,
-      neutralsIsLoading
+      neutrals
     } = this.state
     return (
       <View style={{flex:1}}>
@@ -352,7 +339,7 @@ class LipColors extends Component {
       </View>
     )
   }
-// READY FOR TEST
+
   updateColorStateOnFamily(color,op,onType){
     let colors = this.state[`${color.family}`]
     let i = colors.findIndex(({colorId}) => colorId === color.colorId)
@@ -378,7 +365,7 @@ class LipColors extends Component {
     }
   }
   
-  checkCount(color,op,cameFrom){
+  checkCount(color,op){
     if (op === '-' && color.count < 1) {
     } else {
       this.updateColorStateOnFamily(color,op,'onCount')
@@ -387,36 +374,37 @@ class LipColors extends Component {
 
   checkIsEditingMode(color,op){
     if (this.state[`isEditing-${color.colorId}`]) {
-      this.checkCount(color,op,cameFrom)
+      this.checkCount(color,op)
     } else {
       this.setState({
         [`isEditing-${color.colorId}`]: true,
         [`resetCountFor-${color.colorId}`]: color.count
       },()=>{
-        this.checkCount(color,op,cameFrom)
+        this.checkCount(color,op)
       })
     }
   }
 
-  cancelInventoryUpdater(colorId){
+  cancelInventoryUpdater({colorId,family}){
     let updates = {
       colorId,
+      family,
       count: this.state[`resetCountFor-${colorId}`]
     }
     this.updateColorStateOnFamily(updates,null,'onCancel')
   }
 
-  checkIfInventoryExists({inventoryId,colorId,count}){
+  checkIfInventoryExists({inventoryId,colorId,count,family}){
     this.showModal('processing')
     let distributorId = this.state.user.distributorx.id
     if (inventoryId) {
-      this.updateInventoryInDb(inventoryId,colorId,count)
+      this.updateInventoryInDb(inventoryId,colorId,count,family)
     } else {
-      this.createInventoryInDb(distributorId,colorId,count)
+      this.createInventoryInDb(distributorId,colorId,count,family)
     }
   }
 
-  createInventoryInDb(distId,colorId,newCount){
+  createInventoryInDb(distId,colorId,newCount,family){
     let errText = 'setting up inventory for this color'
     if (distId && colorId && newCount) {
       this.props.connectColorToDistributor({
@@ -427,12 +415,12 @@ class LipColors extends Component {
         }
       }).then( ({ data:{ createInventory=false } }) => {
         if (createInventory.hasOwnProperty('id')) {
-          let { id,count } = createInventory
-          count = count !== newCount ? count : newCount
+          // count = count !== newCount ? count : newCount
           let updates = {
             colorId,
-            inventoryId: id,
-            count
+            family,
+            inventoryId: createInventory.id,
+            count: createInventory.count
           }
           this.updateColorStateOnFamily(updates,null,'onCreate')
         } else {
@@ -446,7 +434,7 @@ class LipColors extends Component {
     }
   }
 
-  updateInventoryInDb(inventoryId,colorId,count){
+  updateInventoryInDb(inventoryId,colorId,count,family){
     let errText = 'updating your inventory for this color'
     if (inventoryId && Number.isInteger(count) && count >= 0) {
       this.props.updateCountOnInventory({
@@ -455,16 +443,20 @@ class LipColors extends Component {
         if (updateInventory.hasOwnProperty('count')) {
           let updates = {
             colorId,
+            family,
             count: updateInventory.count
           }
           this.updateColorStateOnFamily(updates,null,'onUpdate')
         } else {
+          console.log('err1');
           this.openError(errText)
         }
       }).catch( e => {
+        console.log(e.message);
         this.openError(errText)
       })
     } else {
+      console.log('err3');
       this.openError(errText)
     }
   }
