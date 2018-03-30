@@ -82,26 +82,21 @@ class LipColors extends Component {
         updateQuery: (previous,{ subscriptionData }) => {
           const { node={},mutation='' } = subscriptionData.data.Like
           if (mutation === 'CREATED' || mutation === 'UPDATED') {
-            if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+            if (node.hasOwnProperty('id')) this.normalizeColor(node)
           }
         }
       })
     }
   }
-  // FORCE ADD INVENTORY TO BE SOMETHING ONLY APPROVED DISTS CAN USE
-  // NEEDS REFACTORING (perhaps by update state of single color rather than all colors???)
-  updateLikeOnColorsList(node){
-    let { colors } = this.state
-    let i = colors.findIndex(({colorId}) => colorId === node.colorx.id)
-    if (i !== -1) {
-      if (colors[i].doesLike !== node.doesLike) {
-        colors[i].likeId = node.id
-        colors[i].doesLike = node.doesLike
-        this.setState({colors},() => this.processColors(this.state.colors))
-      } else {
-        this.processColors(colors)
-      }
+  
+  normalizeColor(node){
+    let updates = {
+      colorId: node.colorx.id,
+      family: node.colorx.family.toLowerCase(),
+      doesLike: node.doesLike,
+      likeId: node.id
     }
+    this.updateColorStateOnFamily(updates,null,'pubsub')
   }
   
   componentDidMount(){
@@ -164,7 +159,7 @@ class LipColors extends Component {
       this.toggleFamilyOpenState(fam)
     })
   }
-  
+
   renderColors(colors){
     return colors.map(color => {
       return <ColorCard
@@ -175,7 +170,7 @@ class LipColors extends Component {
         rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} 
         userType={this.props.userType}
         doesLike={color.doesLike}
-        onLikePress={() => this.checkIfLikeExists(color.likeId,color.colorId)}
+        onLikePress={() => this.checkIfLikeExists(color)}
         finish={color.finish} 
         status={color.status} 
         inventoryCount={color.count} 
@@ -347,11 +342,11 @@ class LipColors extends Component {
       let newColor = {
         ...colors[i],
         ...color,
-        count: op === '+' ? color.count+1 : op === '-' ? color.count-1 : color.count
+        count: op === '+' ? color.count+1 : op === '-' ? color.count-1 : onType === 'pubsub' ? colors[i].count : color.count
       }
       colors.splice(i,1,newColor)
       this.setState({[`${color.family}`]:colors})
-      if (onType !== 'onCount') {
+      if (onType !== 'onCount' && onType !== 'pubsub') {
         this.setState({
           [`isEditing-${color.colorId}`]:false,
           [`resetCountFor-${color.colorId}`]:null
@@ -461,29 +456,35 @@ class LipColors extends Component {
     }
   }
 
-  checkIfLikeExists(likeId,colorId){
+  checkIfLikeExists({likeId,colorId,doesLike}){
     let shopperId = this.state.user.shopperx.id
     if (likeId) {
-      this.updateDoesLikeOnLikeInDb(likeId,colorId,!this.state[`${colorId}`].doesLike)
+      this.updateDoesLikeOnLikeInDb(likeId,colorId,!doesLike)
     } else {
-      this.createLikeInDb(shopperId,colorId)
+      this.createLikeInDb(shopperId,color)
     }
   }
 
-  createLikeInDb(ShopperId,ColorId){
+  createLikeInDb(ShopperId,{ colorId:ColorId,family }){
     let errText = 'creating a like for this color'
     if (ShopperId && ColorId) {
       this.props.createLike({
         variables: { ShopperId,ColorId }
       }).then( ({ data:{ createLike=false } }) => {
-        if (createLike) {
-          this.setState({
-            [`${ColorId}`]: {
-              ...this.state[`${ColorId}`],
-              likeId: createLike.id,
-              doesLike: createLike.doesLike
-            }
-          })
+        if (createLike.hasOwnProperty('id')) {
+          let updates = {
+            colorId: ColorId,
+            family,
+            doesLike: createLike.doesLike
+          }
+          this.updateColorStateOnFamily(updates,null,'onCreateLike')
+          // this.setState({
+          //   [`${ColorId}`]: {
+          //     ...this.state[`${ColorId}`],
+          //     likeId: createLike.id,
+          //     doesLike: createLike.doesLike
+          //   }
+          // })
         } else {
             this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }

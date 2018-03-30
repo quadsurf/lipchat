@@ -289,6 +289,7 @@ subscription(
         status
         tone
         finish
+        family
       }
     }
   }
