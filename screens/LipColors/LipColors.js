@@ -342,11 +342,17 @@ class LipColors extends Component {
       let newColor = {
         ...colors[i],
         ...color,
-        count: op === '+' ? color.count+1 : op === '-' ? color.count-1 : onType === 'pubsub' ? colors[i].count : color.count
+        count: (op === '+'
+         ? color.count+1
+         : op === '-'
+         ? color.count-1 
+         : onType === 'pubsub' || onType === 'onUpdateLike' 
+         ? colors[i].count 
+         : color.count)
       }
       colors.splice(i,1,newColor)
       this.setState({[`${color.family}`]:colors})
-      if (onType !== 'onCount' && onType !== 'pubsub') {
+      if (onType === 'onUpdate' || onType === 'onCancel') {
         this.setState({
           [`isEditing-${color.colorId}`]:false,
           [`resetCountFor-${color.colorId}`]:null
@@ -417,7 +423,7 @@ class LipColors extends Component {
             inventoryId: createInventory.id,
             count: createInventory.count
           }
-          this.updateColorStateOnFamily(updates,null,'onCreate')
+          this.updateColorStateOnFamily(updates,null,'onUpdate')
         } else {
           this.openError(errText)
         }
@@ -456,10 +462,10 @@ class LipColors extends Component {
     }
   }
 
-  checkIfLikeExists({likeId,colorId,doesLike}){
+  checkIfLikeExists(color){
     let shopperId = this.state.user.shopperx.id
-    if (likeId) {
-      this.updateDoesLikeOnLikeInDb(likeId,colorId,!doesLike)
+    if (color.likeId) {
+      this.updateDoesLikeOnLikeInDb(color)
     } else {
       this.createLikeInDb(shopperId,color)
     }
@@ -470,21 +476,15 @@ class LipColors extends Component {
     if (ShopperId && ColorId) {
       this.props.createLike({
         variables: { ShopperId,ColorId }
-      }).then( ({ data:{ createLike=false } }) => {
+      }).then( ({ data:{ createLike={} } }) => {
         if (createLike.hasOwnProperty('id')) {
           let updates = {
             colorId: ColorId,
             family,
+            likeId: createLike.id,
             doesLike: createLike.doesLike
           }
-          this.updateColorStateOnFamily(updates,null,'onCreateLike')
-          // this.setState({
-          //   [`${ColorId}`]: {
-          //     ...this.state[`${ColorId}`],
-          //     likeId: createLike.id,
-          //     doesLike: createLike.doesLike
-          //   }
-          // })
+          this.updateColorStateOnFamily(updates,null,'onUpdateLike')
         } else {
             this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }
@@ -496,37 +496,36 @@ class LipColors extends Component {
     }
   }
 
-  updateDoesLikeOnLikeInDb(LikeId,colorId,bool){
+  updateDoesLikeOnLikeInDb({likeId:LikeId,colorId,doesLike:bool,family}){
     let errText = 'updating the like status for this color'
     if (LikeId && colorId) {
-      this.setState({
-        [`${colorId}`]: {
-          ...this.state[`${colorId}`],
-          likeId: LikeId,
-          doesLike: bool
+      updates = {
+        colorId,
+        family,
+        doesLike: !bool
+      }
+      this.updateColorStateOnFamily(updates,null,'onUpdateLike')
+      this.props.updateDoesLikeOnLike({
+        variables: {
+          LikeId,
+          bool: !bool
         }
-      },()=>{
-        this.props.updateDoesLikeOnLike({
-          variables: {LikeId,bool}
-        }).then( ({ data:{ updateLike=false } }) => {
-          if (updateLike) {
-            if (this.state[`${colorId}`].doesLike !== updateLike.doesLike) {
-              this.setState({
-                [`${colorId}`]: {
-                  ...this.state[`${colorId}`],
-                  likeId: LikeId,
-                  doesLike: bool
-                }
-              },()=>{
-                this.openError(`${errText}(1)`)
-              })
+      }).then( ({ data:{ updateLike={} } }) => {
+        if (updateLike.hasOwnProperty('doesLike')) {
+          if (updateLike.doesLike === bool) {
+            updates = {
+              colorId,
+              family,
+              doesLike: updateLike.doesLike
             }
-          } else {
-            this.openError(`${errText}(2)`)
+            this.updateColorStateOnFamily(updates,null,'onUpdateLike')
+            this.openError(`${errText}(1)`)
           }
-        }).catch( e => {
-          this.openError(`${errText}(3)`)
-        })
+        } else {
+          this.openError(`${errText}(2)`)
+        }
+      }).catch( e => {
+        this.openError(`${errText}(3)`)
       })
     } else {
       this.openError(`${errText}(4)`)

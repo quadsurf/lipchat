@@ -308,9 +308,9 @@ class Selfie extends Component {
     )
   }
   // LIPCOLORS.js needs Liker refactoring
+  // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
   // USE CONSTRUCTOR TO BIND ANON FUNCS in renderColors func (LipColor.js)
   // FORCE ADD INVENTORY TO BE SOMETHING ONLY APPROVED DISTS CAN USE
-  // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
   // CHATS.js needs a manual loader
   // ADJUST LIP SHAPE
   // ABILITY TO TOGGLE APPROVEDS
