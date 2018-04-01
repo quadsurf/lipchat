@@ -453,7 +453,6 @@ class LipColors extends Component {
           this.openError(errText)
         }
       }).catch( e => {
-        console.log(e.message);
         this.openError(errText)
       })
     } else {

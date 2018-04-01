@@ -315,9 +315,8 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  // LIPCOLORS.js needs Liker refactoring
   // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
-  // USE CONSTRUCTOR TO BIND ANON FUNCS in renderColors func (LipColor.js)
+  // USE CONSTRUCTOR TO BIND ANON FUNCS in Selfie and You.js
   // FORCE ADD INVENTORY TO BE SOMETHING ONLY APPROVED DISTS CAN USE
   // CHATS.js needs a manual loader
   // ADJUST LIP SHAPE
@@ -420,7 +419,6 @@ class Selfie extends Component {
   }
   
   async onPressColor(colorId,rgbString){
-    console.log('onPressColor func called');
     // this.showModal('processing')
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
@@ -619,7 +617,7 @@ class Selfie extends Component {
           this.openError(`${errText} (error code: 1-${ShopperId}-${ColorId})`)
         }
       }).catch( e => {
-        this.openError(`${errText} (error code: 2-${ShopperId}-${ColorId}, message: ${e.message})`)
+        this.openError(`${errText} (error code: 2-${ShopperId}-${ColorId})`)
       })
     } else {
       this.openError(`${errText} (error code: 3-${ShopperId}-${ColorId})`)
@@ -667,7 +665,7 @@ class Selfie extends Component {
           this.updateDoesLikeInApp(color)
         }
       }).catch( e => {
-        this.openError(`${errText} (error code: 3-${LikeId}-${bool}, message: ${e.message})`)
+        this.openError(`${errText} (error code: 3-${LikeId}-${bool})`)
         color.doesLike = !color.doesLike
         this.updateDoesLikeInApp(color)
       })
