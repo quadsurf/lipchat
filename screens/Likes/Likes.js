@@ -11,6 +11,7 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { debounce } from 'underscore'
 
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -26,11 +27,15 @@ import LikeCard from './LikeCard'
 
 class Likes extends Component {
 
-  state = {
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    likes: null
+  constructor(props){
+    super(props)
+    this.state = {
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      likes: null
+    }
+    this.onPressClaim = debounce(this.onPressClaim.bind(this),3000,true)
   }
   
   subToLikesInDb(){
@@ -182,7 +187,7 @@ class Likes extends Component {
           return <LikeCard 
             key={id} 
             like={like} 
-            onPressClaim={() => this.onPressClaim(like)} 
+            onPressClaim={this.onPressClaim} 
             rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
         })
       } else {

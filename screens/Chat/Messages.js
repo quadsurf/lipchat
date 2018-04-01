@@ -14,6 +14,7 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+// import { withNavigation } from 'react-navigation'
 import { Entypo,SimpleLineIcons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
 // import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -43,13 +44,14 @@ const debugging = false
 // COMPONENTS
 import Message from './Message'
 
+// @withNavigation
 class Messages extends Component {
 
   state = {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    userId: this.props.navigation.state.params.nav.state.params.localStorage.userId || null,
+    userId: this.props.navigation.state.params.userId,
     chatId: this.props.navigation.state.params.chatId,
     messages: null,
     newMessage: '',

@@ -7,7 +7,9 @@ import {
 
 //LIBS
 import moment from 'moment'
+import { withNavigation } from 'react-navigation'
 import { Foundation } from '@expo/vector-icons'
+import { debounce } from 'underscore'
 
 //STORE
 import { connect } from 'react-redux'
@@ -21,10 +23,15 @@ import { getDimensions,clipText } from '../../utils/Helpers'
 // CONSTs
 const size = 90
 
+@withNavigation
 class ChatCardLayout extends Component {
   
-  state = {
-    unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
+  constructor(props){
+    super(props)
+    this.state = {
+      unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
+    }
+    this.navToMessages = debounce(this.navToMessages,4000,true)
   }
   
   componentWillReceiveProps(newProps){
@@ -35,10 +42,20 @@ class ChatCardLayout extends Component {
     }
   }
   
+  navToMessages(audiences){
+    let {
+      chat,userId,chatId,uri,chatTitle,chatType,level,handleClearedChat
+    } = this.props
+    if (this.state.unreadStatus) {
+      handleClearedChat(chat)
+    }
+    this.props.navigation.navigate('Messages',{userId,chatId,uri,chatTitle,chatType,level,audiences})
+  }
+  
   render(){
     let {
-      chatId,approved,uri,chatTitle,chatSubTitle,chatType,audience,
-      level,message,date,line1,line2,nav,chat,handleClearedChat
+      chatId,approved,uri,chatTitle,chatSubTitle,
+      audience,message,date,line1,line2
     } = this.props
     let screen = getDimensions()
     let small = Texts.small.fontSize
@@ -109,12 +126,7 @@ class ChatCardLayout extends Component {
     if (approved) {
       // the person being viewed is approved
       return (
-        <TouchableOpacity style={cardStyle} onPress={()=>{
-            if (unreadStatus) {
-              handleClearedChat(chat)
-            }
-            nav.navigate('Messages',{nav,chatId,uri,chatTitle,chatType,level,audiences})
-          }}>
+        <TouchableOpacity style={cardStyle} onPress={() => this.navToMessages(audiences)}>
           <View style={cardLeft}>
             <Image source={{uri}} style={imgSize}/>
           </View>

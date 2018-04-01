@@ -11,6 +11,7 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 // import isIPhoneX from 'react-native-is-iphonex'
+import { debounce } from 'underscore'
 
 // STORE
 import { connect } from 'react-redux'
@@ -41,24 +42,31 @@ const debugging = false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
+const debounceDuration = 4000
 
 class Selfie extends Component {
 
-  state = {
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    user: this.props.user,
-    colors: [],
-    userType: this.props.userType,
-    hasCameraPermission: false,
-    photoId: 1,
-    photos: [],
-    faces: [],
-    activeColor: 'rgba(0,0,0,0)',
-    layersMode: false,
-    selectedColors: [],
-    likesOfSelectedColors: []
+  constructor(props){
+    super(props)
+    this.state = {
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      user: this.props.user,
+      colors: [],
+      userType: this.props.userType,
+      hasCameraPermission: false,
+      photoId: 1,
+      photos: [],
+      faces: [],
+      activeColor: 'rgba(0,0,0,0)',
+      layersMode: false,
+      selectedColors: [],
+      likesOfSelectedColors: []
+    }
+    this.checkIfLikeExists = debounce(this.checkIfLikeExists,debounceDuration,true)
+    this.onPressColor = debounce(this.onPressColor,debounceDuration,true)
+    this.toggleLayersMode = debounce(this.toggleLayersMode,debounceDuration,true)
   }
   
   subToLikesInDb(){
@@ -217,7 +225,7 @@ class Selfie extends Component {
   
   updateLikesOfSelectedColors(){
     let likesOfSelectedColors = []
-    this.state.selectedColors.forEach(id => {
+    this.state.selectedColors.forEach( id => {
       let color = this.getColorObj(id)
       likesOfSelectedColors.push(color)
     })
@@ -412,12 +420,11 @@ class Selfie extends Component {
   }
   
   async onPressColor(colorId,rgbString){
+    console.log('onPressColor func called');
     // this.showModal('processing')
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
-    let i = selectedColors.findIndex( selectedColorId => {
-      return selectedColorId === colorId
-    })
+    let i = selectedColors.findIndex( selectedColorId => selectedColorId === colorId )
     let activeColor
     if (i === -1) {
       // color is not selected
@@ -600,8 +607,8 @@ class Selfie extends Component {
     if (ShopperId && ColorId) {
       this.props.createLike({
         variables: {ShopperId,ColorId}
-      }).then( ({ data: { createLike=null }=null }) => {
-        if (createLike) {
+      }).then( ({ data: { createLike={} }=null }) => {
+        if (createLike.hasOwnProperty('id')) {
           color.likeId = createLike.id
           color.doesLike = createLike.doesLike
           this.updateDoesLikeInApp(color)
@@ -626,12 +633,12 @@ class Selfie extends Component {
   
   updateDoesLikeInApp(color){
     let { colors } = this.state
-    let index = colors.findIndex( el => {
-      return el.colorId === color.colorId
-    })
-    if (index !== -1) {
-      colors.splice(index,1,color)
-      this.setState({colors})
+    let i = colors.findIndex( ({colorId}) => colorId === color.colorId )
+    if (i !== -1) {
+      colors.splice(i,1,color)
+      this.setState({colors},()=>{
+        this.updateLikesOfSelectedColors()
+      })
     }
   }
   

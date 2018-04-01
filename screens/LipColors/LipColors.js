@@ -35,6 +35,9 @@ import ColorHeader from './ColorHeader'
 // CONSTS
 const { width:screenWidth } = getDimensions()
 const separatorOffset = 120
+const shortUIdebounce = 1000
+const longUIdebounce = 3000
+const networkDebounce = 4000
 const debugging = false
 
 class LipColors extends Component {
@@ -68,8 +71,13 @@ class LipColors extends Component {
       neutrals: [],
       redsAutoLoadedCount: 0
     }
-    this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
+    
     this.handleReds = debounce(this.handleReds,1400,true)
+    this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
+    this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),networkDebounce,true)
+    this.checkIsEditingMode = this.checkIsEditingMode.bind(this)
+    this.checkIfInventoryExists = debounce(this.checkIfInventoryExists.bind(this),networkDebounce,true)
+    this.cancelInventoryUpdater = debounce(this.cancelInventoryUpdater.bind(this),shortUIdebounce,true)
   }
 
   subToLikesInDb(){
@@ -153,33 +161,25 @@ class LipColors extends Component {
     })
   }
   
-  filterColors(fam){
+  filterColors(fam,cameFrom){
     let filteredColors = this.state.colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
       this.toggleFamilyOpenState(fam)
     })
   }
-
+  
   renderColors(colors){
     return colors.map(color => {
       return <ColorCard
         key={color.colorId} 
-        family={color.family} 
-        tone={color.tone} 
-        name={color.name} 
-        rgb={color.rgb ? `rgb(${color.rgb})` : Colors.purpleText} 
+        color={color}
         userType={this.props.userType}
-        doesLike={color.doesLike}
-        onLikePress={() => this.checkIfLikeExists(color)}
-        finish={color.finish} 
-        status={color.status} 
-        inventoryCount={color.count} 
-        inventoryId={color.inventoryId}
-        onAddPress={() => this.checkIsEditingMode(color,'+')}
-        onMinusPress={() => this.checkIsEditingMode(color,'-')}
+        onLikePress={this.checkIfLikeExists}
         isEditing={this.state[`isEditing-${color.colorId}`]}
-        onCancelPress={() => this.cancelInventoryUpdater(color)}
-        onUpdatePress={() => this.checkIfInventoryExists(color)}/>
+        onMinusPress={this.checkIsEditingMode}
+        onAddPress={this.checkIsEditingMode}
+        onCancelPress={this.cancelInventoryUpdater}
+        onUpdatePress={this.checkIfInventoryExists}/>
     })
   }
   
@@ -187,7 +187,7 @@ class LipColors extends Component {
     let isOpen = this.state[`${family}IsOpen`]
     if (!isOpen) {
       if (this.state[`${family}`].length === 0) {
-        this.filterColors(family)
+        this.filterColors(family,'came from toggler')
       } else {
         this.setState({[`${family}IsOpen`]:!isOpen})
       }
@@ -357,15 +357,15 @@ class LipColors extends Component {
           [`isEditing-${color.colorId}`]:false,
           [`resetCountFor-${color.colorId}`]:null
         })
-      }
-      if (this.state.isModalOpen) {
-        setTimeout(()=>{
-            this.setState({isModalOpen:false})
-          },1400)
+        if (this.state.isModalOpen) {
+          setTimeout(()=>{
+              this.setState({isModalOpen:false})
+            },1400)
+        }
       }
     }
   }
-  
+
   checkCount(color,op){
     if (op === '-' && color.count < 1) {
     } else {

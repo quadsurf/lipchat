@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { withNavigation } from 'react-navigation'
 import axios from 'axios'
 import { NavigationActions } from 'react-navigation'
+import { debounce } from 'underscore'
 
 //LOCALS
 import { Views,Colors } from '../../css/Styles'
@@ -32,13 +33,20 @@ const { width,height } = getDimensions()
 @withNavigation
 class Claims extends Component {
   
-  state = {
-    count: 0,
-    colorName: this.props.navigation.state.params.like.name,
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    isVerified: null
+  constructor(props){
+    super(props)
+    this.state = {
+      count: 0,
+      colorName: this.props.navigation.state.params.like.name,
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      isVerified: null
+    }
+    this.openClaimConfirmation = debounce(this.openClaimConfirmation,3000,true)
+    this.sendClaim = debounce(this.sendClaim,4000,true)
+    this.closeModal = debounce(this.closeModal,3000,true)
+    this.closeNavModal = debounce(this.closeNavModal,3000,true)
   }
   
   componentWillReceiveProps(newProps){
@@ -126,7 +134,7 @@ class Claims extends Component {
     return (
       <Modals
         isOpen={this.state.isModalOpen}
-        close={() => this.setState({ isModalOpen:false })}
+        close={() => this.closeModal()}
         type={this.state.modalType}
         content={this.state.modalContent} 
         onConfirmPress={this.state.onConfirmPress}/>
@@ -145,6 +153,10 @@ class Claims extends Component {
   }
   
   closeModal(){
+    this.setState({ isModalOpen:false })
+  }
+  
+  closeNavModal(){
     this.props.navigation.dispatch(NavigationActions.back())
   }
   
@@ -156,11 +168,11 @@ class Claims extends Component {
       }
     }).then( () => {
       setTimeout(()=>{
-        this.closeModal()
+        this.closeNavModal()
       },700)
     }).catch( e => {
       setTimeout(()=>{
-        this.closeModal()
+        this.closeNavModal()
       },700)
       if (debugging) console.log('could not trigger event on Chat node',e.message);
     })
@@ -268,7 +280,7 @@ class Claims extends Component {
             <View style={{width:1,height:80,backgroundColor:Colors.pinkly}}/>
             <TouchableOpacity 
               style={{...Views.middle,backgroundColor:Colors.purple}}
-              onPress={() => this.closeModal()}>
+              onPress={() => this.closeNavModal()}>
                 <FontPoiret 
                   text="cancel" 
                   size={34} 

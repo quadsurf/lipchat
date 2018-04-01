@@ -34,7 +34,7 @@ export default (props) => {
         </View>
         <TouchableOpacity 
           style={Views.middle}
-          onPress={props.onPressClaim}>
+          onPress={() => props.onPressClaim(props.like)}>
             <FontMatilde color={Colors.white} text="request this color" size={larger} vspace={20}/>
         </TouchableOpacity>
         <View style={{...Views.middle,marginTop:20}}>
