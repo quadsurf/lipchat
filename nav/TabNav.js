@@ -281,7 +281,7 @@ class TabNav extends PureComponent<void, *, State> {
 
   renderFooter = props => {
     let { deviceYearClass:year } = Constants
-    if (year >= 2016) {
+    if (year >= 2018) {
       return (
         <TabBar
           {...props}

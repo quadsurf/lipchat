@@ -9,14 +9,14 @@ import { Ionicons } from '@expo/vector-icons'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Colors,Texts } from '../../css/Styles'
 
-export default ({ color: { name,doesLike },onPressLike }) => {
+export default ({ color,onLikePress }) => {
   return (
     <View style={{paddingHorizontal:6,flex:0.333}}>
       <TouchableOpacity 
-        onPress={onPressLike}
+        onPress={() => onLikePress(color)}
         style={{alignItems:'center'}}>
           <Ionicons 
-            name={ doesLike ? 'ios-heart' : 'ios-heart-outline' } 
+            name={ color.doesLike ? 'ios-heart' : 'ios-heart-outline' } 
             size={46} 
             color="white" 
             style={{
@@ -30,7 +30,7 @@ export default ({ color: { name,doesLike },onPressLike }) => {
             paddingTop:2,
             paddingBottom:4
             }}>
-            <FontPoiret text={name} size={Texts.small.fontSize} />
+            <FontPoiret text={color.name} size={Texts.small.fontSize} />
           </View>
       </TouchableOpacity>
     </View>

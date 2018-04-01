@@ -28,7 +28,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
-import { tips } from './../../config/Defaults'
+import { tips,distIsLiking } from './../../config/Defaults'
 
 // COMPONENTS
 import ColorSwatch from './ColorSwatch'
@@ -42,7 +42,8 @@ const debugging = false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
-const debounceDuration = 4000
+const shortUIdebounce = 2000
+const longUIdebounce = 3000
 
 class Selfie extends Component {
 
@@ -64,9 +65,9 @@ class Selfie extends Component {
       selectedColors: [],
       likesOfSelectedColors: []
     }
-    this.checkIfLikeExists = debounce(this.checkIfLikeExists,debounceDuration,true)
-    this.onPressColor = debounce(this.onPressColor,debounceDuration,true)
-    this.toggleLayersMode = debounce(this.toggleLayersMode,debounceDuration,true)
+    this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),shortUIdebounce,true)
+    this.onColorPress = debounce(this.onColorPress.bind(this),longUIdebounce,true)
+    this.toggleLayersMode = debounce(this.toggleLayersMode,longUIdebounce,true)
   }
   
   subToLikesInDb(){
@@ -237,7 +238,7 @@ class Selfie extends Component {
       <Liker 
         key={color.colorId} 
         color={color} 
-        onPressLike={() => this.checkIfLikeExists(color)}/>
+        onLikePress={this.checkIfLikeExists}/>
     )
   }
   
@@ -317,10 +318,9 @@ class Selfie extends Component {
   }
   // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
   // USE CONSTRUCTOR TO BIND ANON FUNCS in Selfie and You.js
-  // FORCE ADD INVENTORY TO BE SOMETHING ONLY APPROVED DISTS CAN USE
   // CHATS.js needs a manual loader
   // ADJUST LIP SHAPE
-  // ABILITY TO TOGGLE APPROVEDS
+  // ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
   // ADD VERSIONING
   // ADD PUSH NOTIFICATIONS
   getLayeredRGB(rgb,rgbNumbers,op){
@@ -418,7 +418,7 @@ class Selfie extends Component {
     }
   }
   
-  async onPressColor(colorId,rgbString){
+  async onColorPress(colorId,rgbString){
     // this.showModal('processing')
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
@@ -430,6 +430,7 @@ class Selfie extends Component {
         selectedColors = []
         activeColor = `rgba(${rgbString},${singleCoatAlpha})`
       } else {
+        // in layers mode
         if (selectedColors.length >= 3) {
           Vibration.vibrate()
           // setTimeout(()=>{
@@ -484,17 +485,16 @@ class Selfie extends Component {
   }
   
   renderSwatch({ name,rgb,colorId,doesLike }){
-    let isSelected = this.state.selectedColors.findIndex( selectedColorId => {
-      return selectedColorId === colorId
-    })
+    let isSelected = this.state.selectedColors.findIndex( selectedColorId => selectedColorId === colorId )
     return (
       <ColorSwatch 
         key={colorId} 
+        colorId={colorId}
         name={name} 
         rgb={rgb} 
         isSelected={isSelected === -1 ? false : true}
         doesLike={this.props.userType === 'SHOPPER' ? doesLike : false}
-        onPressColor={() => this.onPressColor(colorId,rgb)} />
+        onColorPress={this.onColorPress} />
     )
   }
   
@@ -594,7 +594,7 @@ class Selfie extends Component {
         this.createLikeInDb(shopperId,color)
       }
     } else {
-      this.showModal('prompt',"You're a Distributor",'Liking a Color is a feature we have reserved for Shoppers only.')
+      this.showModal('prompt',"You're a Distributor",distIsLiking)
     }
   }
   

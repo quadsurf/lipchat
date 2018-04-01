@@ -26,6 +26,9 @@ With a shopper account, use the "Selfie" tab to test how each color virtually lo
 DISTRIBUTOR ACCOUNT${`\n`}
 When customers use augmented reality to virtually test on new lip colors, they're more likely to buy! With a verified distributor account, marketing to your customers and prospective customers has never been so awesome. Manage your customers with tools like inventory tracking, chat, and lite order tracking. Group chat with all your customers too! Remember to provide your customers with your Senegence Distributor ID so that when your customers use ${AppName} and express interest in a lip color, only you their distributor can engage them in a chat (or a phone call) to help convert their lip color interests, into a completed sale! After your customer has paid for their lip colors outside of the app (which keeps you in compliance with Senegence), labeling those lip colors as an officially "claimed" or "requested" lip color, automatically updates your inventory in ${AppName} (this feature is coming soon, along with automated invoice generation).`
 
+const distIsLiking = 'Liking a Color is a feature we have reserved for Shoppers only.'
+const notApprovedToAddInventory = `Inventory Management is a feature reserved for "approved" Distributors. Please get approved by us so you can begin taking advantage of this feature!`
+
 const terms = `${AppName} PRIVACY POLICY
 
 This privacy policy has been compiled to better serve those who are concerned with how their 'Personally Identifiable Information' (PII) is being used online. PII, as described in US privacy law and information security, is information that can be used on its own or with other information to identify, contact, or locate a single person, or to identify an individual in context. Please read our privacy policy carefully to get a clear understanding of how we collect, use, protect or otherwise handle your Personally Identifiable Information in accordance with ${AppName}.
@@ -333,5 +336,8 @@ quadsurf@gmail.com
 
 Last Edited on 2018-02-10`
 
-export { AppName,terms,method,url,newClaimText,newClaimText2,AccountTypeExplainer }
+export {
+  AppName,terms,method,url,newClaimText,newClaimText2,
+  notApprovedToAddInventory,AccountTypeExplainer,distIsLiking
+}
 // const fbkPhotoUri = 'https://graph.facebook.com/100000480052014/picture?width=300&height=300'

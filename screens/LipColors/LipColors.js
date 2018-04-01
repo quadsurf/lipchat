@@ -27,6 +27,7 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
 import { Modals,getDimensions } from '../../utils/Helpers'
+import { notApprovedToAddInventory } from '../../config/Defaults'
 
 // COMPONENTS
 import ColorCard from './ColorCard'
@@ -377,12 +378,16 @@ class LipColors extends Component {
     if (this.state[`isEditing-${color.colorId}`]) {
       this.checkCount(color,op)
     } else {
-      this.setState({
-        [`isEditing-${color.colorId}`]: true,
-        [`resetCountFor-${color.colorId}`]: color.count
-      },()=>{
-        this.checkCount(color,op)
-      })
+      if (this.props.distributorStatus) {
+        this.setState({
+          [`isEditing-${color.colorId}`]: true,
+          [`resetCountFor-${color.colorId}`]: color.count
+        },()=>{
+          this.checkCount(color,op)
+        })
+      } else {
+        this.showModal('prompt','Distributor Status',notApprovedToAddInventory)
+      }
     }
   }
 
