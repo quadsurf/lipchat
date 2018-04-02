@@ -256,23 +256,23 @@ class Selfie extends Component {
     } else {
       return (
         <View style={{
-              position:'absolute',
-              top: 200,
-              left: 5,
-              width: 300,
-              backgroundColor:Colors.transparentPurple,
-              alignItems:'flex-start',
-              padding: 12
-            }}>
-              <Text style={{color:"white"}}>
-                selectedColors:{"\n"}
-                {this.state.selectedColors[0]}{"\n"}
-                {this.state.selectedColors[1]}{"\n"}
-                {this.state.selectedColors[2]}{"\n"}
-                {this.state.selectedColors[3]}{"\n"}{"\n"}
-                activeColor: {this.state.activeColor}
-              </Text>
-            </View>
+          position:'absolute',
+          top: 200,
+          left: 5,
+          width: 300,
+          backgroundColor:Colors.transparentPurple,
+          alignItems:'flex-start',
+          padding: 12
+        }}>
+          <Text style={{color:"white"}}>
+            selectedColors:{"\n"}
+            {this.state.selectedColors[0]}{"\n"}
+            {this.state.selectedColors[1]}{"\n"}
+            {this.state.selectedColors[2]}{"\n"}
+            {this.state.selectedColors[3]}{"\n"}{"\n"}
+            activeColor: {this.state.activeColor}
+          </Text>
+        </View>
       )
     }
   }
@@ -345,12 +345,13 @@ class Selfie extends Component {
     )
   }
   
-  // USE CONSTRUCTOR TO BIND ANON FUNCS You.js
-  // ??? CHATS.js needs a manual loader
+  // REFACTOR TABS
+  // REFACTOR SELECTEDCOLORS TO CONTAIN FULL COLOR OBJECT, NOT JUST COLORID
+  // ??? REFACTOR COLORS ON SELFIE.JS TO FLATLIST
   // ??? ADJUST LIP SHAPE
   // ??? ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
-  // ADD VERSIONING
   // ??? ADD PUSH NOTIFICATIONS
+  // ??? CHATS.js needs a manual loader
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
@@ -434,11 +435,12 @@ class Selfie extends Component {
       let { activeColor } = this.state
       if (activeColor === 'rgba(0,0,0,0)') {
         newRGB = activeColor
+        return newRGB
       } else {
         let arr = await this.splitRGBStringIntoArrayOfNumbers(activeColor)
         newRGB = `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
+        return newRGB
       }
-      return newRGB
     } else {
       let arrayOfRgbNumbers = await this.splitRGBStringIntoArrayOfNumbers(rgbString)
       newRGB = await this.consolidateRGBs(arrayOfRgbNumbers,op)
@@ -456,7 +458,7 @@ class Selfie extends Component {
       if (!layersMode) {
         // in single coat mode
         activeColor = `rgba(${rgbString},${singleCoatAlpha})`
-        this.updateAfterOnColorPress(activeColor,[colorId])
+        this.updateSelectedColors(activeColor,[colorId])
       } else {
         // in layers mode
         if (selectedColors.length >= 3) {
@@ -464,7 +466,7 @@ class Selfie extends Component {
         } else {
           selectedColors.push(colorId)
           activeColor = await this.getNewRGB(rgbString,'+')
-          this.updateAfterOnColorPress(activeColor,selectedColors)
+          this.updateSelectedColors(activeColor,selectedColors)
         }
       }
     } else {
@@ -473,16 +475,16 @@ class Selfie extends Component {
       if (!layersMode) {
         // in single coat mode
         activeColor = 'rgba(0,0,0,0)'
-        this.updateAfterOnColorPress(activeColor,[])
+        this.updateSelectedColors(activeColor,[])
       } else {
         selectedColors.splice(i,1)
         activeColor = await this.getNewRGB(rgbString,'-')
-        this.updateAfterOnColorPress(activeColor,selectedColors)
+        this.updateSelectedColors(activeColor,selectedColors)
       }
     }
   }
   
-  updateAfterOnColorPress(activeColor,selectedColors){
+  updateSelectedColors(activeColor,selectedColors){
     this.setState({
       activeColor,
       selectedColors: [...selectedColors]

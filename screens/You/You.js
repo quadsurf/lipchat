@@ -1,10 +1,5 @@
 
 
-// refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
-//ERROR HANDLING NEEDED FOR:
-// checkIfDistributorHasGroupChat
-// createGroupChatForDistributorInDb
-
 import React, { Component } from 'react'
 import {
   Text,
@@ -41,7 +36,7 @@ import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../..
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
-import { AppName,AccountTypeExplainer } from '../../config/Defaults'
+import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
 
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../Common'
@@ -214,6 +209,9 @@ class You extends Component {
               {this.renderCellSubmitModal()}
               {this.renderUserTypeSubmitModal()}
               <LinkButton text="logout" onPress={() => this.logOut()}/>
+              <Text style={{color:Colors.blue,fontSize:10}}>
+                {`v${version}`}
+              </Text>
           </KeyboardAwareScrollView>
         </View>
     )
@@ -1035,3 +1033,8 @@ export default compose(
     name: 'createGroupChatForDistributor'
   })
 )(You)
+
+// refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
+//ERROR HANDLING NEEDED FOR:
+// checkIfDistributorHasGroupChat
+// createGroupChatForDistributorInDb

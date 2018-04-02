@@ -32,6 +32,7 @@ class ChatCardLayout extends Component {
       unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
     }
     this.navToMessages = debounce(this.navToMessages,4000,true)
+    // known bug occurs when switching userTypes, probably happening because this.props.chat does not yet exist
   }
   
   componentWillReceiveProps(newProps){
