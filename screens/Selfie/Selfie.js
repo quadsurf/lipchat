@@ -38,7 +38,7 @@ import Liker from './Liker'
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
-const debugging = false
+const debugging = true
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
@@ -250,6 +250,33 @@ class Selfie extends Component {
     }
   }
   
+  renderColorTest(){
+    if (!debugging) {
+      return null
+    } else {
+      return (
+        <View style={{
+              position:'absolute',
+              top: 200,
+              left: 5,
+              width: 300,
+              backgroundColor:Colors.transparentPurple,
+              alignItems:'flex-start',
+              padding: 12
+            }}>
+              <Text style={{color:"white"}}>
+                selectedColors:{"\n"}
+                {this.state.selectedColors[0]}{"\n"}
+                {this.state.selectedColors[1]}{"\n"}
+                {this.state.selectedColors[2]}{"\n"}
+                {this.state.selectedColors[3]}{"\n"}{"\n"}
+                activeColor: {this.state.activeColor}
+              </Text>
+            </View>
+      )
+    }
+  }
+  
   renderCamera() {
     return (
       <Camera
@@ -312,17 +339,18 @@ class Selfie extends Component {
               )}>
               <FontPoiret text="Tips" size={Texts.medium.fontSize} />
             </TouchableOpacity>
+            {this.renderColorTest()}
             {this.renderModal()}
       </Camera>
     )
   }
-  // ensure subscriptions on selfie.js and lipcolors.js adhere to new color model's data shape
-  // USE CONSTRUCTOR TO BIND ANON FUNCS in Selfie and You.js
-  // CHATS.js needs a manual loader
-  // ADJUST LIP SHAPE
-  // ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
+  
+  // USE CONSTRUCTOR TO BIND ANON FUNCS You.js
+  // ??? CHATS.js needs a manual loader
+  // ??? ADJUST LIP SHAPE
+  // ??? ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
   // ADD VERSIONING
-  // ADD PUSH NOTIFICATIONS
+  // ??? ADD PUSH NOTIFICATIONS
   getLayeredRGB(rgb,rgbNumbers,op){
     let red,green,blue,alpha,rgba
     if (rgbNumbers.length > 0) {
@@ -419,7 +447,6 @@ class Selfie extends Component {
   }
   
   async onColorPress(colorId,rgbString){
-    // this.showModal('processing')
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
     let i = selectedColors.findIndex( selectedColorId => selectedColorId === colorId )
@@ -427,38 +454,40 @@ class Selfie extends Component {
     if (i === -1) {
       // color is not selected
       if (!layersMode) {
-        selectedColors = []
+        // in single coat mode
         activeColor = `rgba(${rgbString},${singleCoatAlpha})`
+        this.updateAfterOnColorPress(activeColor,[colorId])
       } else {
         // in layers mode
         if (selectedColors.length >= 3) {
           Vibration.vibrate()
-          // setTimeout(()=>{
-          //   this.setState({isModalOpen:false})
-          // },1400)
         } else {
+          selectedColors.push(colorId)
           activeColor = await this.getNewRGB(rgbString,'+')
+          this.updateAfterOnColorPress(activeColor,selectedColors)
         }
       }
-      selectedColors.push(colorId)
     } else {
+      // STRENGTHEN COLOR in V2???
       // color is selected
-      // ARE WE REMOVING COLOR OR STRENGTHENING COLOR???
       if (!layersMode) {
+        // in single coat mode
         activeColor = 'rgba(0,0,0,0)'
+        this.updateAfterOnColorPress(activeColor,[])
       } else {
+        selectedColors.splice(i,1)
         activeColor = await this.getNewRGB(rgbString,'-')
+        this.updateAfterOnColorPress(activeColor,selectedColors)
       }
-      selectedColors.splice(i,1)
     }
+  }
+  
+  updateAfterOnColorPress(activeColor,selectedColors){
     this.setState({
       activeColor,
       selectedColors: [...selectedColors]
     },()=>{
       this.updateLikesOfSelectedColors()
-      // setTimeout(()=>{
-      //   this.setState({isModalOpen:false})
-      // },1400)
     })
   }
   
@@ -545,7 +574,6 @@ class Selfie extends Component {
         })
         this.setState({colors},()=>{
           this.props.setColors(this.state.colors)
-          debugging && console.log('this.state.colors:',this.state.colors)
         })
       }
     }
