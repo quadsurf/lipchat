@@ -43,7 +43,7 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 3,
+    index: 2,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
@@ -310,6 +310,9 @@ class TabNav extends PureComponent<void, *, State> {
     let { user,localStorage } = this.props.navigation.state.params
     let { navigation } = this.props
     let { userType,distributorStatus,sadvrId,shoppersDistributor } = this.state
+    if (Math.abs(this.state.index - this.state.routes.indexOf(route)) > 0) {
+      return null
+    }
     switch (route.key) {
       case '0':
         return (
