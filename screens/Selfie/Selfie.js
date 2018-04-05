@@ -501,11 +501,11 @@ class Selfie extends Component {
       selectedColors: [...selectedColors]
     },()=>{
       this.updateLikesOfSelectedColors()
-      //
-      this.showTestResults(selectedColors,rgbString)
+      debugging && this.showTestResults(selectedColors,rgbString)
     })
   }
   
+  // debugger function
   showTestResults(selectedColors,rgbString){
     this.lastTapped(rgbString)
     let testColors = []
@@ -519,6 +519,7 @@ class Selfie extends Component {
     this.setState({testColors})
   }
   
+  // debugger function
   lastTapped(rgbString){
     let { name,rgb } = this.state.colors.find( ({rgb}) => rgb === rgbString)
     this.setState({lastTapped: `${name} - ${rgb}`})
