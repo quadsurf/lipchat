@@ -63,7 +63,6 @@ class Selfie extends Component {
       activeColor: 'rgba(0,0,0,0)',
       layersMode: false,
       selectedColors: [],
-      likesOfSelectedColors: [],
       testColors: [],
       lastTapped: ''
     }
@@ -91,14 +90,14 @@ class Selfie extends Component {
   
   updateLikeOnColorsList(node){
     let { colors } = this.state
-    let i = colors.findIndex(({colorId}) => colorId === node.colorx.id)
+    let i = colors.findIndex( ({colorId}) => colorId === node.colorx.id )
     if (i !== -1) {
       if (colors[i].doesLike !== node.doesLike) {
         colors[i].likeId = node.id
         colors[i].doesLike = node.doesLike
-        this.setState({colors},() => this.updateLikesOfSelectedColors())
+        this.setState({colors},() => this.syncSelectedColorsWithStateColors())
       } else {
-        this.updateLikesOfSelectedColors()
+        this.syncSelectedColorsWithStateColors()
       }
     }
   }
@@ -226,13 +225,13 @@ class Selfie extends Component {
     return this.state.colors.find( ({colorId}) => colorId === id)
   }
   
-  updateLikesOfSelectedColors(){
-    let likesOfSelectedColors = []
-    this.state.selectedColors.forEach( id => {
-      let color = this.getColorObj(id)
-      likesOfSelectedColors.push(color)
+  syncSelectedColorsWithStateColors(){
+    let newSelectedColors
+    let { selectedColors,colors } = this.state
+    selectedColors.forEach( ({ colorId:selectedColorId }) => {
+      newSelectedColors = colors.filter( ({ colorId }) => colorId === selectedColorId )
     })
-    this.setState({likesOfSelectedColors})
+    this.setState({selectedColors:newSelectedColors})
   }
   
   renderLiker(color){
@@ -246,7 +245,7 @@ class Selfie extends Component {
   
   renderLikers(colors){
     if (colors && colors.length > 0) {
-      return colors.map(color => this.renderLiker(color))
+      return colors.map( color => this.renderLiker(color) )
     } else {
       return <View/>
     }
@@ -311,7 +310,7 @@ class Selfie extends Component {
               justifyContent: 'flex-start',
               alignItems: 'flex-start'
             }}>
-              {this.renderLikers(this.state.likesOfSelectedColors)}
+              {this.renderLikers(this.state.selectedColors)}
             </View>
             <View style={{
               flexDirection:'row',position:'absolute',
@@ -356,34 +355,35 @@ class Selfie extends Component {
   // ??? CHATS.js needs a manual loader
   
   getLayeredRGB(rgb,rgbNumbers,op){
-    // rgb is rgbStringAsArrayOfNumbers
+    // rgbs is rgbStringAsArrayOfNumbers
+    // rgbNumbers is rgbs of selectedColors
     let red,green,blue,alpha
     if (rgbNumbers.length > 0) {
       if (rgbNumbers.length === 3) {
-        red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbNumbers[2][0] - rgb[0]) / 2 )
-        green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbNumbers[2][1] - rgb[1]) / 2 )
-        blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbNumbers[2][2] - rgb[2]) / 2 )
+        red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbNumbers[2][0] - rgbs[0]) / 2 )
+        green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbNumbers[2][1] - rgbs[1]) / 2 )
+        blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbNumbers[2][2] - rgbs[2]) / 2 )
         alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
       }
       if (rgbNumbers.length === 2) {
         if (op === '+') {
-          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgb[0]) / 3 )
-          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgb[1]) / 3 )
-          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgb[2]) / 3 )
+          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbs[0]) / 3 )
+          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbs[1]) / 3 )
+          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbs[2]) / 3 )
           alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
         }
         if (op === '-') {
-          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] - rgb[0]) )
-          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] - rgb[1]) )
-          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] - rgb[2]) )
+          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] - rgbs[0]) )
+          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] - rgbs[1]) )
+          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] - rgbs[2]) )
           alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
         }
       }
       if (rgbNumbers.length === 1) {
         if (op === '+') {
-          red = Math.round( (rgbNumbers[0][0] + rgb[0]) / 2 )
-          green = Math.round( (rgbNumbers[0][1] + rgb[1]) / 2 )
-          blue = Math.round( (rgbNumbers[0][2] + rgb[2]) / 2 )
+          red = Math.round( (rgbNumbers[0][0] + rgbs[0]) / 2 )
+          green = Math.round( (rgbNumbers[0][1] + rgbs[1]) / 2 )
+          blue = Math.round( (rgbNumbers[0][2] + rgbs[2]) / 2 )
           alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
         }
         if (op === '-') {
@@ -399,31 +399,17 @@ class Selfie extends Component {
     }
   }
   
-  createArrayFromRGBsOfSelectedColors(arr){
-    let matches = []
-    arr.forEach( selectedColorId => {
-      this.state.colors.forEach( color => {
-        if (color.colorId === selectedColorId) {
-          matches.push(color.rgb)
-        }
-      })
+  combineRgbsOfSelectedColors(arr){
+    let rgbNumbersOfSelectedColors = []
+    arr.forEach( ({ rgbs }) => {
+      rgbNumbersOfSelectedColors.push(rgbs)
     })
-    return matches
+    return rgbNumbersOfSelectedColors
   }
   
-  async consolidateRGBs(rgbStringAsArrayOfNumbers,op,selectedColors){
-    
-    // matches shape = [ '#,#,#', '#,#,#', '#,#,#' ]
-    let matches = await this.createArrayFromRGBsOfSelectedColors(selectedColors)
-    
-    // rgbNumbers shape = [ [#,#,#], [#,#,#], [#,#,#] ]
-    let rgbNumbers = []
-    await matches.forEach( async match => {
-      let rgbNumber = await this.convertRGBStringIntoArrayOfNumbers(match)
-      rgbNumbers.push(rgbNumber)
-    })
-    
-    let mergedRGBs = await this.getLayeredRGB(rgbStringAsArrayOfNumbers,rgbNumbers,op)
+  async consolidateRGBs(rgbs,op,selectedColors){
+    let rgbsOfSelectedColors = await this.combineRgbsOfSelectedColors(selectedColors)
+    let mergedRGBs = await this.getLayeredRGB(rgbs,rgbsOfSelectedColors,op)
     return mergedRGBs
   }
   
@@ -437,10 +423,10 @@ class Selfie extends Component {
     return rgbStringAsArrayOfNumbers
   }
   
-  async getNewRGB(rgbString,op,selectedColors){
+  async getNewRGB(rgbStringAsArrayOfNumbers,op,selectedColors){
     let newRGB
-    if (!rgbString) {
-      // no rgbString means this came from mode toggler; purpose: preserve activeColor
+    if (!rgbStringAsArrayOfNumbers) {
+      // no rgbStringAsArrayOfNumbers means this came from mode toggler; purpose: preserve activeColor
       let { activeColor } = this.state
       if (activeColor === 'rgba(0,0,0,0)') {
         // no colors selected, preserve default activeColor
@@ -451,32 +437,31 @@ class Selfie extends Component {
         return `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
       }
     } else {
-      // has rgbString means this came from onColorPress
-      let rgbStringAsArrayOfNumbers = await this.convertRGBStringIntoArrayOfNumbers(rgbString)
+      // has rgbStringAsArrayOfNumbers means this came from onColorPress
       newRGB = await this.consolidateRGBs(rgbStringAsArrayOfNumbers,op,selectedColors)
       return newRGB
     }
   }
   
-  async onColorPress(colorId,rgbString){
+  async onColorPress(color){
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
-    let i = selectedColors.findIndex( selectedColorId => selectedColorId === colorId )
+    let selectedColor = selectedColors.find( ({ colorId }) => colorId === color.colorId )
     let activeColor
-    if (i === -1) {
+    if (!selectedColor) {
       // color is not selected, so add it
       if (!layersMode) {
         // in single coat mode
-        activeColor = `rgba(${rgbString},${singleCoatAlpha})`
-        this.updateSelectedColors(activeColor,[colorId],rgbString)
+        activeColor = `rgba(${color.rgb},${singleCoatAlpha})`
+        this.updateSelectedColors(activeColor,[color])
       } else {
         // in layers mode
         if (selectedColors.length >= 3) {
           Vibration.vibrate()
         } else {
-          activeColor = await this.getNewRGB(rgbString,'+',selectedColors)
-          selectedColors.push(colorId)
-          this.updateSelectedColors(activeColor,selectedColors,rgbString)
+          activeColor = await this.getNewRGB(color.rgbs,'+',selectedColors)
+          selectedColors.push(color)
+          this.updateSelectedColors(activeColor,selectedColors)
         }
       }
     } else {
@@ -485,12 +470,12 @@ class Selfie extends Component {
       if (!layersMode) {
         // in single coat mode
         activeColor = 'rgba(0,0,0,0)'
-        this.updateSelectedColors(activeColor,[],rgbString)
+        this.updateSelectedColors(activeColor,[])
       } else {
         // in layers mode
-        activeColor = await this.getNewRGB(rgbString,'-',selectedColors)
-        selectedColors.splice(i,1)
-        this.updateSelectedColors(activeColor,selectedColors,rgbString)
+        let newSelectedColors = selectedColors.filter( ({ colorId }) => colorId !== selectedColor.colorId)
+        activeColor = await this.getNewRGB(color.rgbs,'-',selectedColors)
+        this.updateSelectedColors(activeColor,newSelectedColors)
       }
     }
   }
@@ -500,7 +485,7 @@ class Selfie extends Component {
       activeColor,
       selectedColors: [...selectedColors]
     },()=>{
-      this.updateLikesOfSelectedColors()
+      // this.syncSelectedColorsWithStateColors()
       debugging && this.showTestResults(selectedColors,rgbString)
     })
   }
@@ -528,16 +513,15 @@ class Selfie extends Component {
   async toggleLayersMode(){
     if (this.state.layersMode) {
       this.setState({layersMode:false})
-      let { selectedColors,likesOfSelectedColors } = this.state
+      let { selectedColors } = this.state
       let activeColor
-      if (selectedColors.length > 0) {
-        let rgb = await this.createArrayFromRGBsOfSelectedColors([selectedColors[0]])[0]
-        activeColor = `rgba(${rgb},${singleCoatAlpha})`
+      let hasSelectedColors = selectedColors.length > 0 ? true : false
+      if (hasSelectedColors) {
+        activeColor = `rgba(${selectedColors[0].rgb},${singleCoatAlpha})`
       }
       this.setState({
-        selectedColors: selectedColors.length > 0 ? [selectedColors[0]] : [],
-        activeColor: selectedColors.length > 0 ? activeColor : 'rgba(0,0,0,0)',
-        likesOfSelectedColors: likesOfSelectedColors.length > 0 ? [likesOfSelectedColors[0]] : []
+        selectedColors: hasSelectedColors ? [selectedColors[0]] : [],
+        activeColor: hasSelectedColors ? activeColor : 'rgba(0,0,0,0)'
       })
     } else {
       // singleCoatMode
@@ -547,16 +531,16 @@ class Selfie extends Component {
     }
   }
   
-  renderSwatch({ name,rgb,colorId,doesLike }){
-    let isSelected = this.state.selectedColors.findIndex( selectedColorId => selectedColorId === colorId )
+  renderSwatch(color){
+    let isSelected = this.state.selectedColors.findIndex(
+      ({ colorId:selectedColorId }) => selectedColorId === color.colorId
+    )
     return (
       <ColorSwatch 
-        key={colorId} 
-        colorId={colorId}
-        name={name} 
-        rgb={rgb} 
+        key={color.colorId} 
+        color={color}
         isSelected={isSelected === -1 ? false : true}
-        doesLike={this.props.userType === 'SHOPPER' ? doesLike : false}
+        doesLike={this.props.userType === 'SHOPPER' ? color.doesLike : false}
         onColorPress={this.onColorPress} />
     )
   }
@@ -597,10 +581,11 @@ class Selfie extends Component {
         }) => {
           let { id:likeId=null,doesLike=false } = like
           let { id:inventoryId=null,count=0 } = inventory
+          let rgbs = this.convertRGBStringIntoArrayOfNumbers(rgb)
           colors.push({
             colorId,
             family:family.toLowerCase(),
-            finish,name,rgb,
+            finish,name,rgb,rgbs,
             status,tone,
             likeId,doesLike,
             inventoryId,count
@@ -697,7 +682,7 @@ class Selfie extends Component {
     if (i !== -1) {
       colors.splice(i,1,color)
       this.setState({colors},()=>{
-        this.updateLikesOfSelectedColors()
+        this.syncSelectedColorsWithStateColors()
       })
     }
   }

@@ -7,8 +7,9 @@ import { Ionicons } from '@expo/vector-icons'
 
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Colors,Texts } from '../../css/Styles'
-
-export default ({ colorId,name,rgb,onColorPress,isSelected,doesLike }) => {
+// colorId,name,rgb,onColorPress,isSelected,doesLike
+export default ({ color,isSelected,doesLike,onColorPress }) => {
+  let { name,rgb } = color
   let name1 = ''
   let name2 = ''
   switch(name){
@@ -72,7 +73,7 @@ export default ({ colorId,name,rgb,onColorPress,isSelected,doesLike }) => {
         <FontPoiret text={name2} size={Texts.small.fontSize} color="white"/>
       </View>
       <TouchableOpacity 
-        onPress={() => onColorPress(colorId,rgb)}
+        onPress={() => onColorPress(color)}
         style={{
         width:60,height:60,borderRadius:30,borderWidth:4,marginLeft:6,
         borderColor:"white",backgroundColor:`rgba(${rgb},1)`,justifyContent:'center',
