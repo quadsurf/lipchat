@@ -14,7 +14,7 @@ export const tips = `We live by this quote:
 
 "Continuous Improvement is better than Delayed Perfection".
 
-This screen processes an insane amount of data in real-time, which causes an inconvenient slow-down in performance, which means the app will be slow to react to your finger taps/swipes. We apologize for this, and ask for your patience. While we will be improving/optimizing these features over the next several months, in the meantime we recommend the following practices to improve your experience for now:
+This screen processes an insane amount of data in real-time, which causes an inconvenient slow-down in performance, which means the app will be slow to react to your finger taps/swipes. We apologize for this, and ask for your patience while we seek to improve/optimize these features. In the meantime though, we recommend the following practices to improve your experience for now:
 
 1. tap and/or swipe slowly
 
