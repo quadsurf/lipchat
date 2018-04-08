@@ -42,8 +42,8 @@ const debugging = true
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
-const shortUIdebounce = 2000
-const longUIdebounce = 3000
+const shortUIdebounce = 1000
+const longUIdebounce = 2000
 
 class Selfie extends Component {
 
@@ -266,13 +266,19 @@ class Selfie extends Component {
           padding: 12
         }}>
           <Text style={{color:"white"}}>
-            last tapped rgb: {this.state.lastTapped || 'none yet'}{"\n"}{"\n"}
-            selectedColors:{"\n"}
-            {this.state.testColors[0] || 'none yet'}{"\n"}
-            {this.state.testColors[1] || 'none yet'}{"\n"}
-            {this.state.testColors[2] || 'none yet'}{"\n"}{"\n"}
-            activeColor: {this.state.activeColor}
+            last tapped: {this.state.lastTapped || 'none yet'}{"\n"}
+            activeColor: {this.state.activeColor}{"\n"}{"\n"}
+            selectedColors:
           </Text>
+          {
+            this.state.selectedColors.map( ({colorId,rgb,name}) => (
+              <Text 
+                key={colorId} 
+                style={{color:"white"}}>
+                  {rgb} - {name}
+              </Text>
+            ))
+          }
         </View>
       )
     }
@@ -346,57 +352,63 @@ class Selfie extends Component {
     )
   }
   
+  // REFACTOR COLORS ON SELFIE.JS TO FLATLIST
+  // ADJUST LIP SHAPE
   // REFACTOR TABS
-  // REFACTOR SELECTEDCOLORS TO CONTAIN FULL COLOR OBJECT, NOT JUST COLORID
-  // ??? REFACTOR COLORS ON SELFIE.JS TO FLATLIST
-  // ??? ADJUST LIP SHAPE
   // ??? ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
   // ??? ADD PUSH NOTIFICATIONS
   // ??? CHATS.js needs a manual loader
   
-  getLayeredRGB(rgb,rgbNumbers,op){
+  getLayeredRGB(rgbs,rgbNumbers,op){
     // rgbs is rgbStringAsArrayOfNumbers
     // rgbNumbers is rgbs of selectedColors
     let red,green,blue,alpha
-    if (rgbNumbers.length > 0) {
-      if (rgbNumbers.length === 3) {
-        red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbNumbers[2][0] - rgbs[0]) / 2 )
-        green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbNumbers[2][1] - rgbs[1]) / 2 )
-        blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbNumbers[2][2] - rgbs[2]) / 2 )
+    if (rgbNumbers.length === 3) {
+      red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbNumbers[2][0] - rgbs[0]) / 2 )
+      green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbNumbers[2][1] - rgbs[1]) / 2 )
+      blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbNumbers[2][2] - rgbs[2]) / 2 )
+      alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
+    }
+    else if (rgbNumbers.length === 2) {
+      if (op === '+') {
+        red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbs[0]) / 3 )
+        green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbs[1]) / 3 )
+        blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbs[2]) / 3 )
+        alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
+      }
+      if (op === '-') {
+        red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] - rgbs[0]) )
+        green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] - rgbs[1]) )
+        blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] - rgbs[2]) )
+        alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
+      }
+    }
+    else if (rgbNumbers.length === 1) {
+      if (op === '+') {
+        red = Math.round( (rgbNumbers[0][0] + rgbs[0]) / 2 )
+        green = Math.round( (rgbNumbers[0][1] + rgbs[1]) / 2 )
+        blue = Math.round( (rgbNumbers[0][2] + rgbs[2]) / 2 )
         alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
       }
-      if (rgbNumbers.length === 2) {
-        if (op === '+') {
-          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] + rgbs[0]) / 3 )
-          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] + rgbs[1]) / 3 )
-          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] + rgbs[2]) / 3 )
-          alpha = Number.parseFloat(layersModeAlpha * 3).toFixed(1)
-        }
-        if (op === '-') {
-          red = Math.round( (rgbNumbers[0][0] + rgbNumbers[1][0] - rgbs[0]) )
-          green = Math.round( (rgbNumbers[0][1] + rgbNumbers[1][1] - rgbs[1]) )
-          blue = Math.round( (rgbNumbers[0][2] + rgbNumbers[1][2] - rgbs[2]) )
-          alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
-        }
+      if (op === '-') {
+        red = 0
+        green = 0
+        blue = 0
+        alpha = 0
       }
-      if (rgbNumbers.length === 1) {
-        if (op === '+') {
-          red = Math.round( (rgbNumbers[0][0] + rgbs[0]) / 2 )
-          green = Math.round( (rgbNumbers[0][1] + rgbs[1]) / 2 )
-          blue = Math.round( (rgbNumbers[0][2] + rgbs[2]) / 2 )
-          alpha = Number.parseFloat(layersModeAlpha * 2).toFixed(1)
-        }
-        if (op === '-') {
-          red = 0
-          green = 0
-          blue = 0
-          alpha = 0
-        }
-      }
-      return `rgba(${red},${green},${blue},${alpha})`
-    } else {
-      return `rgba(${rgb},${layersModeAlpha})`
     }
+    else if (rgbNumbers.length === 0) {
+      red = rgbs[0]
+      green = rgbs[1]
+      blue = rgbs[2]
+      alpha = Number.parseFloat(layersModeAlpha).toFixed(1)
+    } else {
+      red = 0
+      green = 0
+      blue = 0
+      alpha = 0
+    }
+    return `rgba(${red},${green},${blue},${alpha})`
   }
   
   combineRgbsOfSelectedColors(arr){
@@ -453,7 +465,7 @@ class Selfie extends Component {
       if (!layersMode) {
         // in single coat mode
         activeColor = `rgba(${color.rgb},${singleCoatAlpha})`
-        this.updateSelectedColors(activeColor,[color])
+        this.updateSelectedColors(activeColor,[color],color)
       } else {
         // in layers mode
         if (selectedColors.length >= 3) {
@@ -461,7 +473,7 @@ class Selfie extends Component {
         } else {
           activeColor = await this.getNewRGB(color.rgbs,'+',selectedColors)
           selectedColors.push(color)
-          this.updateSelectedColors(activeColor,selectedColors)
+          this.updateSelectedColors(activeColor,selectedColors,color)
         }
       }
     } else {
@@ -470,44 +482,28 @@ class Selfie extends Component {
       if (!layersMode) {
         // in single coat mode
         activeColor = 'rgba(0,0,0,0)'
-        this.updateSelectedColors(activeColor,[])
+        this.updateSelectedColors(activeColor,[],color)
       } else {
         // in layers mode
         let newSelectedColors = selectedColors.filter( ({ colorId }) => colorId !== selectedColor.colorId)
         activeColor = await this.getNewRGB(color.rgbs,'-',selectedColors)
-        this.updateSelectedColors(activeColor,newSelectedColors)
+        this.updateSelectedColors(activeColor,newSelectedColors,color)
       }
     }
   }
   
-  updateSelectedColors(activeColor,selectedColors,rgbString){
+  updateSelectedColors(activeColor,selectedColors,color){
     this.setState({
       activeColor,
       selectedColors: [...selectedColors]
     },()=>{
-      // this.syncSelectedColorsWithStateColors()
-      debugging && this.showTestResults(selectedColors,rgbString)
+      debugging && this.lastTapped(color)
     })
   }
   
   // debugger function
-  showTestResults(selectedColors,rgbString){
-    this.lastTapped(rgbString)
-    let testColors = []
-    selectedColors.forEach( id => {
-      this.state.colors.forEach( ({colorId,name,rgb}) => {
-        if (colorId === id) {
-          testColors.push(`${name} - ${rgb}`)
-        }
-      })
-    })
-    this.setState({testColors})
-  }
-  
-  // debugger function
-  lastTapped(rgbString){
-    let { name,rgb } = this.state.colors.find( ({rgb}) => rgb === rgbString)
-    this.setState({lastTapped: `${name} - ${rgb}`})
+  lastTapped({ rgb,name }){
+    this.setState({lastTapped: `${rgb} - ${name}`})
   }
   
   async toggleLayersMode(){
