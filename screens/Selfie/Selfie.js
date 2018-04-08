@@ -4,7 +4,7 @@ import { Camera,Permissions,FaceDetector,Svg } from 'expo'
 import React, { Component } from 'react'
 import {
   View,Text,TouchableOpacity,
-  ScrollView,Vibration
+  ScrollView,Vibration,FlatList
 } from 'react-native'
 
 // LIBS
@@ -69,6 +69,7 @@ class Selfie extends Component {
     this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),shortUIdebounce,true)
     this.onColorPress = debounce(this.onColorPress.bind(this),shortUIdebounce,true)
     this.toggleLayersMode = debounce(this.toggleLayersMode,longUIdebounce,true)
+    this.renderSwatch = this.renderSwatch.bind(this)
   }
   
   subToLikesInDb(){
@@ -301,12 +302,12 @@ class Selfie extends Component {
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
             {this.renderLandmarks()}
-            <ScrollView contentContainerStyle={{
-              height:((this.state.colors.length+1)*60),
-              alignSelf: 'flex-end'
-            }}>
-              {this.renderSwatches()}
-            </ScrollView>
+            <FlatList 
+              data={this.state.colors}
+              renderItem={this.renderSwatch} 
+              contentContainerStyle={{
+                alignSelf: 'flex-end'
+              }}/>
             <View style={{
               position: 'absolute',
               bottom: 66,
@@ -527,16 +528,16 @@ class Selfie extends Component {
     }
   }
   
-  renderSwatch(color){
+  renderSwatch({item}){
     let isSelected = this.state.selectedColors.findIndex(
-      ({ colorId:selectedColorId }) => selectedColorId === color.colorId
+      ({ colorId:selectedColorId }) => selectedColorId === item.colorId
     )
     return (
       <ColorSwatch 
-        key={color.colorId} 
-        color={color}
+        key={item.colorId} 
+        color={item}
         isSelected={isSelected === -1 ? false : true}
-        doesLike={this.props.userType === 'SHOPPER' ? color.doesLike : false}
+        doesLike={this.props.userType === 'SHOPPER' ? item.doesLike : false}
         onColorPress={this.onColorPress} />
     )
   }
