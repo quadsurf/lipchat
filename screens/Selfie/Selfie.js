@@ -116,7 +116,7 @@ class Selfie extends Component {
   onFaceDetectionError = state => console.warn('Faces detection error:', state)
 
   renderLandmarksOfFace(face) {
-    const renderTopLip = ({
+    const renderLips = ({
       leftMouthPosition:{x:lx,y:ly},
       mouthPosition:{x:cx,y:cy},
       rightMouthPosition:{x:rx,y:ry},
@@ -125,12 +125,17 @@ class Selfie extends Component {
       // UPPER LIP
       // adjustments
       let acxUpper = cx // adjusted center x
-      let tacyUpper = cy - 8 // top adjusted center y
-      let bacyUpper = cy + 6 // bottom adjusted center y
       let alx = lx - 9 // adjusted left x
       let aly = ly // adjusted left y
       let arx = rx + 9 // adjusted right x
       let ary = ry // adjusted right y
+      
+      let mw = arx - alx // mouthWidth
+      let tacyUpper = cy - (.04*mw) // top adjusted center y
+      let bacyUpper = cy + (.03*mw) // bottom adjusted center y
+      // originals
+      // let tacyUpper = cy - 8
+      // let bacyUpper = cy + 6
       
       // landmark coords
       let lm = `${alx},${aly}`
@@ -170,7 +175,11 @@ class Selfie extends Component {
       // adjustments
       let acxLower = bx // bottom center of lower lip (X)
       let bacyLower = by // bottom center of lower lip (Y)
-      let tacyLower = bacyLower - 25 // height of the lower lip
+      
+      // height of the lower lip
+      let tacyLower = bacyLower - (mw*.2)
+      // let tacyLower = bacyLower - 25 // original
+      // let tacyLower = bacyLower - (mw > 150 ? 35 : mw > 125 ? 30 : mw > 100 ? 25 : mw > 75 ? 20 : 15)
       
       // defaults
       
@@ -209,7 +218,7 @@ class Selfie extends Component {
     }
     return (
       <View key={`landmarks-${face.faceID}`}>
-        {renderTopLip(face)}
+        {renderLips(face)}
       </View>
     )
   }
