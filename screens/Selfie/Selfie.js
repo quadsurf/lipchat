@@ -64,7 +64,8 @@ class Selfie extends Component {
       layersMode: false,
       selectedColors: [],
       testColors: [],
-      lastTapped: ''
+      lastTapped: '',
+      isRefreshing: true
     }
     this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),shortUIdebounce,true)
     this.onColorPress = debounce(this.onColorPress.bind(this),shortUIdebounce,true)
@@ -129,13 +130,9 @@ class Selfie extends Component {
       let aly = ly // adjusted left y
       let arx = rx + 9 // adjusted right x
       let ary = ry // adjusted right y
-      
       let mw = arx - alx // mouthWidth
       let tacyUpper = cy - (.04*mw) // top adjusted center y
       let bacyUpper = cy + (.03*mw) // bottom adjusted center y
-      // originals
-      // let tacyUpper = cy - 8
-      // let bacyUpper = cy + 6
       
       // landmark coords
       let lm = `${alx},${aly}`
@@ -143,16 +140,16 @@ class Selfie extends Component {
       let rm = `${arx},${ary}`
       
       // top of upper lip
-      let top_alrOffsetX = 7 // control point distance from alx/arx
-      let alrOffsetY = 9 // control point distance from aly/ary
-      let acxOffset = 20 // control point distance from acxUpper
-      let tacyUpperOffset = 28 // control point distance from acy
+      let top_alrOffsetX = .035*mw //7 control point distance from alx/arx
+      let alrOffsetY = .045*mw //9 control point distance from aly/ary
+      let acxOffset = .17*mw //20 control point distance from acxUpper
+      let tacyUpperOffset = .21*mw //28 control point distance from acy
       
       // bottom of upper lip
-      let bot_alrOffsetX = 20 // control point distance from alx/arx
-      let bot_alrOffsetY = 10 // control point distance from aly/ary
-      let bacyUpperOffset = 3 // control point distance from bacyUpper
-      let acxUpperEndPoint = 16 // end point distance from acxUpper
+      let bot_alrOffsetX = .1*mw//20 // control point distance from alx/arx
+      let bot_alrOffsetY = .05*mw//10 // control point distance from aly/ary
+      let bacyUpperOffset = .015*mw//3 // control point distance from bacyUpper
+      let acxUpperEndPoint = .08*mw//16 // end point distance from acxUpper
       let acxUpperOffset = acxUpperEndPoint * 3 // control point distance from acxUpper
       
       // upper lip regions
@@ -178,10 +175,6 @@ class Selfie extends Component {
       
       // height of the lower lip
       let tacyLower = bacyLower - (mw*.2)
-      // let tacyLower = bacyLower - 25 // original
-      // let tacyLower = bacyLower - (mw > 150 ? 35 : mw > 125 ? 30 : mw > 100 ? 25 : mw > 75 ? 20 : 15)
-      
-      // defaults
       
       // bottom lip regions
       let tlLower = `C${alx+bot_alrOffsetX},${aly+bot_alrOffsetY} 
@@ -294,6 +287,10 @@ class Selfie extends Component {
     }
   }
   
+  toggleRefreshing(){
+    console.log('toggleRefreshing func called');
+  }
+  
   renderCamera() {
     return (
       <Camera
@@ -314,6 +311,7 @@ class Selfie extends Component {
             <FlatList 
               data={this.state.colors}
               renderItem={this.renderSwatch} 
+              keyExtractor={({colorId}) => colorId} 
               contentContainerStyle={{
                 alignSelf: 'flex-end'
               }}/>
@@ -362,12 +360,12 @@ class Selfie extends Component {
     )
   }
   
-  // REFACTOR COLORS ON SELFIE.JS TO FLATLIST
-  // ADJUST LIP SHAPE
   // REFACTOR TABS
+  // ADD PUSH NOTIFICATIONS
+  // SWITCH FROM FB OAUTH DEV MODE TO PUBLIC MODE
+  // PERFORM ONE BIG FINAL TEST
   // ??? ABILITY TO TOGGLE DIST'S DEFAULT APPROVED STATUS
-  // ??? ADD PUSH NOTIFICATIONS
-  // ??? CHATS.js needs a manual loader
+  // ??? BLOCK OUT SECTIONS OF SELFIE IN ORDER TO PAUSE FACES UPDATING
   
   getLayeredRGB(rgbs,rgbNumbers,op){
     // rgbs is rgbStringAsArrayOfNumbers
@@ -543,7 +541,6 @@ class Selfie extends Component {
     )
     return (
       <ColorSwatch 
-        key={item.colorId} 
         color={item}
         isSelected={isSelected === -1 ? false : true}
         doesLike={this.props.userType === 'SHOPPER' ? item.doesLike : false}
