@@ -298,14 +298,6 @@ class TabNav extends PureComponent<void, *, State> {
     }
   }
 
-  // renderSceneMap = SceneMap({
-  //   '0': Likes,
-  //   '1': Chat,
-  //   '2': Selfie,
-  //   '3': LipColors,
-  //   '4': You
-  // })
-
   renderScene = ({ route,focused }) => {
     let { user,localStorage } = this.props.navigation.state.params
     let { navigation } = this.props
