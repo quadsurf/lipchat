@@ -13,9 +13,15 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
-import { GetUserType,GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper } from '../api/db/queries'
-import { SubToUserType,SubToDistributorStatus,SubToDistributorsForShopper } from '../api/db/pubsub'
-import { AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr } from '../api/db/mutations'
+import {
+  GetUserType,GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper
+} from '../api/db/queries'
+import {
+  SubToUserType,SubToDistributorStatus,SubToDistributorsForShopper
+} from '../api/db/pubsub'
+import {
+  AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
+} from '../api/db/mutations'
 
 //SCREENS
 import Likes from '../screens/Likes/Likes'
@@ -28,6 +34,7 @@ import You from '../screens/You/You'
 import { Views,Colors } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import styles from './Styles'
+// import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
 
 //CONSTs
 const debugging = false
@@ -68,9 +75,14 @@ class TabNav extends PureComponent<void, *, State> {
     this.subToUserType()
     this.subToDistributorStatus()
     this.subToAllDistributorsStatusForShopper()
-    // this.registerForPushNotificationsAsync()
+    this.registerForPushNotificationsAsync()
+    // this._notificationSubscription = this._registerForPushNotifications()
   }
   
+  componentWillUnmount() {
+    this._notificationSubscription && this._notificationSubscription.remove()
+  }
+
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubToUserType,
@@ -407,9 +419,7 @@ class TabNav extends PureComponent<void, *, State> {
   }
   
   registerForPushNotificationsAsync = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    )
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
     let finalStatus = existingStatus
 
     if (existingStatus !== 'granted') {
@@ -423,8 +433,33 @@ class TabNav extends PureComponent<void, *, State> {
     }
 
     let token = await Notifications.getExpoPushTokenAsync()
+    
+    this.props.updatePushToken({
+      variables: {
+        userId: this.props.navigation.state.params.user.id,
+        token
+      }
+    }).then(()=>{
+      this._notificationSubscription = Notifications.addListener(
+        this._handleNotification
+      )
+    }).catch(err => console.log(err))
+  }
 
-    console.log('this token recd',token)
+  _registerForPushNotifications() {
+    // You can comment the following line out if you want to stop receiving
+    // a notification every time you open the app.
+    registerForPushNotificationsAsync()
+
+    this._notificationSubscription = Notifications.addListener(
+      this._handleNotification
+    )
+  }
+
+  _handleNotification = ({ origin, data }) => {
+    console.log(
+      `Push notification ${origin} with data: ${JSON.stringify(data)}`
+    )
   }
 
 }
@@ -434,7 +469,7 @@ const TabNavWithData = compose(
     name: 'getUserType',
     options: props => ({
       variables: {
-        UserId: props.navigation.state.params.user.id || ""
+        UserId: props.navigation.state.params.user.id
       },
       fetchPolicy: 'network-only'
     })
@@ -443,7 +478,7 @@ const TabNavWithData = compose(
     name: 'getDistributorStatus',
     options: props => ({
       variables: {
-        DistributorId: props.navigation.state.params.user.distributorx.id || ""
+        DistributorId: props.navigation.state.params.user.distributorx.id
       },
       fetchPolicy: 'network-only'
     })
@@ -452,7 +487,7 @@ const TabNavWithData = compose(
     name: 'getAdminChats',
     options: props => ({
       variables: {
-        shopperId: {"id": props.navigation.state.params.user.shopperx.id || ""}
+        shopperId: {"id": props.navigation.state.params.user.shopperx.id}
       },
       fetchPolicy: 'network-only'
     })
@@ -473,6 +508,9 @@ const TabNavWithData = compose(
       },
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(UpdatePushToken,{
+    name: 'updatePushToken'
   })
 )(TabNav)
 

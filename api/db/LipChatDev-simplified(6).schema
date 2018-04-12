@@ -1,0 +1,171 @@
+﻿type File @model {
+  contentType: String!
+  createdAt: DateTime!
+  id: ID! @isUnique
+  name: String!
+  secret: String! @isUnique
+  size: Int!
+  updatedAt: DateTime!
+  url: String! @isUnique
+}
+
+type User @model {
+  createdAt: DateTime!
+  fbkAgeMin: Int
+  fbkAgeMax: Int
+  fbkEmail: String
+  fbkFirstName: String
+  fbkGender: String
+  fbkLastName: String
+  fbkUserId: String! @isUnique
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  fbkPhotoUri: String
+  fbkFriends: Json
+  fbkVerified: Boolean
+  cellPhone: String
+  type: UserType @defaultValue(value: SHOPPER)
+  distributorx: Distributor @relation(name: "DistributorOnUser")
+  messagesx: [Message!]! @relation(name: "MessageOnUser")
+  shopperx: Shopper @relation(name: "ShopperOnUser")
+  pushToken: String
+}
+
+type Color @model {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  name: String!
+  updatedAt: DateTime!
+  finish: ColorFinish!
+  rgb: String
+  tone: ColorTone!
+  family: ColorFamily!
+  inventoriesx: [Inventory!]! @relation(name: "ColorOnInventory")
+  likesx: [Like!]! @relation(name: "LikeOnColor")
+  status: ColorStatus!
+}
+
+type Chat @model {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  shoppersx: [Shopper!]! @relation(name: "ChatOnShopper")
+  updatedAt: DateTime!
+  alias: String
+  distributorsx: [Distributor!]! @relation(name: "ChatOnDistributor")
+  messages: [Message!]! @relation(name: "ChatOnMessage")
+  type: ChatType!
+  updater: String
+}
+
+type Distributor @model {
+  bizName: String
+  bizUri: String! @defaultValue(value: "https://")
+  createdAt: DateTime!
+  distId: String
+  id: ID! @isUnique
+  inventoriesx: [Inventory!]! @relation(name: "DistributorOnInventory")
+  logoUri: String! @defaultValue(value: "https://")
+  shoppersx: [Shopper!]! @relation(name: "ShopperOnDistributor")
+  status: Boolean! @defaultValue(value: false)
+  updatedAt: DateTime!
+  userx: User! @relation(name: "DistributorOnUser")
+  chatsx: [Chat!]! @relation(name: "ChatOnDistributor")
+  level: DistributorLevel @defaultValue(value: B)
+}
+
+type Inventory @model {
+  colorx: Color! @relation(name: "ColorOnInventory")
+  count: Int! @defaultValue(value: 0)
+  createdAt: DateTime!
+  distributorx: Distributor @relation(name: "DistributorOnInventory")
+  id: ID! @isUnique
+  updatedAt: DateTime!
+}
+
+type Like @model {
+  colorx: Color! @relation(name: "LikeOnColor")
+  createdAt: DateTime!
+  doesLike: Boolean! @defaultValue(value: true)
+  id: ID! @isUnique
+  shopperx: Shopper @relation(name: "LikeOnShopper")
+  updatedAt: DateTime!
+}
+
+type Message @model {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  text: String!
+  updatedAt: DateTime!
+  writerx: User! @relation(name: "MessageOnUser")
+  chat: Chat! @relation(name: "ChatOnMessage")
+  audience: Audience! @defaultValue(value: ANY)
+}
+
+type Shopper @model {
+  chatsx: [Chat!]! @relation(name: "ChatOnShopper")
+  createdAt: DateTime!
+  distributorsx: [Distributor!]! @relation(name: "ShopperOnDistributor")
+  id: ID! @isUnique
+  likesx: [Like!]! @relation(name: "LikeOnShopper")
+  updatedAt: DateTime!
+  userx: User! @relation(name: "ShopperOnUser")
+}
+
+enum UserType {
+  SHOPPER
+  DIST
+  SADVR
+}
+
+enum ColorFinish {
+  MATTE
+  SHIMMER
+  FROST
+}
+
+enum ColorTone {
+  COOL
+  WARM
+  NEUTRAL
+}
+
+enum ColorFamily {
+  NEUTRALS
+  REDS
+  PINKS
+  BOLDPINKS
+  BROWNS
+  PURPLES
+  BERRIES
+  ORANGES
+  BLUES
+}
+
+enum ColorStatus {
+  CURRENT
+  DISCONTINUED
+  LIMITEDEDITION
+}
+
+enum ChatType {
+  DMU2ADMIN
+  DMSH2DIST
+  SADVR2ALL
+  DIST2SHPRS
+}
+
+enum DistributorLevel {
+  A
+  B
+}
+
+enum Audience {
+  ANY
+  SHOPPERS
+  APPROVED
+  PENDINGS
+  SHPSDSTS
+  SHPSAPPS
+  SHPSPNDS
+  APPSPNDS
+}
