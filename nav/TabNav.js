@@ -50,7 +50,7 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 2,
+    index: 1,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
@@ -76,11 +76,10 @@ class TabNav extends PureComponent<void, *, State> {
     this.subToDistributorStatus()
     this.subToAllDistributorsStatusForShopper()
     this.registerForPushNotificationsAsync()
-    // this._notificationSubscription = this._registerForPushNotifications()
   }
   
   componentWillUnmount() {
-    this._notificationSubscription && this._notificationSubscription.remove()
+    this.notificationSubscription && this.notificationSubscription.remove()
   }
 
   subToUserType(){
@@ -418,48 +417,48 @@ class TabNav extends PureComponent<void, *, State> {
     )
   }
   
-  registerForPushNotificationsAsync = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
-    let finalStatus = existingStatus
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
-      finalStatus = status
+  async registerForPushNotificationsAsync(){
+    const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+    // console.log('status before re-ask',status);
+    if (status === 'granted') {
+      this.getPushToken()
+    } else {
+      // console.log('re-asking');
+      // Linking.openURL('app-settings://notification/lipchat')
+      let { status:newStatus } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+      // console.log('status after re-ask',newStatus);
+      newStatus === 'granted' ? this.getPushToken() : this.updatePushTokenInDb(null)
     }
-
-    if (finalStatus !== 'granted') {
-      console.log('finalStatus:',finalStatus)
-      return
-    }
-
+  }
+  
+  async getPushToken(){
     let token = await Notifications.getExpoPushTokenAsync()
-    
+    console.log('token for this device',token);
+    token && this.updatePushTokenInDb(token)
+  }
+  
+  updatePushTokenInDb(token){
     this.props.updatePushToken({
       variables: {
         userId: this.props.navigation.state.params.user.id,
         token
       }
     }).then(()=>{
-      this._notificationSubscription = Notifications.addListener(
-        this._handleNotification
-      )
+      token && this.createNotificationSubscription()
     }).catch(err => console.log(err))
   }
-
-  _registerForPushNotifications() {
-    // You can comment the following line out if you want to stop receiving
-    // a notification every time you open the app.
-    registerForPushNotificationsAsync()
-
-    this._notificationSubscription = Notifications.addListener(
-      this._handleNotification
+  
+  createNotificationSubscription(){
+    this.notificationSubscription = Notifications.addListener(
+      this.handleNotification
     )
+    console.log('not sub created');
   }
 
-  _handleNotification = ({ origin, data }) => {
-    console.log(
-      `Push notification ${origin} with data: ${JSON.stringify(data)}`
-    )
+  handleNotification = (notification) => {
+    console.log('notification received')
+    console.log(notification)
+    // console.log(`Push notification ${origin} with data: ${JSON.stringify(data)}`)
   }
 
 }
