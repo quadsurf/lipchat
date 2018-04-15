@@ -286,6 +286,7 @@ mutation UpdateChatMessage(
     text: $text
   ){
     id
+    text
   }
 }`
 

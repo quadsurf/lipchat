@@ -39,7 +39,7 @@ const separatorOffset = 120
 const shortUIdebounce = 1000
 const longUIdebounce = 3000
 const networkDebounce = 4000
-const debugging = false
+const debugging = __DEV__ && false
 
 class LipColors extends Component {
 

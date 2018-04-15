@@ -23,7 +23,7 @@ import { AppName } from '../config/Defaults'
 
 // CONSTS
 const large = Texts.large.fontSize
-const debugging = false
+const debugging = __DEV__ && false
 
 const getDimensions = () => {
   let { height, width } = Dimensions.get("window")

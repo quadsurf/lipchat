@@ -61,7 +61,7 @@ const distributorInputStyle = {
 const inputStyleMedium = {fontSize:medium,height:32,color:Colors.pinkly}
 const inputStyleLarge = {fontSize:large,height:32}
 const inputStyleLarger = {fontSize:larger,height:64}
-const debugging = false
+const debugging = __DEV__ && false
 
 class You extends Component {
 

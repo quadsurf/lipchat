@@ -38,7 +38,7 @@ import Liker from './Liker'
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
-const debugging = true
+const debugging = __DEV__ && false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
@@ -285,10 +285,6 @@ class Selfie extends Component {
         </View>
       )
     }
-  }
-  
-  toggleRefreshing(){
-    console.log('toggleRefreshing func called');
   }
   
   renderCamera() {

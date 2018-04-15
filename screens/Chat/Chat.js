@@ -31,7 +31,7 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
-const debugging = false
+const debugging = __DEV__ && false
 
 // COMPONENTS
 import ChatCard from './ChatCard'

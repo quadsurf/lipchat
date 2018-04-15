@@ -25,7 +25,7 @@ import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
 
 // CONSTs
-const debugging = false
+const debugging = __DEV__ && false
 const store = getStore()
 
 export default class App extends Component {

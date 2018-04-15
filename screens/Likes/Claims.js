@@ -27,7 +27,7 @@ import { AppName,method,url,newClaimText,newClaimText2 } from '../../config/Defa
 import { Modals } from '../../utils/Helpers'
 
 //CONSTs
-const debugging = false
+const debugging = __DEV__ && false
 const { width,height } = getDimensions()
 
 @withNavigation

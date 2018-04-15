@@ -17,7 +17,7 @@ import { GetUser } from '../../api/db/queries'
 import { UpdateFbkFriends } from '../../api/db/mutations'
 
 //CONSTs
-const debugging = false
+const debugging = __DEV__ && false
 
 class AuthState extends Component {
 

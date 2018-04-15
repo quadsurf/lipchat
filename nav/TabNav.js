@@ -34,10 +34,9 @@ import You from '../screens/You/You'
 import { Views,Colors } from '../css/Styles'
 import { FontPoiret } from '../assets/fonts/Fonts'
 import styles from './Styles'
-// import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync'
 
 //CONSTs
-const debugging = false
+const debugging = __DEV__ && true
 
 type Route = {
   key: string,
@@ -419,21 +418,17 @@ class TabNav extends PureComponent<void, *, State> {
   
   async registerForPushNotificationsAsync(){
     const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
-    // console.log('status before re-ask',status);
     if (status === 'granted') {
       this.getPushToken()
     } else {
-      // console.log('re-asking');
       // Linking.openURL('app-settings://notification/lipchat')
       let { status:newStatus } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
-      // console.log('status after re-ask',newStatus);
       newStatus === 'granted' ? this.getPushToken() : this.updatePushTokenInDb(null)
     }
   }
   
   async getPushToken(){
     let token = await Notifications.getExpoPushTokenAsync()
-    console.log('token for this device',token);
     token && this.updatePushTokenInDb(token)
   }
   
@@ -445,20 +440,17 @@ class TabNav extends PureComponent<void, *, State> {
       }
     }).then(()=>{
       token && this.createNotificationSubscription()
-    }).catch(err => console.log(err))
+    }).catch(err => debugging && console.log(err))
   }
   
   createNotificationSubscription(){
     this.notificationSubscription = Notifications.addListener(
       this.handleNotification
     )
-    console.log('not sub created');
   }
 
   handleNotification = (notification) => {
-    console.log('notification received')
-    console.log(notification)
-    // console.log(`Push notification ${origin} with data: ${JSON.stringify(data)}`)
+    debugging && console.log('notification received',notification)
   }
 
 }

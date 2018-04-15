@@ -39,7 +39,7 @@ const textInputStyle = {
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 const chatCount = 5
-const debugging = false
+const debugging = __DEV__ && false
 
 // COMPONENTS
 import Message from './Message'
@@ -127,25 +127,19 @@ class Messages extends Component {
           let mutation = subscriptionData.data.Message.mutation
           let { isMounted } = this.state
           if (mutation === 'CREATED' && isMounted) {
-            debugging && console.log('isMounted for CREATED mutation:',isMounted);
             this.setState({
               messages: [
                 subscriptionData.data.Message.node,
                 ...this.state.messages
               ]
             })
+            debugging && console.log('isMounted for CREATED mutation:',isMounted)
           }
           if (mutation === 'UPDATED' && isMounted) {
-            debugging && console.log('isMounted for UPDATED mutation:',isMounted);
-            let messages = JSON.parse(JSON.stringify(this.state.messages))
-            let i = messages.findIndex( message => {
-            	return message.id === subscriptionData.data.Message.node.id
-            })
-            messages[i] = subscriptionData.data.Message.node
-            this.setState({messages})
+            this.insertNewMessageIntoMessages(subscriptionData.data.Message.node,'subscription func')
+            debugging && console.log('isMounted for UPDATED mutation:',isMounted)
           }
           if (mutation === 'DELETED' && isMounted) {
-            debugging && console.log('isMounted for DELETED mutation:',isMounted);
             let messages = JSON.parse(JSON.stringify(this.state.messages))
             let i = messages.findIndex( message => {
             	return message.id === subscriptionData.data.Message.previousValues.id
@@ -154,10 +148,26 @@ class Messages extends Component {
               messages.splice(i,1)
               this.setState({messages})
             }
+            debugging && console.log('isMounted for DELETED mutation:',isMounted)
           }
         }
       })
     }
+  }
+  
+  insertNewMessageIntoMessages(newMessage,cameFrom){
+    console.log('insertNewMessageIntoMessages called from:',cameFrom);
+    let messages = [...this.state.messages]
+    let i = messages.findIndex( message => {
+      return message.id === newMessage.id
+    })
+    messages[i] = {
+      ...messages[i],
+      ...newMessage
+    }
+    this.setState({messages},()=>{
+      console.log(this.state.messages[i])
+    })
   }
 
   showModal(modalType,title,description,message=''){
@@ -235,25 +245,29 @@ class Messages extends Component {
 
   updateMessage(){
     let errText = 'sending off your chat message'
-    if (this.state.messageId && this.state.newMessage && this.state.newMessage.length > 0) {
+    let { messageId,newMessage } = this.state
+    if (messageId && newMessage && newMessage.length > 0) {
+      console.log('ready for DB update');
+      this.insertNewMessageIntoMessages({id:messageId,text:newMessage},'updateMessage func')
       if (deviceSize === 'tooSmall') {
         this.showModal('processing')
       }
       this.props.updateChatMessage({
         variables: {
-          MessageId: this.state.messageId,
-          text: this.state.newMessage
+          MessageId: messageId,
+          text: newMessage
         }
-      }).then((res)=>{
-        if (res && res.data && res.data.updateMessage) {
-          this.setState({newMessage:'',messageId:null},()=>{
-            if (this.state.isModalOpen) {
-              this.setState({isModalOpen:false})
-            }
-            this.triggerEventOnChatInDb()
-          })
-        } else {
-          this.openError(errText)
+      }).then(({ data: { updateMessage={} } })=>{
+        this.triggerEventOnChatInDb()
+        this.setState({
+          newMessage: '',
+          messageId: null,
+          isModalOpen: false
+        })
+        if (updateMessage.hasOwnProperty('text')) {
+          if (updateMessage.text !== newMessage) {
+            //chat msg not in sync, undo operation needed
+          }
         }
       }).catch( e => {
         this.openError(errText)

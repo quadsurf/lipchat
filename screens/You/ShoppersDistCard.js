@@ -33,7 +33,7 @@ import { method,url } from '../../config/Defaults'
 const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const screen = getDimensions()
-const debugging = false
+const debugging = __DEV__ && false
 
 class ShoppersDistCard extends Component {
 
