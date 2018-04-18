@@ -39,7 +39,7 @@ const textInputStyle = {
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 const chatCount = 5
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 
 // COMPONENTS
 import Message from './Message'
@@ -75,7 +75,7 @@ class Messages extends Component {
   componentWillUnmount(){
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
-    this.deleteMessage()
+    this.deleteChatMessageInDb()
     this.setState({isMounted:false})
   }
 
@@ -140,14 +140,7 @@ class Messages extends Component {
             debugging && console.log('isMounted for UPDATED mutation:',isMounted)
           }
           if (mutation === 'DELETED' && isMounted) {
-            let messages = JSON.parse(JSON.stringify(this.state.messages))
-            let i = messages.findIndex( message => {
-            	return message.id === subscriptionData.data.Message.previousValues.id
-            })
-            if (i !== -1) {
-              messages.splice(i,1)
-              this.setState({messages})
-            }
+            this.removeMessageFromMessages(subscriptionData.data.Message.previousValues.id)
             debugging && console.log('isMounted for DELETED mutation:',isMounted)
           }
         }
@@ -168,6 +161,19 @@ class Messages extends Component {
     this.setState({messages},()=>{
       console.log(this.state.messages[i])
     })
+  }
+  
+  removeMessageFromMessages(id){
+    let messages = [...this.state.messages]
+    if (id) {
+      let i = messages.findIndex( message => {
+        return message.id === id
+      })
+      if (i !== -1) {
+        messages.splice(i,1)
+        this.setState({messages})
+      }
+    }
   }
 
   showModal(modalType,title,description,message=''){
@@ -197,7 +203,7 @@ class Messages extends Component {
   openError(errText){
     this.setState({isModalOpen:false},()=>{
       setTimeout(()=>{
-        this.showModal('err','Messages',errText)
+        this.state.isMounted && this.showModal('err','Messages',errText)
       },700)
     })
   }
@@ -206,11 +212,11 @@ class Messages extends Component {
     this.setState((prevState, props) => {
       if (prevState.newMessage !== newMessage) {
         if (newMessage.length > 0 && prevState.newMessage.length === 0) {
-          this.createMessage()
+          this.createChatMessageInDb()
           return {newMessage}
         }
         if (newMessage.length === 0 && prevState.newMessage.length > 0) {
-          this.deleteMessage()
+          this.deleteChatMessageInDb()
           return {newMessage}
         }
         return {newMessage}
@@ -218,7 +224,7 @@ class Messages extends Component {
     })
   }
 
-  createMessage(){
+  createChatMessageInDb(){
     let errText = 'creating your chat message'
     if (this.state.chatId && this.state.userId) {
       this.props.createChatMessage({
@@ -228,26 +234,25 @@ class Messages extends Component {
           text: 'isTypingNow',
           audience: this.state.audience
         }
-      }).then( res => {
-        if (res && res.data && res.data.createMessage) {
-          this.setState({messageId:res.data.createMessage.id})
+      }).then( ({ data: { createMessage={} } }) => {
+        if (createMessage.hasOwnProperty('id')) {
+          this.setState({messageId:createMessage.id})
         } else {
-          this.openError(errText)
+          this.openError(`${errText}-(1)`)
         }
       }).catch( e => {
         this.openError(errText)
-        debugging && console.log(e.message)
+        debugging && console.log('(2)',e.message)
       })
     } else {
-      this.openError(errText)
+      this.openError(`${errText}-(insufficient args)`)
     }
   }
 
-  updateMessage(){
+  updateChatMessageInDb(){
     let errText = 'sending off your chat message'
     let { messageId,newMessage } = this.state
     if (messageId && newMessage && newMessage.length > 0) {
-      console.log('ready for DB update');
       this.insertNewMessageIntoMessages({id:messageId,text:newMessage},'updateMessage func')
       if (deviceSize === 'tooSmall') {
         this.showModal('processing')
@@ -258,29 +263,33 @@ class Messages extends Component {
           text: newMessage
         }
       }).then(({ data: { updateMessage={} } })=>{
-        this.triggerEventOnChatInDb()
-        this.setState({
-          newMessage: '',
-          messageId: null,
-          isModalOpen: false
-        })
         if (updateMessage.hasOwnProperty('text')) {
-          if (updateMessage.text !== newMessage) {
-            //chat msg not in sync, undo operation needed
+          this.triggerEventOnChatInDb()
+          if (updateMessage.text === newMessage) {
+            this.setState({
+              newMessage: '',
+              messageId: null,
+              isModalOpen: false
+            })
+          } else {
+            this.openError(`${errText}-(1)`)
+            // this.removeMessageFromMessages(messageId)
           }
         }
       }).catch( e => {
-        this.openError(errText)
-        debugging && console.log(e.message)
+        this.openError(`${errText}-(2)`)
+        // this.removeMessageFromMessages(messageId)
+        debugging && console.log('(2)',e.message)
       })
     } else {
-      this.openError(errText)
+      this.openError(`${errText}-(3)`)
     }
   }
 
-  deleteMessage(){
+  deleteChatMessageInDb(){
     let errText = 'clearing your chat message'
-    if (this.state.messageId) {
+    let { messageId,isMounted } = this.state
+    if (messageId) {
       this.props.deleteChatMessage({
         variables: {
           MessageId: this.state.messageId
@@ -289,11 +298,11 @@ class Messages extends Component {
         if (res && res.data && res.data.deleteMessage) {
           // this.setState({messageId:null})
         } else {
-          this.openError(errText)
+          isMounted && this.openError(`${errText}-(1)`)
         }
       }).catch( e => {
-        this.openError(errText)
-        debugging && console.log(e.message)
+        isMounted && this.openError(`${errText}-(2)`)
+        debugging && console.log('(2)',e.message)
       })
     } else {
       // this.openError(errText)
@@ -308,7 +317,7 @@ class Messages extends Component {
       }
     }).then( () => {
     }).catch( e => {
-      debugging && console.log(e.message)
+      debugging && console.log('(2)',e.message)
     })
   }
   
@@ -379,7 +388,7 @@ class Messages extends Component {
           style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
           onChangeText={(newMessage) => this.isTyping(newMessage)}
           keyboardType="default"
-          onSubmitEditing={() => this.updateMessage()}
+          onSubmitEditing={() => this.updateChatMessageInDb()}
           blurOnSubmit={true}
           autoCorrect={false}
           maxLength={1024}
@@ -402,7 +411,7 @@ class Messages extends Component {
     } else {
       return this.renderTextInput(false)
     }
-    // onBlur={() => this.createMessage()}
+    // onBlur={() => this.createChatMessageInDb()}
   }
 
   scrollToOffset(){
