@@ -76,7 +76,6 @@ class Messages extends Component {
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
     this.deleteChatMessageInDb()
-    this.setState({isMounted:false})
   }
 
   keyboardDidShow = (e) => {
@@ -92,12 +91,8 @@ class Messages extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (newProps.getMessagesForChat && Array.isArray(newProps.getMessagesForChat.allMessages)) {
-        if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
-          this.setState({messages:newProps.getMessagesForChat.allMessages})
-        }
-      }
+    if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
+      this.setState({messages:newProps.getMessagesForChat.allMessages})
     }
   }
 
@@ -136,7 +131,7 @@ class Messages extends Component {
             debugging && console.log('isMounted for CREATED mutation:',isMounted)
           }
           if (mutation === 'UPDATED' && isMounted) {
-            this.insertNewMessageIntoMessages(subscriptionData.data.Message.node,'subscription func')
+            this.insertNewMessageIntoMessages(subscriptionData.data.Message.node)
             debugging && console.log('isMounted for UPDATED mutation:',isMounted)
           }
           if (mutation === 'DELETED' && isMounted) {
@@ -148,8 +143,7 @@ class Messages extends Component {
     }
   }
   
-  insertNewMessageIntoMessages(newMessage,cameFrom){
-    console.log('insertNewMessageIntoMessages called from:',cameFrom);
+  insertNewMessageIntoMessages(newMessage){
     let messages = [...this.state.messages]
     let i = messages.findIndex( message => {
       return message.id === newMessage.id
@@ -158,20 +152,18 @@ class Messages extends Component {
       ...messages[i],
       ...newMessage
     }
-    this.setState({messages},()=>{
-      console.log(this.state.messages[i])
-    })
+    this.setState({messages})
   }
   
   removeMessageFromMessages(id){
-    let messages = [...this.state.messages]
     if (id) {
+      let messages = [...this.state.messages]
       let i = messages.findIndex( message => {
         return message.id === id
       })
       if (i !== -1) {
         messages.splice(i,1)
-        this.setState({messages})
+        this.state.isMounted && this.setState({messages})
       }
     }
   }
@@ -249,11 +241,19 @@ class Messages extends Component {
     }
   }
 
+  clearMessage(){
+    this.state.isMounted && this.setState({
+      newMessage: '',
+      messageId: null,
+      isModalOpen: false
+    },()=>console.log('message cleared'))
+  }
+  
   updateChatMessageInDb(){
     let errText = 'sending off your chat message'
-    let { messageId,newMessage } = this.state
-    if (messageId && newMessage && newMessage.length > 0) {
-      this.insertNewMessageIntoMessages({id:messageId,text:newMessage},'updateMessage func')
+    let { messageId,newMessage='' } = this.state
+    if (messageId && newMessage.length > 0) {
+      this.insertNewMessageIntoMessages({id:messageId,text:newMessage})
       if (deviceSize === 'tooSmall') {
         this.showModal('processing')
       }
@@ -266,19 +266,17 @@ class Messages extends Component {
         if (updateMessage.hasOwnProperty('text')) {
           this.triggerEventOnChatInDb()
           if (updateMessage.text === newMessage) {
-            this.setState({
-              newMessage: '',
-              messageId: null,
-              isModalOpen: false
-            })
+            this.clearMessage()
           } else {
             this.openError(`${errText}-(1)`)
-            // this.removeMessageFromMessages(messageId)
+            this.insertNewMessageIntoMessages({id:messageId,sent:false})
+            this.clearMessage()
           }
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        // this.removeMessageFromMessages(messageId)
+        this.insertNewMessageIntoMessages({id:messageId,sent:false})
+        this.clearMessage()
         debugging && console.log('(2)',e.message)
       })
     } else {
@@ -288,20 +286,21 @@ class Messages extends Component {
 
   deleteChatMessageInDb(){
     let errText = 'clearing your chat message'
-    let { messageId,isMounted } = this.state
+    let { messageId } = this.state
     if (messageId) {
       this.props.deleteChatMessage({
         variables: {
-          MessageId: this.state.messageId
+          MessageId: messageId
         }
-      }).then((res)=>{
-        if (res && res.data && res.data.deleteMessage) {
+      }).then(({ data:{ deleteMessage={} } })=>{
+        if (!deleteMessage.hasOwnProperty('id')) {
+          this.openError(`${errText}-(1)`)
+          this.clearMessage()
           // this.setState({messageId:null})
-        } else {
-          isMounted && this.openError(`${errText}-(1)`)
         }
       }).catch( e => {
-        isMounted && this.openError(`${errText}-(2)`)
+        this.openError(`${errText}-(2)`)
+        this.clearMessage()
         debugging && console.log('(2)',e.message)
       })
     } else {
@@ -315,7 +314,6 @@ class Messages extends Component {
         chatId: this.state.chatId,
         updater: JSON.stringify(new Date())
       }
-    }).then( () => {
     }).catch( e => {
       debugging && console.log('(2)',e.message)
     })
@@ -473,6 +471,7 @@ class Messages extends Component {
           renderItem={({ item }) => (
             <Message 
               text={item.text} 
+              sent={item.hasOwnProperty('sent') ? item.sent : null}
               userId={this.state.userId} 
               writer={item.writerx} 
               updated={item.updatedAt} 
@@ -506,12 +505,16 @@ class Messages extends Component {
     )
   }
 
+  prepForUnmount(){
+    this.setState({isMounted:false},()=>this.props.navigation.goBack(null))
+  }
+  
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
           <View style={{justifyContent:'center'}}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack(null)}>
+            <TouchableOpacity onPress={() => this.prepForUnmount()}>
               <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
             </TouchableOpacity>
           </View>
