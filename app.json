@@ -26,6 +26,7 @@
     },
     "ios": {
       "buildNumber": "1.11.11",
+      "bundleIdentifier": "com.quadsurf.lipchat",
       "icon": "./assets/icons/iconWithBorder.png",
       "supportsTablet": true,
       "infoPlist": {
@@ -42,6 +43,7 @@
     },
     "android": {
       "versionCode": 11111,
+      "package": "com.quadsurf.lipchat",
       "icon": "./assets/icons/iconWithBorder.png",
       "splash": {
         "backgroundColor": "#371A85",
