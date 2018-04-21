@@ -5,7 +5,7 @@
     "slug": "lips",
     "privacy": "unlisted",
     "sdkVersion": "25.0.0",
-    "version": "1.0.1",
+    "version": "1.",
     "orientation": "portrait",
     "primaryColor": "#371A85",
     "icon": "./assets/icons/iconWithBorder.png",
@@ -26,7 +26,7 @@
       "isRemoteJSEnabled": true,
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "We need permission to access your front-facing camera in order for us to create an augmented reality that lets you try on different virtual lip colors."
+        "NSCameraUsageDescription": "We need permission to access your front-facing camera in order for us to create an augmented reality experience that lets you try on different virtual lip colors."
       },
       "splash": {
         "backgroundColor": "#371A85",

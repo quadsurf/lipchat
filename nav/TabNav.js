@@ -36,7 +36,7 @@ import { FontPoiret } from '../assets/fonts/Fonts'
 import styles from './Styles'
 
 //CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 
 type Route = {
   key: string,

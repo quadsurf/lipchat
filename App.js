@@ -5,7 +5,7 @@ import { View,AsyncStorage } from 'react-native'
 import { Asset, Font } from 'expo'
 
 // console.ignoredYellowBox = ['Warning: checkPropTypes']
-console.disableYellowBox = true
+console.disableYellowBox = __DEV__ && true
 
 //LIBS
 import { ApolloProvider } from 'react-apollo'

@@ -4,7 +4,9 @@
 import { PROJECT_ID } from 'react-native-dotenv'
 
 const AppName = 'Appy'
-const version = '0.23'
+const otaMajor = Expo.Constants.manifest.version
+const otaMinor = '01'
+const version = `${otaMajor}${otaMinor}`
 const method = 'post'
 const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
