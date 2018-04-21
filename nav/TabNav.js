@@ -290,8 +290,8 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderFooter = props => {
-    let { deviceYearClass:year } = Constants
-    if (year >= 2018) {
+    // let { deviceYearClass:year } = Constants
+    // if (year >= 2018) {
       return (
         <TabBar
           {...props}
@@ -303,9 +303,9 @@ class TabNav extends PureComponent<void, *, State> {
           renderLabel={this.renderLabel}
         />
       )
-    } else {
-      return null
-    }
+    // } else {
+    //   return null
+    // }
   }
 
   renderScene = ({ route,focused }) => {
