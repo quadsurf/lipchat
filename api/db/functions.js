@@ -180,3 +180,113 @@ module.exports = function(event) {
       	return { error: error.toString() }
     })
 }
+
+//iterative
+require('isomorphic-fetch')
+
+module.exports = function (event) {
+  var uri = 'https://exp.host/--/api/v2/push/send'
+  // var uri = 'http://ptsv2.com/t/x620r-1523655299/post'
+  var res = event.data.Chat.node
+  var msg = res.messages[0]
+  var txt = msg.text
+  var senderId = msg.writerx.id
+  var senderName = `${msg.writerx.fbkFirstName || ''} ${msg.writerx.fbkLastName || ''}`
+  var tokens = []
+  
+  function reshape(arr) {
+  	arr.forEach(function(unit){
+    	if (unit.userx.id !== senderId) tokens.push(unit.userx.pushToken)
+    })	
+  }
+  
+  reshape(res.distributorsx)
+  reshape(res.shoppersx)
+  
+  var notifications = []
+  tokens.forEach(function(token){
+  	var notification = {
+      to: token,
+      title: senderName,
+      body: txt,
+      ttl: 600000,
+      priority: 'high',
+      badge: 1
+    }
+    notifications.push(notification)
+  })
+  
+  function chunkify(notifications){
+    var max = 100
+    var blocks = notifications.length / max
+    blocks = parseInt(Math.ceil(blocks).toFixed(0))
+    var chunked = []
+    for (var i = 0; i < blocks; i++) {
+       chunked.push(notifications.slice(0,max))
+       notifications.splice(0,max)
+    }
+    return chunked
+  }
+  
+  var chunkedNotifications = chunkify(notifications)
+  
+  function sendNotifications(data) {
+    return fetch(uri, {
+      body: JSON.stringify(data),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip, deflate'
+      }
+    }).then(function(response) { return JSON.parse(response) })
+      .catch(function(err) { return err })
+  }
+  // .then(function(data) { return data })
+  var adder = [
+    {
+      to: chunkedNotifications[0][0].to,
+      title: 'Admin1',
+      body: 'someText1',
+      ttl: 600000,
+      priority: 'high',
+      badge: 1
+    },
+    {
+      to: chunkedNotifications[0][1].to,
+      title: 'Admin2',
+      body: 'someText2',
+      ttl: 600000,
+      priority: 'high',
+      badge: 1
+    }
+  ]
+  chunkedNotifications.push(adder)
+  
+  var promises = []
+  // (i = 0; i < chunkedNotifications.length; i++)
+  // for (i = chunkedNotifications.length-1; i > -1; i--) {
+  //   // promises.push(sendNotifications(chunkedNotifications[i]))
+  //   promises.push(fetch(uri, {
+  //     body: JSON.stringify(chunkedNotifications[i]),
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Accept': 'application/json',
+  //       'Accept-Encoding': 'gzip, deflate'
+  //     }
+  //   }).then(function(response) { return JSON.parse(response) })
+  //     .catch(function(err) { return err }))
+  // }
+  
+  chunkedNotifications.forEach(function(chunkedNotification){
+    promises.push(sendNotifications(chunkedNotification))
+  })
+  
+  return Promise.all(promises).then(function(responses){
+  	return {
+      responses: responses
+    }
+  })
+  
+}
