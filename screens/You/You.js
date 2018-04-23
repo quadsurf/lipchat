@@ -158,7 +158,6 @@ class You extends Component {
   }
 
   isValidUri(url){
-    console.log('url',url);
     let el4 = url.split('')[4]
     let last4 = url.substr(url.length - 4)
     if (last4 === '.png' || last4 === '.jpg') {

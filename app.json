@@ -5,7 +5,7 @@
     "slug": "lips",
     "privacy": "unlisted",
     "sdkVersion": "25.0.0",
-    "version": "1.11.14",
+    "version": "1.11.15",
     "orientation": "portrait",
     "primaryColor": "#371A85",
     "icon": "./assets/icons/icon.png",
@@ -25,7 +25,7 @@
       "assetExts": ["ttf","mp4"]
     },
     "ios": {
-      "buildNumber": "1.11.14",
+      "buildNumber": "1.11.15",
       "bundleIdentifier": "com.quadsurf.lipchat",
       "icon": "./assets/icons/icon.png",
       "supportsTablet": true,
@@ -42,7 +42,7 @@
       "loadJSInBackgroundExperimental": true
     },
     "android": {
-      "versionCode": 11114,
+      "versionCode": 11115,
       "package": "com.quadsurf.lipchat",
       "icon": "./assets/icons/icon.png",
       "splash": {

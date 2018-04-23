@@ -4,7 +4,7 @@ import { Camera,Permissions,FaceDetector,Svg } from 'expo'
 import React, { Component } from 'react'
 import {
   View,Text,TouchableOpacity,
-  ScrollView,Vibration,FlatList
+  ScrollView,Vibration,FlatList,Alert
 } from 'react-native'
 
 // LIBS
@@ -42,7 +42,7 @@ const debugging = true//__DEV__ && false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
-const shortUIdebounce = 750
+const shortUIdebounce = 500
 const longUIdebounce = 2000
 
 class Selfie extends Component {
@@ -114,7 +114,7 @@ class Selfie extends Component {
   }
   
   onFacesDetected = ({ faces }) => this.setState({ faces })
-  onFaceDetectionError = state => console.warn('Faces detection error:', state)
+  onFaceDetectionError = state => Alert.alert('Face Detection Error',JSON.stringify(state))
 
   renderLandmarksOfFace(face) {
     const renderLips = ({
@@ -231,10 +231,11 @@ class Selfie extends Component {
   }
   
   syncSelectedColorsWithStateColors(){
-    let newSelectedColors
+    let newSelectedColors = []
     let { selectedColors,colors } = this.state
     selectedColors.forEach( ({ colorId:selectedColorId }) => {
-      newSelectedColors = colors.filter( ({ colorId }) => colorId === selectedColorId )
+      let found = colors.filter( ({ colorId }) => colorId === selectedColorId )
+      if (found.length > 0) newSelectedColors.push(found[0])
     })
     this.setState({selectedColors:newSelectedColors})
   }
