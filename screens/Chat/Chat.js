@@ -9,6 +9,7 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+import { debounce } from 'underscore'
 
 // STORE
 import { connect } from 'react-redux'
@@ -38,15 +39,19 @@ import ChatCard from './ChatCard'
 
 class Chat extends Component {
 
-  state = {
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    user: this.props.user ? this.props.user : null,
-    userType: this.props.userType ? this.props.userType : null,
-    chats: null,
-    isFocused: true
-    // expectedChatId: null
+  constructor(props){
+    super(props)
+    this.state = {
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      user: this.props.user ? this.props.user : null,
+      userType: this.props.userType ? this.props.userType : null,
+      chats: null,
+      isFocused: true
+      // expectedChatId: null
+    }
+    this.updateChatsOnState = debounce(this.updateChatsOnState,750,true)
   }
 
   componentWillReceiveProps(newProps){
@@ -72,16 +77,11 @@ class Chat extends Component {
       newProps.chats && 
       newProps.chats.length > 0
     ) {
-      setTimeout(()=>{
-        this.setState({chats:newProps.chats})
-      },1000)
-      debugging && console.log('new chats',newProps.chats[0])
+      this.updateChatsOnState(newProps.chats)
     }
   }
   
-  setChats(allChats){
-    let chats = JSON.parse(JSON.stringify(allChats))
-    chats.sort( (a,b) => Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt))
+  updateChatsOnState(chats){
     this.setState({chats})
   }
   

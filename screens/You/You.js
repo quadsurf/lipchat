@@ -189,20 +189,22 @@ class You extends Component {
 
   renderMainContent(){
     let imageWidth = 280
-    let { fbkUserId } = this.state.user
-    let { userType } = this.state
+    // let { fbkUserId } = this.state.user
+    let { userType,user:{ fbkUserId } } = this.state
+    let uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`
     // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
+    // height: userType === 'SHOPPER' ? 860 : 860,
     return (
         <View style={{flex:1}}>
           <KeyboardAwareScrollView
             viewIsInsideTabBar={true}
             contentContainerStyle={{
-              height: userType === 'SHOPPER' ? 860 : 860,
+              height: 860,
               alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
             }}
             enableOnAndroid={true}>
               <Image
-                style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri:`https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`}}/>
+                style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri}}/>
               {this.renderName()}
               {this.renderCellPhone()}
               {this.renderDistributorFields()}

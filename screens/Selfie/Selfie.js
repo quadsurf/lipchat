@@ -38,11 +38,11 @@ import Liker from './Liker'
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
-const debugging = __DEV__ && false
+const debugging = true//__DEV__ && false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
-const shortUIdebounce = 1000
+const shortUIdebounce = 750
 const longUIdebounce = 2000
 
 class Selfie extends Component {
@@ -193,6 +193,8 @@ class Selfie extends Component {
                       ${alx},${ary+((bacyLower-aly)/2)} 
                       ${lm}`
       let { activeColor } = this.state
+      let upper = `M${lm} ${tlUpper} ${trUpper} ${brUpper} ${bMidUpper} ${blUpper}`
+      let lower = `M${lm} ${tlLower} ${tMidLower} ${trLower} ${brLower} ${blLower}`
       return (
         <Svg
           width={screenWidth}
@@ -200,11 +202,11 @@ class Selfie extends Component {
         >
           <Svg.Path
               fill={activeColor}
-              d={`M${lm} ${tlUpper} ${trUpper} ${brUpper} ${bMidUpper} ${blUpper}`}
+              d={upper}
           />
           <Svg.Path
               fill={activeColor}
-              d={`M${lm} ${tlLower} ${tMidLower} ${trLower} ${brLower} ${blLower}`}
+              d={lower}
           />
         </Svg>
       )
@@ -261,7 +263,7 @@ class Selfie extends Component {
       return (
         <View style={{
           position:'absolute',
-          top: 200,
+          top: 100,
           left: 5,
           width: 300,
           backgroundColor:Colors.transparentPurple,
@@ -281,6 +283,11 @@ class Selfie extends Component {
                   {rgb} - {name}
               </Text>
             ))
+          }
+          {
+            this.state.faces && (
+              <Text style={{color:"white"}}>{JSON.stringify(this.state.faces)}</Text>
+            )
           }
         </View>
       )
