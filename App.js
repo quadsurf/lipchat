@@ -1,7 +1,7 @@
 
 
 import React, { Component } from 'react'
-import { View,AsyncStorage } from 'react-native'
+import { View,AsyncStorage,Dimensions } from 'react-native'
 import { Asset, Font } from 'expo'
 
 // console.ignoredYellowBox = ['Warning: checkPropTypes']
@@ -22,10 +22,14 @@ import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
+import { setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient } from './store/actions'
 
 // CONSTs
 const debugging = __DEV__ && false
 const store = getStore()
+const screen = Dimensions.get("window")
+// console.log('screen',screen);
+store.dispatch(setSettings(screen))
 
 export default class App extends Component {
   constructor(props) {
@@ -102,7 +106,12 @@ export default class App extends Component {
       )
     } else {
       if (this.state.localStorage !== null) {
-        let client = getClient(this.state.localStorage.localStorage.gcToken)
+        let { gcToken,fbkToken,userId,rootKey } = this.state.localStorage.localStorage
+        let client = getClient(gcToken)
+        store.dispatch(setTokens({gcToken,fbkToken}))
+        store.dispatch(setAuthUser(userId))
+        store.dispatch(setRootKey(rootKey))
+        store.dispatch(setNetworkClient(client))
         let localStorage = {
           ...this.state.localStorage,
           client
@@ -111,7 +120,7 @@ export default class App extends Component {
           <ApolloProvider client={client} store={store}>
             <View style={{flex:1,backgroundColor:Colors.bgColor}}>
               <MyStatusBar/>
-              <RootNav localStorage={localStorage}/>
+              <RootNav localStorage={localStorage} testStore={store}/>
             </View>
           </ApolloProvider>
         )

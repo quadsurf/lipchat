@@ -60,7 +60,6 @@ export default class RootNav extends Component {
   
   componentWillMount(){
     // this.setState({isConnected:this.props.isConnected})
-    console.log(this.props.localStorage);
   }
   
   render() {

@@ -1,15 +1,20 @@
 
 
-import { SET_TOKENS,SET_AUTHUSER,SET_ROOTKEY } from './types'
+import { SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT } from './types'
 
-const setToken = ({gcToken:gc,fbkToken:fbk}) => ({
+const setTokens = ({gcToken:gc,fbkToken:fbk}) => ({
   type: SET_TOKENS,
   tokens: { gc,fbk }
 })
 
 const setAuthUser = userId => ({
-  type: SET_AUTHUSER,
-  authUser: userId
+  type: SET_USER,
+  userId
+})
+
+const setSettings = screen => ({
+  type: SET_SETTINGS,
+  screen
 })
 
 const setRootKey = rootKey => ({
@@ -17,6 +22,11 @@ const setRootKey = rootKey => ({
   rootKey
 })
 
+const setNetworkClient = client => ({
+  type: SET_NETWORKCLIENT,
+  client
+})
+
 export {
-  setToken,setAuthUser,setRootKey
+  setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient
 }
