@@ -1,7 +1,7 @@
 
 
 import {
-  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,
+  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,SET_APPRESET,CALL_APPRESET,
   UPDATE_USER,CLEAR_USER
 } from './types'
 
@@ -39,6 +39,13 @@ const setNetworkClient = client => ({
   client
 })
 
+const setAppReset = func => ({
+  type: SET_APPRESET,
+  func
+})
+
+const resetApp = () => ({ type: CALL_APPRESET })
+
 export {
-  setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient,updateUser,clearUser
+  setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient,updateUser,clearUser,setAppReset,resetApp
 }

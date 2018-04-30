@@ -11,7 +11,7 @@ import { Colors } from '../css/Styles'
 
 // SCREENS
 import AuthState from '../screens/Auth/AuthStateV2'
-import Login from '../screens/Auth/Login'
+import Login from '../screens/Auth/LoginV2'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
@@ -62,7 +62,11 @@ export default class RootNav extends Component {
     // this.setState({isConnected:this.props.isConnected})
   }
   
+  componentDidMount(){
+    // console.log('localStorage on RootNav',this.props.localStorage);
+  }
+   // screenProps={this.props.localStorage}
   render() {
-    return <RootStack screenProps={this.props.localStorage} />
+    return <RootStack/>
   }
 }

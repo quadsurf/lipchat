@@ -13,6 +13,7 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import Swiper from 'react-native-swiper'
 
 //LOCALS
@@ -25,7 +26,10 @@ import { terms } from '../../config/Defaults'
 import { FBK_APP_ID } from 'react-native-dotenv'
 
 //GQL
-import { AuthenticateFacebookUser,UpdateFbkFriends } from '../../api/db/mutations'
+import { AuthenticateFacebookUser } from '../../api/db/mutations'
+
+//STORE
+import { resetApp } from '../../store/actions'
 
 class Login extends Component {
 
@@ -44,13 +48,6 @@ class Login extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps){
-    
-  }
-
-  // if modalType='error', then pass at least the first 3 params below
-  // if modalType='processing', then pass only modalType
-  // if modalType='prompt', then pass TBD
   showModal(modalType,title,description,message=''){
     if (this.state.isModalOpen) {
       this.setState({isModalOpen:false},()=>{
@@ -220,21 +217,19 @@ class Login extends Component {
     )
     if (type === 'success') {
       this.showModal('processing')
-      if (this.setItem('fbkToken',token)) {
-        const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,first_name,last_name,age_range,gender,picture,verified,email,friends&access_token=${token}`)
-        let fbkUser = await response.json()
-        if (fbkUser) {
-          this.getOrCreateUser(fbkUser)
-        } else {
-          this.showModal('error','Intro',"We couldn't retrieve or save your Facebook details.")
-        }
+      const res = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,first_name,last_name,age_range,gender,picture,verified,email,friends&access_token=${token}`)
+      let fbkUser = await res.json()
+      if (fbkUser) {
+        this.getOrCreateUser(fbkUser,token)
+      } else {
+        this.showModal('error','Intro',"We couldn't retrieve or save your Facebook details.")
       }
     } else if (type === 'cancel') {
       this.showModal('error','Intro',"Why would you do that? Tisk, tisk! A valid and verified Facebook account is needed.")
     }
   }
 
-  getOrCreateUser(facebookUser){
+  getOrCreateUser(facebookUser,token){
     let errText = "getting or creating an account for you in the Database"
     let fbkUser = JSON.stringify(facebookUser)
     if (fbkUser) {
@@ -242,65 +237,26 @@ class Login extends Component {
         variables: {
           fbkUser
         }
-      }).then( response => {
-        let res = response.data.authenticateFacebookUser || {}
+      }).then( ({ data: { authenticateFacebookUser:res=null } }) => {
         if (res) {
-          let gcToken = res.token.gctoken
-          let userId = res.token.user.id
-          if (this.setItem('gcToken',gcToken)) {
-            if (this.setItem('userId',userId)) {
-              let localStorage = {gcToken,userId}
-              this.updateFbkFriendsOnUser(userId,facebookUser.friends.data,localStorage)
+          let gc = res.token.gctoken
+          let id = res.token.user.id
+          AsyncStorage.multiSet([
+            ['tokens',JSON.stringify({gc,fbk:token})],
+            ['user',JSON.stringify({id})]
+          ],(e)=>{
+            if (e) {
+              this.showModal('error','Intro','There was a problem saving your access to your phone.')
+            } else {
+              this.props.resetApp()
             }
-          }
+          })
         } else {
           this.openError(`${errText} (error code: 1-${fbkUser})`)
         }
       }).catch( e => {
         this.openError(`${errText} (error code: 2-${fbkUser})`)
       })
-    }
-  }
-
-  async updateFbkFriendsOnUser(id,fbkFriends,localStorage){
-    let errText = "updating your connections data"
-    this.props.updateFbkFriends({
-      variables: {
-        userId: id,
-        fbkFriends: fbkFriends
-      }
-    }).then( response => {
-      let user = response.data.updateUser || {}
-      if (user) {
-        this.handleRedirect(user,localStorage)
-      } else {
-        this.openError(`${errText} (error code: 1-${id})`)
-      }
-    }).catch( e => {
-      this.openError(`${errText} (error code: 2-${id})`)
-    })
-  }
-
-  handleRedirect(user,localStorage){
-    let passProps = {user,localStorage}
-    setTimeout(()=>{
-      this.setState({isModalOpen:false},()=>{
-        // Util.reload()
-        this.props.screenProps.appReset()
-        // this.props.navigation.navigate('LoggedIn',passProps)
-      })
-    },0)
-  }
-
-  async setItem(key,token){
-    let infoType = (key == 'gcToken') ? 'Database' : 'Facebook'
-    try {
-      await AsyncStorage.setItem(key,token)
-    } catch (e) {
-      this.showModal('error','Intro',`We tried to add your ${infoType} info into a delicious cookie, but forgot the recipe!`,e.message)
-      return false
-    } finally {
-      return true
     }
   }
 
@@ -321,12 +277,10 @@ class Login extends Component {
 
 }
 
-export default compose(
+const LoginWithData = compose(
   graphql(AuthenticateFacebookUser,{
     name: 'authenticateFacebookUser'
-  }),
-  graphql(UpdateFbkFriends,{
-    name: 'updateFbkFriends'
   })
 )(Login)
-// , just like on snapchat
+
+export default connect(null,{resetApp})(LoginWithData)

@@ -1,7 +1,9 @@
 
 
+import { AsyncStorage } from 'react-native'
+
 import {
-  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,
+  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,SET_APPRESET,CALL_APPRESET,
   UPDATE_USER,CLEAR_USER
 } from './types'
 
@@ -46,9 +48,10 @@ const userReducer = (state=initialUser,actions) => {
       }
       return newUser
     case CLEAR_USER:
-      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {})
-      console.log('user cleared from redux state',initialUser);
-      return initialUser
+      AsyncStorage.multiRemove(['tokens','user','rootKey'], (e) => {
+        console.log('user cleared from redux state',initialUser);
+        return initialUser
+      })
     default: return state
   }
 }
@@ -105,5 +108,20 @@ const clientReducer = (state=initialClient,actions) => {
   }
 }
 
+const initialAppReset = {}
+const appResetFunc = (state=initialAppReset,actions) => {
+  switch(actions.type){
+    case SET_APPRESET:
+      let newAppReset = {
+        resetApp: actions.func
+      }
+      return newAppReset
+    case CALL_APPRESET:
+      state.resetApp()
+      return state
+    default: return state
+  }
+}
 
-export { tokensReducer,userReducer,settingsReducer,navReducer,clientReducer }
+
+export { tokensReducer,userReducer,settingsReducer,navReducer,clientReducer,appResetFunc }

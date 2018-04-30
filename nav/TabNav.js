@@ -309,7 +309,7 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderScene = ({ route,focused }) => {
-    let { user,localStorage } = this.props.navigation.state.params
+    let { user } = this.props.navigation.state.params
     let { navigation } = this.props
     let { userType,distributorStatus,sadvrId,shoppersDistributor } = this.state
     switch (route.key) {
@@ -324,7 +324,6 @@ class TabNav extends PureComponent<void, *, State> {
             distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
-            localStorage={localStorage} 
             sadvrId={sadvrId}
           />
         )
@@ -340,7 +339,6 @@ class TabNav extends PureComponent<void, *, State> {
               distributorStatus={distributorStatus}
               shoppersDistributor={shoppersDistributor}
               nav={navigation}
-              localStorage={localStorage}
             />
           )
         } else {
@@ -364,7 +362,6 @@ class TabNav extends PureComponent<void, *, State> {
             distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
-            localStorage={localStorage}
           />
         )
       case '3':
@@ -378,7 +375,6 @@ class TabNav extends PureComponent<void, *, State> {
             distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
-            localStorage={localStorage}
           />
         )
       case '4':
@@ -392,7 +388,6 @@ class TabNav extends PureComponent<void, *, State> {
             distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
-            localStorage={localStorage}
           />
         )
       default:

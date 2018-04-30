@@ -7,6 +7,8 @@ const SET_ROOTKEY = 'set_rootkey'
 const SET_NETWORKCLIENT = 'set_networkclient'
 const UPDATE_USER = 'update_user'
 const CLEAR_USER = 'clear_user'
+const SET_APPRESET = 'set_appreset'
+const CALL_APPRESET = 'call_appreset'
 
 export {
   SET_TOKENS,
@@ -15,5 +17,7 @@ export {
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
   UPDATE_USER,
-  CLEAR_USER
+  CLEAR_USER,
+  SET_APPRESET,
+  CALL_APPRESET
 }

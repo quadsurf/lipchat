@@ -9,6 +9,7 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { debounce } from 'underscore'
@@ -171,7 +172,7 @@ class Likes extends Component {
     this.props.nav.navigate('Claims',{
       like,
       shopperId:this.props.user.shopperx.id,
-      gcToken:this.props.localStorage.gcToken,
+      gcToken:this.props.gcToken,
       userId: this.props.user.id,
       sadvrId: this.props.sadvrId
     })
@@ -216,7 +217,7 @@ class Likes extends Component {
 
 }
 
-export default compose(
+const LikesWithData = compose(
   graphql(GetLikesForShopper,{
     name: 'getLikesForShopper',
     options: props => ({
@@ -228,4 +229,8 @@ export default compose(
     fetchPolicy: 'network-only'
   })
 )(Likes)
+
+const mapStateToProps = state => ({ gcToken:state.tokens.gc })
+
+export default connect(mapStateToProps)(LikesWithData)
 // 10000048005

@@ -31,21 +31,23 @@ class AuthState extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps.getUser.User.hasOwnProperty('id')) {
-      if (newProps.getUser.User !== this.state.user) {
-        this.props.updateUser(newProps.getUser.User)
-        this.setState({
-          user: newProps.getUser.User
-        },()=>{
-          this.determineAuthStatus()
-        })
+    if (!newProps.getUser.loading) {
+      if (newProps.getUser.User) {
+        if (newProps.getUser.User !== this.state.user) {
+          this.props.updateUser(newProps.getUser.User)
+          this.setState({
+            user: newProps.getUser.User
+          },()=>{
+            this.determineAuthStatus()
+          })
+        }
+      } else if (newProps.getUser.error) {
+        debugging && console.log('loggedout8')
+        this.determineAuthStatus()
+      } else {
+        debugging && console.log('loggedout9')
+        this.determineAuthStatus()
       }
-    } else if (newProps.getUser.error) {
-      debugging && console.log('loggedout8')
-      this.determineAuthStatus()
-    } else {
-      debugging && console.log('loggedout9')
-      this.determineAuthStatus()
     }
   }
 
@@ -57,7 +59,8 @@ class AuthState extends Component {
           let tokenStatus = await this.isExpired(fbkToken)
           if (tokenStatus) {
             if (tokenStatus.expires_in) {
-              if (tokenStatus.expires_in < 259200) {
+              // > 259200
+              if (tokenStatus.expires_in > 259200) {
                 debugging && console.log('LoggedIn Redirect')
                 this.goTo('LoggedIn')
               } else {
@@ -101,7 +104,7 @@ class AuthState extends Component {
   goTo(screen){
     let passProps = {
       user: this.state.user || {},
-      localStorage: this.props.screenProps.localStorage
+      // localStorage: this.props.screenProps.localStorage
     }
     setTimeout(()=>{
       this.props.navigation.navigate(screen,passProps)

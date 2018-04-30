@@ -3,7 +3,7 @@
 import { createStore,combineReducers,applyMiddleware } from 'redux'
 // import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk'
-import { tokensReducer,userReducer,settingsReducer,navReducer,clientReducer } from './reducers'
+import { tokensReducer,userReducer,settingsReducer,navReducer,clientReducer,appResetFunc } from './reducers'
 import { chatsReducer,unreadCountReducer } from '../screens/Chat/store/reducers'
 import { colorsReducer } from '../screens/Selfie/store/reducers'
 
@@ -19,7 +19,8 @@ export default () => {
       user: userReducer,
       settings: settingsReducer,
       nav: navReducer,
-      client: clientReducer
+      client: clientReducer,
+      resetApp: appResetFunc
     }),
     middleware
   )

@@ -18,6 +18,7 @@ import { PROJECT_ID } from 'react-native-dotenv'
 // LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
@@ -37,6 +38,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
+import { clearUser } from '../../store/actions'
 
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../Common'
@@ -311,7 +313,7 @@ class You extends Component {
       return (
         <ShoppersDistCard
           distId={this.state.ShoppersDistId}
-          gcToken={this.props.localStorage.gcToken}
+          gcToken={this.props.gcToken}
           shopperId={this.props.user.shopperx.id}/>
       )
     } else {
@@ -808,7 +810,7 @@ class You extends Component {
     let method = 'post'
     let url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
     let headers = {
-      Authorization: `Bearer ${this.props.localStorage.gcToken}`,
+      Authorization: `Bearer ${this.props.gcToken}`,
       "Content-Type": "application/json"
     }
     axios({
@@ -965,6 +967,9 @@ class You extends Component {
   async logOut(){
     try {
       this.showModal('processing')
+      this.props.clearUser().then(()=>{
+        console.log('worked as a cb promise?');
+      })
       AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
         if (e) {
           //
@@ -990,7 +995,7 @@ class You extends Component {
 
 }
 
-export default compose(
+const YouWithData = compose(
   graphql(GetDistributor,{
     name: 'getDistributor',
     options: props => ({
@@ -1034,6 +1039,10 @@ export default compose(
     name: 'createGroupChatForDistributor'
   })
 )(You)
+
+const mapStateToProps = state => ({ gcToken:state.tokens.gc })
+
+export default connect(mapStateToProps,{clearUser})(YouWithData)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 //ERROR HANDLING NEEDED FOR:
