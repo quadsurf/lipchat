@@ -10,7 +10,7 @@ import { DotsLoader } from 'react-native-indicator'
 import { Colors } from '../css/Styles'
 
 // SCREENS
-import AuthState from '../screens/Auth/AuthState'
+import AuthState from '../screens/Auth/AuthStateV2'
 import Login from '../screens/Auth/Login'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'

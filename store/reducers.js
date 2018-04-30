@@ -1,6 +1,9 @@
 
 
-import { SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT } from './types'
+import {
+  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,
+  UPDATE_USER,CLEAR_USER
+} from './types'
 
 
 const initialTokens = {
@@ -26,14 +29,26 @@ const initialUser = {
   id: ''
 }
 const userReducer = (state=initialUser,actions) => {
+  let newUser
   switch(actions.type){
     case SET_USER:
       let id = actions.userId ? actions.userId : ''
-      let newUserState = {
+      newUser = {
         ...state,
         id
       }
-      return newUserState
+      return newUser
+    case UPDATE_USER:
+      let user = actions.user
+      newUser = {
+        ...state,
+        ...user
+      }
+      return newUser
+    case CLEAR_USER:
+      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {})
+      console.log('user cleared from redux state',initialUser);
+      return initialUser
     default: return state
   }
 }

@@ -29,13 +29,6 @@ class AuthState extends Component {
     newPropsElseCount: 0
   }
 
-  // componentWillMount(){
-  //   AsyncStorage.setItem('rootKey',this.props.navigation.state.key)
-  //     .catch( (e) => {
-  //       debugging && console.log(e)
-  //     })
-  // }
-
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
       if (newProps.getUser.User) {

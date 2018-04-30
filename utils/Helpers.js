@@ -287,7 +287,7 @@ class Modals extends Component {
     )
   }
 }
-
+// ADD REDUX CLEARING ALSO, OR MOVE TO REDUX HANDLING
 const clearIdentifiers = () => {
   AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
     if (e) {
