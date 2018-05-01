@@ -60,7 +60,6 @@ export default class App extends Component {
   }
 
   appReset(){
-    console.log('was it called?');
     this.setState({localStorage:false},()=>{
       this.getAllAsyncStorage()
       // AsyncStorage.clear()
@@ -81,16 +80,14 @@ export default class App extends Component {
     let localStorage = {}
     AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, stores) => {
-       console.log('as stores',stores);
        stores.map((result, i, store) => {
          let key = store[i][0]
-         let value = store[i][1]
-         localStorage[`${key}`] = typeof value === 'string' ? value : JSON.parse(value)
+         let value = JSON.parse(store[i][1])
+         localStorage[`${key}`] = value
         })
       }).then(()=>{
         this.setState({
           ...localStorage,
-          // appReset: this.appReset,
           localStorage: true
         })
       })
@@ -110,7 +107,6 @@ export default class App extends Component {
       )
     } else {
       if (this.state.localStorage) {
-        console.log(this.state);
         let gcToken,fbkToken
         if (this.state.tokens) {
           gcToken = this.state.tokens.gc ? this.state.tokens.gc : ''
@@ -120,7 +116,7 @@ export default class App extends Component {
         if (this.state.user && this.state.user.hasOwnProperty('id')) {
           store.dispatch(setAuthUser(this.state.user.id))
         }
-        let client = getClient(gcToken)
+        let client = getClient(gcToken,store)
         store.dispatch(setNetworkClient(client))
         return (
           <ApolloProvider client={client} store={store}>

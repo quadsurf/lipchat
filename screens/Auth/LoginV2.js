@@ -208,7 +208,7 @@ class Login extends Component {
   }
 
   async logIn() {
-    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+    const { type, token:fbkToken } = await Expo.Facebook.logInWithReadPermissionsAsync(
       FBK_APP_ID,
       {
         permissions: ['public_profile','email','user_friends'],
@@ -217,10 +217,10 @@ class Login extends Component {
     )
     if (type === 'success') {
       this.showModal('processing')
-      const res = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,first_name,last_name,age_range,gender,picture,verified,email,friends&access_token=${token}`)
+      const res = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,first_name,last_name,age_range,gender,picture,verified,email,friends&access_token=${fbkToken}`)
       let fbkUser = await res.json()
       if (fbkUser) {
-        this.getOrCreateUser(fbkUser,token)
+        this.getOrCreateUser(fbkUser,fbkToken)
       } else {
         this.showModal('error','Intro',"We couldn't retrieve or save your Facebook details.")
       }
@@ -229,7 +229,7 @@ class Login extends Component {
     }
   }
 
-  getOrCreateUser(facebookUser,token){
+  getOrCreateUser(facebookUser,fbkToken){
     let errText = "getting or creating an account for you in the Database"
     let fbkUser = JSON.stringify(facebookUser)
     if (fbkUser) {
@@ -242,7 +242,7 @@ class Login extends Component {
           let gc = res.token.gctoken
           let id = res.token.user.id
           AsyncStorage.multiSet([
-            ['tokens',JSON.stringify({gc,fbk:token})],
+            ['tokens',JSON.stringify({gc,fbk:fbkToken})],
             ['user',JSON.stringify({id})]
           ],(e)=>{
             if (e) {

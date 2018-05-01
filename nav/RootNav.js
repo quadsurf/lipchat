@@ -65,8 +65,9 @@ export default class RootNav extends Component {
   componentDidMount(){
     // console.log('localStorage on RootNav',this.props.localStorage);
   }
-   // screenProps={this.props.localStorage}
+
   render() {
     return <RootStack/>
+    // screenProps={this.props.localStorage}
   }
 }

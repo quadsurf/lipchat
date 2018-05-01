@@ -9,7 +9,7 @@ import { PROJECT_ID } from 'react-native-dotenv'
 import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws'
 import { ApolloClient,createNetworkInterface } from 'react-apollo'
 
-const getClient = (token) => {
+const getClient = (token,store) => {
 
   let authToken = token ? `Bearer ${token}` : null
 
@@ -38,16 +38,24 @@ const getClient = (token) => {
       if (!req.options.headers) {
         req.options.headers = {}
       }
-      AsyncStorage.getItem('gcToken').then(
-        gcToken => {
-          req.options.headers['authorization'] = gcToken ? `Bearer ${gcToken}` : null
-          next()
-        },
-        failure => {
-          Alert.alert('ERROR: ', failure.message)
-          next()
-        }
-      )
+      let gcToken = store.getState().tokens.gc
+      req.options.headers['authorization'] = gcToken ? `Bearer ${gcToken}` : null
+      next()
+      // AsyncStorage.getItem('tokens').then((res,err)=>{
+      //   if (err) {
+      //     Alert.alert('Oops!','There was a problem authenticating your login attempt.')
+      //     next()
+      //   }
+      //   if (res) {
+      //     let tokens = JSON.parse(res)
+      //     let { gc } = tokens
+      //     req.options.headers['authorization'] = gc ? `Bearer ${gc}` : null
+      //     next()
+      //   } else {
+      //     req.options.headers['authorization'] = null
+      //     next()
+      //   }
+      // })
     }
   }])
 
@@ -63,3 +71,11 @@ const getClient = (token) => {
 export default getClient
 // "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTAxMjQ2NDYsImlhdCI6MTUwNzUzMjY0NiwicHJvamVjdElkIjoiY2o1YXllNzN2Z3ZnYjAxMzNnOW41N2V0biIsInVzZXJJZCI6ImNqNnZwenp4bGl6NXgwMTgzNGFhZ2M2aWUiLCJtb2RlbE5hbWUiOiJVc2VyIn0.qOQKJClCbGejKTqdrBGSWAHUSIeP1fDbHKXaUOKT_Kk"
 // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDY1ODAzNDUsImlhdCI6MTUwMzk4ODM0NSwicHJvamVjdElkIjoiY2o1YXllNzN2Z3ZnYjAxMzNnOW41N2V0biIsInVzZXJJZCI6ImNqNnZwenp4bGl6NXgwMTgzNGFhZ2M2aWUiLCJtb2RlbE5hbWUiOiJVc2VyIn0.wYs8Ww-olrX3Y0CoRlYr0DBk-DeSSpV3Aypjs2_88Ls
+// gcToken => {
+//   req.options.headers['authorization'] = gcToken ? `Bearer ${gcToken}` : null
+//   next()
+// },
+// failure => {
+//   Alert.alert('ERROR: ', failure.message)
+//   next()
+// }

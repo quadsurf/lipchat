@@ -38,6 +38,8 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
+
+// STORE
 import { clearUser } from '../../store/actions'
 
 // COMPONENTS
@@ -964,33 +966,21 @@ class You extends Component {
     }
   }
 
-  async logOut(){
-    try {
-      this.showModal('processing')
-      this.props.clearUser().then(()=>{
-        console.log('worked as a cb promise?');
-      })
-      AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
-        if (e) {
-          //
-        } else {
-          setTimeout(()=>{
-            this.setState({ isModalOpen:false },()=>{
-              const resetAction = NavigationActions.reset({
-                index: 0,
-                actions: [
-                  NavigationActions.navigate({ routeName: 'AppStackIndex'})
-                ]
-              })
-              this.props.nav.dispatch(resetAction)
-              // this.props.nav.navigate('LoggedOut')
-            })
-          },2000)
-        }
-      })
-    } catch(e) {
-      this.showModal('err','Profile','logging you out')
-    }
+  logOut(){
+    // this.showModal('processing')
+    this.props.clearUser()
+    const resetAction = NavigationActions.reset({
+      index: 0,
+      actions: [
+        NavigationActions.navigate({ routeName: 'AppStackIndex'})
+      ]
+    })
+    this.props.nav.dispatch(resetAction)
+    // setTimeout(()=>{
+    //   this.setState({ isModalOpen:false },()=>{
+    // 
+    //   })
+    // },2000)
   }
 
 }

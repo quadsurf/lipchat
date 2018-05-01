@@ -48,8 +48,7 @@ const userReducer = (state=initialUser,actions) => {
       }
       return newUser
     case CLEAR_USER:
-      AsyncStorage.multiRemove(['tokens','user','rootKey'], (e) => {
-        console.log('user cleared from redux state',initialUser);
+      AsyncStorage.multiRemove(['tokens','user'], (e) => {
         return initialUser
       })
     default: return state

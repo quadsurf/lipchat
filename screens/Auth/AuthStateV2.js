@@ -18,7 +18,7 @@ import { updateUser,clearUser } from '../../store/actions'
 import { GetUser } from '../../api/db/queries'
 
 //CONSTs
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 
 class AuthState extends Component {
 
@@ -29,7 +29,7 @@ class AuthState extends Component {
     }
     this.determineAuthStatus = debounce(this.determineAuthStatus,750,true)
   }
-
+  
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
       if (newProps.getUser.User) {
@@ -43,6 +43,7 @@ class AuthState extends Component {
         }
       } else if (newProps.getUser.error) {
         debugging && console.log('loggedout8')
+        console.log(newProps.getUser.error);
         this.determineAuthStatus()
       } else {
         debugging && console.log('loggedout9')
@@ -106,9 +107,10 @@ class AuthState extends Component {
       user: this.state.user || {},
       // localStorage: this.props.screenProps.localStorage
     }
-    setTimeout(()=>{
-      this.props.navigation.navigate(screen,passProps)
-    },2000)
+    this.props.navigation.navigate(screen,passProps)
+    // setTimeout(()=>{
+    // 
+    // },2000)
   }
 
   render() {
