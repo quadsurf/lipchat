@@ -3,8 +3,12 @@
 import { AsyncStorage } from 'react-native'
 
 import {
-  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,SET_APPRESET,CALL_APPRESET,
-  UPDATE_USER,CLEAR_USER
+  SET_TOKENS,CLEAR_TOKENS,
+  SET_USER,UPDATE_USER,CLEAR_USER,
+  SET_SETTINGS,
+  SET_ROOTKEY,
+  SET_NETWORKCLIENT,
+  SET_APPRESET,CALL_APPRESET
 } from './types'
 
 
@@ -22,6 +26,8 @@ const tokensReducer = (state=initialTokens,actions) => {
         fbk
       }
       return newTokensState
+    case CLEAR_TOKENS:
+      return initialTokens
     default: return state
   }
 }
@@ -48,9 +54,7 @@ const userReducer = (state=initialUser,actions) => {
       }
       return newUser
     case CLEAR_USER:
-      AsyncStorage.multiRemove(['tokens','user'], (e) => {
-        return initialUser
-      })
+      return initialUser
     default: return state
   }
 }

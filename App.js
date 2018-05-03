@@ -22,7 +22,11 @@ import { Colors,Views } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
-import { setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient,setAppReset } from './store/actions'
+import {
+  setTokens,clearTokens,
+  setAuthUser,clearUser,
+  setSettings,setRootKey,setNetworkClient,setAppReset
+} from './store/actions'
 
 // CONSTs
 const debugging = __DEV__ && false
@@ -60,34 +64,39 @@ export default class App extends Component {
   }
 
   appReset(){
-    this.setState({localStorage:false},()=>{
+    this.setState({
+      localStorage: false,
+      tokens: null,
+      user: null
+    },()=>{
       this.getAllAsyncStorage()
-      // AsyncStorage.clear()
     })
   }
 
   componentWillMount(){
     this.loadAssetsAsync()
-    this.appReset()
+    this.getAllAsyncStorage()
+    // AsyncStorage.clear()
+  }
+  
+  componentDidMount(){
     store.dispatch(setAppReset(this.appReset.bind(this)))
   }
   
-  // componentDidMount(){
-  //   console.log('store',store.getState());
-  // }
-
   getAllAsyncStorage(){
-    let localStorage = {}
+    let asyncStorage = {}
     AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, stores) => {
        stores.map((result, i, store) => {
          let key = store[i][0]
          let value = JSON.parse(store[i][1])
-         localStorage[`${key}`] = value
+         asyncStorage[`${key}`] = value
         })
       }).then(()=>{
+        store.dispatch(clearUser())
+        store.dispatch(clearTokens())
         this.setState({
-          ...localStorage,
+          ...asyncStorage,
           localStorage: true
         })
       })
@@ -107,7 +116,8 @@ export default class App extends Component {
       )
     } else {
       if (this.state.localStorage) {
-        let gcToken,fbkToken
+        let gcToken = ''
+        let fbkToken
         if (this.state.tokens) {
           gcToken = this.state.tokens.gc ? this.state.tokens.gc : ''
           fbkToken = this.state.tokens.fbk ? this.state.tokens.fbk : ''
@@ -147,7 +157,7 @@ export default class App extends Component {
         Font.loadAsync(this.fontsToPreLoad),
       ])
     } catch (e) {
-      if (debugging) console.log(e.message)
+      debugging && console.log(e.message)
     } finally {
       setTimeout(()=>{
         this.setState({ assetsAreLoaded: true })

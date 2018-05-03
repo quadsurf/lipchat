@@ -6,7 +6,7 @@ import { PROJECT_ID } from 'react-native-dotenv'
 const AppName = 'Appy'
 const appStoreBuild = Expo.Constants.manifest.version
 const jsOTA = 'a'
-const version = `${appStoreBuild}-${jsOTA}`
+const version = `${appStoreBuild}${jsOTA}`
 const method = 'post'
 const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'

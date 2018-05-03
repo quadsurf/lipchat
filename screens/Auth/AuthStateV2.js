@@ -12,13 +12,13 @@ import { debounce } from 'underscore'
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
 import { AppName } from '../../config/Defaults'
-import { updateUser,clearUser } from '../../store/actions'
+import { updateUser } from '../../store/actions'
 
 //GQL
 import { GetUser } from '../../api/db/queries'
 
 //CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 
 class AuthState extends Component {
 
@@ -65,7 +65,6 @@ class AuthState extends Component {
                 debugging && console.log('LoggedIn Redirect')
                 this.goTo('LoggedIn')
               } else {
-                this.props.clearUser()
                 debugging && console.log('loggedout1')
                 this.goTo('LoggedOut')
               }
@@ -77,7 +76,6 @@ class AuthState extends Component {
               this.goTo('LoggedOut')
             }
           } else {
-            this.props.clearUser()
             debugging && console.log('loggedout4')
             this.goTo('LoggedOut')
           }
@@ -91,7 +89,6 @@ class AuthState extends Component {
       }
     } else {
       debugging && console.log('loggedout7')
-      this.props.clearUser()
       this.goTo('LoggedOut')
     }
   }
@@ -144,4 +141,4 @@ const mapStateToProps = state => ({
   fbkToken: state.tokens.fbk
 })
 
-export default connect(mapStateToProps,{updateUser,clearUser})(AuthStateWithData)
+export default connect(mapStateToProps,{ updateUser })(AuthStateWithData)

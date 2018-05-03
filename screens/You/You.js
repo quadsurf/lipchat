@@ -40,7 +40,7 @@ import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
 
 // STORE
-import { clearUser } from '../../store/actions'
+import { resetApp } from '../../store/actions'
 
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../Common'
@@ -967,15 +967,22 @@ class You extends Component {
   }
 
   logOut(){
-    // this.showModal('processing')
-    this.props.clearUser()
-    const resetAction = NavigationActions.reset({
-      index: 0,
-      actions: [
-        NavigationActions.navigate({ routeName: 'AppStackIndex'})
-      ]
+    this.showModal('processing')
+    AsyncStorage.multiRemove(['tokens','user'], (e) => {
+      setTimeout(()=>{
+        this.setState({ isModalOpen:false },()=>{
+          this.props.resetApp()
+        })
+      },2000)
     })
-    this.props.nav.dispatch(resetAction)
+    // this.props.clearUser()
+    // const resetAction = NavigationActions.reset({
+    //   index: 0,
+    //   actions: [
+    //     NavigationActions.navigate({ routeName: 'AppStackIndex'})
+    //   ]
+    // })
+    // this.props.nav.dispatch(resetAction)
     // setTimeout(()=>{
     //   this.setState({ isModalOpen:false },()=>{
     // 
@@ -1032,7 +1039,7 @@ const YouWithData = compose(
 
 const mapStateToProps = state => ({ gcToken:state.tokens.gc })
 
-export default connect(mapStateToProps,{clearUser})(YouWithData)
+export default connect(mapStateToProps,{resetApp})(YouWithData)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 //ERROR HANDLING NEEDED FOR:

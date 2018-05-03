@@ -1,13 +1,21 @@
 
 
 import {
-  SET_TOKENS,SET_USER,SET_SETTINGS,SET_ROOTKEY,SET_NETWORKCLIENT,SET_APPRESET,CALL_APPRESET,
-  UPDATE_USER,CLEAR_USER
+  SET_TOKENS,CLEAR_TOKENS,
+  SET_USER,UPDATE_USER,CLEAR_USER,
+  SET_SETTINGS,
+  SET_ROOTKEY,
+  SET_NETWORKCLIENT,
+  SET_APPRESET,CALL_APPRESET
 } from './types'
 
 const setTokens = ({gcToken:gc,fbkToken:fbk}) => ({
   type: SET_TOKENS,
   tokens: { gc,fbk }
+})
+
+const clearTokens = () => ({
+  type: CLEAR_TOKENS
 })
 
 const setAuthUser = userId => ({
@@ -47,5 +55,10 @@ const setAppReset = func => ({
 const resetApp = () => ({ type: CALL_APPRESET })
 
 export {
-  setTokens,setAuthUser,setSettings,setRootKey,setNetworkClient,updateUser,clearUser,setAppReset,resetApp
+  setTokens,clearTokens,
+  setAuthUser,updateUser,clearUser,
+  setSettings,
+  setRootKey,
+  setNetworkClient,
+  setAppReset,resetApp
 }
