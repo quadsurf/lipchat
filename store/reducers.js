@@ -52,6 +52,7 @@ const userReducer = (state=initialUser,actions) => {
         ...state,
         ...user
       }
+      // console.log('newUser on redux',newUser);
       return newUser
     case CLEAR_USER:
       return initialUser

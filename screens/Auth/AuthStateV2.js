@@ -104,10 +104,9 @@ class AuthState extends Component {
       user: this.state.user || {},
       // localStorage: this.props.screenProps.localStorage
     }
-    this.props.navigation.navigate(screen,passProps)
-    // setTimeout(()=>{
-    // 
-    // },2000)
+    setTimeout(()=>{
+      this.props.navigation.navigate(screen,passProps)
+    },2000)
   }
 
   render() {
