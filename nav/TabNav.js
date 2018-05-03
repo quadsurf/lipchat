@@ -5,11 +5,12 @@ import { Animated, View, Text, StyleSheet } from 'react-native'
 import { Constants,Permissions,Notifications } from 'expo'
 
 //LIBS
+import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
-import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
@@ -36,7 +37,7 @@ import { FontPoiret } from '../assets/fonts/Fonts'
 import styles from './Styles'
 
 //CONSTs
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 
 type Route = {
   key: string,
@@ -55,13 +56,16 @@ class TabNav extends PureComponent<void, *, State> {
       { key: '1', title: 'CHAT', icon: 'chat' },
       { key: '2', title: 'SELFIE', icon: 'camera' },
       { key: '3', 
-        title: this.props.navigation.state.params.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY', 
+        title: this.props.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY',
+        // title: this.props.navigation.state.params.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY',
         icon: 'ios-color-palette' },
       { key: '4', title: 'YOU', icon: 'account' }
     ],
     loaded: false,
-    userType: this.props.navigation.state.params.user.type,
-    distributorStatus: this.props.navigation.state.params.user.distributorx.status,
+    userType: this.props.user.type,
+    distributorStatus: this.props.user.distributorx.status,
+    // userType: this.props.navigation.state.params.user.type,
+    // distributorStatus: this.props.navigation.state.params.user.distributorx.status,
     notificationsHasShopper: false,
     user2AdminDmExists: false,
     adminChats: [],
@@ -84,26 +88,33 @@ class TabNav extends PureComponent<void, *, State> {
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubToUserType,
-      variables: {UserId:this.props.navigation.state.params.user.id}
+      variables: {
+        UserId: this.props.user.id,
+        // UserId: this.props.navigation.state.params.user.id
+      }
     })
   }
 
   subToDistributorStatus(){
     this.props.getDistributorStatus.subscribeToMore({
       document: SubToDistributorStatus,
-      variables: {DistributorId:this.props.navigation.state.params.user.distributorx.id}
+      variables: {
+        DistributorId: this.props.user.distributorx.id,
+        // DistributorId: this.props.navigation.state.params.user.distributorx.id
+      }
     })
   }
 
   subToAllDistributorsStatusForShopper(){
-    if (
-      this.props.navigation.state.params.user 
-      && this.props.navigation.state.params.user.shopperx 
-      && this.props.navigation.state.params.user.shopperx.id
-    ) {
+    if (this.props.user.shopperx.id) {
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
         document: SubToDistributorsForShopper,
-        variables: {ShopperId:{"id":this.props.navigation.state.params.user.shopperx.id}},
+        variables: {
+          ShopperId: {
+            "id": this.props.user.shopperx.id,
+            // "id": this.props.navigation.state.params.user.shopperx.id
+          }
+        },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
           if (mutation === 'UPDATED') {
@@ -146,7 +157,8 @@ class TabNav extends PureComponent<void, *, State> {
     ) {
       if (newProps.getAdminChats.allChats !== this.state.adminChats) {
         this.setState({adminChats:newProps.getAdminChats.allChats},()=>{
-          let shopperId = this.props.navigation.state.params.user.shopperx.id
+          let shopperId = this.props.user.shopperx.id
+          // let shopperId = this.props.navigation.state.params.user.shopperx.id
           let groupChat = this.state.adminChats.find( chat => {
             return chat.type === 'SADVR2ALL'
           })
@@ -309,7 +321,7 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderScene = ({ route,focused }) => {
-    let { user } = this.props.navigation.state.params
+    let { user } = this.props
     let { navigation } = this.props
     let { userType,distributorStatus,sadvrId,shoppersDistributor } = this.state
     switch (route.key) {
@@ -430,8 +442,9 @@ class TabNav extends PureComponent<void, *, State> {
   updatePushTokenInDb(token){
     this.props.updatePushToken({
       variables: {
-        userId: this.props.navigation.state.params.user.id,
-        token
+        userId: this.props.user.id,
+        token,
+        // userId: this.props.navigation.state.params.user.id,
       }
     }).then(()=>{
       token && this.createNotificationSubscription()
@@ -450,12 +463,17 @@ class TabNav extends PureComponent<void, *, State> {
 
 }
 
+TabNav.propTypes = {
+  user: PropTypes.object.isRequired
+}
+
 const TabNavWithData = compose(
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
       variables: {
-        UserId: props.navigation.state.params.user.id
+        UserId: props.user.id,
+        // UserId: props.navigation.state.params.user.id
       },
       fetchPolicy: 'network-only'
     })
@@ -464,7 +482,8 @@ const TabNavWithData = compose(
     name: 'getDistributorStatus',
     options: props => ({
       variables: {
-        DistributorId: props.navigation.state.params.user.distributorx.id
+        DistributorId: props.user.distributorx.id,
+        // DistributorId: props.navigation.state.params.user.distributorx.id
       },
       fetchPolicy: 'network-only'
     })
@@ -473,7 +492,8 @@ const TabNavWithData = compose(
     name: 'getAdminChats',
     options: props => ({
       variables: {
-        shopperId: {"id": props.navigation.state.params.user.shopperx.id}
+        shopperId: { "id": props.user.shopperx.id },
+        // shopperId: { "id": props.navigation.state.params.user.shopperx.id }
       },
       fetchPolicy: 'network-only'
     })
@@ -489,7 +509,8 @@ const TabNavWithData = compose(
     options: props => ({
       variables: {
         ShopperId: {
-          id: props.navigation.state.params.user.shopperx.id
+          id: props.user.shopperx.id,
+          // id: props.navigation.state.params.user.shopperx.id
         }
       },
       fetchPolicy: 'network-only'
@@ -500,7 +521,11 @@ const TabNavWithData = compose(
   })
 )(TabNav)
 
-const mapStateToProps = state => ({ unreadCount:state.unreadCount,chats:state.chats })
+const mapStateToProps = state => ({
+  user: state.user,
+  unreadCount: state.unreadCount,
+  chats: state.chats
+})
 
 export default connect(mapStateToProps)(TabNavWithData)
 
