@@ -1,5 +1,10 @@
 
 
+// TESTS
+// checkIfShopperHasDmChatWithDistributorInDb then remove // from Likes 171
+// check if shopperId still works
+// check if userId still works
+
 import React, { Component } from 'react'
 import {
   View,
@@ -13,6 +18,7 @@ import { CreateChatMessage,TriggerEventOnChat } from '../../api/db/mutations'
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-apollo'
 import { Ionicons } from '@expo/vector-icons'
 import { withNavigation } from 'react-navigation'
 import axios from 'axios'
@@ -55,7 +61,9 @@ class Claims extends Component {
        && newProps.getShoppersDistributor.Shopper
        && newProps.getShoppersDistributor.Shopper.distributorsx
     ) {
-      let { shopperId,sadvrId } = this.props.navigation.state.params
+      let { sadvrId } = this.props.navigation.state.params
+      let { shopperId } = this.props
+      console.log('is shopperId still being received???');
       if (newProps.getShoppersDistributor.Shopper.distributorsx.length > 0) {
         let { status,id } = newProps.getShoppersDistributor.Shopper.distributorsx[0]
         // DIST EXISTS
@@ -75,7 +83,7 @@ class Claims extends Component {
   
   checkIfShopperHasDmChatWithDistributorInDb(shopperId,distributorId,withDist){
     if (shopperId && distributorId) {
-      let headers = { Authorization: `Bearer ${this.props.navigation.state.params.gcToken}` }
+      let headers = { Authorization: `Bearer ${this.props.gcToken}` }
       axios({
         headers,method,url,
         data: {
@@ -88,6 +96,7 @@ class Claims extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.allChats) {
+          console.log('checkIfShopperHasDmChatWithDistributorInDb still works after gcToken source change');
           if (res.data.data.allChats.length > 0) {
             let dist = res.data.data.allChats[0]
             let { id } = dist
@@ -96,7 +105,8 @@ class Claims extends Component {
             this.saveNewClaimMessage(id,bizName,fbkFirstName,fbkLastName)
           }
         } else {
-          if (debugging) console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request')
+          console.log('checkIfShopperHasDmChatWithDistributorInDb no longer works after gcToken source change');
+          debugging && console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request')
         }
       }).catch( e => {
         if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message)
@@ -142,10 +152,11 @@ class Claims extends Component {
   }
   
   saveNewClaimMessage(chatId,bizName,fbkFirstName,fbkLastName){
+    console.log('is userId prop still working?',this.props.user.id);
     this.setState({
       newClaimMessage: {
         chatId,
-        writer: this.props.navigation.state.params.userId,
+        writer: this.props.userId,
         audience: 'ANY'
       },
       bizName,fbkFirstName,fbkLastName
@@ -304,12 +315,12 @@ class Claims extends Component {
   
 }
 
-export default compose(
+const ClaimsWithData = compose(
   graphql(GetShoppersDistributor,{
     name: 'getShoppersDistributor',
     options: props => ({
       variables: {
-        shopperId: props.navigation.state.params.shopperId
+        shopperId: props.shopperId
       },
       fetchPolicy: 'network-only'
     })
@@ -321,3 +332,11 @@ export default compose(
     name: 'triggerEventOnChat'
   })
 )(Claims)
+
+const mapStateToProps = state => ({
+  userId: state.user.id,
+  shopperId: state.user.shopperx.id,
+  gcToken: state.tokens.gc
+})
+
+export default connect(mapStateToProps)(ClaimsWithData)

@@ -171,9 +171,9 @@ class Likes extends Component {
   onPressClaim(like){
     this.props.nav.navigate('Claims',{
       like,
-      shopperId:this.props.user.shopperx.id,
-      gcToken:this.props.gcToken,
-      userId: this.props.user.id,
+      // shopperId:this.props.user.shopperx.id,
+      // gcToken:this.props.gcToken,
+      // userId: this.props.user.id,
       sadvrId: this.props.sadvrId
     })
   }
