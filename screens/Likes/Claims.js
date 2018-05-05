@@ -1,9 +1,7 @@
 
 
 // TESTS
-// checkIfShopperHasDmChatWithDistributorInDb then remove // from Likes 171
-// check if shopperId still works
-// check if userId still works
+
 
 import React, { Component } from 'react'
 import {
@@ -18,23 +16,22 @@ import { CreateChatMessage,TriggerEventOnChat } from '../../api/db/mutations'
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
-import { connect } from 'react-apollo'
+import { connect } from 'react-redux'
 import { Ionicons } from '@expo/vector-icons'
 import { withNavigation } from 'react-navigation'
 import axios from 'axios'
 import { NavigationActions } from 'react-navigation'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 //LOCALS
 import { Views,Colors } from '../../css/Styles'
 import { FontMatilde,FontPoiret } from '../../assets/fonts/Fonts'
-import { getDimensions } from '../../utils/Helpers'
 import { AppName,method,url,newClaimText,newClaimText2 } from '../../config/Defaults'
 import { Modals } from '../../utils/Helpers'
 
 //CONSTs
 const debugging = __DEV__ && false
-const { width,height } = getDimensions()
 
 @withNavigation
 class Claims extends Component {
@@ -61,9 +58,7 @@ class Claims extends Component {
        && newProps.getShoppersDistributor.Shopper
        && newProps.getShoppersDistributor.Shopper.distributorsx
     ) {
-      let { sadvrId } = this.props.navigation.state.params
-      let { shopperId } = this.props
-      console.log('is shopperId still being received???');
+      let { shopperId,sadvrId } = this.props
       if (newProps.getShoppersDistributor.Shopper.distributorsx.length > 0) {
         let { status,id } = newProps.getShoppersDistributor.Shopper.distributorsx[0]
         // DIST EXISTS
@@ -96,7 +91,6 @@ class Claims extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.allChats) {
-          console.log('checkIfShopperHasDmChatWithDistributorInDb still works after gcToken source change');
           if (res.data.data.allChats.length > 0) {
             let dist = res.data.data.allChats[0]
             let { id } = dist
@@ -105,14 +99,13 @@ class Claims extends Component {
             this.saveNewClaimMessage(id,bizName,fbkFirstName,fbkLastName)
           }
         } else {
-          console.log('checkIfShopperHasDmChatWithDistributorInDb no longer works after gcToken source change');
           debugging && console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request')
         }
       }).catch( e => {
-        if (debugging) console.log('failed to check if shopper has DM chat with Distributor',e.message)
+        debugging && console.log('failed to check if shopper has DM chat with Distributor',e.message)
       })
     } else {
-      if (debugging) console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query')
+      debugging && console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query')
     }
     this.setState({isVerified:withDist})
   }
@@ -152,7 +145,6 @@ class Claims extends Component {
   }
   
   saveNewClaimMessage(chatId,bizName,fbkFirstName,fbkLastName){
-    console.log('is userId prop still working?',this.props.user.id);
     this.setState({
       newClaimMessage: {
         chatId,
@@ -185,7 +177,7 @@ class Claims extends Component {
       setTimeout(()=>{
         this.closeNavModal()
       },700)
-      if (debugging) console.log('could not trigger event on Chat node',e.message);
+      debugging && console.log('could not trigger event on Chat node',e.message);
     })
   }
 
@@ -263,6 +255,7 @@ class Claims extends Component {
   }
   
   renderMainContent(){
+    let { width,height } = this.props
     return (
       <View style={{flex:1}}>
         <View style={{flex:1}}>
@@ -315,6 +308,15 @@ class Claims extends Component {
   
 }
 
+Claims.propTypes = {
+  userId: PropTypes.string.isRequired,
+  shopperId: PropTypes.string.isRequired,
+  gcToken: PropTypes.string.isRequired,
+  sadvrId: PropTypes.string.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired
+}
+
 const ClaimsWithData = compose(
   graphql(GetShoppersDistributor,{
     name: 'getShoppersDistributor',
@@ -336,7 +338,10 @@ const ClaimsWithData = compose(
 const mapStateToProps = state => ({
   userId: state.user.id,
   shopperId: state.user.shopperx.id,
-  gcToken: state.tokens.gc
+  gcToken: state.tokens.gc,
+  sadvrId: state.settings.sadvrId,
+  width: state.settings.screenWidth,
+  height: state.settings.screenHeight
 })
 
 export default connect(mapStateToProps)(ClaimsWithData)

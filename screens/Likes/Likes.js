@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 //LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -169,13 +170,7 @@ class Likes extends Component {
   )
   
   onPressClaim(like){
-    this.props.nav.navigate('Claims',{
-      like,
-      // shopperId:this.props.user.shopperx.id,
-      // gcToken:this.props.gcToken,
-      // userId: this.props.user.id,
-      sadvrId: this.props.sadvrId
-    })
+    this.props.nav.navigate('Claims',{like})
   }
   
   renderLikes(){
@@ -217,20 +212,27 @@ class Likes extends Component {
 
 }
 
+Likes.propTypes = {
+  shopperId: PropTypes.string.isRequired
+}
+
 const LikesWithData = compose(
   graphql(GetLikesForShopper,{
     name: 'getLikesForShopper',
     options: props => ({
       // pollInterval: 20000,
       variables: {
-        shopperId: { id: props.user.shopperx.id }
+        shopperId: { id: props.shopperId }
       }
     }),
     fetchPolicy: 'network-only'
   })
 )(Likes)
 
-const mapStateToProps = state => ({ gcToken:state.tokens.gc })
+const mapStateToProps = state => ({
+  gcToken: state.tokens.gc,
+  shopperId: state.user.shopperx.id
+})
 
 export default connect(mapStateToProps)(LikesWithData)
 // 10000048005

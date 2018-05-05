@@ -8,6 +8,7 @@ const UPDATE_USER = 'update_user'
 const CLEAR_USER = 'clear_user'
 
 const SET_SETTINGS = 'set_settings'
+const SET_SADVRID = 'set_sadvrid'
 
 const SET_ROOTKEY = 'set_rootkey'
 
@@ -22,6 +23,7 @@ export {
   UPDATE_USER,
   CLEAR_USER,
   SET_SETTINGS,
+  SET_SADVRID,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
   SET_APPRESET,

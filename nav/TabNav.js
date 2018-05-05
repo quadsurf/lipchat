@@ -24,6 +24,9 @@ import {
   AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
 } from '../api/db/mutations'
 
+// STORE
+import { setSadvrId } from '../store/actions'
+
 //SCREENS
 import Likes from '../screens/Likes/Likes'
 import Chat from '../screens/Chat/Chat'
@@ -166,7 +169,9 @@ class TabNav extends PureComponent<void, *, State> {
             return chat.type === 'DMU2ADMIN'
           })
           this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
-          this.setState({sadvrId:groupChat.distributorsx[0].id},()=>{
+          let sadvrId = groupChat.distributorsx[0].id
+          this.props.setSadvrId(sadvrId)
+          this.setState({sadvrId},()=>{
             if (!dmChat) {
               debugging && console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
               this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
@@ -336,7 +341,6 @@ class TabNav extends PureComponent<void, *, State> {
             distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
-            sadvrId={sadvrId}
           />
         )
       case '1':
@@ -527,6 +531,6 @@ const mapStateToProps = state => ({
   chats: state.chats
 })
 
-export default connect(mapStateToProps)(TabNavWithData)
+export default connect(mapStateToProps,{setSadvrId})(TabNavWithData)
 
 // updateQuery: (previous, { subscriptionData }) => {}

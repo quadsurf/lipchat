@@ -6,7 +6,8 @@ import {
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
-  SET_APPRESET,CALL_APPRESET
+  SET_APPRESET,CALL_APPRESET,
+  SET_SADVRID
 } from './types'
 
 const setTokens = ({gcToken:gc,fbkToken:fbk}) => ({
@@ -54,10 +55,15 @@ const setAppReset = func => ({
 
 const resetApp = () => ({ type: CALL_APPRESET })
 
+const setSadvrId = sadvrId => ({
+  type: SET_SADVRID,
+  sadvrId
+})
+
 export {
   setTokens,clearTokens,
   setAuthUser,updateUser,clearUser,
-  setSettings,
+  setSettings,setSadvrId,
   setRootKey,
   setNetworkClient,
   setAppReset,resetApp

@@ -8,7 +8,8 @@ import {
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
-  SET_APPRESET,CALL_APPRESET
+  SET_APPRESET,CALL_APPRESET,
+  SET_SADVRID
 } from './types'
 
 
@@ -63,16 +64,25 @@ const userReducer = (state=initialUser,actions) => {
 
 const initialSettings = {
   screenWidth: 750,
-  screenHeight: 1334
+  screenHeight: 1334,
+  sadvrId: ''
 }
 const settingsReducer = (state=initialSettings,actions) => {
+  let newSettingsState
   switch(actions.type){
     case SET_SETTINGS:
       let { width:screenWidth=750,height:screenHeight=1334 } = actions.screen
-      let newSettingsState = {
+      newSettingsState = {
         ...state,
         screenWidth,
         screenHeight
+      }
+      return newSettingsState
+    case SET_SADVRID:
+      let { sadvrId } = actions
+      newSettingsState = {
+        ...state,
+        sadvrId
       }
       return newSettingsState
     default: return state
