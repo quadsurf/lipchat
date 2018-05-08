@@ -23,6 +23,7 @@ import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
 import axios from 'axios'
+import PropTypes from 'prop-types'
 
 // GQL
 import {
@@ -31,7 +32,8 @@ import {
   UpdateDistributorBizUri,UpdateDistributorLogoUri,
   CreateGroupChatForDistributor
 } from '../../api/db/mutations'
-import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../../api/db/queries'
+import { CheckIfDistributorHasGroupChat } from '../../api/db/queries'
+// import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../../api/db/queries'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -77,19 +79,19 @@ class You extends Component {
     cellPhone: this.props.user.cellPhone,
     tempCell: '',
     name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-    userType: this.props.userType,//this.props.user.type
+    userType: this.props.user.type,
     isNumericKeyPadOpen: false,
     isUserTypeSubmitModalOpen: false,
     isCellSubmitModalOpen: false,
     cellButton: this.cellButtonDisabled,
     cellButtonBgColor: 'transparent',
     cellButtonColor: Colors.blue,
-    ShoppersDist: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0] : null,
-    ShoppersDistId: this.props.user.shopperx.distributorsx.length > 0 ? this.props.user.shopperx.distributorsx[0].distId : "",
-    DistributorDistId: null,
-    DistributorBizName: null,
-    DistributorBizUri: null,
-    DistributorLogoUri: null,
+    ShoppersDist: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0] : null,
+    ShoppersDistId: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0].distId : "",
+    DistributorDistId: this.props.distributor.distId,
+    DistributorBizName: this.props.distributor.bizName,
+    DistributorBizUri: this.props.distributor.bizUri,
+    DistributorLogoUri: this.props.distributor.logoUri,
     findDistributorQueryIsReady: false
   }
 
@@ -125,17 +127,17 @@ class You extends Component {
           this.setState({DistributorLogoUri:Distributor.logoUri})
         }
       }
-      if (
-        newProps.getUserType
-        && newProps.getUserType.User
-        && newProps.getUserType.User.type
-      ) {
-        let type = this.state.userType
-        let userType = newProps.getUserType.User.type
-        if (userType !== type) {
-          this.setState({userType})
-        }
-      }
+      // if (
+      //   newProps.getUserType
+      //   && newProps.getUserType.User
+      //   && newProps.getUserType.User.type
+      // ) {
+      //   let type = this.state.userType
+      //   let userType = newProps.getUserType.User.type
+      //   if (userType !== type) {
+      //     this.setState({userType})
+      //   }
+      // }
     }
   }
 
@@ -192,8 +194,7 @@ class You extends Component {
 
   renderMainContent(){
     let imageWidth = 280
-    // let { fbkUserId } = this.state.user
-    let { userType,user:{ fbkUserId } } = this.state
+    let { fbkUserId } = this.props.user
     let uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`
     // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
     // height: userType === 'SHOPPER' ? 860 : 860,
@@ -310,13 +311,10 @@ class You extends Component {
     } else if (
       this.state.findDistributorQueryIsReady
       && this.state.ShoppersDistId
-      && this.props.user.shopperx.id
     ) {
       return (
         <ShoppersDistCard
-          distId={this.state.ShoppersDistId}
-          gcToken={this.props.gcToken}
-          shopperId={this.props.user.shopperx.id}/>
+          distId={this.state.ShoppersDistId}/>
       )
     } else {
       return (
@@ -705,7 +703,7 @@ class You extends Component {
       }
       this.props.updateName({
         variables: {
-          userId: this.state.user.id,
+          userId: this.props.user.id,
           fbkFirstName: this.cleanString(fbkFirstName),
           fbkLastName: this.cleanString(fbkLastName)
         }
@@ -770,7 +768,7 @@ class You extends Component {
     this.setState({isUserTypeSubmitModalOpen:false},()=>{
       setTimeout(()=>{
         this.showModal('processing')
-        let { id } = this.state.user
+        let { id } = this.props.user
         let errText = 'updating your account type'
         this.props.updateUserType({
           variables: {
@@ -820,7 +818,7 @@ class You extends Component {
       data: {
         query: CheckIfDistributorHasGroupChat,
         variables: {
-          distributorsx: {id: this.state.user.distributorx.id}
+          distributorsx: {id: this.props.distributor.id}
         }
       }
     }).then( res => {
@@ -837,13 +835,11 @@ class You extends Component {
 //ERROR HANDLING NEEDED  
   createGroupChatForDistributorInDb(){
     if (
-      this.state.user && 
-      this.state.user.distributorx && 
-      this.state.user.distributorx.id
+      this.props.distributor && this.props.distributor.id
     ) {
       this.props.createGroupChatForDistributor({
         variables: {
-          distributorsx: this.state.user.distributorx.id
+          distributorsx: this.props.distributor.id
         }
       }).then( res => {
         if (res && res.data && res.data.createChat) {
@@ -859,8 +855,8 @@ class You extends Component {
 
   updateDistributorDistIdInDb(){
     let { DistributorDistId } = this.state
-    let DistributorId = this.state.user.distributorx.id
-    let { id } = this.state.user
+    let DistributorId = this.props.distributor.id
+    // let { id } = this.props.user
     let errText = 'saving your Distributor ID'
     if (DistributorId && DistributorDistId) {
       this.props.updateDistributorDistId({
@@ -884,8 +880,8 @@ class You extends Component {
 
   updateDistributorBizNameInDb(){
     let { DistributorBizName } = this.state
-    let DistributorId = this.state.user.distributorx.id
-    let { id } = this.state.user
+    let DistributorId = this.props.distributor.id
+    // let { id } = this.props.user
     let errText = 'saving your Business Name'
     if (DistributorId && DistributorBizName) {
       this.props.updateDistributorBizName({
@@ -909,8 +905,8 @@ class You extends Component {
 
   updateDistributorBizUriInDb(){
     let { DistributorBizUri } = this.state
-    let DistributorId = this.state.user.distributorx.id
-    let { id } = this.state.user
+    let DistributorId = this.props.distributor.id
+    // let { id } = this.props.user
     let errText = 'saving your Business URL'
     if (!this.isSsl(DistributorBizUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https'.")
@@ -938,8 +934,8 @@ class You extends Component {
 
   updateDistributorLogoUriInDb(){
     let { DistributorLogoUri } = this.state
-    let DistributorId = this.state.user.distributorx.id
-    let { id } = this.state.user
+    let DistributorId = this.props.distributor.id
+    // let { id } = this.props.user
     let errText = 'saving your Logo URL'
     if (!this.isValidUri(DistributorLogoUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https' and end with '.jpg' or 'png'.")
@@ -975,42 +971,25 @@ class You extends Component {
         })
       },2000)
     })
-    // this.props.clearUser()
-    // const resetAction = NavigationActions.reset({
-    //   index: 0,
-    //   actions: [
-    //     NavigationActions.navigate({ routeName: 'AppStackIndex'})
-    //   ]
-    // })
-    // this.props.nav.dispatch(resetAction)
-    // setTimeout(()=>{
-    //   this.setState({ isModalOpen:false },()=>{
-    // 
-    //   })
-    // },2000)
   }
 
 }
 
+You.propTypes = {
+  gcToken: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
+  distributor: PropTypes.object.isRequired,
+  shoppersDistributor: PropTypes.array.isRequired
+}
+
+const mapStateToProps = state => ({
+  gcToken: state.tokens.gc,
+  user: state.user,
+  distributor: state.distributor,
+  shoppersDistributor: state.shopper.distributorsx
+})
+
 const YouWithData = compose(
-  graphql(GetDistributor,{
-    name: 'getDistributor',
-    options: props => ({
-      variables: {
-        DistributorId: props.user.distributorx.id || ""
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(GetUserType,{
-    name: 'getUserType',
-    options: props => ({
-      variables: {
-        UserId: props.user.id || ""
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(UpdateCellPhone,{
     name: 'updateCellPhone'
   }),
@@ -1036,8 +1015,6 @@ const YouWithData = compose(
     name: 'createGroupChatForDistributor'
   })
 )(You)
-
-const mapStateToProps = state => ({ gcToken:state.tokens.gc })
 
 export default connect(mapStateToProps,{resetApp})(YouWithData)
 

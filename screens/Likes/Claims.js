@@ -317,6 +317,15 @@ Claims.propTypes = {
   height: PropTypes.number.isRequired
 }
 
+const mapStateToProps = state => ({
+  userId: state.user.id,
+  shopperId: state.shopper.id,
+  gcToken: state.tokens.gc,
+  sadvrId: state.settings.sadvrId,
+  width: state.settings.screenWidth,
+  height: state.settings.screenHeight
+})
+
 const ClaimsWithData = compose(
   graphql(GetShoppersDistributor,{
     name: 'getShoppersDistributor',
@@ -334,14 +343,5 @@ const ClaimsWithData = compose(
     name: 'triggerEventOnChat'
   })
 )(Claims)
-
-const mapStateToProps = state => ({
-  userId: state.user.id,
-  shopperId: state.user.shopperx.id,
-  gcToken: state.tokens.gc,
-  sadvrId: state.settings.sadvrId,
-  width: state.settings.screenWidth,
-  height: state.settings.screenHeight
-})
 
 export default connect(mapStateToProps)(ClaimsWithData)

@@ -12,6 +12,7 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 // STORE
 import { connect } from 'react-redux'
@@ -49,10 +50,8 @@ class LipColors extends Component {
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
-      user: this.props.user,
       colors: [],
       isListReady: false,
-      userType: this.props.userType,
       hasColors: false,
       redsIsOpen: false,
       orangesIsOpen: false,
@@ -86,7 +85,7 @@ class LipColors extends Component {
       this.props.getLikesForShopper.subscribeToMore({
         document: SubToLikesForShopper,
         variables: {
-          shopperId: { id: this.props.user.shopperx.id }
+          shopperId: { id: this.props.shopperId }
         },
         updateQuery: (previous,{ subscriptionData }) => {
           const { node={},mutation='' } = subscriptionData.data.Like
@@ -402,7 +401,7 @@ class LipColors extends Component {
 
   checkIfInventoryExists({inventoryId,colorId,count,family}){
     this.showModal('processing')
-    let distributorId = this.state.user.distributorx.id
+    let distributorId = this.props.distributorId
     if (inventoryId) {
       this.updateInventoryInDb(inventoryId,colorId,count,family)
     } else {
@@ -467,7 +466,7 @@ class LipColors extends Component {
   }
 
   checkIfLikeExists(color){
-    let shopperId = this.state.user.shopperx.id
+    let { shopperId } = this.props
     if (color.likeId) {
       this.updateDoesLikeOnLikeInDb(color)
     } else {
@@ -538,6 +537,22 @@ class LipColors extends Component {
 
 }
 
+LipColors.propTypes = {
+  colors: PropTypes.array.isRequired,
+  shopperId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.bool.isRequired,
+  userType: PropTypes.string.isRequired
+}
+
+const mapStateToProps = state => ({
+  colors: state.colors,
+  shopperId: state.shopper.id,
+  distributorId: state.distributor.id,
+  distributorStatus: state.distributor.status,
+  userType: state.user.type
+})
+
 const LipColorsWithData = compose(
   // inventory creator
   graphql(ConnectColorToDistributor,{
@@ -556,12 +571,10 @@ const LipColorsWithData = compose(
     name: 'getLikesForShopper',
     options: props => ({
       variables: {
-        shopperId: { id: props.user.shopperx.id }
+        shopperId: { id: props.shopperId }
       }
     })
   })
 )(LipColors)
-
-const mapStateToProps = state => ({ colors: state.colors })
 
 export default connect(mapStateToProps)(LipColorsWithData)

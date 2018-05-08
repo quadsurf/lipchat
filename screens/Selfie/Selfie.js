@@ -12,6 +12,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 // import isIPhoneX from 'react-native-is-iphonex'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 // STORE
 import { connect } from 'react-redux'
@@ -78,7 +79,7 @@ class Selfie extends Component {
       this.props.getLikesForShopper.subscribeToMore({
         document: SubToLikesForShopper,
         variables: {
-          shopperId: { id: this.props.user.shopperx.id }
+          shopperId: { id: this.props.shopperId }
         },
         updateQuery: (previous,{ subscriptionData }) => {
           const { node={},mutation='' } = subscriptionData.data.Like
@@ -733,13 +734,23 @@ class Selfie extends Component {
 
 }
 
+Selfie.propTypes = {
+  shopperId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired
+}
+
+const mapStateToProps = state => ({
+  shopperId: state.shopper.id,
+  distributorId: state.distributor.id
+})
+
 const SelfieWithData = compose(
   graphql(GetColorsAndInventories,{
     name: 'getColorsAndInventories',
     options: props => ({
       variables: {
-        distributorxId: props.user.distributorx.id,
-        shopperxId: props.user.shopperx.id
+        distributorxId: props.distributorId,
+        shopperxId: props.shopperId
       },
       fetchPolicy: 'network-only'
     })
@@ -754,10 +765,10 @@ const SelfieWithData = compose(
     name: 'getLikesForShopper',
     options: props => ({
       variables: {
-        shopperId: { id: props.user.shopperx.id }
+        shopperId: { id: props.shopperId }
       }
     })
   })
 )(Selfie)
 
-export default connect(null,{setColors})(SelfieWithData)
+export default connect(mapStateToProps,{ setColors })(SelfieWithData)

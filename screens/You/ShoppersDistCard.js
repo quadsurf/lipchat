@@ -10,11 +10,15 @@ import {
 //LIBS
 import axios from 'axios'
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
+import PropTypes from 'prop-types'
 
 // GQL
 import {
-  FindDistributor,CheckForDistributorOnShopper,CheckIfShopperHasDmChatWithDistributor
+  FindDistributor,
+  CheckForDistributorOnShopper,
+  CheckIfShopperHasDmChatWithDistributor
 } from '../../api/db/queries'
 import {
   LinkShopperToDistributor,DeLinkShopperFromDistributor,TriggerEventOnChat,
@@ -325,7 +329,17 @@ class ShoppersDistCard extends Component {
 
 }
 
-export default compose(
+ShoppersDistCard.propTypes = {
+  shopperId: PropTypes.string.isRequired,
+  gcToken: PropTypes.string.isRequired
+}
+
+const mapStateToProps = state => ({
+  shopperId: state.shopper.id,
+  gcToken: state.tokens.gc
+})
+
+const ShoppersDistCardWithData = compose(
   graphql(LinkShopperToDistributor,{
     name: 'linkShopperToDistributor'
   }),
@@ -342,3 +356,5 @@ export default compose(
     name: 'triggerEventOnChat'
   })
 )(ShoppersDistCard)
+
+export default connect(mapStateToProps)(ShoppersDistCardWithData)

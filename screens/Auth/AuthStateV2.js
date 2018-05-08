@@ -9,10 +9,12 @@ import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 
+// STORE
+import { updateUser,setShopper,setDistributor } from '../../store/actions'
+
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
 import { AppName } from '../../config/Defaults'
-import { updateUser } from '../../store/actions'
 
 //GQL
 import { GetUser } from '../../api/db/queries'
@@ -34,7 +36,12 @@ class AuthState extends Component {
     if (!newProps.getUser.loading) {
       if (newProps.getUser.User) {
         if (newProps.getUser.User !== this.state.user) {
-          this.props.updateUser(newProps.getUser.User)
+          let newUser = { ...newProps.getUser.User }
+          this.props.setShopper(newUser.shopperx)
+          this.props.setDistributor(newUser.distributorx)
+          delete newUser.distributorx
+          delete newUser.shopperx
+          this.props.updateUser(newUser)
           this.setState({
             user: newProps.getUser.User
           },()=>{
@@ -100,10 +107,6 @@ class AuthState extends Component {
   }
 
   goTo(screen){
-    let passProps = {
-      user: this.state.user || {},
-      // localStorage: this.props.screenProps.localStorage
-    }
     setTimeout(()=>{
       this.props.navigation.navigate(screen)
     },2000)
@@ -122,6 +125,12 @@ class AuthState extends Component {
 
 }
 
+const mapStateToProps = state => ({
+  user: state.user,
+  gcToken: state.tokens.gc,
+  fbkToken: state.tokens.fbk
+})
+
 const AuthStateWithData = compose(
   graphql(GetUser,{
     name: 'getUser',
@@ -134,10 +143,4 @@ const AuthStateWithData = compose(
   })
 )(AuthState)
 
-const mapStateToProps = state => ({
-  user: state.user,
-  gcToken: state.tokens.gc,
-  fbkToken: state.tokens.fbk
-})
-
-export default connect(mapStateToProps,{ updateUser })(AuthStateWithData)
+export default connect(mapStateToProps,{ updateUser,setShopper,setDistributor })(AuthStateWithData)

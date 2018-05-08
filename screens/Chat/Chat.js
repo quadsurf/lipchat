@@ -10,6 +10,7 @@ import {
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 // STORE
 import { connect } from 'react-redux'
@@ -286,16 +287,28 @@ class Chat extends Component {
 
 }
 
+Chat.propTypes = {
+  chats: PropTypes.array.isRequired,
+  shopperId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired
+}
+
+const mapStateToProps = state => ({
+  chats: state.chats,
+  shopperId: state.shopper.id,
+  distributorId: state.distributor.id
+})
+
 const ChatWithData = compose(
   graphql(GetChatsForDistributor,{
     name: 'getChatsForDistributor',
     options: props => ({
       variables: {
         DistributorId: {
-          id: props.user && props.user.distributorx && props.user.distributorx.id ? props.user.distributorx.id : ''
+          id: props.distributorId
         },
         shopperId: {
-          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
+          id: props.shopperId
         }
       },
       fetchPolicy: 'network-only'
@@ -307,15 +320,13 @@ const ChatWithData = compose(
       // pollInterval: 15000,
       variables: {
         ShopperId: {
-          id: props.user && props.user.shopperx && props.user.shopperx.id ? props.user.shopperx.id : ''
+          id: props.shopperId
         }
       },
       fetchPolicy: 'network-only'
     })
   })
 )(Chat)
-
-const mapStateToProps = state => ({ chats: state.chats })
 
 export default connect(mapStateToProps,{
   setChats,

@@ -26,6 +26,10 @@ query GetUser(
       id
       status
       level
+      distId
+      bizName
+      bizUri
+      logoUri
     }
     shopperx {
       id
@@ -291,6 +295,7 @@ query GetDistributorStatus(
   Distributor(
     id: $DistributorId
   ){
+    id
     status
     level
   }

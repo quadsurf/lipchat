@@ -44,7 +44,7 @@ class Likes extends Component {
     this.props.getLikesForShopper.subscribeToMore({
       document: SubToLikesForShopper,
       variables: {
-        shopperId: { id: this.props.user.shopperx.id }
+        shopperId: { id:this.props.shopperId }
       },
       updateQuery: (previous,{ subscriptionData }) => {
         const { node: { id,doesLike },mutation,previousValues } = subscriptionData.data.Like
@@ -113,12 +113,14 @@ class Likes extends Component {
   }
   
   componentWillReceiveProps(newProps){
-    if (
-      newProps.getLikesForShopper
-      && newProps.getLikesForShopper.allLikes
-      && this.state.likes === null
-    ) {
-      this.setState({likes:newProps.getLikesForShopper.allLikes})
+    if (newProps !== this.props) {
+      if (
+        newProps.getLikesForShopper
+        && newProps.getLikesForShopper.allLikes
+        && this.state.likes === null
+      ) {
+        this.setState({likes:newProps.getLikesForShopper.allLikes})
+      }
     }
   }
 
@@ -209,12 +211,24 @@ class Likes extends Component {
       </View>
     )
   }
+  
+  shouldComponentUpdate(nextProps,nextState){
+    if (nextProps.userType !== this.props.userType) return true
+    if (nextState.likes !== this.state.likes) return true
+    return false
+  }
 
 }
 
 Likes.propTypes = {
-  shopperId: PropTypes.string.isRequired
+  shopperId: PropTypes.string.isRequired,
+  userType: PropTypes.string.isRequired
 }
+
+const mapStateToProps = state => ({
+  shopperId: state.shopper.id,
+  userType: state.user.type
+})
 
 const LikesWithData = compose(
   graphql(GetLikesForShopper,{
@@ -228,11 +242,6 @@ const LikesWithData = compose(
     fetchPolicy: 'network-only'
   })
 )(Likes)
-
-const mapStateToProps = state => ({
-  gcToken: state.tokens.gc,
-  shopperId: state.user.shopperx.id
-})
 
 export default connect(mapStateToProps)(LikesWithData)
 // 10000048005

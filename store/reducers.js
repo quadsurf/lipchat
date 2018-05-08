@@ -1,10 +1,10 @@
 
 
-import { AsyncStorage } from 'react-native'
-
 import {
   SET_TOKENS,CLEAR_TOKENS,
   SET_USER,UPDATE_USER,CLEAR_USER,
+  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
+  SET_SHOPPER,UPDATE_SHOPPER,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -34,9 +34,7 @@ const tokensReducer = (state=initialTokens,actions) => {
 }
 
 
-const initialUser = {
-  id: ''
-}
+const initialUser = { id:'' }
 const userReducer = (state=initialUser,actions) => {
   let newUser
   switch(actions.type){
@@ -53,10 +51,66 @@ const userReducer = (state=initialUser,actions) => {
         ...state,
         ...user
       }
-      // console.log('newUser on redux',newUser);
       return newUser
     case CLEAR_USER:
       return initialUser
+    default: return state
+  }
+}
+
+
+const initialShopper = { id:'' }
+const shopperReducer = (state=initialShopper,actions) => {
+  let newShopper
+  switch(actions.type){
+    case SET_SHOPPER:
+      let { shopper } = actions
+      newShopper = {
+        ...state,
+        ...shopper
+      }
+      return newShopper
+    case UPDATE_SHOPPER:
+      let { updates } = actions
+      newShopper = {
+        ...state,
+        ...updates
+      }
+      console.log('newShopper update on redux',newShopper);
+      return newShopper
+    default: return state
+  }
+}
+
+
+const initialDistributor = {
+  id: null,
+  status: null,
+  level: null,
+  distId: null,
+  bizName: null,
+  bizUri: null,
+  logoUri: null
+}
+const distributorReducer = (state=initialDistributor,actions) => {
+  let newDistributor
+  switch(actions.type){
+    case SET_DISTRIBUTOR:
+      let { distributor } = actions
+      newDistributor = {
+        ...state,
+        ...distributor
+      }
+      console.log('newDistributor set on redux',newDistributor);
+      return newDistributor
+    case UPDATE_DISTRIBUTOR:
+      let { updates } = actions
+      newDistributor = {
+        ...state,
+        ...updates
+      }
+      console.log('newDistributor update on redux',newDistributor);
+      return newDistributor
     default: return state
   }
 }
@@ -90,9 +144,7 @@ const settingsReducer = (state=initialSettings,actions) => {
 }
 
 
-const initialNav = {
-  rootKey: ''
-}
+const initialNav = { rootKey: '' }
 const navReducer = (state=initialNav,actions) => {
   switch(actions.type){
     case SET_ROOTKEY:
@@ -138,4 +190,11 @@ const appResetFunc = (state=initialAppReset,actions) => {
 }
 
 
-export { tokensReducer,userReducer,settingsReducer,navReducer,clientReducer,appResetFunc }
+export {
+  tokensReducer,
+  userReducer,distributorReducer,shopperReducer,
+  settingsReducer,
+  navReducer,
+  clientReducer,
+  appResetFunc
+}
