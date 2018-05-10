@@ -2,6 +2,11 @@
 
 import React from 'react'
 
+// LIBS
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+
+// LOCALS
 import ChatCardLayout from './ChatCardLayout'
 import { AppName } from '../../config/Defaults'
 
@@ -171,4 +176,18 @@ const ChatCard = props => {
 
 }
 
-export default ChatCard
+ChatCard.propTypes = {
+  viewersStatus: PropTypes.bool.isRequired,
+  userType: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
+  level: PropTypes.string.isRequired
+}
+
+const mapStateToProps = state => ({
+  viewersStatus: state.distributor.status,
+  userType: state.user.type,
+  userId: state.user.id,
+  level: state.distributor.level
+})
+
+export default connect(mapStateToProps)(ChatCard)

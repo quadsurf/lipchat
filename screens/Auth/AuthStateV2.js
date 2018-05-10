@@ -21,81 +21,75 @@ import { GetUser } from '../../api/db/queries'
 
 //CONSTs
 const debugging = __DEV__ && false
+const debounceDuration = 750
 
 class AuthState extends Component {
 
   constructor(props){
     super(props)
-    this.state = {
-      user: null
-    }
-    this.determineAuthStatus = debounce(this.determineAuthStatus,750,true)
+    this.goTo = debounce(this.goTo,debounceDuration,true)
+    this.partitionUser = debounce(this.partitionUser,debounceDuration,true)
   }
   
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
-      if (newProps.getUser.User) {
-        if (newProps.getUser.User !== this.state.user) {
-          let newUser = { ...newProps.getUser.User }
-          this.props.setShopper(newUser.shopperx)
-          this.props.setDistributor(newUser.distributorx)
-          delete newUser.distributorx
-          delete newUser.shopperx
-          this.props.updateUser(newUser)
-          this.setState({
-            user: newProps.getUser.User
-          },()=>{
-            this.determineAuthStatus()
-          })
-        }
+      if (
+        newProps.getUser.User
+        && newProps.getUser.User.hasOwnProperty('id')
+      ) {
+        this.partitionUser(newProps.getUser.User)
       } else if (newProps.getUser.error) {
-        debugging && console.log('loggedout8')
-        console.log(newProps.getUser.error);
-        this.determineAuthStatus()
+        debugging && console.log('loggedout7')
+        this.goTo('LoggedOut')
       } else {
-        debugging && console.log('loggedout9')
-        this.determineAuthStatus()
+        debugging && console.log('loggedout8')
+        this.goTo('LoggedOut')
       }
     }
   }
+  
+  partitionUser(user){
+    let newUser = { ...user }
+    this.props.setShopper(newUser.shopperx)
+    this.props.setDistributor(newUser.distributorx)
+    delete newUser.distributorx
+    delete newUser.shopperx
+    this.props.updateUser(newUser)
+    this.determineAuthStatus()
+  }
 
   async determineAuthStatus(){
-    if (this.state.user) {
-      try {
-        let { fbkToken,gcToken } = this.props
-        if (fbkToken && gcToken) {
-          let tokenStatus = await this.isExpired(fbkToken)
-          if (tokenStatus) {
-            if (tokenStatus.expires_in) {
-              // > 259200
-              if (tokenStatus.expires_in > 259200) {
-                debugging && console.log('LoggedIn Redirect')
-                this.goTo('LoggedIn')
-              } else {
-                debugging && console.log('loggedout1')
-                this.goTo('LoggedOut')
-              }
-            } else if (tokenStatus.error) {
-              debugging && console.log('loggedout2')
-              this.goTo('LoggedOut')
+    try {
+      let { fbkToken,gcToken } = this.props
+      if (fbkToken && gcToken) {
+        let tokenStatus = await this.isExpired(fbkToken)
+        if (tokenStatus) {
+          if (tokenStatus.expires_in) {
+            // > 259200
+            if (tokenStatus.expires_in > 259200) {
+              debugging && console.log('LoggedIn Redirect')
+              this.goTo('LoggedIn')
             } else {
-              debugging && console.log('loggedout3')
+              debugging && console.log('loggedout1')
               this.goTo('LoggedOut')
             }
+          } else if (tokenStatus.error) {
+            debugging && console.log('loggedout2')
+            this.goTo('LoggedOut')
           } else {
-            debugging && console.log('loggedout4')
+            debugging && console.log('loggedout3')
             this.goTo('LoggedOut')
           }
         } else {
-          debugging && console.log('loggedout5')
+          debugging && console.log('loggedout4')
           this.goTo('LoggedOut')
         }
-      } catch (e) {
-        debugging && console.log('loggedout6')
+      } else {
+        debugging && console.log('loggedout5')
         this.goTo('LoggedOut')
       }
-    } else {
-      debugging && console.log('loggedout7')
+    } catch (e) {
+      debugging && console.log('loggedout6')
       this.goTo('LoggedOut')
     }
   }
@@ -126,7 +120,7 @@ class AuthState extends Component {
 }
 
 const mapStateToProps = state => ({
-  user: state.user,
+  userId: state.user.id,
   gcToken: state.tokens.gc,
   fbkToken: state.tokens.fbk
 })
@@ -134,10 +128,8 @@ const mapStateToProps = state => ({
 const AuthStateWithData = compose(
   graphql(GetUser,{
     name: 'getUser',
-    options: (props) => ({
-      variables: {
-        userId: props.user.id
-      },
+    options: ({userId}) => ({
+      variables: { userId },
       fetchPolicy: 'network-only'
     })
   })

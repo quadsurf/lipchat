@@ -35,9 +35,9 @@ class Login extends Component {
 
   state = {
     bottomMargin: 60,
-      isModalOpen: false,
-      modalType: 'processing',
-      modalContent: {}
+    isModalOpen: false,
+    modalType: 'processing',
+    modalContent: {}
   }
 
   fullScreen() {
@@ -63,7 +63,7 @@ class Login extends Component {
               this.setState({isModalOpen:true})
             })
           }
-        },600)
+        },700)
       })
     } else {
       if (modalType && title) {
@@ -283,4 +283,4 @@ const LoginWithData = compose(
   })
 )(Login)
 
-export default connect(null,{resetApp})(LoginWithData)
+export default connect(null,{ resetApp })(LoginWithData)

@@ -47,10 +47,8 @@ class Chat extends Component {
       modalType: 'processing',
       modalContent: {},
       user: this.props.user ? this.props.user : null,
-      userType: this.props.userType ? this.props.userType : null,
       chats: null,
       isFocused: true
-      // expectedChatId: null
     }
     this.updateChatsOnState = debounce(this.updateChatsOnState,750,true)
   }
@@ -253,7 +251,7 @@ class Chat extends Component {
   renderChats(){
     if (this.state.chats) {
       return this.state.chats.map( chat => {
-        return <ChatCard key={chat.id} chat={chat} userType={this.state.userType} viewersStatus={this.props.distributorStatus} userId={this.props.user.id} level={this.props.user.distributorx.level}/>
+        return <ChatCard key={chat.id} chat={chat}/>
       })
     } else {
       return (
@@ -290,13 +288,15 @@ class Chat extends Component {
 Chat.propTypes = {
   chats: PropTypes.array.isRequired,
   shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired
+  distributorId: PropTypes.string.isRequired,
+  userType: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
   chats: state.chats,
   shopperId: state.shopper.id,
-  distributorId: state.distributor.id
+  distributorId: state.distributor.id,
+  userType: state.user.type
 })
 
 const ChatWithData = compose(
@@ -319,9 +319,7 @@ const ChatWithData = compose(
     options: props => ({
       // pollInterval: 15000,
       variables: {
-        ShopperId: {
-          id: props.shopperId
-        }
+        ShopperId: { id: props.shopperId }
       },
       fetchPolicy: 'network-only'
     })

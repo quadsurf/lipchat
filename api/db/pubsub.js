@@ -13,7 +13,11 @@ subscription SubToUserType(
       node: { id: $UserId }
     }
   ){
-    node{
+    mutation
+    previousValues {
+      type
+    }
+    node {
       id
       type
     }
@@ -171,6 +175,10 @@ subscription SubToDistributorStatus(
       }
     }
   ){
+    mutation
+    previousValues {
+      status
+    }
     node {
       id
       status

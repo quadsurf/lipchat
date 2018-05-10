@@ -25,7 +25,7 @@ import {
 } from '../api/db/mutations'
 
 // STORE
-import { setSadvrId } from '../store/actions'
+import { setSadvrId,updateUser,updateDistributor } from '../store/actions'
 
 //SCREENS
 import Likes from '../screens/Likes/Likes'
@@ -65,7 +65,7 @@ class TabNav extends PureComponent<void, *, State> {
     ],
     loaded: false,
     userType: this.props.user.type,
-    distributorStatus: this.props.distributor.status,
+    // distributorStatus: this.props.distributor.status,
     notificationsHasShopper: false,
     user2AdminDmExists: false,
     adminChats: [],
@@ -90,6 +90,12 @@ class TabNav extends PureComponent<void, *, State> {
       document: SubToUserType,
       variables: {
         UserId: this.props.user.id
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
+        if (mutation === 'UPDATED') {
+          if (nextType !== prevType) this.props.updateUser({type:nextType})
+        }
       }
     })
   }
@@ -99,6 +105,16 @@ class TabNav extends PureComponent<void, *, State> {
       document: SubToDistributorStatus,
       variables: {
         DistributorId: this.props.distributor.id
+      },
+      updateQuery: (previous,{ subscriptionData }) => {
+        let {
+          mutation,
+          node:{ status:nextStatus },
+          previousValues:{ status:prevStatus }
+        } = subscriptionData.data.Distributor
+        if (mutation === 'UPDATED') {
+          if (nextStatus !== prevStatus) this.props.updateDistributor({status:nextStatus})
+        }
       }
     })
   }
@@ -108,9 +124,7 @@ class TabNav extends PureComponent<void, *, State> {
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
         document: SubToDistributorsForShopper,
         variables: {
-          ShopperId: {
-            "id": this.props.shopper.id
-          }
+          ShopperId: { "id": this.props.shopper.id }
         },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
@@ -123,30 +137,6 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   componentWillReceiveProps(newProps){
-    if (
-      newProps.getUserType
-      && newProps.getUserType.User
-      && newProps.getUserType.User.type
-    ) {
-      let exUserType = this.state.userType
-      let newUserType = newProps.getUserType.User.type
-      if (newUserType !== exUserType) {
-        this.updateUserTypeLocally(newUserType)
-        debugging && console.log('exUserType: ',exUserType);
-        debugging && console.log('newUserType: ',newUserType);
-      }
-    }
-    if (
-      newProps.getDistributorStatus
-      && newProps.getDistributorStatus.Distributor
-      && newProps.getDistributorStatus.Distributor.status
-    ) {
-      let localStatus = this.state.distributorStatus
-      let distributorStatus = newProps.getDistributorStatus.Distributor.status
-      if (distributorStatus !== localStatus) {
-        this.setState({distributorStatus})
-      }
-    }
     if (
       newProps.getAdminChats && 
       newProps.getAdminChats.allChats && 
@@ -166,11 +156,11 @@ class TabNav extends PureComponent<void, *, State> {
           this.props.setSadvrId(sadvrId)
           this.setState({sadvrId},()=>{
             if (!dmChat) {
-              debugging && console.log('theres no dmChat, therefore calling createDmChatForShopperAndDistributorInDb func');
+              debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
               this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
             } else {
               this.setState({user2AdminDmExists:true})
-              debugging && console.log('there is a dmChat obj, therefore no need to call createDmChatForShopperAndDistributorInDb func');
+              debugging && console.log('dmChat for Shopper and their distributor exists');
             }
           })
         })
@@ -313,7 +303,7 @@ class TabNav extends PureComponent<void, *, State> {
 
   renderScene = ({ route,focused }) => {
     let { navigation } = this.props
-    let { userType,distributorStatus,sadvrId,shoppersDistributor } = this.state
+    let { userType,sadvrId,shoppersDistributor } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -321,7 +311,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
@@ -333,7 +322,6 @@ class TabNav extends PureComponent<void, *, State> {
               state={this.state}
               focused={focused}
               tabRoute={route}
-              distributorStatus={distributorStatus}
               shoppersDistributor={shoppersDistributor}
               nav={navigation}
             />
@@ -354,7 +342,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
@@ -365,7 +352,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
@@ -376,7 +362,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            distributorStatus={distributorStatus}
             shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
@@ -494,9 +479,7 @@ const TabNavWithData = compose(
     name: 'getAllDistributorsStatusForShopper',
     options: props => ({
       variables: {
-        ShopperId: {
-          id: props.shopper.id
-        }
+        ShopperId: { id: props.shopper.id }
       },
       fetchPolicy: 'network-only'
     })
@@ -506,6 +489,4 @@ const TabNavWithData = compose(
   })
 )(TabNav)
 
-export default connect(mapStateToProps,{ setSadvrId })(TabNavWithData)
-
-// updateQuery: (previous, { subscriptionData }) => {}
+export default connect(mapStateToProps,{ setSadvrId,updateUser,updateDistributor })(TabNavWithData)

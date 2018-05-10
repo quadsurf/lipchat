@@ -42,7 +42,7 @@ import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
 
 // STORE
-import { resetApp } from '../../store/actions'
+import { updateUser,resetApp } from '../../store/actions'
 
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../Common'
@@ -777,7 +777,6 @@ class You extends Component {
           }
         }).then( res => {
           if (res && res.data && res.data.updateUser) {
-            // this.setState({isUserTypeSubmitModalOpen:false})
             setTimeout(()=>{
               this.setState({isModalOpen:false})
             },700)
@@ -791,10 +790,7 @@ class You extends Component {
           }
         }).catch( e => {
           setTimeout(()=>{
-            this.setState({
-              isModalOpen:false
-              // isUserTypeSubmitModalOpen:false
-            },()=>{
+            this.setState({isModalOpen:false},()=>{
               setTimeout(()=>{
                 this.openError(errText)
               },700)
@@ -1016,7 +1012,7 @@ const YouWithData = compose(
   })
 )(You)
 
-export default connect(mapStateToProps,{resetApp})(YouWithData)
+export default connect(mapStateToProps,{ updateUser,resetApp })(YouWithData)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 //ERROR HANDLING NEEDED FOR:

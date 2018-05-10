@@ -26,9 +26,9 @@ const setAuthUser = userId => ({
   userId
 })
 
-const updateUser = user => ({
+const updateUser = updates => ({
   type: UPDATE_USER,
-  user
+  updates
 })
 
 const clearUser = () => ({

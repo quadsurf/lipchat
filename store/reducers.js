@@ -34,7 +34,7 @@ const tokensReducer = (state=initialTokens,actions) => {
 }
 
 
-const initialUser = { id:'' }
+const initialUser = { id:'',type:null }
 const userReducer = (state=initialUser,actions) => {
   let newUser
   switch(actions.type){
@@ -46,10 +46,10 @@ const userReducer = (state=initialUser,actions) => {
       }
       return newUser
     case UPDATE_USER:
-      let user = actions.user
+      let { updates } = actions
       newUser = {
         ...state,
-        ...user
+        ...updates
       }
       return newUser
     case CLEAR_USER:
@@ -101,7 +101,6 @@ const distributorReducer = (state=initialDistributor,actions) => {
         ...state,
         ...distributor
       }
-      console.log('newDistributor set on redux',newDistributor);
       return newDistributor
     case UPDATE_DISTRIBUTOR:
       let { updates } = actions
