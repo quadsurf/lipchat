@@ -5,6 +5,7 @@ import {
   SET_USER,UPDATE_USER,CLEAR_USER,
   SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
   SET_SHOPPER,UPDATE_SHOPPER,
+  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -76,8 +77,33 @@ const shopperReducer = (state=initialShopper,actions) => {
         ...state,
         ...updates
       }
-      console.log('newShopper update on redux',newShopper);
       return newShopper
+    default: return state
+  }
+}
+
+
+const initialShoppersDistributors = []
+const shoppersDistributorsReducer = (state=initialShoppersDistributors,actions) => {
+  let newShoppersDistributors
+  switch(actions.type){
+    case SET_SHOPPERS_DISTRIBUTORS:
+      let { shoppersDistributors } = actions
+      newShoppersDistributors = [
+        ...shoppersDistributors
+      ]
+      return newShoppersDistributors
+    case UPDATE_SHOPPERS_DISTRIBUTOR:
+      let { updates } = actions
+      newShoppersDistributors = [...state]
+      let distIndex = newShoppersDistributors.findIndex( dist => dist.id === updates.id )
+      if (distIndex > -1) {
+        newShoppersDistributors[distIndex] = updates
+        return newShoppersDistributors
+      } else {
+        newShoppersDistributors.unshift(updates)
+        return newShoppersDistributors
+      }
     default: return state
   }
 }
@@ -143,7 +169,7 @@ const settingsReducer = (state=initialSettings,actions) => {
 }
 
 
-const initialNav = { rootKey: '' }
+const initialNav = { rootKey:'' }
 const navReducer = (state=initialNav,actions) => {
   switch(actions.type){
     case SET_ROOTKEY:
@@ -192,6 +218,7 @@ const appResetFunc = (state=initialAppReset,actions) => {
 export {
   tokensReducer,
   userReducer,distributorReducer,shopperReducer,
+  shoppersDistributorsReducer,
   settingsReducer,
   navReducer,
   clientReducer,

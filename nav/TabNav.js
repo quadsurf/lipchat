@@ -8,6 +8,7 @@ import { Constants,Permissions,Notifications } from 'expo'
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { debounce } from 'underscore'
 import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
 import type { NavigationState } from 'react-native-tab-view/types'
@@ -25,7 +26,9 @@ import {
 } from '../api/db/mutations'
 
 // STORE
-import { setSadvrId,updateUser,updateDistributor } from '../store/actions'
+import {
+  setSadvrId,updateUser,updateDistributor,updateShoppersDistributor
+} from '../store/actions'
 
 //SCREENS
 import Likes from '../screens/Likes/Likes'
@@ -40,7 +43,7 @@ import { FontPoiret } from '../assets/fonts/Fonts'
 import styles from './Styles'
 
 //CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 
 type Route = {
   key: string,
@@ -69,8 +72,8 @@ class TabNav extends PureComponent<void, *, State> {
     user2AdminDmExists: false,
     adminChats: [],
     sadvrId: null,
-    shoppersDistributor: 'updatedAt',
-    unreadCount: this.props.unreadCount
+    unreadCount: this.props.unreadCount,
+    // isMounted: false
   }
 
   componentDidMount(){
@@ -78,6 +81,11 @@ class TabNav extends PureComponent<void, *, State> {
     this.subToDistributorStatus()
     this.subToAllDistributorsStatusForShopper()
     this.registerForPushNotificationsAsync()
+  }
+  
+  constructor(props){
+    super(props)
+    this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,3000,true)
   }
   
   componentWillUnmount() {
@@ -127,9 +135,8 @@ class TabNav extends PureComponent<void, *, State> {
         },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
-          console.log('shoppersDistributors (pubsub)',subscriptionData.data.Distributor);
           if (mutation === 'UPDATED') {
-            this.setState({shoppersDistributor: `updatedAt-${new Date()}`})
+            this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
           }
         }
       })
@@ -166,12 +173,10 @@ class TabNav extends PureComponent<void, *, State> {
         })
       }
     }
-    if (
-      newProps.getAllDistributorsStatusForShopper.allDistributors
-      && newProps.getAllDistributorsStatusForShopper.allDistributors.length > 0
-    ) {
-      console.log('shoppersDistributors (query)',newProps.getAllDistributorsStatusForShopper.allDistributors[0]);
-    }
+  }
+  
+  modifyShoppersDistributor(dist) {
+    this.props.updateShoppersDistributor(dist)
   }
 
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
@@ -309,7 +314,7 @@ class TabNav extends PureComponent<void, *, State> {
 
   renderScene = ({ route,focused }) => {
     let { navigation } = this.props
-    let { userType,sadvrId,shoppersDistributor } = this.state
+    let { userType,sadvrId } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -317,7 +322,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
         )
@@ -328,7 +332,6 @@ class TabNav extends PureComponent<void, *, State> {
               state={this.state}
               focused={focused}
               tabRoute={route}
-              shoppersDistributor={shoppersDistributor}
               nav={navigation}
             />
           )
@@ -348,7 +351,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
         )
@@ -358,7 +360,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
         )
@@ -368,7 +369,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            shoppersDistributor={shoppersDistributor}
             nav={navigation}
           />
         )
@@ -495,4 +495,6 @@ const TabNavWithData = compose(
   })
 )(TabNav)
 
-export default connect(mapStateToProps,{ setSadvrId,updateUser,updateDistributor })(TabNavWithData)
+export default connect(mapStateToProps,{
+  setSadvrId,updateUser,updateDistributor,updateShoppersDistributor
+})(TabNavWithData)

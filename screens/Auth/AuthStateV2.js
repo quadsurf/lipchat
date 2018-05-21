@@ -10,7 +10,7 @@ import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 
 // STORE
-import { updateUser,setShopper,setDistributor } from '../../store/actions'
+import { updateUser,setShopper,setShoppersDistributors,setDistributor } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
@@ -27,6 +27,7 @@ class AuthState extends Component {
 
   constructor(props){
     super(props)
+    this.state = { isMounted:false }
     this.goTo = debounce(this.goTo,debounceDuration,true)
     this.partitionUser = debounce(this.partitionUser,debounceDuration,true)
   }
@@ -50,10 +51,24 @@ class AuthState extends Component {
   
   partitionUser(user){
     let newUser = { ...user }
-    this.props.setShopper(newUser.shopperx)
+    
+    let shoppersDistributors = newUser.shopperx.distributorsx
+    if (!this.state.isMounted) {
+      this.setState({isMounted:true},()=>{
+        this.props.setShoppersDistributors(shoppersDistributors)
+      })
+    }
+    
+    let shopper = {
+      __typename: 'Shopper',
+      id: newUser.shopperx.id
+    }
+    this.props.setShopper(shopper)
+    delete newUser.shopperx
+    
     this.props.setDistributor(newUser.distributorx)
     delete newUser.distributorx
-    delete newUser.shopperx
+    
     this.props.updateUser(newUser)
     this.determineAuthStatus()
   }
@@ -99,7 +114,7 @@ class AuthState extends Component {
     let res = await response.json()
     return res
   }
-
+// WARNING WHEN LOGGING IN, cannot call setState/forceUpdate on an Unmounted component
   goTo(screen){
     setTimeout(()=>{
       this.props.navigation.navigate(screen)
@@ -135,4 +150,4 @@ const AuthStateWithData = compose(
   })
 )(AuthState)
 
-export default connect(mapStateToProps,{ updateUser,setShopper,setDistributor })(AuthStateWithData)
+export default connect(mapStateToProps,{ updateUser,setShopper,setShoppersDistributors,setDistributor })(AuthStateWithData)

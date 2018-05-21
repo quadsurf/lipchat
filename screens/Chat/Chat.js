@@ -317,11 +317,11 @@ const ChatWithData = compose(
   graphql(GetChatsForShopper,{
     name: 'getChatsForShopper',
     options: props => ({
-      // pollInterval: 15000,
       variables: {
         ShopperId: { id: props.shopperId }
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      // pollInterval: 15000,
     })
   })
 )(Chat)

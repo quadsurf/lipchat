@@ -71,6 +71,7 @@ const debugging = __DEV__ && false
 
 class You extends Component {
 
+  // props mapped to component-level state below, which is an anti-pattern, needs refactoring
   state = {
     isModalOpen: false,
     modalType: 'processing',
@@ -982,7 +983,7 @@ const mapStateToProps = state => ({
   gcToken: state.tokens.gc,
   user: state.user,
   distributor: state.distributor,
-  shoppersDistributor: state.shopper.distributorsx
+  shoppersDistributor: state.shoppersDistributors
 })
 
 const YouWithData = compose(

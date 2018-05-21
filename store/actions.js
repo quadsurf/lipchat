@@ -3,8 +3,9 @@
 import {
   SET_TOKENS,CLEAR_TOKENS,
   SET_USER,UPDATE_USER,CLEAR_USER,
-  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
   SET_SHOPPER,UPDATE_SHOPPER,
+  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
+  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -42,6 +43,16 @@ const setShopper = shopper => ({
 
 const updateShopper = updates => ({
   type: UPDATE_SHOPPER,
+  updates
+})
+
+const setShoppersDistributors = shoppersDistributors => ({
+  type: SET_SHOPPERS_DISTRIBUTORS,
+  shoppersDistributors
+})
+
+const updateShoppersDistributor = updates => ({
+  type: UPDATE_SHOPPERS_DISTRIBUTOR,
   updates
 })
 
@@ -87,6 +98,7 @@ export {
   setAuthUser,updateUser,clearUser,
   setDistributor,updateDistributor,
   setShopper,updateShopper,
+  setShoppersDistributors,updateShoppersDistributor,
   setSettings,setSadvrId,
   setRootKey,
   setNetworkClient,

@@ -311,10 +311,18 @@ query(
     }
   ){
     id
-    status
     bizName
     bizUri
+    distId
     logoUri
+    status
+    level
+    userx {
+      fbkUserId
+      cellPhone
+      fbkFirstName
+      fbkLastName
+    }
   }
 }`
 

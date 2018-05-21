@@ -6,6 +6,7 @@ import thunk from 'redux-thunk'
 import {
   tokensReducer,
   userReducer,shopperReducer,distributorReducer,
+  shoppersDistributorsReducer,
   settingsReducer,
   navReducer,
   clientReducer,
@@ -25,6 +26,7 @@ export default () => {
       tokens: tokensReducer,
       user: userReducer,
       shopper: shopperReducer,
+      shoppersDistributors: shoppersDistributorsReducer,
       distributor: distributorReducer,
       settings: settingsReducer,
       nav: navReducer,
