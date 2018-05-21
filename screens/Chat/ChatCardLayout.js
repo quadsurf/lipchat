@@ -10,6 +10,7 @@ import moment from 'moment'
 import { withNavigation } from 'react-navigation'
 import { Foundation } from '@expo/vector-icons'
 import { debounce } from 'underscore'
+import PropTypes from 'prop-types'
 
 //STORE
 import { connect } from 'react-redux'
@@ -29,7 +30,8 @@ class ChatCardLayout extends Component {
   constructor(props){
     super(props)
     this.state = {
-      unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
+      unreadStatus: this.props.thisChat.hasOwnProperty('unreadStatus') ? this.props.thisChat.unreadStatus : false
+      // unreadStatus: this.props.chat.unreadStatus ? this.props.chat.unreadStatus : false
     }
     this.navToMessages = debounce(this.navToMessages,4000,true)
     // known bug occurs when switching userTypes, probably happening because this.props.chat does not yet exist
@@ -168,12 +170,16 @@ class ChatCardLayout extends Component {
   }
 }
 
+ChatCardLayout.propTypes = {
+  thisChat: PropTypes.object.isRequired
+}
+
 const mapStateToProps = (state,props) => {
   let i = state.chats.findIndex( chat => {
     return chat.id === props.chatId
   })
   return {
-    thisChat: state.chats[i]
+    thisChat: i > -1 ? state.chats[i] : {}
     // chats: state.chats
   }
 }

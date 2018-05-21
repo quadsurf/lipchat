@@ -65,7 +65,6 @@ class TabNav extends PureComponent<void, *, State> {
     ],
     loaded: false,
     userType: this.props.user.type,
-    // distributorStatus: this.props.distributor.status,
     notificationsHasShopper: false,
     user2AdminDmExists: false,
     adminChats: [],
@@ -128,6 +127,7 @@ class TabNav extends PureComponent<void, *, State> {
         },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
+          console.log('shoppersDistributors (pubsub)',subscriptionData.data.Distributor);
           if (mutation === 'UPDATED') {
             this.setState({shoppersDistributor: `updatedAt-${new Date()}`})
           }
@@ -165,6 +165,12 @@ class TabNav extends PureComponent<void, *, State> {
           })
         })
       }
+    }
+    if (
+      newProps.getAllDistributorsStatusForShopper.allDistributors
+      && newProps.getAllDistributorsStatusForShopper.allDistributors.length > 0
+    ) {
+      console.log('shoppersDistributors (query)',newProps.getAllDistributorsStatusForShopper.allDistributors[0]);
     }
   }
 
