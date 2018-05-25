@@ -23,6 +23,7 @@ import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
 import axios from 'axios'
+import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // GQL
@@ -72,39 +73,35 @@ const debugging = __DEV__ && false
 class You extends Component {
 
   // props mapped to component-level state below, which is an anti-pattern, needs refactoring
-  state = {
-    isModalOpen: false,
-    modalType: 'processing',
-    modalContent: {},
-    user: this.props.user,
-    cellPhone: this.props.user.cellPhone,
-    tempCell: '',
-    name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-    userType: this.props.user.type,
-    isNumericKeyPadOpen: false,
-    isUserTypeSubmitModalOpen: false,
-    isCellSubmitModalOpen: false,
-    cellButton: this.cellButtonDisabled,
-    cellButtonBgColor: 'transparent',
-    cellButtonColor: Colors.blue,
-    ShoppersDist: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0] : null,
-    ShoppersDistId: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0].distId : "",
-    DistributorDistId: this.props.distributor.distId,
-    DistributorBizName: this.props.distributor.bizName,
-    DistributorBizUri: this.props.distributor.bizUri,
-    DistributorLogoUri: this.props.distributor.logoUri,
-    findDistributorQueryIsReady: false
+  constructor(props){
+    super(props)
+    this.state = {
+      isModalOpen: false,
+      modalType: 'processing',
+      modalContent: {},
+      user: this.props.user,
+      cellPhone: this.props.user.cellPhone,
+      tempCell: '',
+      name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
+      userType: this.props.user.type,
+      isNumericKeyPadOpen: false,
+      isUserTypeSubmitModalOpen: false,
+      isCellSubmitModalOpen: false,
+      cellButton: this.cellButtonDisabled,
+      cellButtonBgColor: 'transparent',
+      cellButtonColor: Colors.blue,
+      // ShoppersDist: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0] : null,
+      // ShoppersDistId: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0].distId : "",
+      ShoppersDist: this.props.shoppersDistributor,
+      ShoppersDistId: this.props.shoppersDistributor.distId,
+      DistributorDistId: this.props.distributor.distId,
+      DistributorBizName: this.props.distributor.bizName,
+      DistributorBizUri: this.props.distributor.bizUri,
+      DistributorLogoUri: this.props.distributor.logoUri,
+      findDistributorQueryIsReady: false
+    }
+    this.makeFindDistributorReadyForQuery = debounce(this.makeFindDistributorReadyForQuery,1000,true)
   }
-
-  // shouldComponentUpdate(nextProps,nextState){
-  //   if (this.props !== nextProps) {
-  //     return true
-  //   }
-  //   if (this.state !== nextState) {
-  //     return true
-  //   }
-  //   return false
-  // }
 
   componentWillReceiveProps(newProps){
     if (newProps) {
@@ -128,17 +125,6 @@ class You extends Component {
           this.setState({DistributorLogoUri:Distributor.logoUri})
         }
       }
-      // if (
-      //   newProps.getUserType
-      //   && newProps.getUserType.User
-      //   && newProps.getUserType.User.type
-      // ) {
-      //   let type = this.state.userType
-      //   let userType = newProps.getUserType.User.type
-      //   if (userType !== type) {
-      //     this.setState({userType})
-      //   }
-      // }
     }
   }
 
@@ -264,67 +250,18 @@ class You extends Component {
   }
 
   renderShoppersDistCard(){
-    let size = 90
-    let width = screen.width*.8
-    let cardLeft = {width:size,height:size}
-    let cardRight = {height:size,paddingHorizontal:10,paddingVertical:5}
-    let noExist = {
-      height:size,justifyContent:'center',alignItems:'center',paddingLeft:10
-    }
-    let imgSize = {...cardLeft,borderRadius:12}
-    let cardStyle = {width,flexDirection:'row',backgroundColor:Colors.pinkly,borderRadius:12}
-    if (
-      this.state.ShoppersDist
-      && this.state.ShoppersDist.userx
-      && !this.state.findDistributorQueryIsReady
-    ) {
-      let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
-      let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
-      let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-      let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-      if (status) {
-        return (
-          <View style={cardStyle}>
-            <View style={cardLeft}>
-              <Image source={{uri}} style={imgSize}/>
-            </View>
-            <View style={cardRight}>
-              <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
-              <FontPoiret text={clipText(`${name}`,20)} size={small} color={Colors.white}/>
-              <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
-              <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
-            </View>
-          </View>
-        )
-      } else {
-        return (
-          <View style={cardStyle}>
-            <View style={cardLeft}>
-              <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
-            </View>
-            <View style={noExist}>
-              <FontPoiret text="distributor exists but" size={medium} color={Colors.white}/>
-              <FontPoiret text="hasn't been verified yet" size={medium} color={Colors.white}/>
-            </View>
-          </View>
-        )
-      }
-    } else if (
-      this.state.findDistributorQueryIsReady
-      && this.state.ShoppersDistId
-    ) {
+    if (!this.state.findDistributorQueryIsReady) {
       return (
         <ShoppersDistCard
-          distId={this.state.ShoppersDistId}/>
+          isLookUpRequest={false}
+          isSearching={false}/>
       )
     } else {
       return (
-        <View style={cardStyle}>
-          <View style={cardLeft}>
-            <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
-          </View>
-          <CardLines style={cardRight}/>
-        </View>
+        <ShoppersDistCard
+          isLookUpRequest={true}
+          isSearching={true}
+          distId={this.state.ShoppersDistId}/>
       )
     }
   }
@@ -361,20 +298,23 @@ class You extends Component {
         </View>
       )
     } else {
-      let { ShoppersDist } = this.state
+      let { shoppersDistributor } = this.props
+      let exists = shoppersDistributor && shoppersDistributor.distId ? true : false
       return (
         <View style={{width,height:240}}>
-          <View style={{...Views.middle,width}}>
-            <FontPoiret text={ShoppersDist && ShoppersDist.distId ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
-          </View>
-          <View style={[fieldRow,{marginBottom:15}]}>
-            <View style={{flex:5,justifyContent:'center',alignItems:'flex-end'}}>
-              <FontPoiret text="your distributor's id #" size={small} color={Colors.blue}/>
-            </View>
-            <View style={{flex:3,justifyContent:'center',alignItems:'flex-start',paddingLeft:10}}>{this.renderShoppersDistId()}</View>
+          <View style={{...Views.middle,width,marginBottom:15}}>
+            <FontPoiret text={exists ? 'your distributor' : 'find your distributor'} size={large} color={Colors.blue}/>
           </View>
           <View style={{height:105}}>
             {this.renderShoppersDistCard()}
+          </View>
+          <View style={[fieldRow]}>
+            <View style={{flex:5,justifyContent:'center',alignItems:'flex-end'}}>
+              <FontPoiret text={exists ? "your distributor's id #" : "enter your distributor's id #"} size={small} color={Colors.blue}/>
+            </View>
+            <View style={{flex:3,justifyContent:'center',alignItems:'flex-start',paddingLeft:10}}>
+              {this.renderShoppersDistId()}
+            </View>
           </View>
         </View>
       )
@@ -395,29 +335,30 @@ class You extends Component {
   renderShoppersDistId(){
     return (
       <TextInput
-        onFocus={() => this.setState({formerShoppersDistId:this.state.ShoppersDistId})}
+        onFocus={() => this.setState({
+          formerShoppersDistId: this.state.ShoppersDistId,
+          findDistributorQueryIsReady: false,
+          isSearching: false
+        })}
         value={this.state.ShoppersDistId}
         placeholder="add (optional)"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(ShoppersDistId) => this.setState({ShoppersDistId})}
+        onChangeText={(ShoppersDistId) => this.setState({ShoppersDistId:ShoppersDistId.trim()})}
         keyboardType="default"
         onBlur={() => this.makeFindDistributorReadyForQuery()}
         onSubmitEditing={() => this.makeFindDistributorReadyForQuery()}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={12}
-        returnKeyType="done"/>
+        returnKeyType="search"/>
     )
   }
 
   makeFindDistributorReadyForQuery(){
-    let { ShoppersDistId } = this.state
-    this.setState({ShoppersDistId:ShoppersDistId.trim()},()=>{
-      if (this.state.ShoppersDistId !== this.state.formerShoppersDistId) {
-        this.setState({findDistributorQueryIsReady:true})
-      }
-    })
+    if (this.state.ShoppersDistId !== this.state.formerShoppersDistId) {
+      this.setState({findDistributorQueryIsReady:true})
+    }
   }
 
   renderDistId(){
@@ -976,14 +917,14 @@ You.propTypes = {
   gcToken: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   distributor: PropTypes.object.isRequired,
-  shoppersDistributor: PropTypes.array.isRequired
+  shoppersDistributor: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
   gcToken: state.tokens.gc,
   user: state.user,
   distributor: state.distributor,
-  shoppersDistributor: state.shoppersDistributors
+  shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {}
 })
 
 const YouWithData = compose(
