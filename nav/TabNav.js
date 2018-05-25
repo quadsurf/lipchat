@@ -322,7 +322,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            nav={navigation}
           />
         )
       case '1':
@@ -332,7 +331,6 @@ class TabNav extends PureComponent<void, *, State> {
               state={this.state}
               focused={focused}
               tabRoute={route}
-              nav={navigation}
             />
           )
         } else {
@@ -351,7 +349,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            nav={navigation}
           />
         )
       case '3':
@@ -360,7 +357,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            nav={navigation}
           />
         )
       case '4':
@@ -369,7 +365,6 @@ class TabNav extends PureComponent<void, *, State> {
             state={this.state}
             focused={focused}
             tabRoute={route}
-            nav={navigation}
           />
         )
       default:

@@ -9,6 +9,7 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+import { withNavigation } from 'react-navigation'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -85,14 +86,14 @@ class Chat extends Component {
   }
   
   componentWillMount(){
-    this.didFocusSubscription = this.props.nav.addListener(
+    this.didFocusSubscription = this.props.navigation.addListener(
       'didFocus',
       ({ action:{ key } }) => {
         if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({isFocused:true})
         debugging && console.log('didFocus:',key)
       }
     )
-    this.didBlurSubscription = this.props.nav.addListener(
+    this.didBlurSubscription = this.props.navigation.addListener(
       'didBlur',
       ({ action:{ key } }) => {
         key !== 'StackRouterRoot' && this.setState({isFocused:false})
@@ -326,7 +327,9 @@ const ChatWithData = compose(
   })
 )(Chat)
 
+const ChatWithDataWithNavigation = withNavigation(ChatWithData)
+
 export default connect(mapStateToProps,{
   setChats,
   handleNewChat
-})(ChatWithData)
+})(ChatWithDataWithNavigation)

@@ -9,6 +9,7 @@ import {
 
 //LIBS
 import { compose,graphql } from 'react-apollo'
+import { withNavigation } from 'react-navigation'
 import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -172,7 +173,7 @@ class Likes extends Component {
   )
   
   onPressClaim(like){
-    this.props.nav.navigate('Claims',{like})
+    this.props.navigation.navigate('Claims',{like})
   }
   
   renderLikes(){
@@ -243,5 +244,7 @@ const LikesWithData = compose(
   })
 )(Likes)
 
-export default connect(mapStateToProps)(LikesWithData)
+const LikesWithDataWithNavigation = withNavigation(LikesWithData)
+
+export default connect(mapStateToProps)(LikesWithDataWithNavigation)
 // 10000048005
