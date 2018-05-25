@@ -96,15 +96,15 @@ class You extends Component {
     findDistributorQueryIsReady: false
   }
 
-  shouldComponentUpdate(nextProps,nextState){
-    if (this.props !== nextProps) {
-      return true
-    }
-    if (this.state !== nextState) {
-      return true
-    }
-    return false
-  }
+  // shouldComponentUpdate(nextProps,nextState){
+  //   if (this.props !== nextProps) {
+  //     return true
+  //   }
+  //   if (this.state !== nextState) {
+  //     return true
+  //   }
+  //   return false
+  // }
 
   componentWillReceiveProps(newProps){
     if (newProps) {

@@ -5,7 +5,7 @@ import {
   SET_USER,UPDATE_USER,CLEAR_USER,
   SET_SHOPPER,UPDATE_SHOPPER,
   SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
-  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,
+  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -56,6 +56,11 @@ const updateShoppersDistributor = updates => ({
   updates
 })
 
+const clearShoppersDistributor = id => ({
+  type: CLEAR_SHOPPERS_DISTRIBUTOR,
+  deleterId: id
+})
+
 const setDistributor = distributor => ({
   type: SET_DISTRIBUTOR,
   distributor
@@ -98,7 +103,7 @@ export {
   setAuthUser,updateUser,clearUser,
   setDistributor,updateDistributor,
   setShopper,updateShopper,
-  setShoppersDistributors,updateShoppersDistributor,
+  setShoppersDistributors,updateShoppersDistributor,clearShoppersDistributor,
   setSettings,setSadvrId,
   setRootKey,
   setNetworkClient,

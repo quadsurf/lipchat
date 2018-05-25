@@ -5,7 +5,7 @@ import {
   SET_USER,UPDATE_USER,CLEAR_USER,
   SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
   SET_SHOPPER,UPDATE_SHOPPER,
-  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,
+  SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -89,9 +89,8 @@ const shoppersDistributorsReducer = (state=initialShoppersDistributors,actions) 
   switch(actions.type){
     case SET_SHOPPERS_DISTRIBUTORS:
       let { shoppersDistributors } = actions
-      newShoppersDistributors = [
-        ...shoppersDistributors
-      ]
+      newShoppersDistributors = [...shoppersDistributors]
+      console.log('distributors set on shopper in redux',newShoppersDistributors)
       return newShoppersDistributors
     case UPDATE_SHOPPERS_DISTRIBUTOR:
       let { updates } = actions
@@ -99,11 +98,21 @@ const shoppersDistributorsReducer = (state=initialShoppersDistributors,actions) 
       let distIndex = newShoppersDistributors.findIndex( dist => dist.id === updates.id )
       if (distIndex > -1) {
         newShoppersDistributors[distIndex] = updates
+        console.log('new distributor linked to shopper on redux',newShoppersDistributors)
         return newShoppersDistributors
       } else {
         newShoppersDistributors.unshift(updates)
+        console.log('new distributor linked to shopper on redux',newShoppersDistributors)
         return newShoppersDistributors
       }
+    case CLEAR_SHOPPERS_DISTRIBUTOR:
+      let { deleterId } = actions
+      newState = [...state]
+      console.log('deleterId',deleterId);
+      console.log('shops dists before delete mutation',newState);
+      newShoppersDistributors = newState.filter( newShoppersDistributor => newShoppersDistributor.id !== deleterId)
+      console.log('shops dists after delete mutation',newShoppersDistributors)
+      return newShoppersDistributors
     default: return state
   }
 }
