@@ -15,6 +15,7 @@ import Login from '../screens/Auth/LoginV2'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
+import RemoteData from '../store/Remote'
 
 // const AuthStack = createStackNavigator(
 //   { LoggedOut: Login },
@@ -39,11 +40,12 @@ const TabStack = createStackNavigator(
 
 const AppStack = createStackNavigator(
   {
+    Preloader: RemoteData,
     Tabs: TabStack,
     Claims: ClaimsModal
   },
   {
-    initialRouteName: 'Tabs',
+    initialRouteName: 'Preloader',
     mode: 'modal',
     headerMode: 'none'
   }

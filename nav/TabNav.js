@@ -92,6 +92,7 @@ class TabNav extends PureComponent<void, *, State> {
     this.notificationSubscription && this.notificationSubscription.remove()
   }
 
+  // tranfer to centralized
   subToUserType(){
     this.props.getUserType.subscribeToMore({
       document: SubToUserType,
@@ -107,6 +108,8 @@ class TabNav extends PureComponent<void, *, State> {
     })
   }
 
+  // transfer subscription to new chat preloader
+  // add subscription to LipColors.js
   subToDistributorStatus(){
     this.props.getDistributorStatus.subscribeToMore({
       document: SubToDistributorStatus,
@@ -126,6 +129,8 @@ class TabNav extends PureComponent<void, *, State> {
     })
   }
 
+  // add subscription to Likes.js
+  // transfer subscription to new chat preloader
   subToAllDistributorsStatusForShopper(){
     if (this.props.shopper.id) {
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
@@ -142,7 +147,12 @@ class TabNav extends PureComponent<void, *, State> {
       })
     }
   }
+  
+  modifyShoppersDistributor(dist) {
+    this.props.updateShoppersDistributor(dist)
+  }
 
+  // transfer to centralized
   componentWillReceiveProps(newProps){
     if (
       newProps.getAdminChats && 
@@ -161,24 +171,18 @@ class TabNav extends PureComponent<void, *, State> {
           this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
           let sadvrId = groupChat.distributorsx[0].id
           this.props.setSadvrId(sadvrId)
-          this.setState({sadvrId},()=>{
-            if (!dmChat) {
-              debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
-              this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
-            } else {
-              this.setState({user2AdminDmExists:true})
-              debugging && console.log('dmChat for Shopper and their distributor exists');
-            }
-          })
+          if (!dmChat) {
+            debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
+            this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
+          } else {
+            this.setState({user2AdminDmExists:true})
+            debugging && console.log('dmChat for Shopper and their distributor exists');
+          }
         })
       }
     }
   }
   
-  modifyShoppersDistributor(dist) {
-    this.props.updateShoppersDistributor(dist)
-  }
-
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
     if (chatId && shopperId) {
       this.props.addShopperToAppNotificationGroupChat({
@@ -189,7 +193,7 @@ class TabNav extends PureComponent<void, *, State> {
         } else {
           debugging && console.log('no response received from addShopperToAppNotificationGroupChat mutation');
         }
-      }).catch( e => {debugging && console.log('failed to addShopperToAppNotificationGroupChat in DB',e.message)})
+      }).catch( e => {debugging && console.log('addShopperToAppNotificationGroupChat in DB failed',e.message)})
     } else {
       debugging && console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
     }
@@ -203,7 +207,7 @@ class TabNav extends PureComponent<void, *, State> {
       }).then( res => {
         if (res && res.data && res.data.createChat) {
           this.setState({user2AdminDmExists:true})
-          debugging && console.log('successfully received res from createDmChatForShopperAndDistributor mutation');
+          debugging && console.log('received res from createDmChatForShopperAndDistributor mutation');
         } else {
           debugging && console.log('failed to receive res from createDmChatForShopperAndDistributor mutation');
         }
@@ -213,10 +217,6 @@ class TabNav extends PureComponent<void, *, State> {
     } else {
       debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
     }
-  }
-
-  updateUserTypeLocally(userType){
-    this.setState({userType})
   }
 
   handleChangeTab = index => {
@@ -313,8 +313,6 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   renderScene = ({ route,focused }) => {
-    let { navigation } = this.props
-    let { userType,sadvrId } = this.state
     switch (route.key) {
       case '0':
         return (
@@ -408,8 +406,7 @@ class TabNav extends PureComponent<void, *, State> {
     this.props.updatePushToken({
       variables: {
         userId: this.props.user.id,
-        token,
-        // userId: this.props.navigation.state.params.user.id,
+        token
       }
     }).then(()=>{
       token && this.createNotificationSubscription()
