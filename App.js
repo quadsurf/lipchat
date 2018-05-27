@@ -12,7 +12,7 @@ import { ApolloProvider } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 
 // COMPONENTS
-import RootNav from './nav/RootNav'
+import RootNav from './nav/RootNavV2'
 import TabNav from './nav/TabNav'
 
 // LOCALS
