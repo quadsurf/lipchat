@@ -32,7 +32,7 @@ import {
 
 //SCREENS
 import Likes from '../screens/Likes/Likes'
-import Chat from '../screens/Chat/Chat'
+import Chat from '../screens/Chat/Preloader'
 import Selfie from '../screens/Selfie/Selfie'
 import LipColors from '../screens/LipColors/LipColors'
 import You from '../screens/You/You'
@@ -56,13 +56,13 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 4,
+    index: 1,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
       { key: '2', title: 'SELFIE', icon: 'camera' },
-      { key: '3', 
-        title: this.props.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY',
+      { key: '3',
+        title: this.props.user.type === 'SHOPPER' ? 'COLORS' : 'INVENTORY',
         icon: 'ios-color-palette' },
       { key: '4', title: 'YOU', icon: 'account' }
     ],
@@ -82,12 +82,12 @@ class TabNav extends PureComponent<void, *, State> {
     this.subToAllDistributorsStatusForShopper()
     this.registerForPushNotificationsAsync()
   }
-  
+
   constructor(props){
     super(props)
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,3000,true)
   }
-  
+
   componentWillUnmount() {
     this.notificationSubscription && this.notificationSubscription.remove()
   }
@@ -147,7 +147,7 @@ class TabNav extends PureComponent<void, *, State> {
       })
     }
   }
-  
+
   modifyShoppersDistributor(dist) {
     this.props.updateShoppersDistributor(dist)
   }
@@ -155,8 +155,8 @@ class TabNav extends PureComponent<void, *, State> {
   // transfer to centralized
   componentWillReceiveProps(newProps){
     if (
-      newProps.getAdminChats && 
-      newProps.getAdminChats.allChats && 
+      newProps.getAdminChats &&
+      newProps.getAdminChats.allChats &&
       newProps.getAdminChats.allChats.length > 0
     ) {
       if (newProps.getAdminChats.allChats !== this.state.adminChats) {
@@ -182,7 +182,7 @@ class TabNav extends PureComponent<void, *, State> {
       }
     }
   }
-  
+
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
     if (chatId && shopperId) {
       this.props.addShopperToAppNotificationGroupChat({
@@ -264,8 +264,8 @@ class TabNav extends PureComponent<void, *, State> {
 
   renderBadge = ({ route }) => {
     if (
-      route.key === '1' && 
-      this.props.chats && 
+      route.key === '1' &&
+      this.props.chats &&
       this.props.chats.length > 0
     ) {
       let newUnreadCount = this.props.chats.reduce((accumulator, {unreadCount}) => accumulator + unreadCount, 0)
@@ -385,7 +385,7 @@ class TabNav extends PureComponent<void, *, State> {
       />
     )
   }
-  
+
   async registerForPushNotificationsAsync(){
     const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
     if (status === 'granted') {
@@ -396,12 +396,12 @@ class TabNav extends PureComponent<void, *, State> {
       newStatus === 'granted' ? this.getPushToken() : this.updatePushTokenInDb(null)
     }
   }
-  
+
   async getPushToken(){
     let token = await Notifications.getExpoPushTokenAsync()
     token && this.updatePushTokenInDb(token)
   }
-  
+
   updatePushTokenInDb(token){
     this.props.updatePushToken({
       variables: {
@@ -412,7 +412,7 @@ class TabNav extends PureComponent<void, *, State> {
       token && this.createNotificationSubscription()
     }).catch(err => debugging && console.log(err))
   }
-  
+
   createNotificationSubscription(){
     this.notificationSubscription = Notifications.addListener(
       this.handleNotification

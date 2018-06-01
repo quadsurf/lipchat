@@ -39,8 +39,8 @@ class TabNav extends PureComponent<void, *, State> {
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
       { key: '2', title: 'SELFIE', icon: 'camera' },
-      { key: '3', 
-        title: this.props.user.type === 'SHOPPER' ? 'COLOR FAMILIES' : 'INVENTORY',
+      { key: '3',
+        title: this.props.user.type === 'SHOPPER' ? 'COLORS' : 'INVENTORY',
         icon: 'ios-color-palette' },
       { key: '4', title: 'YOU', icon: 'account' }
     ],
@@ -92,8 +92,8 @@ class TabNav extends PureComponent<void, *, State> {
 
   renderBadge = ({ route }) => {
     if (
-      route.key === '1' && 
-      this.props.chats && 
+      route.key === '1' &&
+      this.props.chats &&
       this.props.chats.length > 0
     ) {
       let newUnreadCount = this.props.chats.reduce((accumulator, {unreadCount}) => accumulator + unreadCount, 0)

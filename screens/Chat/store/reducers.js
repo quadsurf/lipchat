@@ -13,18 +13,28 @@ export const chatsReducer = (state = initialChats,actions) => {
   let chats,i
   switch(actions.type){
     case SET_CHATS:
-      // chats = JSON.parse(JSON.stringify(actions.chats))
       chats = [...actions.chats]
-      chats.sort( (a,b) => {
-        return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
-      })
-      let newChats = chats.map( chat => {
-        return {
+      let chatsWithMessages = []
+      let chatsWithoutMessages = []
+      chats.forEach(chat => {
+        let enhancedChat = {
           ...chat,
           unreadStatus: false,
           unreadCount: 0
         }
+        if (enhancedChat.messages.length > 0) {
+          chatsWithMessages.push(enhancedChat)
+        } else {
+          chatsWithoutMessages.push(enhancedChat)
+        }
       })
+      chatsWithMessages.sort( (a,b) => {
+        return Date.parse(b.messages[0].updatedAt) - Date.parse(a.messages[0].updatedAt)
+      })
+      let newChats = [
+        ...chatsWithMessages,
+        ...chatsWithoutMessages
+      ]
       return newChats
     case MARK_UNREAD:
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
