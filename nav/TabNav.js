@@ -31,11 +31,11 @@ import {
 } from '../store/actions'
 
 //SCREENS
-import Likes from '../screens/Likes/Likes'
+import Likes from '../screens/Likes/Preloader'
 import Chat from '../screens/Chat/Preloader'
-import Selfie from '../screens/Selfie/Selfie'
-import LipColors from '../screens/LipColors/LipColors'
-import You from '../screens/You/You'
+import Selfie from '../screens/Selfie/Preloader'
+import LipColors from '../screens/LipColors/Preloader'
+import You from '../screens/You/Preloader'
 
 //LOCALS
 import { Views,Colors } from '../css/Styles'
@@ -56,7 +56,7 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 1,
+    index: 4,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
@@ -336,7 +336,7 @@ class TabNav extends PureComponent<void, *, State> {
             <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
               <DotsLoader
                 size={15}
-                color={Colors.pinkly}
+                color={Colors.blue}
                 frequency={5000}/>
             </View>
           )

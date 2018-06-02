@@ -40,7 +40,7 @@ class Likes extends Component {
     }
     this.onPressClaim = debounce(this.onPressClaim.bind(this),3000,true)
   }
-  
+
   subToLikesInDb(){
     this.props.getLikesForShopper.subscribeToMore({
       document: SubToLikesForShopper,
@@ -63,14 +63,14 @@ class Likes extends Component {
       }
     })
   }
-  
+
   removeLikeFromLikesList(likeId){
     let likes = this.state.likes.filter( ({ id }) => {
       return likeId !== id
     })
     this.setState({likes})
   }
-  
+
   addLikeToLikesList(like,likes){
     let hasLike = likes.findIndex( ({ id }) => {
       return id === like.id
@@ -84,7 +84,7 @@ class Likes extends Component {
       })
     }
   }
-  
+
   componentDidMount(){
     this.subToLikesInDb()
   }
@@ -112,7 +112,7 @@ class Likes extends Component {
         content={this.state.modalContent}/>
     )
   }
-  
+
   componentWillReceiveProps(newProps){
     if (newProps !== this.props) {
       if (
@@ -132,7 +132,7 @@ class Likes extends Component {
         <View style={{...Views.middle,marginTop:200}}>
           <DotsLoader
             size={15}
-            color={Colors.pinkly}
+            color={Colors.blue}
             frequency={5000}/>
         </View>
       )
@@ -157,10 +157,10 @@ class Likes extends Component {
       <FontPoiret text="This Screen is meant for your" size={Texts.large.fontSize}/>
       <FontPoiret text="Shoppers to help them reserve" size={Texts.large.fontSize}/>
       <FontPoiret text="Colors from your Inventory" size={Texts.large.fontSize}/>
-      <MaterialCommunityIcons 
-        name="ray-start-end" 
-        size={30} 
-        color={Colors.transparentWhite} 
+      <MaterialCommunityIcons
+        name="ray-start-end"
+        size={30}
+        color={Colors.transparentWhite}
         style={{marginVertical:24}}/>
       <FontPoiret text="In order to keep you in" size={Texts.large.fontSize}/>
       <FontPoiret text="compliance, this is not a" size={Texts.large.fontSize}/>
@@ -171,11 +171,11 @@ class Likes extends Component {
       <FontPoiret text="improve communication." size={Texts.large.fontSize}/>
     </View>
   )
-  
+
   onPressClaim(like){
     this.props.navigation.navigate('Claims',{like})
   }
-  
+
   renderLikes(){
     let { likes } = this.state
     if (this.props.userType === 'DIST') {
@@ -183,10 +183,10 @@ class Likes extends Component {
     } else {
       if (likes && likes.length > 0) {
         return likes.map( ({ colorx:like,id }) => {
-          return <LikeCard 
-            key={id} 
-            like={like} 
-            onPressClaim={this.onPressClaim} 
+          return <LikeCard
+            key={id}
+            like={like}
+            onPressClaim={this.onPressClaim}
             rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
         })
       } else {
@@ -212,7 +212,7 @@ class Likes extends Component {
       </View>
     )
   }
-  
+
   shouldComponentUpdate(nextProps,nextState){
     if (nextProps.userType !== this.props.userType) return true
     if (nextState.likes !== this.state.likes) return true

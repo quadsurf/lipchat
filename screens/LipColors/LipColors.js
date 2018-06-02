@@ -71,7 +71,7 @@ class LipColors extends Component {
       neutrals: [],
       redsAutoLoadedCount: 0
     }
-    
+
     this.handleReds = debounce(this.handleReds,1400,true)
     this.toggleFamilyOpenState = this.toggleFamilyOpenState.bind(this)
     this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),networkDebounce,true)
@@ -96,7 +96,7 @@ class LipColors extends Component {
       })
     }
   }
-  
+
   normalizeColor(node){
     let updates = {
       colorId: node.colorx.id,
@@ -106,11 +106,11 @@ class LipColors extends Component {
     }
     this.updateColorStateOnFamily(updates,null,'pubsub')
   }
-  
+
   componentDidMount(){
     this.subToLikesInDb()
   }
-  
+
   componentWillReceiveProps(newProps){
     if (newProps.colors !== this.props.colors) {
       if (newProps.colors !== this.state.colors) {
@@ -160,18 +160,18 @@ class LipColors extends Component {
       }
     })
   }
-  
+
   filterColors(fam,cameFrom){
     let filteredColors = this.state.colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
       this.toggleFamilyOpenState(fam)
     })
   }
-  
+
   renderColors(colors){
     return colors.map(color => {
       return <ColorCard
-        key={color.colorId} 
+        key={color.colorId}
         color={color}
         userType={this.props.userType}
         onLikePress={this.checkIfLikeExists}
@@ -182,7 +182,7 @@ class LipColors extends Component {
         onUpdatePress={this.checkIfInventoryExists}/>
     })
   }
-  
+
   toggleFamilyOpenState(family){
     let isOpen = this.state[`${family}IsOpen`]
     if (!isOpen) {
@@ -195,10 +195,10 @@ class LipColors extends Component {
       this.setState({[`${family}IsOpen`]:!isOpen})
     }
   }
-  
+
   renderColorHeader(family){
     return (
-      <ColorHeader 
+      <ColorHeader
         family={family}
         onHeaderPress={this.toggleFamilyOpenState}
         isOpen={this.state[`${family}IsOpen`]}
@@ -237,85 +237,85 @@ class LipColors extends Component {
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  redsIsOpen && reds.length > 0 
-                    ? this.renderColors(reds) 
+                  redsIsOpen && reds.length > 0
+                    ? this.renderColors(reds)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('reds')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  orangesIsOpen && oranges.length > 0 
-                    ? this.renderColors(oranges) 
+                  orangesIsOpen && oranges.length > 0
+                    ? this.renderColors(oranges)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('oranges')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  bluesIsOpen && blues.length > 0 
-                    ? this.renderColors(blues) 
+                  bluesIsOpen && blues.length > 0
+                    ? this.renderColors(blues)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('blues')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  purplesIsOpen && purples.length > 0 
-                    ? this.renderColors(purples) 
+                  purplesIsOpen && purples.length > 0
+                    ? this.renderColors(purples)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('purples')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  berriesIsOpen && berries.length > 0 
-                    ? this.renderColors(berries) 
+                  berriesIsOpen && berries.length > 0
+                    ? this.renderColors(berries)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('berries')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  pinksIsOpen && pinks.length > 0 
-                    ? this.renderColors(pinks) 
+                  pinksIsOpen && pinks.length > 0
+                    ? this.renderColors(pinks)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('pinks')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  brownsIsOpen && browns.length > 0 
-                    ? this.renderColors(browns) 
+                  brownsIsOpen && browns.length > 0
+                    ? this.renderColors(browns)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
               {this.renderColorHeader('browns')}
             </View>
-            
+
             <View>
               <View style={{marginTop:separatorOffset}}>
                 {
-                  neutralsIsOpen && neutrals.length > 0 
-                    ? this.renderColors(neutrals) 
+                  neutralsIsOpen && neutrals.length > 0
+                    ? this.renderColors(neutrals)
                     : <View style={{width:screenWidth}}/>
                 }
               </View>
@@ -345,9 +345,9 @@ class LipColors extends Component {
         count: (op === '+'
          ? color.count+1
          : op === '-'
-         ? color.count-1 
-         : onType === 'pubsub' || onType === 'onUpdateLike' 
-         ? colors[i].count 
+         ? color.count-1
+         : onType === 'pubsub' || onType === 'onUpdateLike'
+         ? colors[i].count
          : color.count)
       }
       colors.splice(i,1,newColor)

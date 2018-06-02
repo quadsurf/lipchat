@@ -75,7 +75,7 @@ class Modals extends Component {
           style={{...Views.middle}}>
           <DotsLoader
             size={15}
-            color={Colors.pinkly}
+            color={Colors.blue}
             frequency={5000}/>
         </View>
       )

@@ -34,7 +34,7 @@ const debugging = __DEV__ && true
 const duration = 3000
 
 class Remote extends Component {
-  
+
   constructor(props){
     super(props)
     this.addShopperToAppNotificationGroupChatInDb = debounce(
@@ -46,7 +46,7 @@ class Remote extends Component {
     this.createDmChatForShopperAndSadvrInDb = debounce(this.createDmChatForShopperAndSadvrInDb,duration,true)
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
   }
-  
+
   componentDidMount(){
     this.subToUserType()
     this.subToDistributorStatus()
@@ -55,10 +55,10 @@ class Remote extends Component {
       this.props.navigation.navigate('Tabs')
     },2000)
   }
-  
+
   componentWillReceiveProps(newProps){
     if (
-      newProps.getAdminChats.allChats && 
+      newProps.getAdminChats.allChats &&
       newProps.getAdminChats.allChats.length > 0
     ) {
       let adminChats = newProps.getAdminChats.allChats
@@ -69,11 +69,11 @@ class Remote extends Component {
       let dmChat = adminChats.find( chat => {
         return chat.type === 'DMU2ADMIN'
       })
-      
+
       this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
-      
+
       this.setSadvrId(groupChat.distributorsx[0].id)
-      
+
       if (!dmChat) {
         debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
         this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
@@ -82,7 +82,7 @@ class Remote extends Component {
       }
     }
   }
-  
+
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
     if (chatId && shopperId) {
       this.props.addShopperToAppNotificationGroupChat({
@@ -100,7 +100,7 @@ class Remote extends Component {
       debugging && console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
     }
   }
-  
+
   setSadvrId(sadvrId){
     this.props.setSadvrId(sadvrId)
   }
@@ -123,9 +123,9 @@ class Remote extends Component {
       debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
     }
   }
-  
+
   // tranfer to centralized
-  // matters to: chat, likes, lipColors, selfie, 
+  // matters to: chat, likes, lipColors, selfie,
   subToUserType(){
     let { userId } = this.props
     if (userId) {
@@ -183,22 +183,22 @@ class Remote extends Component {
       })
     }
   }
-  
+
   modifyShoppersDistributor(dist){
     this.props.updateShoppersDistributor(dist)
   }
-  
+
   render(){
     return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <DotsLoader
           size={15}
-          color={Colors.pinkly}
+          color={Colors.blue}
           frequency={5000}/>
       </View>
     )
   }
-  
+
 }
 
 Remote.propTypes = {

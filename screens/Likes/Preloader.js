@@ -21,12 +21,12 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 
 // COMPS
-import Chat from './Chat'
+import Likes from './Likes'
 
 // CONSTS
 const debugging = __DEV__ && false
 
-class ChatPreloader extends Component {
+class LikesPreloader extends Component {
 
   state = {
     reloading: false
@@ -64,7 +64,7 @@ class ChatPreloader extends Component {
       return (
         <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
           <FontPoiret
-            text="reloading chats..."
+            text="reloading favorites..."
             color={Colors.blue}
             size={Texts.larger.fontSize}
             style={{marginBottom:30}}/>
@@ -75,13 +75,13 @@ class ChatPreloader extends Component {
         </View>
       )
     } else {
-      return <Chat/>
+      return <Likes/>
     }
   }
 
 }
 
-ChatPreloader.propTypes = {
+LikesPreloader.propTypes = {
   userId: PropTypes.string.isRequired
 }
 
@@ -89,7 +89,7 @@ const mapStateToProps = state => ({
   userId: state.user.id
 })
 
-const ChatPreloaderWithData = compose(
+const LikesPreloaderWithData = compose(
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
@@ -98,6 +98,6 @@ const ChatPreloaderWithData = compose(
       }
     })
   })
-)(ChatPreloader)
+)(LikesPreloader)
 
-export default connect(mapStateToProps,{ updateUser })(ChatPreloaderWithData)
+export default connect(mapStateToProps,{ updateUser })(LikesPreloaderWithData)

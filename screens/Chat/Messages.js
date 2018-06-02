@@ -99,7 +99,7 @@ class Messages extends Component {
   componentDidMount(){
     this.subToMessages()
   }
-  
+
   subToMessages(){
     if (
       this.props.navigation &&
@@ -142,7 +142,7 @@ class Messages extends Component {
       })
     }
   }
-  
+
   insertNewMessageIntoMessages(newMessage){
     let messages = [...this.state.messages]
     let i = messages.findIndex( message => {
@@ -154,7 +154,7 @@ class Messages extends Component {
     }
     this.setState({messages})
   }
-  
+
   removeMessageFromMessages(id){
     if (id) {
       let messages = [...this.state.messages]
@@ -248,7 +248,7 @@ class Messages extends Component {
       isModalOpen: false
     },()=>console.log('message cleared'))
   }
-  
+
   updateChatMessageInDb(){
     let errText = 'sending off your chat message'
     let { messageId,newMessage='' } = this.state
@@ -318,7 +318,7 @@ class Messages extends Component {
       debugging && console.log('(2)',e.message)
     })
   }
-  
+
   processAudience(){
     let { SHOPPERS,APPROVED,PENDINGS } = this.state
     if (SHOPPERS && APPROVED && PENDINGS) {
@@ -339,16 +339,16 @@ class Messages extends Component {
       this.setState({audience:'ANY'})
     }
   }
-  
+
   setAudienceState(audType){
     this.setState({
       [audType]: !this.state[audType]
     },()=>this.processAudience())
   }
-  
+
   renderAudienceButton(display,audType){
     return (
-      <TouchableHighlight 
+      <TouchableHighlight
         onPress={() => this.setAudienceState(audType)}
         style={{
           height: 40,
@@ -362,7 +362,7 @@ class Messages extends Component {
       </TouchableHighlight>
     )
   }
-  
+
   renderTextInput(bool){
     let { height } = this.state
     return (
@@ -429,7 +429,7 @@ class Messages extends Component {
       <FontPoiret text="No Chat History Yet" size={Texts.large.fontSize}/>
     </View>
   )
-  
+
   fetchMoreChats = () => {
     this.setState({isRefreshing:true},()=>{
       this.props.getMessagesForChat.fetchMore({
@@ -438,8 +438,8 @@ class Messages extends Component {
         },
         updateQuery: (prev,{fetchMoreResult}) => {
             if (
-              fetchMoreResult && 
-              fetchMoreResult.allMessages && 
+              fetchMoreResult &&
+              fetchMoreResult.allMessages &&
               fetchMoreResult.allMessages.length > 0
             ) {
               this.setState({
@@ -460,8 +460,8 @@ class Messages extends Component {
   }
 
   renderMessageList(){
-    // this.props.getMessagesForChat.networkStatus === 4 
-    // refreshing={this.state.isRefreshing} 
+    // this.props.getMessagesForChat.networkStatus === 4
+    // refreshing={this.state.isRefreshing}
     // onRefresh={this.fetchMoreChats}
     if (this.state.messages) {
       return (
@@ -469,14 +469,14 @@ class Messages extends Component {
           inverted
           data={this.state.messages}
           renderItem={({ item }) => (
-            <Message 
-              text={item.text} 
+            <Message
+              text={item.text}
               sent={item.hasOwnProperty('sent') ? item.sent : null}
-              userId={this.state.userId} 
-              writer={item.writerx} 
-              updated={item.updatedAt} 
-              level={this.props.navigation.state.params.level} 
-              chatType={this.props.navigation.state.params.chatType} 
+              userId={this.state.userId}
+              writer={item.writerx}
+              updated={item.updatedAt}
+              level={this.props.navigation.state.params.level}
+              chatType={this.props.navigation.state.params.chatType}
               audience={item.audience}/>
           )}
           ref={(ref) => { this.flatListRef = ref }}
@@ -490,7 +490,7 @@ class Messages extends Component {
         <View style={{...Views.middle}}>
           <DotsLoader
             size={15}
-            color={Colors.pinkly}
+            color={Colors.blue}
             frequency={5000}/>
         </View>
       )
@@ -508,7 +508,7 @@ class Messages extends Component {
   prepForUnmount(){
     this.setState({isMounted:false},()=>this.props.navigation.goBack(null))
   }
-  
+
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
@@ -520,9 +520,9 @@ class Messages extends Component {
           </View>
           <View style={{alignItems:'center'}}>
             <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
-            <FontPoiret 
-              text={this.props.navigation.state.params.chatTitle} 
-              size={Texts.small.fontSize} 
+            <FontPoiret
+              text={this.props.navigation.state.params.chatTitle}
+              size={Texts.small.fontSize}
               style={{color:Colors.blue}}/>
           </View>
           <View style={{justifyContent:'center'}}>
