@@ -12,10 +12,10 @@ import { DotsLoader } from 'react-native-indicator'
 
 // GQL
 import {
-  GetUserType,GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper
+  GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper
 } from '../api/db/queries'
 import {
-  SubToUserType,SubToDistributorStatus,SubToDistributorsForShopper
+  SubToDistributorStatus,SubToDistributorsForShopper
 } from '../api/db/pubsub'
 import {
   AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
@@ -23,7 +23,7 @@ import {
 
 // STORE
 import {
-  setSadvrId,updateUser,updateDistributor,updateShoppersDistributor
+  setSadvrId,updateDistributor,updateShoppersDistributor
 } from '../store/actions'
 
 // LOCALS
@@ -48,7 +48,6 @@ class Remote extends Component {
   }
 
   componentDidMount(){
-    this.subToUserType()
     this.subToDistributorStatus()
     this.subToAllDistributorsStatusForShopper()
     setTimeout(()=>{
@@ -124,24 +123,6 @@ class Remote extends Component {
     }
   }
 
-  // tranfer to centralized
-  // matters to: chat, likes, lipColors, selfie,
-  subToUserType(){
-    let { userId } = this.props
-    if (userId) {
-      this.props.getUserType.subscribeToMore({
-        document: SubToUserType,
-        variables: { UserId: userId },
-        updateQuery: (previous,{ subscriptionData }) => {
-          let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
-          if (mutation === 'UPDATED') {
-            if (nextType !== prevType) this.props.updateUser({type:nextType})
-          }
-        }
-      })
-    }
-  }
-
   // transfer subscription to new chat preloader
   // add subscription to LipColors.js
   subToDistributorStatus(){
@@ -202,29 +183,18 @@ class Remote extends Component {
 }
 
 Remote.propTypes = {
-  userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
   unreadCount: PropTypes.number
 }
 
 const mapStateToProps = state => ({
-  userId: state.user.id,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
   unreadCount: state.unreadCount
 })
 
 const RemoteWithData = compose(
-  graphql(GetUserType,{
-    name: 'getUserType',
-    options: props => ({
-      variables: {
-        UserId: props.userId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(GetDistributorStatus,{
     name: 'getDistributorStatus',
     options: props => ({
@@ -264,5 +234,5 @@ const RemoteWithData = compose(
 )(Remote)
 
 export default connect(mapStateToProps,{
-  setSadvrId,updateUser,updateDistributor,updateShoppersDistributor
+  setSadvrId,updateDistributor,updateShoppersDistributor
 })(RemoteWithData)
