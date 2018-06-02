@@ -7,6 +7,7 @@ import { View } from 'react-native'
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // GQL
@@ -24,12 +25,18 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import You from './You'
 
 // CONSTS
+const duration = 3000
 const debugging = __DEV__ && false
 
 class YouPreloader extends Component {
 
   state = {
     reloading: false
+  }
+
+  constructor(props){
+    super(props)
+    this.updateUser = debounce(this.updateUser,duration,true)
   }
 
   componentDidMount(){
@@ -45,18 +52,20 @@ class YouPreloader extends Component {
         updateQuery: (previous,{ subscriptionData }) => {
           let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
           if (mutation === 'UPDATED') {
-            if (nextType !== prevType) {
-              this.setState({reloading:true},()=>{
-                this.props.updateUser({type:nextType})
-                setTimeout(()=>{
-                  this.setState({reloading:false})
-                },3000)
-              })
-            }
+            nextType !== prevType && this.updateUser(nextType)
           }
         }
       })
     }
+  }
+
+  updateUser(nextType){
+    this.setState({reloading:true},()=>{
+      this.props.updateUser({type:nextType})
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
   }
 
   render(){

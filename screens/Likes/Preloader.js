@@ -7,14 +7,15 @@ import { View } from 'react-native'
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // GQL
-import { GetUserType } from '../../api/db/queries'
-import { SubToUserType } from '../../api/db/pubsub'
+import { GetUserType,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
+import { SubToUserType,SubToDistributorsForShopper } from '../../api/db/pubsub'
 
 // STORE
-import { updateUser } from '../../store/actions'
+import { updateUser,updateShoppersDistributor } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -24,6 +25,7 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import Likes from './Likes'
 
 // CONSTS
+const duration = 3000
 const debugging = __DEV__ && false
 
 class LikesPreloader extends Component {
@@ -32,8 +34,15 @@ class LikesPreloader extends Component {
     reloading: false
   }
 
+  constructor(props){
+    super(props)
+    this.updateUser = debounce(this.updateUser,duration,true)
+    this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
+  }
+
   componentDidMount(){
     this.subToUserType()
+    this.subToAllDistributorsStatusForShopper()
   }
 
   subToUserType(){
@@ -45,18 +54,42 @@ class LikesPreloader extends Component {
         updateQuery: (previous,{ subscriptionData }) => {
           let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
           if (mutation === 'UPDATED') {
-            if (nextType !== prevType) {
-              this.setState({reloading:true},()=>{
-                this.props.updateUser({type:nextType})
-                setTimeout(()=>{
-                  this.setState({reloading:false})
-                },3000)
-              })
-            }
+            nextType !== prevType && this.updateUser(nextType)
           }
         }
       })
     }
+  }
+
+  updateUser(nextType){
+    this.setState({reloading:true},()=>{
+      this.props.updateUser({type:nextType})
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
+  }
+
+  subToAllDistributorsStatusForShopper(){
+    let { shopperId } = this.props
+    if (shopperId) {
+      this.props.getAllDistributorsStatusForShopper.subscribeToMore({
+        document: SubToDistributorsForShopper,
+        variables: {
+          ShopperId: { "id": shopperId }
+        },
+        updateQuery: (previous,{subscriptionData}) => {
+          let { mutation } = subscriptionData.data.Distributor
+          if (mutation === 'UPDATED') {
+            this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
+          }
+        }
+      })
+    }
+  }
+
+  modifyShoppersDistributor(dist){
+    this.props.updateShoppersDistributor(dist)
   }
 
   render(){
@@ -82,11 +115,13 @@ class LikesPreloader extends Component {
 }
 
 LikesPreloader.propTypes = {
-  userId: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,
+  shopperId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
-  userId: state.user.id
+  userId: state.user.id,
+  shopperId: state.shopper.id
 })
 
 const LikesPreloaderWithData = compose(
@@ -97,7 +132,18 @@ const LikesPreloaderWithData = compose(
         UserId: props.userId
       }
     })
+  }),
+  graphql(GetAllDistributorsStatusForShopper,{
+    name: 'getAllDistributorsStatusForShopper',
+    options: props => ({
+      variables: {
+        ShopperId: { id: props.shopperId }
+      },
+      fetchPolicy: 'network-only'
+    })
   })
 )(LikesPreloader)
 
-export default connect(mapStateToProps,{ updateUser })(LikesPreloaderWithData)
+export default connect(mapStateToProps,{
+  updateUser,updateShoppersDistributor
+})(LikesPreloaderWithData)

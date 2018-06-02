@@ -11,20 +11,13 @@ import { debounce } from 'underscore'
 import { DotsLoader } from 'react-native-indicator'
 
 // GQL
+import { GetAdminChats } from '../api/db/queries'
 import {
-  GetDistributorStatus,GetAdminChats,GetAllDistributorsStatusForShopper
-} from '../api/db/queries'
-import {
-  SubToDistributorStatus,SubToDistributorsForShopper
-} from '../api/db/pubsub'
-import {
-  AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
+  AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr
 } from '../api/db/mutations'
 
 // STORE
-import {
-  setSadvrId,updateDistributor,updateShoppersDistributor
-} from '../store/actions'
+import { setSadvrId } from '../store/actions'
 
 // LOCALS
 import { Views,Colors } from '../css/Styles'
@@ -44,12 +37,9 @@ class Remote extends Component {
     )
     this.setSadvrId = debounce(this.setSadvrId,duration,true)
     this.createDmChatForShopperAndSadvrInDb = debounce(this.createDmChatForShopperAndSadvrInDb,duration,true)
-    this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
   }
 
   componentDidMount(){
-    this.subToDistributorStatus()
-    this.subToAllDistributorsStatusForShopper()
     setTimeout(()=>{
       this.props.navigation.navigate('Tabs')
     },2000)
@@ -71,11 +61,13 @@ class Remote extends Component {
 
       this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
 
-      this.setSadvrId(groupChat.distributorsx[0].id)
+      let distributorId = groupChat.distributorsx[0].id
+
+      this.setSadvrId(distributorId)
 
       if (!dmChat) {
         debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
-        this.createDmChatForShopperAndSadvrInDb(shopperId,groupChat.distributorsx[0].id)
+        this.createDmChatForShopperAndSadvrInDb(shopperId,distributorId)
       } else {
         debugging && console.log('dmChat for Shopper and their distributor exists');
       }
@@ -123,52 +115,6 @@ class Remote extends Component {
     }
   }
 
-  // transfer subscription to new chat preloader
-  // add subscription to LipColors.js
-  subToDistributorStatus(){
-    let { distributorId } = this.props
-    if (distributorId) {
-      this.props.getDistributorStatus.subscribeToMore({
-        document: SubToDistributorStatus,
-        variables: { DistributorId: distributorId },
-        updateQuery: (previous,{ subscriptionData }) => {
-          let {
-            mutation,
-            node:{ status:nextStatus },
-            previousValues:{ status:prevStatus }
-          } = subscriptionData.data.Distributor
-          if (mutation === 'UPDATED') {
-            if (nextStatus !== prevStatus) this.props.updateDistributor({status:nextStatus})
-          }
-        }
-      })
-    }
-  }
-
-  // add subscription to Likes.js
-  // transfer subscription to new chat preloader
-  subToAllDistributorsStatusForShopper(){
-    let { shopperId } = this.props
-    if (shopperId) {
-      this.props.getAllDistributorsStatusForShopper.subscribeToMore({
-        document: SubToDistributorsForShopper,
-        variables: {
-          ShopperId: { "id": shopperId }
-        },
-        updateQuery: (previous,{subscriptionData}) => {
-          let { mutation } = subscriptionData.data.Distributor
-          if (mutation === 'UPDATED') {
-            this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
-          }
-        }
-      })
-    }
-  }
-
-  modifyShoppersDistributor(dist){
-    this.props.updateShoppersDistributor(dist)
-  }
-
   render(){
     return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
@@ -184,26 +130,15 @@ class Remote extends Component {
 
 Remote.propTypes = {
   shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired,
   unreadCount: PropTypes.number
 }
 
 const mapStateToProps = state => ({
   shopperId: state.shopper.id,
-  distributorId: state.distributor.id,
   unreadCount: state.unreadCount
 })
 
 const RemoteWithData = compose(
-  graphql(GetDistributorStatus,{
-    name: 'getDistributorStatus',
-    options: props => ({
-      variables: {
-        DistributorId: props.distributorId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(GetAdminChats,{
     name: 'getAdminChats',
     options: props => ({
@@ -218,21 +153,10 @@ const RemoteWithData = compose(
   }),
   graphql(CreateDmChatForShopperAndSadvr,{
     name: 'createDmChatForShopperAndSadvr'
-  }),
-  graphql(GetAllDistributorsStatusForShopper,{
-    name: 'getAllDistributorsStatusForShopper',
-    options: props => ({
-      variables: {
-        ShopperId: { id: props.shopperId }
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(UpdatePushToken,{
-    name: 'updatePushToken'
   })
+  // graphql(UpdatePushToken,{
+  //   name: 'updatePushToken'
+  // })
 )(Remote)
 
-export default connect(mapStateToProps,{
-  setSadvrId,updateDistributor,updateShoppersDistributor
-})(RemoteWithData)
+export default connect(mapStateToProps,{ setSadvrId })(RemoteWithData)

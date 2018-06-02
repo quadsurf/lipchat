@@ -7,14 +7,15 @@ import { View } from 'react-native'
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
+import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // GQL
-import { GetUserType } from '../../api/db/queries'
-import { SubToUserType } from '../../api/db/pubsub'
+import { GetUserType,GetDistributorStatus } from '../../api/db/queries'
+import { SubToUserType,SubToDistributorStatus } from '../../api/db/pubsub'
 
 // STORE
-import { updateUser } from '../../store/actions'
+import { updateUser,updateDistributor } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -24,6 +25,7 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import LipColors from './LipColors'
 
 // CONSTS
+const duration = 3000
 const debugging = __DEV__ && false
 
 class LipColorsPreloader extends Component {
@@ -32,8 +34,15 @@ class LipColorsPreloader extends Component {
     reloading: false
   }
 
+  constructor(props){
+    super(props)
+    this.updateUser = debounce(this.updateUser,duration,true)
+    this.updateDistributor = debounce(this.updateDistributor,duration,true)
+  }
+
   componentDidMount(){
     this.subToUserType()
+    this.subToDistributorStatus()
   }
 
   subToUserType(){
@@ -45,18 +54,49 @@ class LipColorsPreloader extends Component {
         updateQuery: (previous,{ subscriptionData }) => {
           let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
           if (mutation === 'UPDATED') {
-            if (nextType !== prevType) {
-              this.setState({reloading:true},()=>{
-                this.props.updateUser({type:nextType})
-                setTimeout(()=>{
-                  this.setState({reloading:false})
-                },3000)
-              })
-            }
+            nextType !== prevType && this.updateUser(nextType)
           }
         }
       })
     }
+  }
+
+  updateUser(nextType){
+    this.setState({reloading:true},()=>{
+      this.props.updateUser({type:nextType})
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
+  }
+
+  subToDistributorStatus(){
+    let { distributorId } = this.props
+    if (distributorId) {
+      this.props.getDistributorStatus.subscribeToMore({
+        document: SubToDistributorStatus,
+        variables: { DistributorId: distributorId },
+        updateQuery: (previous,{ subscriptionData }) => {
+          let {
+            mutation,
+            node:{ status:nextStatus },
+            previousValues:{ status:prevStatus }
+          } = subscriptionData.data.Distributor
+          if (mutation === 'UPDATED') {
+            nextStatus !== prevStatus && this.updateDistributor(nextStatus)
+          }
+        }
+      })
+    }
+  }
+
+  updateDistributor(nextStatus){
+    this.setState({reloading:true},()=>{
+      this.props.updateDistributor({status:nextStatus})
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
   }
 
   render(){
@@ -82,11 +122,13 @@ class LipColorsPreloader extends Component {
 }
 
 LipColorsPreloader.propTypes = {
-  userId: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
-  userId: state.user.id
+  userId: state.user.id,
+  distributorId: state.distributor.id
 })
 
 const LipColorsPreloaderWithData = compose(
@@ -97,7 +139,15 @@ const LipColorsPreloaderWithData = compose(
         UserId: props.userId
       }
     })
+  }),
+  graphql(GetDistributorStatus,{
+    name: 'getDistributorStatus',
+    options: props => ({
+      variables: {
+        DistributorId: props.distributorId
+      }
+    })
   })
 )(LipColorsPreloader)
 
-export default connect(mapStateToProps,{ updateUser })(LipColorsPreloaderWithData)
+export default connect(mapStateToProps,{ updateUser,updateDistributor })(LipColorsPreloaderWithData)
