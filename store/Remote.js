@@ -23,7 +23,7 @@ import { setSadvrId } from '../store/actions'
 import { Views,Colors } from '../css/Styles'
 
 // CONSTS
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 const duration = 3000
 
 class Remote extends Component {

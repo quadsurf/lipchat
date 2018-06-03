@@ -39,7 +39,7 @@ const textInputStyle = {
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 const chatCount = 5
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 
 // COMPONENTS
 import Message from './Message'

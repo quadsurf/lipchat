@@ -39,7 +39,7 @@ import Liker from './Liker'
 // CONSTS
 const large = Texts.large.fontSize
 const { width:screenWidth,height:screenHeight } = getDimensions()
-const debugging = true//__DEV__ && false
+const debugging = __DEV__ && false
 const landmarkSize = 2
 const layersModeAlpha = 0.2
 const singleCoatAlpha = 0.6
@@ -73,7 +73,7 @@ class Selfie extends Component {
     this.toggleLayersMode = debounce(this.toggleLayersMode,longUIdebounce,true)
     this.renderSwatch = this.renderSwatch.bind(this)
   }
-  
+
   subToLikesInDb(){
     if (this.props.userType === 'SHOPPER') {
       this.props.getLikesForShopper.subscribeToMore({
@@ -90,7 +90,7 @@ class Selfie extends Component {
       })
     }
   }
-  
+
   updateLikeOnColorsList(node){
     let { colors } = this.state
     let i = colors.findIndex( ({colorId}) => colorId === node.colorx.id )
@@ -104,16 +104,16 @@ class Selfie extends Component {
       }
     }
   }
-  
+
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA)
     this.setState({ hasCameraPermission: status === 'granted' })
   }
-  
+
   componentDidMount(){
     this.subToLikesInDb()
   }
-  
+
   onFacesDetected = ({ faces }) => this.setState({ faces })
   onFaceDetectionError = state => Alert.alert('Face Detection Error',JSON.stringify(state))
 
@@ -134,64 +134,64 @@ class Selfie extends Component {
       let mw = arx - alx // mouthWidth
       let tacyUpper = cy - (.04*mw) // top adjusted center y
       let bacyUpper = cy + (.03*mw) // bottom adjusted center y
-      
+
       // landmark coords
       let lm = `${alx},${aly}`
       let topCenterOfUpper = `${acxUpper},${tacyUpper}`
       let rm = `${arx},${ary}`
-      
+
       // top of upper lip
       let top_alrOffsetX = .035*mw //7 control point distance from alx/arx
       let alrOffsetY = .045*mw //9 control point distance from aly/ary
       let acxOffset = .17*mw //20 control point distance from acxUpper
       let tacyUpperOffset = .21*mw //28 control point distance from acy
-      
+
       // bottom of upper lip
       let bot_alrOffsetX = .1*mw//20 // control point distance from alx/arx
       let bot_alrOffsetY = .05*mw//10 // control point distance from aly/ary
       let bacyUpperOffset = .015*mw//3 // control point distance from bacyUpper
       let acxUpperEndPoint = .08*mw//16 // end point distance from acxUpper
       let acxUpperOffset = acxUpperEndPoint * 3 // control point distance from acxUpper
-      
+
       // upper lip regions
-      let tlUpper = `C${alx+top_alrOffsetX},${aly+alrOffsetY} 
-                      ${acxUpper-acxOffset},${tacyUpper-tacyUpperOffset} 
+      let tlUpper = `C${alx+top_alrOffsetX},${aly+alrOffsetY}
+                      ${acxUpper-acxOffset},${tacyUpper-tacyUpperOffset}
                       ${topCenterOfUpper}`
-      let trUpper = `C${acxUpper+acxOffset},${tacyUpper-tacyUpperOffset} 
-                      ${arx-top_alrOffsetX},${ary+alrOffsetY} 
+      let trUpper = `C${acxUpper+acxOffset},${tacyUpper-tacyUpperOffset}
+                      ${arx-top_alrOffsetX},${ary+alrOffsetY}
                       ${rm}`
-      let brUpper = `C${arx-bot_alrOffsetX},${ary+bot_alrOffsetY} 
+      let brUpper = `C${arx-bot_alrOffsetX},${ary+bot_alrOffsetY}
                       ${acxUpper+acxUpperOffset},${bacyUpper-bacyUpperOffset} ${acxUpper+acxUpperEndPoint},${bacyUpper}`
-      let bMidUpper = `C${acxUpper},${bacyUpper+bacyUpperOffset} 
-                      ${acxUpper},${bacyUpper+bacyUpperOffset} 
+      let bMidUpper = `C${acxUpper},${bacyUpper+bacyUpperOffset}
+                      ${acxUpper},${bacyUpper+bacyUpperOffset}
                       ${acxUpper-acxUpperEndPoint},${bacyUpper}`
-      let blUpper = `C${acxUpper-acxUpperOffset},${bacyUpper-bacyUpperOffset} 
-                      ${alx+bot_alrOffsetX},${aly+bot_alrOffsetY} 
+      let blUpper = `C${acxUpper-acxUpperOffset},${bacyUpper-bacyUpperOffset}
+                      ${alx+bot_alrOffsetX},${aly+bot_alrOffsetY}
                       ${lm}`
-      
+
       // LOWER LIP
       // adjustments
       let acxLower = bx // bottom center of lower lip (X)
       let bacyLower = by // bottom center of lower lip (Y)
-      
+
       // height of the lower lip
       let tacyLower = bacyLower - (mw*.2)
-      
+
       // bottom lip regions
-      let tlLower = `C${alx+bot_alrOffsetX},${aly+bot_alrOffsetY} 
-                      ${acxLower-acxUpperOffset},${tacyLower-bacyUpperOffset} 
+      let tlLower = `C${alx+bot_alrOffsetX},${aly+bot_alrOffsetY}
+                      ${acxLower-acxUpperOffset},${tacyLower-bacyUpperOffset}
                       ${acxUpper-acxUpperEndPoint},${tacyLower}`
-      let tMidLower = `C${acxLower},${tacyLower+bacyUpperOffset} 
-                        ${acxLower},${tacyLower+bacyUpperOffset} 
+      let tMidLower = `C${acxLower},${tacyLower+bacyUpperOffset}
+                        ${acxLower},${tacyLower+bacyUpperOffset}
                         ${acxLower+acxUpperEndPoint},${tacyLower}`
-      let trLower = `C${acxLower+acxUpperOffset},${tacyLower-bacyUpperOffset} 
+      let trLower = `C${acxLower+acxUpperOffset},${tacyLower-bacyUpperOffset}
                       ${arx-bot_alrOffsetX},${aly+bot_alrOffsetY}
                       ${rm}`
-      let brLower = `C${arx},${ary+((bacyLower-ary)/2)} 
-                      ${acxLower+((arx-acxLower)/2)},${bacyLower} 
+      let brLower = `C${arx},${ary+((bacyLower-ary)/2)}
+                      ${acxLower+((arx-acxLower)/2)},${bacyLower}
                       ${acxLower},${bacyLower}`
-      let blLower = `C${acxLower-((acxLower-alx)/2)},${bacyLower} 
-                      ${alx},${ary+((bacyLower-aly)/2)} 
+      let blLower = `C${acxLower-((acxLower-alx)/2)},${bacyLower}
+                      ${alx},${ary+((bacyLower-aly)/2)}
                       ${lm}`
       let { activeColor } = this.state
       let upper = `M${lm} ${tlUpper} ${trUpper} ${brUpper} ${bMidUpper} ${blUpper}`
@@ -218,7 +218,7 @@ class Selfie extends Component {
       </View>
     )
   }
-  
+
   renderLandmarks() {
     return (
       <View style={styles.facesContainer} pointerEvents="none">
@@ -226,11 +226,11 @@ class Selfie extends Component {
       </View>
     )
   }
-  
+
   getColorObj(id){
     return this.state.colors.find( ({colorId}) => colorId === id)
   }
-  
+
   syncSelectedColorsWithStateColors(){
     let newSelectedColors = []
     let { selectedColors,colors } = this.state
@@ -240,16 +240,16 @@ class Selfie extends Component {
     })
     this.setState({selectedColors:newSelectedColors})
   }
-  
+
   renderLiker(color){
     return (
-      <Liker 
-        key={color.colorId} 
-        color={color} 
+      <Liker
+        key={color.colorId}
+        color={color}
         onLikePress={this.checkIfLikeExists}/>
     )
   }
-  
+
   renderLikers(colors){
     if (colors && colors.length > 0) {
       return colors.map( color => this.renderLiker(color) )
@@ -257,7 +257,7 @@ class Selfie extends Component {
       return <View/>
     }
   }
-  
+
   renderColorTest(){
     if (!debugging) {
       return null
@@ -279,8 +279,8 @@ class Selfie extends Component {
           </Text>
           {
             this.state.selectedColors.map( ({colorId,rgb,name}) => (
-              <Text 
-                key={colorId} 
+              <Text
+                key={colorId}
                 style={{color:"white"}}>
                   {rgb} - {name}
               </Text>
@@ -295,7 +295,7 @@ class Selfie extends Component {
       )
     }
   }
-  
+
   renderCamera() {
     return (
       <Camera
@@ -313,10 +313,10 @@ class Selfie extends Component {
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
             {this.renderLandmarks()}
-            <FlatList 
+            <FlatList
               data={this.state.colors}
-              renderItem={this.renderSwatch} 
-              keyExtractor={({colorId}) => colorId} 
+              renderItem={this.renderSwatch}
+              keyExtractor={({colorId}) => colorId}
               contentContainerStyle={{
                 alignSelf: 'flex-end'
               }}/>
@@ -338,12 +338,12 @@ class Selfie extends Component {
               alignItems: 'center',paddingHorizontal:12
             }}>
               <FontPoiret text="Single Coat" size={Texts.medium.fontSize} />
-              <Switch 
+              <Switch
                 checked={this.state.layersMode}
                 onSwitchPress={() => this.toggleLayersMode()}/>
               <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={{
               position:'absolute',
               top:(screenHeight/2)-36,
@@ -351,7 +351,7 @@ class Selfie extends Component {
               backgroundColor: Colors.transparentPurple,
               alignItems: 'center',paddingHorizontal:12,
               paddingVertical:14
-              }} 
+              }}
               onPress={() => this.showModal(
                 'prompt',
                 'A Better Experience',
@@ -364,7 +364,7 @@ class Selfie extends Component {
       </Camera>
     )
   }
-  
+
   getLayeredRGB(rgbs,rgbNumbers,op){
     // rgbs is rgbStringAsArrayOfNumbers
     // rgbNumbers is rgbs of selectedColors
@@ -416,7 +416,7 @@ class Selfie extends Component {
     }
     return `rgba(${red},${green},${blue},${alpha})`
   }
-  
+
   combineRgbsOfSelectedColors(arr){
     let rgbNumbersOfSelectedColors = []
     arr.forEach( ({ rgbs }) => {
@@ -424,13 +424,13 @@ class Selfie extends Component {
     })
     return rgbNumbersOfSelectedColors
   }
-  
+
   async consolidateRGBs(rgbs,op,selectedColors){
     let rgbsOfSelectedColors = await this.combineRgbsOfSelectedColors(selectedColors)
     let mergedRGBs = await this.getLayeredRGB(rgbs,rgbsOfSelectedColors,op)
     return mergedRGBs
   }
-  
+
   convertRGBStringIntoArrayOfNumbers(rgbString){
     let colorCodes = rgbString.split(',')
     let rgbStringAsArrayOfNumbers = []
@@ -440,7 +440,7 @@ class Selfie extends Component {
     if (rgbStringAsArrayOfNumbers.length === 4) rgbStringAsArrayOfNumbers.pop()
     return rgbStringAsArrayOfNumbers
   }
-  
+
   async getNewRGB(rgbStringAsArrayOfNumbers,op,selectedColors){
     let newRGB
     if (!rgbStringAsArrayOfNumbers) {
@@ -460,7 +460,7 @@ class Selfie extends Component {
       return newRGB
     }
   }
-  
+
   async onColorPress(color){
     let { selectedColors,layersMode } = this.state
     // run check to see if color is selected already
@@ -497,7 +497,7 @@ class Selfie extends Component {
       }
     }
   }
-  
+
   updateSelectedColors(activeColor,selectedColors,color){
     this.setState({
       activeColor,
@@ -506,12 +506,12 @@ class Selfie extends Component {
       debugging && this.lastTapped(color)
     })
   }
-  
+
   // debugger function
   lastTapped({ rgb,name }){
     this.setState({lastTapped: `${rgb} - ${name}`})
   }
-  
+
   async toggleLayersMode(){
     if (this.state.layersMode) {
       this.setState({layersMode:false})
@@ -532,20 +532,20 @@ class Selfie extends Component {
       this.setState({activeColor})
     }
   }
-  
+
   renderSwatch({item}){
     let isSelected = this.state.selectedColors.findIndex(
       ({ colorId:selectedColorId }) => selectedColorId === item.colorId
     )
     return (
-      <ColorSwatch 
+      <ColorSwatch
         color={item}
         isSelected={isSelected === -1 ? false : true}
         doesLike={this.props.userType === 'SHOPPER' ? item.doesLike : false}
         onColorPress={this.onColorPress} />
     )
   }
-  
+
   renderSwatches(){
     let { colors } = this.state
     if (colors && colors.length > 0) {
@@ -568,7 +568,7 @@ class Selfie extends Component {
       </View>
     )
   }
-  
+
   componentWillReceiveProps(newProps){
     if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
       if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
@@ -645,7 +645,7 @@ class Selfie extends Component {
       this.showModal('prompt',"You're a Distributor",distIsLiking)
     }
   }
-  
+
   createLikeInDb(ShopperId,color){
     // this.showModal('processing')
     let errText = 'creating a like for this color'
@@ -671,12 +671,12 @@ class Selfie extends Component {
       this.openError(`${errText} (error code: 3-${ShopperId}-${ColorId})`)
     }
   }
-  
+
   updateDoesLike(color){
     this.updateDoesLikeInApp(color)
     this.updateDoesLikeInDb(color)
   }
-  
+
   updateDoesLikeInApp(color){
     let { colors } = this.state
     let i = colors.findIndex( ({colorId}) => colorId === color.colorId )
@@ -687,7 +687,7 @@ class Selfie extends Component {
       })
     }
   }
-  
+
   updateDoesLikeInDb(color){
     let {likeId:LikeId,doesLike:bool,colorId} = color
     let errText = 'updating the like status for this color'
