@@ -89,7 +89,12 @@ class LikesPreloader extends Component {
   }
 
   modifyShoppersDistributor(dist){
-    this.props.updateShoppersDistributor(dist)
+    this.setState({reloading:true},()=>{
+      this.props.updateShoppersDistributor(dist)
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
   }
 
   render(){
