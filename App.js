@@ -37,7 +37,7 @@ store.dispatch(setSettings(screen))
 export default class App extends Component {
   constructor(props) {
     super(props)
-    
+
     this.state = {
       assetsAreLoaded: false,
       isModalOpen: false,
@@ -45,7 +45,7 @@ export default class App extends Component {
       modalContent: {},
       localStorage: false
     }
-    
+
     this.imagesToPreload = [
       require('./assets/icons/iconWithBorder.png'),
       require('./assets/images/splashTransparent.png'),
@@ -55,7 +55,7 @@ export default class App extends Component {
       require('./assets/images/cruelty-free.jpg'),
       require('./assets/images/avatar.png')
     ]
-    
+
     this.fontsToPreLoad = {
       Matilde: require('./assets/fonts/Matilde.ttf'),
       Poiret: require('./assets/fonts/Poiret.ttf'),
@@ -78,11 +78,11 @@ export default class App extends Component {
     this.getAllAsyncStorage()
     // AsyncStorage.clear()
   }
-  
+
   componentDidMount(){
     store.dispatch(setAppReset(this.appReset.bind(this)))
   }
-  
+
   getAllAsyncStorage(){
     let asyncStorage = {}
     AsyncStorage.getAllKeys((err, keys) => {

@@ -17,11 +17,6 @@ import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
 import RemoteData from '../store/Remote'
 
-// const AuthStack = createStackNavigator(
-//   { LoggedOut: Login },
-//   { headerMode: 'none' }
-// )
-
 const ClaimsModal = createStackNavigator(
   { Claims },
   {
@@ -47,7 +42,8 @@ const AppStack = createStackNavigator(
   {
     initialRouteName: 'Preloader',
     mode: 'modal',
-    headerMode: 'none'
+    headerMode: 'none',
+    navigationOptions: { gesturesEnabled: false }
   }
 )
 

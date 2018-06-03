@@ -252,10 +252,10 @@ class Login extends Component {
             }
           })
         } else {
-          this.openError(`${errText} (error code: 1-${fbkUser})`)
+          this.openError(`${errText}-1`)
         }
       }).catch( e => {
-        this.openError(`${errText} (error code: 2-${fbkUser})`)
+        this.openError(`${errText}-2`)
       })
     }
   }

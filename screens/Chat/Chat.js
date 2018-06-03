@@ -34,6 +34,7 @@ import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
+const duration = 1000
 const debugging = __DEV__ && false
 
 // COMPONENTS
@@ -47,44 +48,47 @@ class Chat extends Component {
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
-      user: this.props.user ? this.props.user : null,
-      chats: null,
       isFocused: true
     }
-    this.updateChatsOnState = debounce(this.updateChatsOnState,750,true)
+    this.setChats = debounce(this.setChats,duration,true)
+    this.updateChatsOnState = debounce(this.updateChatsOnState,duration,true)
   }
 
   componentWillReceiveProps(newProps){
     if (
-      newProps.getChatsForDistributor && 
-      newProps.getChatsForDistributor.allChats && 
+      newProps.getChatsForDistributor &&
+      newProps.getChatsForDistributor.allChats &&
       newProps.getChatsForDistributor.allChats !== this.props.getChatsForDistributor.allChats
     ) {
-      if (this.props.userType === 'DIST' && this.state.chats === null) {
-        this.props.setChats(newProps.getChatsForDistributor.allChats)
+      if (this.props.userType === 'DIST') {
+        this.setChats(newProps.getChatsForDistributor.allChats)
       }
     }
     if (
-      newProps.getChatsForShopper && 
-      newProps.getChatsForShopper.allChats && 
+      newProps.getChatsForShopper &&
+      newProps.getChatsForShopper.allChats &&
       newProps.getChatsForShopper.allChats !== this.props.getChatsForShopper.allChats
     ) {
-      if (this.props.userType === 'SHOPPER' && this.state.chats === null) {
-        this.props.setChats(newProps.getChatsForShopper.allChats)
+      if (this.props.userType === 'SHOPPER') {
+        this.setChats(newProps.getChatsForShopper.allChats)
       }
     }
-    if (
-      newProps.chats && 
-      newProps.chats.length > 0
-    ) {
-      this.updateChatsOnState(newProps.chats)
-    }
+    // if (
+    //   newProps.chats &&
+    //   newProps.chats.length > 0
+    // ) {
+    //   this.updateChatsOnState(newProps.chats)
+    // }
   }
-  
+
+  setChats(chats){
+    this.props.setChats(chats)
+  }
+
   updateChatsOnState(chats){
     this.setState({chats})
   }
-  
+
   componentWillMount(){
     this.didFocusSubscription = this.props.navigation.addListener(
       'didFocus',
@@ -101,7 +105,7 @@ class Chat extends Component {
       }
     )
   }
-  
+
   componentDidMount(){
     this.subToShoppersChats()
     this.subToDistributorsChats()
@@ -111,12 +115,13 @@ class Chat extends Component {
     this.didFocusSubscription.remove()
     this.didBlurSubscription.remove()
   }
-  
+
   subToShoppersChats(){
-    if (this.props.user && this.props.user.shopperx && this.props.user.shopperx.id) {
+    let { shopperId } = this.props
+    if (shopperId) {
       this.props.getChatsForShopper.subscribeToMore({
         document: SubToShoppersChats,
-        variables: {ShopperId:{"id":this.props.user.shopperx.id}},
+        variables: {ShopperId:{"id":shopperId}},
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
@@ -133,10 +138,10 @@ class Chat extends Component {
       })
     }
   }
-  
+
   addChatToChatList(chat,cameFrom){
     let isSelf
-    if (chat.messages.length > 0 && chat.messages[0].writerx.id === this.props.user.id) {
+    if (chat.messages.length > 0 && chat.messages[0].writerx.id === this.props.userId) {
       isSelf = true
     } else {
       isSelf = false
@@ -145,20 +150,16 @@ class Chat extends Component {
     debugging && console.log('addChatToChatList func called')
     debugging && console.log('Came From: ',cameFrom)
   }
-  
+
   updateChatOnChatList(prevChat,nextChat){
-    let subjectChat = this.state.chats.find( chat => {
-      return chat.id === nextChat.id
-    })
+    let subjectChat = this.props.chats.find( chat => chat.id === nextChat.id)
     if (!subjectChat) {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
     } else {
       if (prevChat && nextChat) {
         if (nextChat.type === 'DIST2SHPRS') {
           if (this.props.userType === 'SHOPPER') {
-            let shopperExists = subjectChat.shoppersx.find( shopper => {
-              return shopper.id === this.props.user.shopperx.id
-            })
+            let shopperExists = subjectChat.shoppersx.find( shopper => shopper.id === this.props.shopperId)
             if (!shopperExists) {
               this.removeChatFromChatList(prevChat,'updateChatOnChatList')
             } else {
@@ -180,10 +181,10 @@ class Chat extends Component {
     debugging && console.log('updateChatOnChatList func called')
     debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat.id)
   }
-  
+
   removeChatFromChatList(prevChat,cameFrom){
     if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
-      let chats = JSON.parse(JSON.stringify(this.state.chats))
+      let chats = [...this.props.chats]
       let i = chats.findIndex( chat => {
         return chat.id === prevChat.id
       })
@@ -196,12 +197,13 @@ class Chat extends Component {
   }
 
   subToDistributorsChats(){
-    if (this.props.user && this.props.user.distributorx && this.props.user.distributorx.id) {
+    let { shopperId,distributorId } = this.props
+    if (distributorId) {
       this.props.getChatsForDistributor.subscribeToMore({
         document: SubToDistributorsChats,
         variables: {
-          DistributorId:{"id":this.props.user.distributorx.id},
-          shopperId:{"id":this.props.user.shopperx.id}
+          DistributorId:{"id":distributorId},
+          shopperId:{"id":shopperId}
         },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
@@ -250,8 +252,9 @@ class Chat extends Component {
   }
 
   renderChats(){
-    if (this.state.chats) {
-      return this.state.chats.map( chat => {
+    let { chats } = this.props
+    if (chats.length > 0) {
+      return chats.map( chat => {
         return <ChatCard key={chat.id} chat={chat}/>
       })
     } else {
@@ -266,7 +269,7 @@ class Chat extends Component {
   renderMainContent(){
     return (
       <ScrollView contentContainerStyle={{
-        flex: this.state.chats ? 0 : 1,
+        flex: this.props.chats ? 0 : 1,
         paddingBottom:6
       }}>
         {this.renderChats()}
@@ -288,6 +291,7 @@ class Chat extends Component {
 
 Chat.propTypes = {
   chats: PropTypes.array.isRequired,
+  userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired
@@ -295,6 +299,7 @@ Chat.propTypes = {
 
 const mapStateToProps = state => ({
   chats: state.chats,
+  userId: state.user.id,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
   userType: state.user.type
