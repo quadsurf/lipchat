@@ -28,6 +28,9 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 //COMPS
 import LikeCard from './LikeCard'
 
+//CONSTs
+const duration = 1000
+
 class Likes extends Component {
 
   constructor(props){
@@ -39,29 +42,34 @@ class Likes extends Component {
       likes: null
     }
     this.onPressClaim = debounce(this.onPressClaim.bind(this),3000,true)
+    this.addLikeToLikesList = debounce(this.addLikeToLikesList,duration,true)
+    this.removeLikeFromLikesList = debounce(this.removeLikeFromLikesList,duration,true)
   }
 
   subToLikesInDb(){
-    this.props.getLikesForShopper.subscribeToMore({
-      document: SubToLikesForShopper,
-      variables: {
-        shopperId: { id:this.props.shopperId }
-      },
-      updateQuery: (previous,{ subscriptionData }) => {
-        const { node: { id,doesLike },mutation,previousValues } = subscriptionData.data.Like
-        const { node } = subscriptionData.data.Like
-        if (mutation === 'CREATED') {
-          this.addLikeToLikesList(node,this.state.likes)
-        }
-        if (mutation === 'UPDATED') {
-          if (!doesLike) {
-            this.removeLikeFromLikesList(id)
-          } else {
-            this.addLikeToLikesList(node,this.state.likes)
+    let { shopperId } = this.props
+    if (shopperId) {
+      this.props.getLikesForShopper.subscribeToMore({
+        document: SubToLikesForShopper,
+        variables: {
+          shopperId: { id:shopperId }
+        },
+        updateQuery: (previous,{ subscriptionData }) => {
+          const { node: { id,doesLike },mutation,previousValues } = subscriptionData.data.Like
+          const { node } = subscriptionData.data.Like
+          if (mutation === 'CREATED') {
+            this.addLikeToLikesList(node)
+          }
+          if (mutation === 'UPDATED') {
+            if (!doesLike) {
+              this.removeLikeFromLikesList(id)
+            } else {
+              this.addLikeToLikesList(node)
+            }
           }
         }
-      }
-    })
+      })
+    }
   }
 
   removeLikeFromLikesList(likeId){
@@ -71,7 +79,8 @@ class Likes extends Component {
     this.setState({likes})
   }
 
-  addLikeToLikesList(like,likes){
+  addLikeToLikesList(like){
+    let { likes } = this.state
     let hasLike = likes.findIndex( ({ id }) => {
       return id === like.id
     })
@@ -116,8 +125,7 @@ class Likes extends Component {
   componentWillReceiveProps(newProps){
     if (newProps !== this.props) {
       if (
-        newProps.getLikesForShopper
-        && newProps.getLikesForShopper.allLikes
+        newProps.getLikesForShopper.allLikes
         && this.state.likes === null
       ) {
         this.setState({likes:newProps.getLikesForShopper.allLikes})
