@@ -54,9 +54,7 @@ class Selfie extends Component {
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
-      user: this.props.user,
       colors: [],
-      userType: this.props.userType,
       hasCameraPermission: false,
       photoId: 1,
       photos: [],
@@ -76,18 +74,19 @@ class Selfie extends Component {
 
   subToLikesInDb(){
     if (this.props.userType === 'SHOPPER') {
-      this.props.getLikesForShopper.subscribeToMore({
-        document: SubToLikesForShopper,
-        variables: {
-          shopperId: { id: this.props.shopperId }
-        },
-        updateQuery: (previous,{ subscriptionData }) => {
-          const { node={},mutation='' } = subscriptionData.data.Like
-          if (mutation === 'CREATED' || mutation === 'UPDATED') {
-            if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+      let { shopperId } = this.props
+      if (shopperId) {
+        this.props.getLikesForShopper.subscribeToMore({
+          document: SubToLikesForShopper,
+          variables: { shopperId: { id:shopperId } },
+          updateQuery: (previous,{ subscriptionData }) => {
+            const { node={},mutation='' } = subscriptionData.data.Like
+            if (mutation === 'CREATED' || mutation === 'UPDATED') {
+              if (node.hasOwnProperty('id')) this.updateLikeOnColorsList(node)
+            }
           }
-        }
-      })
+        })
+      }
     }
   }
 
@@ -634,7 +633,7 @@ class Selfie extends Component {
   checkIfLikeExists(color){
     if (this.props.userType === 'SHOPPER') {
       let { likeId,doesLike,colorId } = color
-      let { id:shopperId } = this.props.user.shopperx
+      let { shopperId } = this.props
       if (likeId) {
         color.doesLike = !doesLike
         this.updateDoesLike(color)
@@ -735,11 +734,13 @@ class Selfie extends Component {
 }
 
 Selfie.propTypes = {
+  userType: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
+  userType: state.user.type,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id
 })
