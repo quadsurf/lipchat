@@ -82,18 +82,21 @@ class LipColors extends Component {
 
   subToLikesInDb(){
     if (this.props.userType === 'SHOPPER') {
-      this.props.getLikesForShopper.subscribeToMore({
-        document: SubToLikesForShopper,
-        variables: {
-          shopperId: { id: this.props.shopperId }
-        },
-        updateQuery: (previous,{ subscriptionData }) => {
-          const { node={},mutation='' } = subscriptionData.data.Like
-          if (mutation === 'CREATED' || mutation === 'UPDATED') {
-            if (node.hasOwnProperty('id')) this.normalizeColor(node)
+      let { shopperId } = this.props
+      if (shopperId) {
+        this.props.getLikesForShopper.subscribeToMore({
+          document: SubToLikesForShopper,
+          variables: {
+            shopperId: { id:shopperId }
+          },
+          updateQuery: (previous,{ subscriptionData }) => {
+            const { node={},mutation='' } = subscriptionData.data.Like
+            if (mutation === 'CREATED' || mutation === 'UPDATED') {
+              if (node.hasOwnProperty('id')) this.normalizeColor(node)
+            }
           }
-        }
-      })
+        })
+      }
     }
   }
 
@@ -401,11 +404,10 @@ class LipColors extends Component {
 
   checkIfInventoryExists({inventoryId,colorId,count,family}){
     this.showModal('processing')
-    let distributorId = this.props.distributorId
     if (inventoryId) {
       this.updateInventoryInDb(inventoryId,colorId,count,family)
     } else {
-      this.createInventoryInDb(distributorId,colorId,count,family)
+      this.createInventoryInDb(this.props.distributorId,colorId,count,family)
     }
   }
 
@@ -572,7 +574,8 @@ const LipColorsWithData = compose(
     options: props => ({
       variables: {
         shopperId: { id: props.shopperId }
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   })
 )(LipColors)
