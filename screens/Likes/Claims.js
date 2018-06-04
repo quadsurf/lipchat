@@ -30,11 +30,12 @@ import { AppName,method,url,newClaimText,newClaimText2 } from '../../config/Defa
 import { Modals } from '../../utils/Helpers'
 
 //CONSTs
+const duration = 3500
 const debugging = __DEV__ && false
 
 @withNavigation
 class Claims extends Component {
-  
+
   constructor(props){
     super(props)
     this.state = {
@@ -45,12 +46,12 @@ class Claims extends Component {
       modalContent: {},
       isVerified: null
     }
-    this.openClaimConfirmation = debounce(this.openClaimConfirmation,3000,true)
-    this.sendClaim = debounce(this.sendClaim,4000,true)
-    this.closeModal = debounce(this.closeModal,3000,true)
-    this.closeNavModal = debounce(this.closeNavModal,3000,true)
+    this.openClaimConfirmation = debounce(this.openClaimConfirmation,duration,true)
+    this.sendClaim = debounce(this.sendClaim,duration,true)
+    this.closeModal = debounce(this.closeModal,duration,true)
+    this.closeNavModal = debounce(this.closeNavModal,duration,true)
   }
-  
+
   componentWillReceiveProps(newProps){
     if (
       newProps.getShoppersDistributor
@@ -74,7 +75,7 @@ class Claims extends Component {
       }
     }
   }
-  
+
   checkIfShopperHasDmChatWithDistributorInDb(shopperId,distributorId,withDist){
     if (shopperId && distributorId) {
       let headers = { Authorization: `Bearer ${this.props.gcToken}` }
@@ -108,7 +109,7 @@ class Claims extends Component {
     }
     this.setState({isVerified:withDist})
   }
-  
+
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -138,11 +139,11 @@ class Claims extends Component {
         isOpen={this.state.isModalOpen}
         close={() => this.closeModal()}
         type={this.state.modalType}
-        content={this.state.modalContent} 
+        content={this.state.modalContent}
         onConfirmPress={this.state.onConfirmPress}/>
     )
   }
-  
+
   saveNewClaimMessage(chatId,bizName,fbkFirstName,fbkLastName){
     this.setState({
       newClaimMessage: {
@@ -153,15 +154,15 @@ class Claims extends Component {
       bizName,fbkFirstName,fbkLastName
     })
   }
-  
+
   closeModal(){
     this.setState({ isModalOpen:false })
   }
-  
+
   closeNavModal(){
     this.props.navigation.dispatch(NavigationActions.back())
   }
-  
+
   triggerEventOnChatInDb(chatId){
     this.props.triggerEventOnChat({
       variables: {
@@ -210,39 +211,39 @@ class Claims extends Component {
       },700)
     })
   }
-  
+
   openClaimConfirmation(){
     let { bizName,fbkFirstName,fbkLastName,isVerified,count,colorName } = this.state
     let distName = bizName ? bizName : `${fbkFirstName} ${fbkLastName}`
-    this.showModal('confirm','Confirm Desire',`${AppName} will notify ${isVerified ? distName : 'your distributor'} of your desire to reserve/claim from their inventory the following:${"\n"}${"\n"}Color: ${colorName}${"\n"}Quantity: ${count}${"\n"}${"\n"}If you are also needing other beauty products such as gloss, please send her a private chat.`)
+    this.showModal('confirm','Confirm Desire',`${AppName} will notify ${isVerified ? distName : 'a distributor'} of your desire to reserve/claim from their inventory the following:${"\n"}${"\n"}Color: ${colorName}${"\n"}Quantity: ${count}${"\n"}${"\n"}If you are also needing other beauty products such as gloss, please send her a private chat.`)
   }
-  
+
   renderRequestButton(){
     if (this.state.count > 0) {
       return (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={{...Views.middle,backgroundColor:Colors.purple}}
           onPress={() => this.openClaimConfirmation()}>
-            <FontPoiret 
-              text="next" 
-              size={34} 
-              color={Colors.blue} 
+            <FontPoiret
+              text="next"
+              size={34}
+              color={Colors.blue}
               vspace={0}/>
         </TouchableOpacity>
       )
     } else {
       return (
         <View style={{...Views.middle,backgroundColor:Colors.purpleText}}>
-            <FontPoiret 
-              text="next" 
-              size={34} 
-              color={Colors.transparentWhite} 
+            <FontPoiret
+              text="next"
+              size={34}
+              color={Colors.transparentWhite}
               vspace={0}/>
         </View>
       )
     }
   }
-  
+
   updateCount(op){
     let { count } = this.state
     if (op === '+') {
@@ -252,7 +253,7 @@ class Claims extends Component {
       this.setState({count:count-1})
     }
   }
-  
+
   renderMainContent(){
     let { width,height } = this.props
     return (
@@ -260,8 +261,8 @@ class Claims extends Component {
         <View style={{flex:1}}>
           <View style={{...Views.bottomCenter,paddingTop:height*.2,marginBottom:20}}>
             <FontMatilde color={Colors.white} text={this.state.count} size={300} vspace={0}/>
-            <FontPoiret 
-              text={`${this.state.colorName}${this.state.count !== 1 ? 's' : ''}`} 
+            <FontPoiret
+              text={`${this.state.colorName}${this.state.count !== 1 ? 's' : ''}`}
               size={34} color={Colors.white} vspace={0}/>
           </View>
           <View style={{...Views.rowSpaceAround}}>
@@ -281,13 +282,13 @@ class Claims extends Component {
           <View style={{width,height:80,flexDirection:'row'}}>
             {this.renderRequestButton()}
             <View style={{width:1,height:80,backgroundColor:Colors.pinkly}}/>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={{...Views.middle,backgroundColor:Colors.purple}}
               onPress={() => this.closeNavModal()}>
-                <FontPoiret 
-                  text="cancel" 
-                  size={34} 
-                  color={Colors.blue} 
+                <FontPoiret
+                  text="cancel"
+                  size={34}
+                  color={Colors.blue}
                   vspace={0}/>
             </TouchableOpacity>
           </View>
@@ -295,7 +296,7 @@ class Claims extends Component {
       </View>
     )
   }
-  
+
   render(){
     return(
       <View style={{flex:1,backgroundColor:Colors.pinkly}}>
@@ -304,7 +305,7 @@ class Claims extends Component {
       </View>
     )
   }
-  
+
 }
 
 Claims.propTypes = {
