@@ -12,9 +12,6 @@ import {
   TouchableOpacity
 } from 'react-native'
 
-//ENV VARS
-import { PROJECT_ID } from 'react-native-dotenv'
-
 // LIBS
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { compose,graphql } from 'react-apollo'
@@ -22,7 +19,6 @@ import { connect } from 'react-redux'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
 import { NavigationActions } from 'react-navigation'
-import axios from 'axios'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -33,8 +29,6 @@ import {
   UpdateDistributorBizUri,UpdateDistributorLogoUri,
   CreateGroupChatForDistributor
 } from '../../api/db/mutations'
-import { CheckIfDistributorHasGroupChat } from '../../api/db/queries'
-// import { GetDistributor,GetUserType,CheckIfDistributorHasGroupChat } from '../../api/db/queries'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -83,7 +77,7 @@ class You extends Component {
       cellPhone: this.props.user.cellPhone,
       tempCell: '',
       name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-      userType: this.props.user.type,
+      userType: this.props.userType,
       isNumericKeyPadOpen: false,
       isUserTypeSubmitModalOpen: false,
       isCellSubmitModalOpen: false,
@@ -237,14 +231,14 @@ class You extends Component {
   }
 
   renderUserType(){
-    let type = this.state.userType
+    let { userType } = this.props
     return (
       <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-        <FontPoiret text="shopper" size={large} color={type === 'SHOPPER' ? Colors.blue : Colors.transparentWhite} style={{paddingBottom:8}}/>
-        <Switch 
-          onSwitchPress={() => this.setState({isUserTypeSubmitModalOpen:true})} 
-          checked={type === "DIST" ? true : false}/>
-        <FontPoiret text="distributor" size={large} color={type === 'DIST' ? Colors.pinkly : Colors.transparentWhite} style={{paddingBottom:6}}/>
+        <FontPoiret text="shopper" size={large} color={userType === 'SHOPPER' ? Colors.blue : Colors.transparentWhite} style={{paddingBottom:8}}/>
+        <Switch
+          onSwitchPress={() => this.setState({isUserTypeSubmitModalOpen:true})}
+          checked={userType === "DIST" ? true : false}/>
+        <FontPoiret text="distributor" size={large} color={userType === 'DIST' ? Colors.pinkly : Colors.transparentWhite} style={{paddingBottom:6}}/>
       </View>
     )
   }
@@ -271,7 +265,7 @@ class You extends Component {
     let fieldRow = {flexDirection:'row',width,height:60}
     let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
     let fieldValue = {flex:5,justifyContent:'center'}
-    let { userType } = this.state
+    let { userType } = this.props
     if (userType === 'DIST') {
       return (
         <View style={{width,height:240}}>
@@ -310,7 +304,7 @@ class You extends Component {
           </View>
           <View style={[fieldRow]}>
             <View style={{flex:5,justifyContent:'center',alignItems:'flex-end'}}>
-              <FontPoiret text={exists ? "your distributor's id #" : "enter your distributor's id #"} size={small} color={Colors.blue}/>
+              <FontPoiret text={exists ? "your distributor\'s id #" : "enter your distributor\'s id #"} size={small} color={Colors.blue}/>
             </View>
             <View style={{flex:3,justifyContent:'center',alignItems:'flex-start',paddingLeft:10}}>
               {this.renderShoppersDistId()}
@@ -322,8 +316,9 @@ class You extends Component {
   }
 
   renderDistributorFields(){
+    let { userType } = this.props
     return (
-      <View style={{borderRadius:12,padding:screenPadding,borderColor:this.state.userType === 'SHOPPER' ? Colors.blue : Colors.pinkly,borderWidth:1}}>
+      <View style={{borderRadius:12,padding:screenPadding,borderColor:userType === 'SHOPPER' ? Colors.blue : Colors.pinkly,borderWidth:1}}>
         <View style={{width:screen.width*.8,height:50,alignItems:'center',justifyContent:'center'}}>
           {this.renderUserType()}
         </View>
@@ -379,7 +374,6 @@ class You extends Component {
   }
 
   renderBizName(){
-    // onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
     return (
       <TextInput value={this.state.DistributorBizName}
         placeholder="add (optional)"
@@ -431,7 +425,7 @@ class You extends Component {
   }
 
   renderCellSubmitModal(){
-    return(
+    return (
       <Modal
         isVisible={this.state.isCellSubmitModalOpen}
         backdropColor={Colors.blue}
@@ -444,7 +438,7 @@ class You extends Component {
   }
 
   renderUserTypeSubmitModal(){
-    return(
+    return (
       <Modal
         isVisible={this.state.isUserTypeSubmitModalOpen}
         backdropColor={Colors.blue}
@@ -523,7 +517,7 @@ class You extends Component {
 
   renderUserTypeContent(){
     let userType
-    if (this.state.userType === "DIST") {userType = 'SHOPPER'} else {userType = 'DIST'}
+    if (this.props.userType === "DIST") {userType = 'SHOPPER'} else {userType = 'DIST'}
     let modalWidth = screen.width*.85
     let modalHeight = screen.height*.75
     let button = {
@@ -671,8 +665,7 @@ class You extends Component {
   }
 
   cellButtonDisabled = () => null
-  
-  //updateCellPhoneInDb
+
   cellButtonEnabled = () => {
     let errText = 'updating your cell phone'
     let { tempCell } = this.state
@@ -718,18 +711,7 @@ class You extends Component {
             type: userType
           }
         }).then( res => {
-          if (res && res.data && res.data.updateUser) {
-            setTimeout(()=>{
-              this.setState({isModalOpen:false})
-            },700)
-            if (res.data.updateUser.type && res.data.updateUser.type === 'DIST') {
-              this.checkIfDistributorHasGroupChat()
-            }
-          } else {
-            setTimeout(()=>{
-              this.openError(errText)
-            },700)
-          }
+          //
         }).catch( e => {
           setTimeout(()=>{
             this.setState({isModalOpen:false},()=>{
@@ -743,58 +725,9 @@ class You extends Component {
     })
   }
 
-//ERROR HANDLING NEEDED
-  checkIfDistributorHasGroupChat(){
-    let method = 'post'
-    let url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
-    let headers = {
-      Authorization: `Bearer ${this.props.gcToken}`,
-      "Content-Type": "application/json"
-    }
-    axios({
-      headers,method,url,
-      data: {
-        query: CheckIfDistributorHasGroupChat,
-        variables: {
-          distributorsx: {id: this.props.distributor.id}
-        }
-      }
-    }).then( res => {
-      if (res.data.data.allChats.length > 0) {
-        if (debugging) console.log('distributor already has a group chat, so no need to create');
-      } else {
-        this.createGroupChatForDistributorInDb()
-      }
-    }).catch( e => {
-      if (debugging) console.log('e',e.message);
-    })
-  }
-
-//ERROR HANDLING NEEDED  
-  createGroupChatForDistributorInDb(){
-    if (
-      this.props.distributor && this.props.distributor.id
-    ) {
-      this.props.createGroupChatForDistributor({
-        variables: {
-          distributorsx: this.props.distributor.id
-        }
-      }).then( res => {
-        if (res && res.data && res.data.createChat) {
-          //
-        }
-      }).catch( e => {
-        if (debugging) console.log('failed to create group chat for distributor in db',e.message);
-      })
-    } else {
-      if (debugging) console.log('insufficient inputs to create group chat for distributor in db');
-    }
-  }
-
   updateDistributorDistIdInDb(){
     let { DistributorDistId } = this.state
     let DistributorId = this.props.distributor.id
-    // let { id } = this.props.user
     let errText = 'saving your Distributor ID'
     if (DistributorId && DistributorDistId) {
       this.props.updateDistributorDistId({
@@ -819,7 +752,6 @@ class You extends Component {
   updateDistributorBizNameInDb(){
     let { DistributorBizName } = this.state
     let DistributorId = this.props.distributor.id
-    // let { id } = this.props.user
     let errText = 'saving your Business Name'
     if (DistributorId && DistributorBizName) {
       this.props.updateDistributorBizName({
@@ -844,7 +776,6 @@ class You extends Component {
   updateDistributorBizUriInDb(){
     let { DistributorBizUri } = this.state
     let DistributorId = this.props.distributor.id
-    // let { id } = this.props.user
     let errText = 'saving your Business URL'
     if (!this.isSsl(DistributorBizUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https'.")
@@ -873,7 +804,6 @@ class You extends Component {
   updateDistributorLogoUriInDb(){
     let { DistributorLogoUri } = this.state
     let DistributorId = this.props.distributor.id
-    // let { id } = this.props.user
     let errText = 'saving your Logo URL'
     if (!this.isValidUri(DistributorLogoUri)) {
       this.showModal('error','Profile',"Your URL must begin with 'https' and end with '.jpg' or 'png'.")
@@ -914,15 +844,15 @@ class You extends Component {
 }
 
 You.propTypes = {
-  gcToken: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
+  userType: PropTypes.string.isRequired,
   distributor: PropTypes.object.isRequired,
   shoppersDistributor: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
-  gcToken: state.tokens.gc,
   user: state.user,
+  userType: state.user.type,
   distributor: state.distributor,
   shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {}
 })
@@ -957,6 +887,5 @@ const YouWithData = compose(
 export default connect(mapStateToProps,{ updateUser,resetApp })(YouWithData)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
-//ERROR HANDLING NEEDED FOR:
-// checkIfDistributorHasGroupChat
-// createGroupChatForDistributorInDb
+// from renderBizName func: onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
+//updateCellPhoneInDb from cellButtonEnabled func

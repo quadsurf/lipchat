@@ -8,11 +8,13 @@ import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
+import axios from 'axios'
 import PropTypes from 'prop-types'
 
 // GQL
 import { GetUserType } from '../../api/db/queries'
 import { SubToUserType } from '../../api/db/pubsub'
+import { CheckIfDistributorHasGroupChat } from '../../api/db/queries'
 
 // STORE
 import { updateUser } from '../../store/actions'
@@ -27,6 +29,9 @@ import You from './You'
 // CONSTS
 const duration = 3000
 const debugging = __DEV__ && false
+
+//ENV VARS
+import { PROJECT_ID } from 'react-native-dotenv'
 
 class YouPreloader extends Component {
 
@@ -62,10 +67,59 @@ class YouPreloader extends Component {
   updateUser(nextType){
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
+      nextType === 'DIST' && this.checkIfDistributorHasGroupChat()
       setTimeout(()=>{
         this.setState({reloading:false})
       },duration)
     })
+  }
+
+  checkIfDistributorHasGroupChat(){
+    let method = 'post'
+    let url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
+    let { gcToken,distributorId } = this.props
+    let headers = {
+      Authorization: `Bearer ${gcToken}`,
+      "Content-Type": "application/json"
+    }
+    if (PROJECT_ID && gcToken && distributorId) {
+      axios({
+        headers,method,url,
+        data: {
+          query: CheckIfDistributorHasGroupChat,
+          variables: {
+            distributorsx: {id:distributorId}
+          }
+        }
+      }).then( ({ data: { data: { allChats=[] } } }) => {
+        if (allChats.length > 0) {
+          debugging && console.log('distributor already has a group chat, so no need to create');
+        } else {
+          this.createGroupChatForDistributorInDb()
+        }
+      }).catch( e => {
+        debugging && console.log('e',e.message)
+      })
+    }
+  }
+
+  createGroupChatForDistributorInDb(){
+    let { distributorId } = this.props
+    if (distributorId) {
+      this.props.createGroupChatForDistributor({
+        variables: {
+          distributorsx: distributorId
+        }
+      }).then( ({ data: { createChat={} } }) => {
+        if (createChat.hasOwnProperty('id')) {
+          debugging && console.log('successfully created a new group chat for the new distributor')
+        }
+      }).catch( e => {
+        debugging && console.log('failed to create group chat for distributor in db',e.message);
+      })
+    } else {
+      debugging && console.log('insufficient inputs to create group chat for distributor in db');
+    }
   }
 
   render(){
@@ -91,11 +145,15 @@ class YouPreloader extends Component {
 }
 
 YouPreloader.propTypes = {
-  userId: PropTypes.string.isRequired
+  gcToken: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
-  userId: state.user.id
+  gcToken: state.tokens.gc,
+  userId: state.user.id,
+  distributorId: state.distributor.id
 })
 
 const YouPreloaderWithData = compose(
