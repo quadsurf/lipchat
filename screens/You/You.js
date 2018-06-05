@@ -66,26 +66,21 @@ const debugging = __DEV__ && false
 
 class You extends Component {
 
-  // props mapped to component-level state below, which is an anti-pattern, needs refactoring
   constructor(props){
     super(props)
     this.state = {
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
-      user: this.props.user,
       cellPhone: this.props.user.cellPhone,
       tempCell: '',
       name: `${this.props.user.fbkFirstName || 'firstName'} ${this.props.user.fbkLastName || 'lastName'}`,
-      userType: this.props.userType,
       isNumericKeyPadOpen: false,
       isUserTypeSubmitModalOpen: false,
       isCellSubmitModalOpen: false,
       cellButton: this.cellButtonDisabled,
       cellButtonBgColor: 'transparent',
       cellButtonColor: Colors.blue,
-      // ShoppersDist: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0] : null,
-      // ShoppersDistId: this.props.shoppersDistributor.length > 0 ? this.props.shoppersDistributor[0].distId : "",
       ShoppersDist: this.props.shoppersDistributor,
       ShoppersDistId: this.props.shoppersDistributor.distId,
       DistributorDistId: this.props.distributor.distId,
@@ -137,11 +132,13 @@ class You extends Component {
   }
 
   openError(errText){
-    this.setState({isModalOpen:false},()=>{
-      setTimeout(()=>{
-        this.showModal('err','Profile',errText)
-      },700)
-    })
+    setTimeout(()=>{
+      this.setState({isModalOpen:false},()=>{
+        setTimeout(()=>{
+          this.showModal('err','Profile',errText)
+        },750)
+      })
+    },750)
   }
 
   isValidUri(url){
@@ -608,7 +605,7 @@ class You extends Component {
           cellButtonBgColor: Colors.blue
         })
       } else {
-        let {cellButton} = this.state
+        let { cellButton } = this.state
         if (JSON.stringify(cellButton) === JSON.stringify(this.cellButtonEnabled)) {
           this.setState({
             tempCell,
@@ -637,28 +634,28 @@ class You extends Component {
         fbkFirstName = nameArray[0]
         fbkLastName = ''
       }
-      this.props.updateName({
-        variables: {
-          userId: this.props.user.id,
-          fbkFirstName: this.cleanString(fbkFirstName),
-          fbkLastName: this.cleanString(fbkLastName)
-        }
-      }).then( res => {
-        if (res && res.data && res.data.updateUser) {
-          let { fbkFirstName,fbkLastName } = res.data.updateUser
-          this.setState({
-            name: `${fbkFirstName} ${fbkLastName}`,
-            user: {
-              ...this.state.user,
-              fbkFirstName,fbkLastName
-            }
-          })
-        } else {
-          this.openError(errText)
-        }
-      }).catch( e => {
-        this.openError(errText)
-      })
+      let { id } = this.props.user
+      if (id) {
+        this.props.updateName({
+          variables: {
+            userId: id,
+            fbkFirstName: this.cleanString(fbkFirstName),
+            fbkLastName: this.cleanString(fbkLastName)
+          }
+        }).then( ({ data: { updateUser={} } }) => {
+          if (updateUser.hasOwnProperty('id')) {
+            let { fbkFirstName='',fbkLastName='' } = updateUser
+            this.setState({ name: `${fbkFirstName} ${fbkLastName}` })
+            this.props.updateUser({ fbkFirstName,fbkLastName })
+          } else {
+            this.openError(`${errText}-1`)
+          }
+        }).catch( e => {
+          this.openError(`${errText}-2`)
+        })
+      } else {
+        this.openError(`${errText}-3`)
+      }
     } else {
       this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
     }
@@ -669,59 +666,59 @@ class You extends Component {
   cellButtonEnabled = () => {
     let errText = 'updating your cell phone'
     let { tempCell } = this.state
-    let { id } = this.state.user
+    let { id } = this.props.user
     let cellPhone = tempCell.replace(/\s/g,"")
-    this.props.updateCellPhone({
-      variables: {
-        userId: id,
-        cellPhone
-      }
-    }).then( res => {
-      if (res && res.data && res.data.updateUser) {
-        this.setState({
-          cellPhone: res.data.updateUser.cellPhone,
-          user: {
-            ...this.state.user,
-            cellPhone: res.data.updateUser.cellPhone
-          },
-          tempCell: '',
-          cellButton: this.cellButtonDisabled,
-          cellButtonColor: Colors.blue,
-          cellButtonBgColor: 'transparent',
-          isCellSubmitModalOpen:false
-        })
-      } else {
-        this.openError(errText)
-      }
-    })
-    .catch( e => {
-      this.openError(errText)
-    })
+    if (id && cellPhone) {
+      this.props.updateCellPhone({
+        variables: {
+          userId: id,
+          cellPhone
+        }
+      }).then( ({ data: { updateUser={} } }) => {
+        if (updateUser.hasOwnProperty('id')) {
+          let { cellPhone } = updateUser
+          this.setState({
+            cellPhone,
+            tempCell: '',
+            cellButton: this.cellButtonDisabled,
+            cellButtonColor: Colors.blue,
+            cellButtonBgColor: 'transparent',
+            isCellSubmitModalOpen: false
+          })
+          this.props.updateUser({ cellPhone })
+        } else {
+          this.openError(`${errText}-1`)
+        }
+      })
+      .catch( e => {
+        this.openError(`${errText}-2`)
+      })
+    } else {
+      this.openError(`${errText}-3`)
+    }
   }
 
   updateUserTypeInDb(userType){
+    let errText = 'updating your account type'
     this.setState({isUserTypeSubmitModalOpen:false},()=>{
       setTimeout(()=>{
         this.showModal('processing')
         let { id } = this.props.user
-        let errText = 'updating your account type'
-        this.props.updateUserType({
-          variables: {
-            userId: id,
-            type: userType
-          }
-        }).then( res => {
-          //
-        }).catch( e => {
-          setTimeout(()=>{
-            this.setState({isModalOpen:false},()=>{
-              setTimeout(()=>{
-                this.openError(errText)
-              },700)
-            })
-          },700)
-        })
-      },700)
+        if (id && userType) {
+          this.props.updateUserType({
+            variables: {
+              userId: id,
+              type: userType
+            }
+          }).then( res => {
+            //
+          }).catch( e => {
+            this.openError(`${errText}-2`)
+          })
+        } else {
+          this.openError(`${errText}-3`)
+        }
+      },750)
     })
   }
 

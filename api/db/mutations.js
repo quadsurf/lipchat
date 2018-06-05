@@ -77,6 +77,7 @@ mutation UpdateCellPhone(
     id: $userId,
     cellPhone: $cellPhone
   ){
+    id
     cellPhone
   }
 }`
@@ -84,14 +85,15 @@ mutation UpdateCellPhone(
 const UpdateName = gql`
 mutation UpdateName(
   $userId: ID!,
-  $fbkFirstName: String!,
-  $fbkLastName: String!
+  $fbkFirstName: String,
+  $fbkLastName: String
 ){
   updateUser(
     id: $userId,
     fbkFirstName: $fbkFirstName,
     fbkLastName: $fbkLastName
   ){
+    id
     fbkFirstName
     fbkLastName
   }
@@ -106,6 +108,7 @@ mutation UpdateUserType(
     id: $userId,
     type: $type
   ){
+    id
     type
   }
 }`
