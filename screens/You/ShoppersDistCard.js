@@ -2,7 +2,7 @@
 
 //ERROR HANDLING NEEDED
 
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import {
   View,Image,Text
 } from 'react-native'
@@ -11,6 +11,7 @@ import {
 import axios from 'axios'
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
+import { debounce } from 'underscore'
 import { DotsLoader } from 'react-native-indicator'
 import PropTypes from 'prop-types'
 
@@ -48,13 +49,18 @@ const debugging = __DEV__ && false
 class ShoppersDistCard extends Component {
 
   state = {
-    ShoppersDist: null,
-    headers: { Authorization: `Bearer ${this.props.gcToken}` },
+    distId: this.props.distId,
     isSearching: this.props.isSearching
   }
 
+  constructor(props){
+    super(props)
+    this.updateDistId = debounce(this.updateDistId.bind(this),2000,true)
+    this.headers = { Authorization: `Bearer ${this.props.gcToken}` }
+  }
+
   getDistributor(){
-    let { headers } = this.state
+    let { headers } = this
     return axios({
       headers,method,url,
       data: {
@@ -67,7 +73,7 @@ class ShoppersDistCard extends Component {
   }
 
   findDistributor(){
-    let { headers } = this.state
+    let { headers } = this
     return axios({
       headers,method,url,
       data: {
@@ -96,7 +102,7 @@ class ShoppersDistCard extends Component {
               this.linkShopperToDistributorInDb(nextDist[0])
             }
           } else {
-            debugging && console.log('new distributor does not exist');
+            debugging && console.log('new distributor does not exist')
             if (prevDistExists) {
               debugging && console.log('current distributor exists and needs to be removed')
               this.deLinkShopperFromDistributorInDb(false,prevDist[0],false)
@@ -113,17 +119,19 @@ class ShoppersDistCard extends Component {
       this.sendRequests()
     }
   }
-  
+
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (newProps.distId) {
-        if (newProps.distId !== this.state.distId) {
-          this.setState({distId:newProps.distId},()=>{
-            this.sendRequests()
-          })
-        }
+    if (newProps.distId) {
+      if (newProps.distId !== this.props.distId) {
+        newProps.distId !== this.state.distId && this.updateDistId(newProps.distId)
       }
     }
+  }
+
+  updateDistId(distId){
+    this.setState({distId},()=>{
+      this.sendRequests()
+    })
   }
 
   linkShopperToDistributorInDb(nextDist){
@@ -142,16 +150,10 @@ class ShoppersDistCard extends Component {
             this.addShopperToDistributorsGroupChatInDb(nextDist.chatsx[0].id,this.props.shopperId)
           }
           this.setState({isSearching:false})
-          // this.setState({ShoppersDist:nextDist},()=>{
-          //   this.checkIfShopperHasDmChatWithDistributorInDb(this.props.shopperId,nextDist.id)
-            // if (nextDist.chatsx.length > 0) {
-            //   this.addShopperToDistributorsGroupChatInDb(nextDist.chatsx[0].id,this.props.shopperId)
-            // }
-          // })
-          debugging && console.log('successfully linked Shopper to NEXT Distributor');
+          debugging && console.log('successfully linked Shopper to NEXT Distributor')
         } else {
           this.setState({isSearching:false})
-          debugging && console.log('1. no regular response from link request');
+          debugging && console.log('1. no regular response from link request')
         }
       }).catch( e => {
         this.setState({isSearching:false})
@@ -159,13 +161,13 @@ class ShoppersDistCard extends Component {
       })
     } else {
       this.setState({isSearching:false})
-      debugging && console.log('not enuf valid inputs for gql linkShopperToDistributor method');
+      debugging && console.log('not enuf valid inputs for gql linkShopperToDistributor method')
     }
   }
 
   deLinkShopperFromDistributorInDb(nextDist,prevDist,replaceWithNew){
-    debugging && console.log('deLinkShopperFromDistributorInDb func called');
-    debugging && console.log('replace with New Dist? ',replaceWithNew);
+    debugging && console.log('deLinkShopperFromDistributorInDb func called')
+    debugging && console.log('replace with New Dist? ',replaceWithNew)
     if (this.props.shopperId && prevDist.id) {
       this.props.deLinkShopperFromDistributor({
         variables: {
@@ -173,7 +175,6 @@ class ShoppersDistCard extends Component {
           DistributorId: prevDist.id
         }
       }).then( () => {
-        debugging && console.log('successfully delinked Shopper from Distributor');
         this.props.clearShoppersDistributor(prevDist.id)
         if (prevDist.chatsx.length > 0) {
           this.removeShopperFromDistributorsGroupChatInDb(
@@ -184,54 +185,54 @@ class ShoppersDistCard extends Component {
           this.linkShopperToDistributorInDb(nextDist)
         } else {
           this.setState({isSearching:false})
-          // this.setState({ShoppersDist:null})
         }
+        debugging && console.log('successfully delinked Shopper from Distributor')
       }).catch( e => {
         this.setState({isSearching:false})
-        debugging && console.log('failed to delink Shopper from Distributor',e.message);
+        debugging && console.log('failed to delink Shopper from Distributor',e.message)
       })
     } else {
       this.setState({isSearching:false})
-      debugging && console.log('not enuf valid inputs for gql deLinkShopperFromDistributor method');
+      debugging && console.log('not enuf valid inputs for gql deLinkShopperFromDistributor method')
     }
   }
 
   addShopperToDistributorsGroupChatInDb(chatsxChatId,shoppersxShopperId){
-    debugging && console.log('addShopperToDistributorsGroupChatInDb func called');
+    debugging && console.log('addShopperToDistributorsGroupChatInDb func called')
     if (this.props.shopperId && chatsxChatId) {
       this.props.addShopperToDistributorsGroupChat({
         variables: {
           chatsxChatId,shoppersxShopperId
         }
       }).then( () => {
-        debugging && console.log('successfully added Shopper To Distributors Group Chat In Db');
         this.triggerEventOnChatInDb(chatsxChatId)
+        debugging && console.log('successfully added Shopper To Distributors Group Chat In Db')
       }).catch( e => {
-        debugging && console.log('failed to add Shopper To Distributors Group Chat In Db',e.message);
+        debugging && console.log('failed to add Shopper To Distributors Group Chat In Db',e.message)
       })
     }
   }
-  
+
   removeShopperFromDistributorsGroupChatInDb(shopperId,chatId){
-    debugging && console.log('removeShopperFromDistributorsGroupChatInDb func called');
+    debugging && console.log('removeShopperFromDistributorsGroupChatInDb func called')
     if (shopperId && chatId) {
       this.props.removeShopperFromDistributorsGroupChat({
         variables: {
           shopperId,chatId
         }
       }).then( () => {
-        debugging && console.log('successfully removed Shopper from Distributors Group Chat in DB');
         this.triggerEventOnChatInDb(chatId)
+        debugging && console.log('successfully removed Shopper from Distributors Group Chat in DB')
       }).catch( e => {
-        debugging && console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message);
+        debugging && console.log('failed to remove Shopper from Distributors Group Chat in DB',e.message)
       })
     }
   }
 
   checkIfShopperHasDmChatWithDistributorInDb(shoppersx,distributorsx){
-    debugging && console.log('checkIfShopperHasDmChatWithDistributorInDb func called');
+    debugging && console.log('checkIfShopperHasDmChatWithDistributorInDb func called')
     if (shoppersx && distributorsx) {
-      let { headers } = this.state
+      let { headers } = this
       axios({
         headers,method,url,
         data: {
@@ -244,28 +245,28 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.allChats) {
-          debugging && console.log('successfully checked if shopper has DM chat with Distributor');
+          debugging && console.log('successfully checked if shopper has DM chat with Distributor')
           if (res.data.data.allChats.length < 1) {
-            debugging && console.log('shopper does not have DM chat with Distributor, call create func');
+            debugging && console.log('shopper does not have DM chat with Distributor, call create func')
             this.createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx)
           } else {
-            debugging && console.log('shopper has DM chat with Distributor, no need to create');
+            debugging && console.log('shopper has DM chat with Distributor, no need to create')
           }
         } else {
-          debugging && console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request');
+          debugging && console.log('response data not recd for CheckIfShopperHasDmChatWithDistributor query request')
         }
       }).catch( e => {
-        debugging && console.log('failed to check if shopper has DM chat with Distributor',e.message);
+        debugging && console.log('failed to check if shopper has DM chat with Distributor',e.message)
       })
     } else {
-      debugging && console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query');
+      debugging && console.log('insufficient inputs to run CheckIfShopperHasDmChatWithDistributor query')
     }
   }
 
   createDmChatForShopperAndDistributorInDb(distributorsx,shoppersx){
-    debugging && console.log('createDmChatForShopperAndDistributorInDb func called');
+    debugging && console.log('createDmChatForShopperAndDistributorInDb func called')
     if (distributorsx && shoppersx) {
-      let { headers } = this.state
+      let { headers } = this
       axios({
         headers,method,url,
         data: {
@@ -274,18 +275,18 @@ class ShoppersDistCard extends Component {
         }
       }).then( res => {
         if (res && res.data && res.data.data && res.data.data.createChat) {
-          debugging && console.log('successfully created dm chat for shopper and distributor');
+          debugging && console.log('successfully created dm chat for shopper and distributor')
         } else {
-          debugging && console.log('no response received for CreateDmChatForShopperAndDistributor request');
+          debugging && console.log('no response received for CreateDmChatForShopperAndDistributor request')
         }
       }).catch( e => {
-        debugging && console.log('failed to create dm chat for shopper and distributor',e.message);
+        debugging && console.log('failed to create dm chat for shopper and distributor',e.message)
       })
     } else {
-      debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributorInDb mutation');
+      debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributorInDb mutation')
     }
   }
-  
+
   triggerEventOnChatInDb(chatId){
     this.props.triggerEventOnChat({
       variables: {
@@ -293,9 +294,9 @@ class ShoppersDistCard extends Component {
         updater: JSON.stringify(new Date())
       }
     }).then( res => {
-      debugging && console.log('event successfully triggered on chat node');
+      debugging && console.log('event successfully triggered on chat node')
     }).catch( e => {
-      debugging && console.log('could not trigger event on Chat node',e.message);
+      debugging && console.log('could not trigger event on Chat node',e.message)
     })
   }
 
@@ -328,18 +329,16 @@ class ShoppersDistCard extends Component {
               <Image source={require('../../assets/images/avatar.png')} style={imgSize}/>
             </View>
             {
-              this.props.isLookUpRequest ? 
+              this.props.isLookUpRequest ?
               <View style={noExist}>
                 <FontPoiret text="distributor not found" size={medium} color={Colors.white}/>
                 <FontPoiret text="please try again" size={medium} color={Colors.white}/>
-              </View> : 
+              </View> :
               <CardLines style={cardRight}/>
             }
           </View>
         )
       } else {
-        // let { bizName,bizUri,logoUri,status } = this.state.ShoppersDist
-        // let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.state.ShoppersDist.userx
         let { bizName,bizUri,logoUri,status } = this.props.shoppersDistributor
         let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.props.shoppersDistributor.userx
         let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`

@@ -221,9 +221,32 @@ class You extends Component {
   renderCellPhone(){
     let { cellPhone } = this.state
     if (cellPhone) {
-      return <FontPoiret text={cellPhone} size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
+      return <FontPoiret
+              text={cellPhone}
+              size={large}
+              vspace={vspace}
+              onPress={() => this.openCellSubmitModal()}/>
     } else {
-      return <FontPoiret text="add cell phone" size={large} vspace={vspace} onPress={() => this.setState({isCellSubmitModalOpen:true})}/>
+      return <FontPoiret
+              text="add cell phone"
+              size={large}
+              vspace={vspace}
+              onPress={() => this.openCellSubmitModal()}/>
+    }
+  }
+
+  openCellSubmitModal(){
+    let { cellPhone } = this.props.user
+    if (cellPhone.length === 12) {
+      let tempCellArray = cellPhone.split('')
+      tempCellArray.splice(7,1,' ','-',' ')
+      tempCellArray.splice(3,1,' ','-',' ')
+      let tempCell = tempCellArray.join('')
+      this.setState({tempCell},()=>{
+        this.setState({isCellSubmitModalOpen:true})
+      })
+    } else {
+      this.setState({isCellSubmitModalOpen:true})
     }
   }
 
@@ -452,9 +475,35 @@ class You extends Component {
     let keypadText = {fontFamily:'Poiret',fontSize:large}
     return (
       <TouchableHighlight
-        onPress={ op === 'submit' ? this.state.cellButton : () => this.updateCellString(op,num) }
-        underlayColor={ op === '+' ? Colors.blue : Colors.purpleText } style={{...keyPadView,backgroundColor: op === 'submit' ? this.state.cellButtonBgColor : op === '-' ? 'transparent' : Colors.purpleText }}>
-        <Text style={{...keypadText,color: op === 'submit' ? this.state.cellButtonColor : op === '-' ? Colors.blue : Colors.purple }}>{num}</Text>
+        onPress={
+           op === 'submit'
+             ? this.state.cellButton
+             : () => this.updateCellString(op,num)
+        }
+        underlayColor={
+           op === '+'
+             ? Colors.pinkly
+             : Colors.transparentWhite
+        }
+        style={{
+          ...keyPadView,
+          backgroundColor:
+            op === 'submit'
+              ? this.state.cellButtonBgColor
+              : op === '-'
+              ? 'transparent'
+              : Colors.transparentWhite
+        }}>
+        <Text
+          style={{
+            ...keypadText,
+            color:
+              op === 'submit'
+                ? this.state.cellButtonColor
+                : Colors.blue
+          }}>
+          {num}
+        </Text>
       </TouchableHighlight>
     )
   }
@@ -657,7 +706,11 @@ class You extends Component {
         this.openError(`${errText}-3`)
       }
     } else {
-      this.showModal('prompt','about that name...','First name and last name only please, or just use one name if you prefer.')
+      this.showModal(
+        'prompt',
+        'about that name...',
+        'First name and last name only please, or just use one name if you prefer.'
+      )
     }
   }
 
@@ -677,13 +730,14 @@ class You extends Component {
       }).then( ({ data: { updateUser={} } }) => {
         if (updateUser.hasOwnProperty('id')) {
           let { cellPhone } = updateUser
-          this.setState({
-            cellPhone,
-            tempCell: '',
-            cellButton: this.cellButtonDisabled,
-            cellButtonColor: Colors.blue,
-            cellButtonBgColor: 'transparent',
-            isCellSubmitModalOpen: false
+          this.setState({isCellSubmitModalOpen:false},()=>{
+            this.setState({
+              cellPhone,
+              tempCell: '',
+              cellButton: this.cellButtonDisabled,
+              cellButtonColor: Colors.blue,
+              cellButtonBgColor: 'transparent'
+            })
           })
           this.props.updateUser({ cellPhone })
         } else {
