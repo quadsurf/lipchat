@@ -31,7 +31,8 @@ const debugging = __DEV__ && false
 class ChatPreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    // hasShoppersDistributor: false
   }
 
   constructor(props){
@@ -39,6 +40,58 @@ class ChatPreloader extends Component {
     this.updateUser = debounce(this.updateUser,duration,true)
     this.updateDistributor = debounce(this.updateDistributor,duration,true)
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
+    this.refreshChats = debounce(this.refreshChats,duration,true)
+  }
+
+  // componentWillMount(){
+  //   if (this.props.shoppersDistributor.hasOwnProperty('id')) {
+  //     this.setState({ hasShoppersDistributor:true })
+  //   }
+  // }
+  //
+  // componentWillReceiveProps(newProps){
+  //   if (newProps.shoppersDistributor) {
+  //     let { shoppersDistributor } = newProps
+  //     console.log('shoppersDistributor on componentWillReceiveProps',shoppersDistributor);
+  //     if (shoppersDistributor.hasOwnProperty('id') && !this.state.hasShoppersDistributor) {
+  //       console.log('new shoppersDistributor when one was NOT present');
+  //       this.refreshChats(shoppersDistributor,true)
+  //     }
+  //     if (!shoppersDistributor.hasOwnProperty('id') && this.state.hasShoppersDistributor) {
+  //       console.log('shoppersDistributor removed when one WAS present');
+  //       this.refreshChats(shoppersDistributor,false)
+  //     }
+  //   }
+  // }
+  //
+  // refreshChats(shoppersDistributor,hasShoppersDistributor){
+  //   this.setState({
+  //     reloading:true,
+  //     hasShoppersDistributor
+  //   },()=>{
+  //     setTimeout(()=>{
+  //       this.setState({reloading:false})
+  //     },duration)
+  //   })
+  // }
+
+  componentWillReceiveProps(newProps){
+    if (newProps.shoppersDistributor) {
+      console.log('this.props.shoppersDistributor',this.props.shoppersDistributor);
+      console.log('newProps.shoppersDistributor',newProps.shoppersDistributor);
+      if (newProps.shoppersDistributor !== this.props.shoppersDistributor) {
+        this.refreshChats()
+        // WHY IS THIS NOT REFRESHING
+      }
+    }
+  }
+
+  refreshChats(){
+    this.setState({reloading:true},()=>{
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
   }
 
   componentDidMount(){
@@ -106,11 +159,11 @@ class ChatPreloader extends Component {
     if (shopperId) {
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
         document: SubToDistributorsForShopper,
-        variables: {
-          ShopperId: { "id": shopperId }
-        },
+        variables: { ShopperId: { "id": shopperId } },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
+          console.log('mutation type for shoppersDistributor',mutation);
+          console.log('shoppersDistributor',subscriptionData.data.Distributor.node);
           if (mutation === 'UPDATED') {
             this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
           }
@@ -153,13 +206,15 @@ class ChatPreloader extends Component {
 ChatPreloader.propTypes = {
   userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired
+  distributorId: PropTypes.string.isRequired,
+  hasShoppersDistributor: PropTypes.bool.isRequired
 }
 
 const mapStateToProps = state => ({
   userId: state.user.id,
   shopperId: state.shopper.id,
-  distributorId: state.distributor.id
+  distributorId: state.distributor.id,
+  hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false
 })
 
 const ChatPreloaderWithData = compose(

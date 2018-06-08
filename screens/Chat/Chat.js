@@ -73,12 +73,6 @@ class Chat extends Component {
         this.setChats(newProps.getChatsForShopper.allChats)
       }
     }
-    // if (
-    //   newProps.chats &&
-    //   newProps.chats.length > 0
-    // ) {
-    //   this.updateChatsOnState(newProps.chats)
-    // }
   }
 
   setChats(chats){
@@ -124,6 +118,8 @@ class Chat extends Component {
         variables: {ShopperId:{"id":shopperId}},
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
+          console.log('mutation',mutation);
+          // ADD SUPPORT FOR CHAT REMOVAL ON updateChatOnChatList func
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
             case 'UPDATED': this.updateChatOnChatList(previousValues,node)
@@ -148,7 +144,7 @@ class Chat extends Component {
     }
     this.props.handleNewChat(chat,isSelf,this.state.isFocused)
     debugging && console.log('addChatToChatList func called')
-    debugging && console.log('Came From: ',cameFrom)
+    debugging && console.log('args',chat,isSelf,cameFrom)
   }
 
   updateChatOnChatList(prevChat,nextChat){
@@ -177,9 +173,9 @@ class Chat extends Component {
       } else {
         debugging && console.log('no prevChat value')
       }
+      debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat.id)
     }
     debugging && console.log('updateChatOnChatList func called')
-    debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat.id)
   }
 
   removeChatFromChatList(prevChat,cameFrom){

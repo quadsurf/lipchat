@@ -104,7 +104,7 @@ const shoppersDistributorsReducer = (state=initialShoppersDistributors,actions) 
       }
     case CLEAR_SHOPPERS_DISTRIBUTOR:
       let { deleterId } = actions
-      newState = [...state]
+      let newState = [...state]
       newShoppersDistributors = newState.filter( newShoppersDistributor => newShoppersDistributor.id !== deleterId)
       return newShoppersDistributors
     default: return state

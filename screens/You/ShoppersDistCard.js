@@ -44,7 +44,9 @@ import { updateShoppersDistributor,clearShoppersDistributor } from '../../store/
 const small = Texts.small.fontSize
 const medium = Texts.medium.fontSize
 const screen = getDimensions()
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
+
+// FIND OUT WHY REMOVAL IS NOT TRIGGERING AN UPDATE ON CHAT RECORD
 
 class ShoppersDistCard extends Component {
 
