@@ -118,8 +118,6 @@ class Chat extends Component {
         variables: {ShopperId:{"id":shopperId}},
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
-          console.log('mutation',mutation);
-          // ADD SUPPORT FOR CHAT REMOVAL ON updateChatOnChatList func
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
             case 'UPDATED': this.updateChatOnChatList(previousValues,node)
@@ -251,7 +249,11 @@ class Chat extends Component {
     let { chats } = this.props
     if (chats.length > 0) {
       return chats.map( chat => {
-        return <ChatCard key={chat.id} chat={chat}/>
+        if (!this.props.hasShoppersDistributor && chat.type === 'DMSH2DIST') {
+          return null
+        } else {
+          return <ChatCard key={chat.id} chat={chat}/>
+        }
       })
     } else {
       return (
@@ -290,7 +292,8 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
-  userType: PropTypes.string.isRequired
+  userType: PropTypes.string.isRequired,
+  hasShoppersDistributor: PropTypes.bool.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -298,7 +301,8 @@ const mapStateToProps = state => ({
   userId: state.user.id,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
-  userType: state.user.type
+  userType: state.user.type,
+  hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false
 })
 
 const ChatWithData = compose(

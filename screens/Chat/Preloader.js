@@ -32,7 +32,7 @@ class ChatPreloader extends Component {
 
   state = {
     reloading: false,
-    // hasShoppersDistributor: false
+    hasShoppersDistributor: this.props.hasShoppersDistributor
   }
 
   constructor(props){
@@ -43,51 +43,17 @@ class ChatPreloader extends Component {
     this.refreshChats = debounce(this.refreshChats,duration,true)
   }
 
-  // componentWillMount(){
-  //   if (this.props.shoppersDistributor.hasOwnProperty('id')) {
-  //     this.setState({ hasShoppersDistributor:true })
-  //   }
-  // }
-  //
-  // componentWillReceiveProps(newProps){
-  //   if (newProps.shoppersDistributor) {
-  //     let { shoppersDistributor } = newProps
-  //     console.log('shoppersDistributor on componentWillReceiveProps',shoppersDistributor);
-  //     if (shoppersDistributor.hasOwnProperty('id') && !this.state.hasShoppersDistributor) {
-  //       console.log('new shoppersDistributor when one was NOT present');
-  //       this.refreshChats(shoppersDistributor,true)
-  //     }
-  //     if (!shoppersDistributor.hasOwnProperty('id') && this.state.hasShoppersDistributor) {
-  //       console.log('shoppersDistributor removed when one WAS present');
-  //       this.refreshChats(shoppersDistributor,false)
-  //     }
-  //   }
-  // }
-  //
-  // refreshChats(shoppersDistributor,hasShoppersDistributor){
-  //   this.setState({
-  //     reloading:true,
-  //     hasShoppersDistributor
-  //   },()=>{
-  //     setTimeout(()=>{
-  //       this.setState({reloading:false})
-  //     },duration)
-  //   })
-  // }
-
   componentWillReceiveProps(newProps){
-    if (newProps.shoppersDistributor) {
-      console.log('this.props.shoppersDistributor',this.props.shoppersDistributor);
-      console.log('newProps.shoppersDistributor',newProps.shoppersDistributor);
-      if (newProps.shoppersDistributor !== this.props.shoppersDistributor) {
-        this.refreshChats()
-        // WHY IS THIS NOT REFRESHING
-      }
+    if (newProps.hasShoppersDistributor !== this.state.hasShoppersDistributor) {
+      this.refreshChats(newProps.hasShoppersDistributor)
     }
   }
 
-  refreshChats(){
-    this.setState({reloading:true},()=>{
+  refreshChats(hasShoppersDistributor){
+    this.setState({
+      reloading: true,
+      hasShoppersDistributor
+    },()=>{
       setTimeout(()=>{
         this.setState({reloading:false})
       },duration)
