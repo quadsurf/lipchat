@@ -258,7 +258,12 @@ class Chat extends Component {
     } else {
       return (
         <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret text="loading chats..." color={Colors.blue} size={Texts.larger.fontSize}/>
+          <FontPoiret
+            text="loading chats..."
+            color={Colors.blue}
+            size={Texts.larger.fontSize} style={{
+              marginTop: (this.props.screenHeight/3)
+            }}/>
         </View>
       )
     }
@@ -293,7 +298,8 @@ Chat.propTypes = {
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired,
-  hasShoppersDistributor: PropTypes.bool.isRequired
+  hasShoppersDistributor: PropTypes.bool.isRequired,
+  screenHeight: PropTypes.number.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -302,7 +308,8 @@ const mapStateToProps = state => ({
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
   userType: state.user.type,
-  hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false
+  hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false,
+  screenHeight: state.settings.screenHeight
 })
 
 const ChatWithData = compose(
