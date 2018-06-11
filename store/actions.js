@@ -71,9 +71,12 @@ const updateDistributor = updates => ({
   updates
 })
 
-const setSettings = screen => ({
+const setSettings = (screen,isIPhoneX) => ({
   type: SET_SETTINGS,
-  screen
+  settings: {
+    screen,
+    isIPhoneX
+  }
 })
 
 const setRootKey = rootKey => ({

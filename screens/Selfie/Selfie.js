@@ -10,7 +10,6 @@ import {
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
-// import isIPhoneX from 'react-native-is-iphonex'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -331,10 +330,14 @@ class Selfie extends Component {
               {this.renderLikers(this.state.selectedColors)}
             </View>
             <View style={{
-              flexDirection:'row',position:'absolute',
-              top:30,left:5,borderRadius:24,
+              flexDirection: 'row',
+              position:'absolute',
+              top: this.props.isIPhoneX ? 44 : 5,
+              left: 5,
+              borderRadius: 24,
               backgroundColor: Colors.transparentPurple,
-              alignItems: 'center',paddingHorizontal:12
+              alignItems: 'center',
+              paddingHorizontal:12
             }}>
               <FontPoiret text="Single Coat" size={Texts.medium.fontSize} />
               <Switch
@@ -348,8 +351,9 @@ class Selfie extends Component {
               top:(screenHeight/2)-36,
               left:5,borderRadius:24,
               backgroundColor: Colors.transparentPurple,
-              alignItems: 'center',paddingHorizontal:12,
-              paddingVertical:14
+              alignItems: 'center',
+              paddingHorizontal: 12,
+              paddingVertical: 14
               }}
               onPress={() => this.showModal(
                 'prompt',
@@ -736,13 +740,15 @@ class Selfie extends Component {
 Selfie.propTypes = {
   userType: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired
+  distributorId: PropTypes.string.isRequired,
+  isIPhoneX: PropTypes.bool.isRequired
 }
 
 const mapStateToProps = state => ({
   userType: state.user.type,
   shopperId: state.shopper.id,
-  distributorId: state.distributor.id
+  distributorId: state.distributor.id,
+  isIPhoneX: state.settings.isIPhoneX
 })
 
 const SelfieWithData = compose(

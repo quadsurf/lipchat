@@ -26,7 +26,7 @@ const size = 90
 
 @withNavigation
 class ChatCardLayout extends Component {
-  
+
   constructor(props){
     super(props)
     this.state = {
@@ -36,7 +36,7 @@ class ChatCardLayout extends Component {
     this.navToMessages = debounce(this.navToMessages,4000,true)
     // known bug occurs when switching userTypes, probably happening because this.props.chat does not yet exist
   }
-  
+
   componentWillReceiveProps(newProps){
     if (newProps.thisChat) {
       this.setState({
@@ -44,7 +44,7 @@ class ChatCardLayout extends Component {
       })
     }
   }
-  
+
   navToMessages(audiences){
     let {
       chat,userId,chatId,uri,chatTitle,chatType,level,handleClearedChat
@@ -54,7 +54,7 @@ class ChatCardLayout extends Component {
     }
     this.props.navigation.navigate('Messages',{userId,chatId,uri,chatTitle,chatType,level,audiences})
   }
-  
+
   render(){
     let {
       chatId,approved,uri,chatTitle,chatSubTitle,
@@ -123,9 +123,9 @@ class ChatCardLayout extends Component {
         aud7: 'SHPSDSTS'
       }
     }
-    
+
     let { unreadStatus } = this.state
-    
+
     if (approved) {
       // the person being viewed is approved
       return (

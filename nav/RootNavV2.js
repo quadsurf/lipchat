@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 
 // LIBS
 import { createSwitchNavigator,createStackNavigator } from 'react-navigation'
+// import isIPhoneX from 'react-native-is-iphonex'
 import { DotsLoader } from 'react-native-indicator'
 
 // LOCALS
@@ -16,9 +17,18 @@ import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
 import RemoteData from '../store/Remote'
+import WebView from '../screens/Common/WebView'
 
 const ClaimsModal = createStackNavigator(
   { Claims },
+  {
+    headerMode: 'none',
+    navigationOptions: { gesturesEnabled: true }
+  }
+)
+
+const WebViewModal = createStackNavigator(
+  { WebView },
   {
     headerMode: 'none',
     navigationOptions: { gesturesEnabled: true }
@@ -37,13 +47,21 @@ const AppStack = createStackNavigator(
   {
     Preloader: RemoteData,
     Tabs: TabStack,
-    Claims: ClaimsModal
+    Claims: ClaimsModal,
+    WebView: WebViewModal
   },
   {
     initialRouteName: 'Preloader',
     mode: 'modal',
     headerMode: 'none',
-    navigationOptions: { gesturesEnabled: false }
+    navigationOptions: { gesturesEnabled: false },
+  	// transitionConfig: () => {
+  	// 	if (!isIPhoneX) {
+    //     return {
+    //       containerStyle: { marginTop: -20 }
+    //     }
+    //   }
+  	// }
   }
 )
 

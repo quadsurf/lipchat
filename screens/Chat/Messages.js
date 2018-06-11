@@ -510,7 +510,7 @@ class Messages extends Component {
   }
 
   render(){
-    return(
+    return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
           <View style={{justifyContent:'center'}}>

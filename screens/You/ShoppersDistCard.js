@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react'
 import {
-  View,Image,Text
+  View,Image,Text,TouchableOpacity
 } from 'react-native'
 
 //LIBS
@@ -13,6 +13,7 @@ import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import { debounce } from 'underscore'
 import { DotsLoader } from 'react-native-indicator'
+import { withNavigation } from 'react-navigation'
 import PropTypes from 'prop-types'
 
 // GQL
@@ -46,6 +47,7 @@ const medium = Texts.medium.fontSize
 const screen = getDimensions()
 const debugging = __DEV__ && false
 
+@withNavigation
 class ShoppersDistCard extends Component {
 
   state = {
@@ -65,9 +67,7 @@ class ShoppersDistCard extends Component {
       headers,method,url,
       data: {
         query: CheckForDistributorOnShopper,
-        variables: {
-          ShopperId: this.props.shopperId
-        }
+        variables: { ShopperId: this.props.shopperId }
       }
     })
   }
@@ -78,9 +78,7 @@ class ShoppersDistCard extends Component {
       headers,method,url,
       data: {
         query: FindDistributor,
-        variables: {
-          DistributorDistId: this.props.distId
-        }
+        variables: { DistributorDistId: this.props.distId }
       }
     })
   }
@@ -341,13 +339,21 @@ class ShoppersDistCard extends Component {
       } else {
         let { bizName,bizUri,logoUri,status } = this.props.shoppersDistributor
         let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.props.shoppersDistributor.userx
-        let uri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+        let formattedLogoUri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+        let formattedBizUri = bizUri.length > 8 ? bizUri : null
         let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+        let formattedBizName = bizName ? bizName : name
         if (status) {
           return (
-            <View style={cardStyle}>
+            <TouchableOpacity style={cardStyle}
+              onPress={() => this.props.navigation.navigate('WebView',{
+                formattedBizUri,
+                formattedLogoUri,
+                formattedBizName,
+                cellPhone
+              })}>
               <View style={cardLeft}>
-                <Image source={{uri}} style={imgSize}/>
+                <Image source={{uri:formattedLogoUri}} style={imgSize}/>
               </View>
               <View style={cardRight}>
                 <FontPoiret text={clipText(bizName || '',17)} size={medium} color={Colors.white}/>
@@ -355,7 +361,7 @@ class ShoppersDistCard extends Component {
                 <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
                 <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
               </View>
-            </View>
+            </TouchableOpacity>
           )
         } else {
           return (

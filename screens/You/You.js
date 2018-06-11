@@ -290,23 +290,39 @@ class You extends Component {
       return (
         <View style={{width,height:240}}>
           <View style={fieldRow}>
-            <View style={fieldName}><FontPoiret text="distributor id" size={medium}
-              color={Colors.blue}/></View>
+            <View style={fieldName}>
+              <FontPoiret
+                text="distributor id"
+                size={medium}
+                color={Colors.blue}/>
+            </View>
             <View style={fieldValue}>{this.renderDistId()}</View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}><FontPoiret text="business name" size={medium}
-              color={Colors.blue}/></View>
+            <View style={fieldName}>
+              <FontPoiret
+                text="business name"
+                size={medium}
+                color={Colors.blue}/>
+            </View>
             <View style={fieldValue}>{this.renderBizName()}</View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}><FontPoiret text="linkTr.ee url" size={medium}
-              color={Colors.blue}/></View>
+            <View style={fieldName}>
+              <FontPoiret
+                text="biz url (tap.bio or linkTr.ee)" 
+                size={medium}
+                color={Colors.blue}/>
+            </View>
             <View style={fieldValue}>{this.renderBizUri()}</View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}><FontPoiret text="link to logo" size={medium}
-              color={Colors.blue}/></View>
+            <View style={fieldName}>
+              <FontPoiret
+                text="link to logo"
+                size={medium}
+                color={Colors.blue}/>
+            </View>
             <View style={fieldValue}>{this.renderLogoUri()}</View>
           </View>
         </View>

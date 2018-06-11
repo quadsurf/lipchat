@@ -26,6 +26,7 @@
     "react-native-is-iphonex": "^1.0.1",
     "react-native-keyboard-aware-scroll-view": "^0.4.3",
     "react-native-modal": "^2.5.0",
+    "react-native-phone-call": "^1.0.6",
     "react-native-swiper": "^1.5.13",
     "react-native-tab-view": "^0.0.74",
     "react-navigation": "^2.0.4",

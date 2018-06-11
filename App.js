@@ -1,24 +1,25 @@
 
 
 import React, { Component } from 'react'
-import { View,AsyncStorage,Dimensions } from 'react-native'
+import { SafeAreaView,View,AsyncStorage,Dimensions } from 'react-native'
 import { Asset, Font } from 'expo'
 
 // console.ignoredYellowBox = ['Warning: checkPropTypes']
-console.disableYellowBox = __DEV__ && true
+console.disableYellowBox = true
 
 //LIBS
 import { ApolloProvider } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
+import isIPhoneX from 'react-native-is-iphonex'
 
 // COMPONENTS
 import RootNav from './nav/RootNavV2'
 import TabNav from './nav/TabNav'
+import Loading from './common/Loading'
 
 // LOCALS
 import getClient from './api/ApolloClientRT'
 import getStore from './store/config'
-import { Colors,Views } from './css/Styles'
+import { Colors } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
 import MyStatusBar from './common/MyStatusBar'
@@ -32,7 +33,7 @@ import {
 const debugging = __DEV__ && false
 const store = getStore()
 const screen = Dimensions.get("window")
-store.dispatch(setSettings(screen))
+store.dispatch(setSettings(screen,isIPhoneX))
 
 export default class App extends Component {
   constructor(props) {
@@ -105,15 +106,7 @@ export default class App extends Component {
 
   render() {
     if (!this.state.assetsAreLoaded && !this.props.skipLoadingScreen) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <MyStatusBar/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading/>
     } else {
       if (this.state.localStorage) {
         let gcToken = ''
@@ -130,27 +123,32 @@ export default class App extends Component {
         store.dispatch(setNetworkClient(client))
         return (
           <ApolloProvider client={client} store={store}>
-            <View style={{flex:1,backgroundColor:Colors.bgColor}}>
-              <MyStatusBar/>
-              <RootNav/>
-            </View>
+            {
+              isIPhoneX
+                ? (
+                  <SafeAreaView style={{flex:1,backgroundColor:Colors.bgColor}}>
+                    <View style={{flex:1,backgroundColor:'transparent'}}>
+                      <MyStatusBar/>
+                      <RootNav/>
+                    </View>
+                  </SafeAreaView>
+                )
+                : (
+                  <View style={{flex:1,backgroundColor:Colors.bgColor}}>
+                    <MyStatusBar/>
+                    <RootNav/>
+                  </View>
+                )
+            }
           </ApolloProvider>
         )
       } else {
-        return (
-          <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-            <MyStatusBar/>
-            <DotsLoader
-              size={15}
-              color={Colors.blue}
-              frequency={5000}/>
-          </View>
-        )
+        return <Loading/>
       }
     }
   }
 
-  async loadAssetsAsync() {
+  async loadAssetsAsync(){
     try {
       await Promise.all([
         Asset.loadAsync(this.imagesToPreload),
@@ -164,4 +162,5 @@ export default class App extends Component {
       },0)
     }
   }
+
 }

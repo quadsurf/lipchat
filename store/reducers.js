@@ -153,11 +153,13 @@ const settingsReducer = (state=initialSettings,actions) => {
   let newSettingsState
   switch(actions.type){
     case SET_SETTINGS:
-      let { width:screenWidth=750,height:screenHeight=1334 } = actions.screen
+      let { width:screenWidth=750,height:screenHeight=1334 } = actions.settings.screen
+      let { isIPhoneX } = actions.settings
       newSettingsState = {
         ...state,
         screenWidth,
-        screenHeight
+        screenHeight,
+        isIPhoneX
       }
       return newSettingsState
     case SET_SADVRID:

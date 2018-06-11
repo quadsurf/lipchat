@@ -4001,6 +4001,10 @@ react-native-modal@^2.5.0:
     prop-types "15.5.10"
     react-native-animatable "^1.2.3"
 
+react-native-phone-call@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-phone-call/-/react-native-phone-call-1.0.6.tgz#354ba3c7737702ba7487fffd3cea979131b4640a"
+
 react-native-safe-area-view@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.7.0.tgz#38f5ab9368d6ef9e5d18ab64212938af3ec39421"
