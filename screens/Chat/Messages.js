@@ -14,9 +14,11 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 // import { withNavigation } from 'react-navigation'
-import { Entypo,SimpleLineIcons } from '@expo/vector-icons'
+import { Entypo,SimpleLineIcons,Ionicons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
+import PropTypes from 'prop-types'
 // import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 // GQL
@@ -510,6 +512,16 @@ class Messages extends Component {
   }
 
   render(){
+    let { chatType } = this.props.navigation.state.params
+    let allowChatType = chatType === 'DMSH2DIST' || chatType === 'DIST2SHPRS'
+    let allowWebView = this.props.userType === 'SHOPPER' && allowChatType
+    let size = 50
+    let { bizUri,logoUri,bizName } = this.props.shoppersDistributor
+    let { cellPhone,fbkFirstName,fbkLastName,fbkUserId } = this.props.shoppersDistributor.userx
+    let formattedBizUri = bizUri.length > 8 ? bizUri : null
+    let formattedLogoUri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+    let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+    let formattedBizName = bizName ? bizName : name
     return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
@@ -518,13 +530,34 @@ class Messages extends Component {
               <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
             </TouchableOpacity>
           </View>
-          <View style={{alignItems:'center'}}>
-            <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
+          <TouchableOpacity
+            style={{alignItems:'center'}}
+            onPress={() => allowWebView && this.props.navigation.navigate('WebView',{
+              formattedBizUri,
+              formattedLogoUri,
+              formattedBizName,
+              cellPhone
+            })}>
+            <View style={{width:50,height:50,marginBottom:4}}>
+              {
+                allowWebView && (
+                  <Ionicons
+                    name="ios-information-circle-outline"
+                    size={20}
+                    style={{
+                      color:Colors.blue,
+                      position: 'absolute',
+                      top: 5, right: -18
+                    }}/>
+                )
+              }
+              <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
+            </View>
             <FontPoiret
               text={this.props.navigation.state.params.chatTitle}
               size={Texts.small.fontSize}
               style={{color:Colors.blue}}/>
-          </View>
+          </TouchableOpacity>
           <View style={{justifyContent:'center'}}>
             <TouchableOpacity onPress={this.fetchMoreChats}>
               <SimpleLineIcons name="cloud-download" size={47} style={{color:Colors.blue,marginRight:14,marginTop:3}}/>
@@ -539,7 +572,18 @@ class Messages extends Component {
 
 }
 // <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
-export default compose(
+
+Messages.propTypes = {
+  userType: PropTypes.string.isRequired,
+  shoppersDistributor: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+  userType: state.user.type,
+  shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {}
+})
+
+const MessagesWithData = compose(
   graphql(GetMessagesForChat,{
     name: 'getMessagesForChat',
     options: props => ({
@@ -573,6 +617,8 @@ export default compose(
     name: 'triggerEventOnChat'
   })
 )(Messages)
+
+export default connect(mapStateToProps)(MessagesWithData)
 
 // DONE - add a loader for when it takes too long for mutation to resolve
 // DONE - list of chat convos should not show isTypingNow

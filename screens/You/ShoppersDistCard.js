@@ -340,7 +340,9 @@ class ShoppersDistCard extends Component {
       } else {
         let { bizName,bizUri,logoUri,status } = this.props.shoppersDistributor
         let { fbkUserId,cellPhone,fbkFirstName,fbkLastName } = this.props.shoppersDistributor.userx
+        let webViewLogoSize = 50
         let formattedLogoUri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+        let formattedLogoUriForWebView = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${webViewLogoSize}&height=${webViewLogoSize}`
         let formattedBizUri = bizUri.length > 8 ? bizUri : null
         let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
         let formattedBizName = bizName ? bizName : name
@@ -349,7 +351,7 @@ class ShoppersDistCard extends Component {
             <TouchableOpacity style={cardStyle}
               onPress={() => this.props.navigation.navigate('WebView',{
                 formattedBizUri,
-                formattedLogoUri,
+                formattedLogoUri: formattedLogoUriForWebView,
                 formattedBizName,
                 cellPhone
               })}>
