@@ -16,6 +16,9 @@ import PropTypes from 'prop-types'
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 
+// COMPs
+import Loading from '../../common/Loading'
+
 class BizUriWebView extends Component {
 
   constructor(props){
@@ -40,6 +43,8 @@ class BizUriWebView extends Component {
                      Linking.openURL(event.url)
                    }
                  }}
+                 startInLoadingState={true}
+                 renderLoading={() => <Loading/>}
                  style={{
                    flex:1,
                    backgroundColor:'transparent',

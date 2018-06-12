@@ -13,6 +13,7 @@ import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import { debounce } from 'underscore'
 import { DotsLoader } from 'react-native-indicator'
+import { EvilIcons } from '@expo/vector-icons'
 import { withNavigation } from 'react-navigation'
 import PropTypes from 'prop-types'
 
@@ -361,6 +362,19 @@ class ShoppersDistCard extends Component {
                 <FontPoiret text={cellPhone} size={medium} color={Colors.white}/>
                 <FontPoiret text={shortenUrl(bizUri,22)} size={small} color={Colors.white}/>
               </View>
+              {
+                formattedBizUri && (
+                  <View style={{
+                      position: 'absolute',
+                      top: 24, right: -6
+                    }}>
+                    <EvilIcons
+                      name="chevron-right"
+                      size={50}
+                      style={{color:Colors.blue}}/>
+                  </View>
+                )
+              }
             </TouchableOpacity>
           )
         } else {

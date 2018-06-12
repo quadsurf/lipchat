@@ -128,8 +128,6 @@ class ChatPreloader extends Component {
         variables: { ShopperId: { "id": shopperId } },
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
-          console.log('mutation type for shoppersDistributor',mutation);
-          console.log('shoppersDistributor',subscriptionData.data.Distributor.node);
           if (mutation === 'UPDATED') {
             this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
           }
