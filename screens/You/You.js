@@ -34,7 +34,9 @@ import {
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../../assets/fonts/Fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
-import { AppName,AccountTypeExplainer,version } from '../../config/Defaults'
+import {
+  AppName,AccountTypeExplainer,version,bizLink,bizLinkWarning,logoUriWarning
+} from '../../config/Defaults'
 
 // STORE
 import { updateUser,resetApp } from '../../store/actions'
@@ -42,6 +44,7 @@ import { updateUser,resetApp } from '../../store/actions'
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../Common'
 import ShoppersDistCard from './ShoppersDistCard'
+import Icon from '../Common/Icon'
 
 // CONSTs
 const small = Texts.small.fontSize
@@ -308,12 +311,21 @@ class You extends Component {
             <View style={fieldValue}>{this.renderBizName()}</View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}>
+            <TouchableOpacity
+              onPress={() => this.showModal(
+                'prompt',
+                'your business link',
+                bizLink
+              )}
+              style={[fieldName,{
+                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
+              }]}>
               <FontPoiret
-                text="biz url (tap.bio or linkTr.ee)" 
-                size={medium}
+                text="Tap.Bio or LinkTr.ee"
+                size={small}
                 color={Colors.blue}/>
-            </View>
+              <Icon family="EvilIcons" name="question"/>
+            </TouchableOpacity>
             <View style={fieldValue}>{this.renderBizUri()}</View>
           </View>
           <View style={fieldRow}>
@@ -432,7 +444,9 @@ class You extends Component {
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorBizUri) => DistributorBizUri.length > 7 ? this.setState({DistributorBizUri}) : null}
+        onChangeText={(DistributorBizUri) => DistributorBizUri.length > 7 ? this.setState({
+          DistributorBizUri: DistributorBizUri.toLowerCase()
+        }) : null}
         keyboardType="default"
         onBlur={() => this.updateDistributorBizUriInDb()}
         onSubmitEditing={() => this.updateDistributorBizUriInDb()}
@@ -449,7 +463,9 @@ class You extends Component {
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
-        onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 7 ? this.setState({DistributorLogoUri}) : null}
+        onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 7 ? this.setState({
+          DistributorLogoUri: DistributorLogoUri.toLowerCase()
+        }) : null}
         keyboardType="default"
         onBlur={() => this.updateDistributorLogoUriInDb()}
         onSubmitEditing={() => this.updateDistributorLogoUriInDb()}
@@ -840,12 +856,18 @@ class You extends Component {
     }
   }
 
+  isLinkAllowed(uri){
+    let subString = uri.substring(0,17)
+    let isAllowed = subString === 'https://tap.bio/@' ? true : subString === 'https://linktr.ee' ? true : false
+    return isAllowed
+  }
+
   updateDistributorBizUriInDb(){
     let { DistributorBizUri } = this.state
     let DistributorId = this.props.distributor.id
     let errText = 'saving your Business URL'
-    if (!this.isSsl(DistributorBizUri)) {
-      this.showModal('error','Profile',"Your URL must begin with 'https'.")
+    if (!this.isLinkAllowed(DistributorBizUri)) {
+      this.showModal('error','Profile',bizLinkWarning)
     } else {
       if (DistributorId && DistributorBizUri) {
         this.props.updateDistributorBizUri({
@@ -873,7 +895,7 @@ class You extends Component {
     let DistributorId = this.props.distributor.id
     let errText = 'saving your Logo URL'
     if (!this.isValidUri(DistributorLogoUri)) {
-      this.showModal('error','Profile',"Your URL must begin with 'https' and end with '.jpg' or 'png'.")
+      this.showModal('error','Profile',logoUriWarning)
     } else {
       if (DistributorId && DistributorLogoUri) {
         this.props.updateDistributorLogoUri({

@@ -38,6 +38,15 @@ const err = (title='',problem='',message='',br='') => {
   )
 }
 
+const isSsl = (url) => {
+  let el4 = url.split('')[4]
+  if (el4 === 's') {
+    return true
+  } else {
+    return false
+  }
+}
+
 const shortenUrl = (text='',length) => {
   let url = text.split('')
   let shortened = url.splice(8,url.length).join('')

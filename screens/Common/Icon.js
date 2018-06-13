@@ -1,0 +1,62 @@
+
+
+import React from 'react'
+import { TouchableOpacity } from 'react-native'
+
+import PropTypes from 'prop-types'
+
+import { Ionicons,EvilIcons } from '@expo/vector-icons'
+import { Colors } from '../../css/Styles'
+
+
+const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) => {
+  let icons = () => {
+    {
+      switch(family){
+        case 'Ionicons':
+          return (
+            <Ionicons
+              name={name}
+              size={size || 20}
+              style={{
+                color: color || Colors.blue,
+                ...styles
+              }}/>
+          )
+        case 'EvilIcons':
+          return (
+            <EvilIcons
+              name={name}
+              size={size || 20}
+              style={{
+                color: color || Colors.blue,
+                ...styles
+              }}/>
+          )
+        default: return null
+      }
+    }
+  }
+  if (onPressIcon) {
+    return (
+      <TouchableOpacity onPress={onPressIcon}>
+        { icons() }
+      </TouchableOpacity>
+    )
+  } else {
+    return icons()
+  }
+}
+
+Icon.propTypes = {
+  onPressIcon: PropTypes.func,
+  family: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  size: PropTypes.number,
+  color: PropTypes.string,
+  styles: PropTypes.object
+}
+
+export default Icon
+
+// "ios-information-circle-outline"

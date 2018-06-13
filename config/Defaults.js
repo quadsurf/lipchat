@@ -3,7 +3,7 @@
 //ENV VARS
 import { PROJECT_ID } from 'react-native-dotenv'
 
-const AppName = 'Appy'
+const AppName = 'LipChat'
 const appStoreBuild = Expo.Constants.manifest.version
 const jsOTA = 'a'
 const version = `${appStoreBuild}${jsOTA}`
@@ -12,7 +12,7 @@ const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
 const newClaimText2 = 'What are next steps?'
 
-export const tips = `We live by this quote:
+const tips = `We live by this quote:
 
 "Continuous Improvement is better than Delayed Perfection".
 
@@ -25,6 +25,13 @@ This screen processes an enormous amounts of data in real-time, which causes an 
 3. adjust the distance between your face and your phone until the color overlay matches as close as possible the shape of your lips
 
 IMPORTANT DISCLAIMER: even though these colors were extracted directly from Senegence itself, online representation of a color may not always exactly reflect real-world representation of that same color... please take into consideration that your actual results may vary from what you see in this ${AppName} augmented reality color tester.`
+
+const bizLink = `Let your shoppers experience your brand directly in our ${AppName} app! https://tap.bio & https://linkTr.ee are both free services that let you effortlessly create a micro-website or mini-app that automatically hosts links & images to all your online marketing destinations (instagram, snapchat, facebook, etc)... think of it as a one-stop-shop for your customers to consume all your social content, updates, posts, etc. Tap.Bio takes it a step further by hosting a feed of your instagram, plus it also gives your micro-app a swipeable app-like feel to it. It's like an app within an app... our app becomes your app and your brand!`
+//to preserve your brand's consistency for your shoppers
+
+const bizLinkWarning = `Your business link must begin with either 'https://tap.bio/' or 'https://linktr.ee/ .`
+
+const logoUriWarning = `Your URL must begin with 'https' and end with either '.jpg' or 'png'.`
 
 const AccountTypeExplainer = `${`\n`}SHOPPER ACCOUNT${`\n`}
 With a shopper account, use the "Selfie" tab to test how each color virtually looks on your lips (augmented reality). When you find colors that look great on you, just "like" that color to add it to your "Favorites" tab. When you're ready to claim/reserve a color from your distributor's inventory, use the "Favorites" tab to request that color, and your distributor will be automatically notified.${`\n\n\n`}
@@ -342,6 +349,7 @@ quadsurf@gmail.com
 Last Edited on 2018-02-10`
 
 export {
+  tips,bizLink,bizLinkWarning,logoUriWarning,
   AppName,terms,method,url,newClaimText,newClaimText2,version,
   notApprovedToAddInventory,AccountTypeExplainer,distIsLiking
 }
