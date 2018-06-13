@@ -90,7 +90,17 @@ export default class App extends Component {
       AsyncStorage.multiGet(keys, (err, stores) => {
        stores.map((result, i, store) => {
          let key = store[i][0]
-         let value = JSON.parse(store[i][1])
+         let val = store[i][1]
+         let value
+         if (typeof val === 'string') {
+           if (val.substring(0,1) === '{') {
+             value = JSON.parse(val)
+           } else {
+             value = val
+           }
+         } else {
+           value = val
+         }
          asyncStorage[`${key}`] = value
         })
       }).then(()=>{

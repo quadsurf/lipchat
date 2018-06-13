@@ -246,13 +246,25 @@ class Chat extends Component {
   }
 
   renderChats(){
-    let { chats } = this.props
+    let { chats,userType,distributorStatus } = this.props
     if (chats.length > 0) {
       return chats.map( chat => {
-        if (!this.props.hasShoppersDistributor && chat.type === 'DMSH2DIST') {
-          return null
-        } else {
-          return <ChatCard key={chat.id} chat={chat}/>
+        switch(userType){
+          case 'SHOPPER':
+              if (!this.props.hasShoppersDistributor && chat.type === 'DMSH2DIST') {
+                return null
+              } else {
+                return <ChatCard key={chat.id} chat={chat}/>
+              }
+          case 'DIST':
+              if (!distributorStatus && chat.type === 'DMSH2DIST') {
+                return null
+              } else {
+                return <ChatCard key={chat.id} chat={chat}/>
+              }
+          case 'SADVR':
+              return <ChatCard key={chat.id} chat={chat}/>
+          default: return <ChatCard key={chat.id} chat={chat}/>
         }
       })
     } else {
@@ -297,6 +309,7 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired,
   hasShoppersDistributor: PropTypes.bool.isRequired,
   screenHeight: PropTypes.number.isRequired
@@ -307,6 +320,7 @@ const mapStateToProps = state => ({
   userId: state.user.id,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
+  distributorStatus: state.distributor.status,
   userType: state.user.type,
   hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false,
   screenHeight: state.settings.screenHeight
