@@ -12,9 +12,9 @@ import {
 import { Ionicons,FontAwesome } from '@expo/vector-icons'
 
 // LOCALS
-import { FontPoiret,FontMatilde } from '../assets/fonts/Fonts'
-import { Views,Colors,Texts } from '../css/Styles'
-import { getDimensions } from '../utils/Helpers'
+import { FontPoiret,FontMatilde } from './fonts'
+import { Views,Colors,Texts } from '../../css/Styles'
+import { getDimensions } from '../../utils/Helpers'
 
 //CONSTS
 const small = Texts.small.fontSize
@@ -56,9 +56,9 @@ const Switch = ({ checked,onSwitchPress }) => {
     <TouchableOpacity style={{
       width:40,height:40,backgroundColor:'transparent',marginLeft:10,
       marginRight:8,justifyContent:'center',alignItems:'center'
-    }} 
+    }}
       onPress={onSwitchPress}>
-      <View 
+      <View
         style={{
           width:40,height:12,backgroundColor:Colors.transparentWhite,
           borderRadius:20,alignItems:checked?'flex-end':'flex-start'

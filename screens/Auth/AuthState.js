@@ -5,170 +5,106 @@ import { View,AsyncStorage } from 'react-native'
 
 // LIBS
 import {  compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
+import { debounce } from 'underscore'
+
+// STORE
+import { updateUser,setShopper,setShoppersDistributors,setDistributor } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
-import { err,clearIdentifiers,getGQLerror } from '../../utils/Helpers'
 import { AppName } from '../../config/Defaults'
 
 //GQL
 import { GetUser } from '../../api/db/queries'
-import { UpdateFbkFriends } from '../../api/db/mutations'
 
 //CONSTs
 const debugging = __DEV__ && false
+const debounceDuration = 750
 
 class AuthState extends Component {
 
-  state = {
-    localStorage: this.props.screenProps.localStorage,
-    user: null,
-    userUpdatedCount: 0,
-    newPropsErrorCount: 0,
-    newPropsElseCount: 0
+  constructor(props){
+    super(props)
+    this.state = { isMounted:false }
+    this.goTo = debounce(this.goTo,debounceDuration,true)
+    this.partitionUser = debounce(this.partitionUser,debounceDuration,true)
   }
-
+  
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
-      if (newProps.getUser.User) {
-        if (newProps.getUser.User !== this.state.user) {
-          this.setState({
-            user: newProps.getUser.User,
-            userUpdatedCount: this.state.userUpdatedCount + 1
-          },()=>{
-            if (this.state.userUpdatedCount < 2) {
-              this.compareFbkFriends()
-            } else {
-              this.determineAuthStatus()
-            }
-          })
-        }
+      if (
+        newProps.getUser.User
+        && newProps.getUser.User.hasOwnProperty('id')
+      ) {
+        this.partitionUser(newProps.getUser.User)
       } else if (newProps.getUser.error) {
+        debugging && console.log('loggedout7')
+        this.goTo('LoggedOut')
+      } else {
         debugging && console.log('loggedout8')
-        this.setState({newPropsErrorCount: this.state.newPropsErrorCount + 1},()=>{
-          if (this.state.newPropsErrorCount < 2) {
-            this.determineAuthStatus()
-          }
-        })
-      } else {
-        debugging && console.log('loggedout9')
-        this.setState({newPropsElseCount: this.state.newPropsElseCount + 1},()=>{
-          if (this.state.newPropsElseCount < 2) {
-            this.determineAuthStatus()
-          }
-        })
+        this.goTo('LoggedOut')
       }
     }
   }
-
-  async compareFbkFriends(){
-    if (this.state.localStorage.fbkToken) {
-      try {
-        const response = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,friends&access_token=${this.state.localStorage.fbkToken}`)
-        let fetchedFacebookFriends = await response.json()
-        let fetchedFbkFriends = fetchedFacebookFriends.friends.data || []
-        let { id,fbkUserId } = this.state.user
-        let localFbkFriends = this.state.user.fbkFriends
-        if (fetchedFacebookFriends.id === fbkUserId) {
-          if (this.compareArrays(fetchedFbkFriends,localFbkFriends)) {
-            this.syncFbkFriends(id,fetchedFbkFriends)
-          } else {
-            this.determineAuthStatus()
-          }
-        } else {
-          this.determineAuthStatus()
-        }
-      } catch(e){
-        this.determineAuthStatus()
-      }
-    } else {
-      debugging && console.log('loggedout10')
-      await clearIdentifiers()
-      this.goTo('LoggedOut')
+  
+  partitionUser(user){
+    let newUser = { ...user }
+    
+    let shoppersDistributors = newUser.shopperx.distributorsx
+    if (!this.state.isMounted) {
+      this.setState({isMounted:true},()=>{
+        this.props.setShoppersDistributors(shoppersDistributors)
+      })
     }
-  }
-
-  syncFbkFriends(id,fbkFriends){
-    this.props.updateFbkFriends({
-      variables: {
-        userId: id,
-        fbkFriends: fbkFriends
-      }
-    }).then( res => {
-      //
-    }).catch( e => {
-      err('Loading',`it looks like your Facebook info has changed, but an attempt to sync your new data, failed.`)
-      this.determineAuthStatus()
-    })
-  }
-
-  compareArrays(arr1,arr2){
-    let count = 0
-    arr1.forEach( arr1element => {
-      if (
-        arr2.find( arr2element => {
-          return arr2element.id === arr1element.id
-        })
-      ) {
-        return
-      } else {
-        return count++
-      }
-    })
-    arr2.forEach( arr2element => {
-      if (
-        arr1.find( arr1element => {
-          return arr1element.id === arr2element.id
-        })
-      ) {
-        return
-      } else {
-        return count++
-      }
-    })
-    return count > 0 ? true : false
+    
+    let shopper = {
+      __typename: 'Shopper',
+      id: newUser.shopperx.id
+    }
+    this.props.setShopper(shopper)
+    delete newUser.shopperx
+    
+    this.props.setDistributor(newUser.distributorx)
+    delete newUser.distributorx
+    
+    this.props.updateUser(newUser)
+    this.determineAuthStatus()
   }
 
   async determineAuthStatus(){
-    if (this.state.localStorage && this.state.user) {
-      try {
-        let { fbkToken,gcToken } = this.state.localStorage
-        if (fbkToken !== null && gcToken !== null) {
-          let tokenStatus = await this.isExpired(fbkToken)
-          if (tokenStatus) {
-            if (tokenStatus.expires_in) {
-              if (tokenStatus.expires_in > 259200) {
-                debugging && console.log('LoggedIn Redirect')
-                this.goTo('LoggedIn')
-              } else {
-                await clearIdentifiers()
-                debugging && console.log('loggedout1')
-                this.goTo('LoggedOut')
-              }
-            } else if (tokenStatus.error) {
-              debugging && console.log('loggedout2')
-              this.goTo('LoggedOut')
+    try {
+      let { fbkToken,gcToken } = this.props
+      if (fbkToken && gcToken) {
+        let tokenStatus = await this.isExpired(fbkToken)
+        if (tokenStatus) {
+          if (tokenStatus.expires_in) {
+            // > 259200
+            if (tokenStatus.expires_in > 259200) {
+              debugging && console.log('LoggedIn Redirect')
+              this.goTo('LoggedIn')
             } else {
-              debugging && console.log('loggedout3')
+              debugging && console.log('loggedout1')
               this.goTo('LoggedOut')
             }
+          } else if (tokenStatus.error) {
+            debugging && console.log('loggedout2')
+            this.goTo('LoggedOut')
           } else {
-            await clearIdentifiers()
-            debugging && console.log('loggedout4')
+            debugging && console.log('loggedout3')
             this.goTo('LoggedOut')
           }
         } else {
-          debugging && console.log('loggedout5')
+          debugging && console.log('loggedout4')
           this.goTo('LoggedOut')
         }
-      } catch (e) {
-        debugging && console.log('loggedout6')
+      } else {
+        debugging && console.log('loggedout5')
         this.goTo('LoggedOut')
       }
-    } else {
-      debugging && console.log('loggedout7')
-      await clearIdentifiers()
+    } catch (e) {
+      debugging && console.log('loggedout6')
       this.goTo('LoggedOut')
     }
   }
@@ -178,14 +114,10 @@ class AuthState extends Component {
     let res = await response.json()
     return res
   }
-
+// WARNING WHEN LOGGING IN, cannot call setState/forceUpdate on an Unmounted component
   goTo(screen){
-    let passProps = {
-      user: this.state.user || {},
-      localStorage: this.props.screenProps.localStorage
-    }
     setTimeout(()=>{
-      this.props.navigation.navigate(screen,passProps)
+      this.props.navigation.navigate(screen)
     },2000)
   }
 
@@ -202,17 +134,20 @@ class AuthState extends Component {
 
 }
 
-export default compose(
+const mapStateToProps = state => ({
+  userId: state.user.id,
+  gcToken: state.tokens.gc,
+  fbkToken: state.tokens.fbk
+})
+
+const AuthStateWithData = compose(
   graphql(GetUser,{
     name: 'getUser',
-    options: (props) => ({
-      variables: {
-        userId: props.screenProps && props.screenProps.localStorage && props.screenProps.localStorage.userId ? props.screenProps.localStorage.userId : null
-      },
+    options: ({userId}) => ({
+      variables: { userId },
       fetchPolicy: 'network-only'
     })
-  }),
-  graphql(UpdateFbkFriends,{
-    name: 'updateFbkFriends'
   })
 )(AuthState)
+
+export default connect(mapStateToProps,{ updateUser,setShopper,setShoppersDistributors,setDistributor })(AuthStateWithData)

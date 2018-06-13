@@ -19,7 +19,7 @@ import { updateUser } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 
 // COMPS
 import Selfie from './Selfie'

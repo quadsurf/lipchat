@@ -30,7 +30,7 @@ import {
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs

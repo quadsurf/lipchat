@@ -14,10 +14,10 @@ import PropTypes from 'prop-types'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from './fonts'
 
 // COMPs
-import Loading from '../../common/Loading'
+import Loading from './Loading'
 
 class BizUriWebView extends Component {
 

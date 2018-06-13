@@ -6,23 +6,23 @@ import {
 } from 'react-native'
 
 import { Ionicons } from '@expo/vector-icons'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Colors,Texts } from '../../css/Styles'
 
 export default ({ color,onLikePress }) => {
   return (
     <View style={{paddingHorizontal:6,flex:0.333}}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => onLikePress(color)}
         style={{alignItems:'center'}}>
-          <Ionicons 
-            name={ color.doesLike ? 'ios-heart' : 'ios-heart-outline' } 
-            size={46} 
-            color="white" 
+          <Ionicons
+            name={ color.doesLike ? 'ios-heart' : 'ios-heart-outline' }
+            size={46}
+            color="white"
             style={{
             marginBottom:-8
           }} />
-          <View 
+          <View
             style={{
             borderRadius:4,
             backgroundColor: Colors.transparentPurple,

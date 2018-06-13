@@ -39,7 +39,7 @@ import You from '../screens/You/Preloader'
 
 //LOCALS
 import { Views,Colors } from '../css/Styles'
-import { FontPoiret } from '../assets/fonts/Fonts'
+import { FontPoiret } from '../screens/common/fonts'
 import styles from './Styles'
 
 //CONSTs

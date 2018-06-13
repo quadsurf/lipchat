@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { handleClearedChat } from './store/actions'
 
 // LOCALS
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Colors,Texts } from '../../css/Styles'
 import { getDimensions,clipText } from '../../utils/Helpers'
 

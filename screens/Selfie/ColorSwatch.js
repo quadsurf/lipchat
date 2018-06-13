@@ -5,7 +5,7 @@ import { TouchableOpacity,View } from 'react-native'
 
 import { Ionicons } from '@expo/vector-icons'
 
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Colors,Texts } from '../../css/Styles'
 // colorId,name,rgb,onColorPress,isSelected,doesLike
 export default ({ color,isSelected,doesLike,onColorPress }) => {
@@ -64,7 +64,7 @@ export default ({ color,isSelected,doesLike,onColorPress }) => {
       name2 = name.substr(name.indexOf(' ')+1)
   }
   return (
-    <View 
+    <View
       style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center'}}>
       <View style={{height:60,justifyContent:'center',alignItems:'flex-end'}}>
         {
@@ -72,7 +72,7 @@ export default ({ color,isSelected,doesLike,onColorPress }) => {
         }
         <FontPoiret text={name2} size={Texts.small.fontSize} color="white"/>
       </View>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => onColorPress(color)}
         style={{
         width:60,height:60,borderRadius:30,borderWidth:4,marginLeft:6,
@@ -80,7 +80,7 @@ export default ({ color,isSelected,doesLike,onColorPress }) => {
         marginRight: isSelected ? 20 : 0
       }}>
         {
-          isSelected && 
+          isSelected &&
           <Ionicons name="ios-checkmark-outline" size={30} color="white" style={{alignSelf:'center'}} />
         }
         {

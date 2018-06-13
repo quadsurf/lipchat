@@ -4,9 +4,9 @@ import React from 'react'
 
 import { View } from 'react-native'
 
-import { Views,Colors } from '../css/Styles'
+import { Views,Colors } from '../../css/Styles'
 
-import MyStatusBar from './MyStatusBar'
+import MyStatusBar from './StatusBar'
 
 import { DotsLoader } from 'react-native-indicator'
 

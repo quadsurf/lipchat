@@ -12,9 +12,9 @@ import { ApolloProvider } from 'react-apollo'
 import isIPhoneX from 'react-native-is-iphonex'
 
 // COMPONENTS
-import RootNav from './nav/RootNavV2'
+import RootNav from './nav/RootNav'
 import TabNav from './nav/TabNav'
-import Loading from './common/Loading'
+import Loading from './screens/common/Loading'
 
 // LOCALS
 import getClient from './api/ApolloClientRT'
@@ -22,7 +22,7 @@ import getStore from './store/config'
 import { Colors } from './css/Styles'
 import { AppName } from './config/Defaults'
 import { err } from './utils/Helpers'
-import MyStatusBar from './common/MyStatusBar'
+import StatusBar from './screens/common/StatusBar'
 import {
   setTokens,clearTokens,
   setAuthUser,clearUser,
@@ -128,14 +128,14 @@ export default class App extends Component {
                 ? (
                   <SafeAreaView style={{flex:1,backgroundColor:Colors.bgColor}}>
                     <View style={{flex:1,backgroundColor:'transparent'}}>
-                      <MyStatusBar/>
+                      <StatusBar/>
                       <RootNav/>
                     </View>
                   </SafeAreaView>
                 )
                 : (
                   <View style={{flex:1,backgroundColor:Colors.bgColor}}>
-                    <MyStatusBar/>
+                    <StatusBar/>
                     <RootNav/>
                   </View>
                 )

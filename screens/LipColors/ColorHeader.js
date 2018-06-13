@@ -5,7 +5,7 @@ import { View,TouchableOpacity } from 'react-native'
 
 import { Ionicons } from '@expo/vector-icons'
 
-import { FontPoiret } from './../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Colors,Texts } from './../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 
@@ -25,16 +25,16 @@ export default ({ family,onHeaderPress,isOpen,offset }) => {
           flexDirection:'row',
           alignItems:'flex-end'
         }}>
-        <FontPoiret 
-          text={family} 
-          size={Texts.xlarge.fontSize} 
-          color={Colors.blue} 
+        <FontPoiret
+          text={family}
+          size={Texts.xlarge.fontSize}
+          color={Colors.blue}
           style={{backgroundColor:'transparent'}}/>
         <View
           style={{width:38,justifyContent:'center',alignItems:'center'}}>
-          <Ionicons 
-            name={isOpen ? 'md-arrow-dropdown' : 'md-arrow-dropright'} 
-            size={60} 
+          <Ionicons
+            name={isOpen ? 'md-arrow-dropdown' : 'md-arrow-dropright'}
+            size={60}
             color={Colors.purple}/>
         </View>
       </TouchableOpacity>

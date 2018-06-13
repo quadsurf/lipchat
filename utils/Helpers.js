@@ -18,7 +18,7 @@ import { DotsLoader } from 'react-native-indicator'
 
 //LOCALS
 import { Colors,Views,Texts } from '../css/Styles'
-import { FontLato,FontMatilde,FontPoiret } from '../assets/fonts/Fonts'
+import { FontLato,FontMatilde,FontPoiret } from '../screens/common/fonts'
 import { AppName } from '../config/Defaults'
 
 // CONSTS

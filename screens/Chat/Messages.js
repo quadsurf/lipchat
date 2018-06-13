@@ -30,7 +30,7 @@ import {
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
@@ -516,12 +516,21 @@ class Messages extends Component {
     let allowChatType = chatType === 'DMSH2DIST' || chatType === 'DIST2SHPRS'
     let allowWebView = this.props.userType === 'SHOPPER' && allowChatType
     let size = 50
-    let { bizUri,logoUri,bizName } = this.props.shoppersDistributor
-    let { cellPhone,fbkFirstName,fbkLastName,fbkUserId } = this.props.shoppersDistributor.userx
-    let formattedBizUri = bizUri.length > 8 ? bizUri : null
-    let formattedLogoUri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-    let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-    let formattedBizName = bizName ? bizName : name
+    let webViewProps
+    if (allowWebView) {
+      let { bizUri,logoUri,bizName } = this.props.shoppersDistributor
+      let { cellPhone,fbkFirstName,fbkLastName,fbkUserId } = this.props.shoppersDistributor.userx
+      let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+      let formattedBizName = bizName ? bizName : name
+      let formattedBizUri = bizUri.length > 8 ? bizUri : null
+      let formattedLogoUri = logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+      webViewProps = {
+        formattedBizUri,
+        formattedLogoUri,
+        formattedBizName,
+        cellPhone
+      }
+    }
     return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
         <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
@@ -532,12 +541,7 @@ class Messages extends Component {
           </View>
           <TouchableOpacity
             style={{alignItems:'center'}}
-            onPress={() => allowWebView && this.props.navigation.navigate('WebView',{
-              formattedBizUri,
-              formattedLogoUri,
-              formattedBizName,
-              cellPhone
-            })}>
+            onPress={() => allowWebView && this.props.navigation.navigate('WebView',webViewProps)}>
             <View style={{width:50,height:50,marginBottom:4}}>
               {
                 allowWebView && (

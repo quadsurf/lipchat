@@ -25,7 +25,7 @@ import PropTypes from 'prop-types'
 
 //LOCALS
 import { Views,Colors } from '../../css/Styles'
-import { FontMatilde,FontPoiret } from '../../assets/fonts/Fonts'
+import { FontMatilde,FontPoiret } from '../common/fonts'
 import { AppName,method,url,newClaimText,newClaimText2 } from '../../config/Defaults'
 import { Modals } from '../../utils/Helpers'
 

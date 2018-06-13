@@ -30,14 +30,14 @@ import {
 } from '../../api/db/mutations'
 
 // LOCALS
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Colors,Texts } from '../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 import { clipText,shortenUrl } from '../../utils/Helpers'
 import { method,url } from '../../config/Defaults'
 
 // COMPONENTS
-import { CardLines } from '../Common'
+import { CardLines } from '../common/components'
 
 // STORE
 import { updateShoppersDistributor,clearShoppersDistributor } from '../../store/actions'

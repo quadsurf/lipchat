@@ -32,7 +32,7 @@ import {
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import {
   AppName,AccountTypeExplainer,version,bizLink,bizLinkWarning,logoUriWarning
@@ -42,9 +42,9 @@ import {
 import { updateUser,resetApp } from '../../store/actions'
 
 // COMPONENTS
-import { LinkButton,CardLines,Switch } from '../Common'
+import { LinkButton,CardLines,Switch } from '../common/components'
 import ShoppersDistCard from './ShoppersDistCard'
-import Icon from '../Common/Icon'
+import Icon from '../common/Icon'
 
 // CONSTs
 const small = Texts.small.fontSize

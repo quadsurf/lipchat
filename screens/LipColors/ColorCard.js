@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 
 // LOCALS
-import { FontPoiret,FontMatilde } from '../../assets/fonts/Fonts'
+import { FontPoiret,FontMatilde } from '../common/fonts'
 import { Views,Colors,Texts } from '../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 
@@ -35,16 +35,16 @@ export default (props) => {
         <View style={{
           flex:1,alignItems:'center',justifyContent:'space-around',flexDirection:'row',marginTop:20
         }}>
-          <TouchableOpacity 
-            style={{marginRight:20}} 
+          <TouchableOpacity
+            style={{marginRight:20}}
             onPress={() => props.onMinusPress(props.color,'-')}>
-              <Ionicons 
+              <Ionicons
                 name="ios-remove-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
           </TouchableOpacity>
           <FontMatilde text={count} size={100} color={Colors.white}/>
-          <TouchableOpacity style={{marginLeft:20}} 
+          <TouchableOpacity style={{marginLeft:20}}
             onPress={() => props.onAddPress(props.color,'+')}>
-              <Ionicons 
+              <Ionicons
                 name="ios-add-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
           </TouchableOpacity>
         </View>
@@ -62,8 +62,8 @@ export default (props) => {
     return (
       <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
         <TouchableOpacity onPress={() => props.onLikePress(props.color)}>
-          <Ionicons 
-            name={doesLike === true ? 'ios-heart' : 'ios-heart-outline'} 
+          <Ionicons
+            name={doesLike === true ? 'ios-heart' : 'ios-heart-outline'}
             size={60} color={Colors.white}/>
         </TouchableOpacity>
       </View>
@@ -79,8 +79,8 @@ export default (props) => {
   let editingView = () => {
     return (
       <View style={{flex:1,flexDirection:'row'}}>
-        <TouchableHighlight 
-          underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} 
+        <TouchableHighlight
+          underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}}
           onPress={() => props.onCancelPress(props.color)}>
             <Text style={{
               fontFamily:'Poiret',color:Colors.white,marginHorizontal:20,fontSize:25,lineHeight:30
@@ -88,8 +88,8 @@ export default (props) => {
               cancel
             </Text>
         </TouchableHighlight>
-        <TouchableHighlight 
-          underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}} 
+        <TouchableHighlight
+          underlayColor={Colors.transparentWhite} style={{height:30,borderRadius:6}}
           onPress={() => props.onUpdatePress(props.color)}>
           <Text style={{
             fontFamily:'Poiret',color:Colors.white,marginHorizontal:20,fontSize:25,lineHeight:30
@@ -104,26 +104,26 @@ export default (props) => {
     <View style={{width,height:170,backgroundColor:rgb,
         paddingBottom:4,paddingHorizontal:4,bottom:14}}>
       <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
-        <FontPoiret 
-          text={rgb === Colors.purpleText ? 'could not load proper color' : ''} 
-          size={medium} 
+        <FontPoiret
+          text={rgb === Colors.purpleText ? 'could not load proper color' : ''}
+          size={medium}
           color={Colors.white}/>
-        <FontPoiret 
-          text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} 
-          size={medium} 
+        <FontPoiret
+          text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'}
+          size={medium}
           color={Colors.white}/>
       </View>
       {
-        props.userType === 'DIST' 
-          ? distView() 
-          : props.userType === 'SHOPPER' 
-          ? shopperView() 
+        props.userType === 'DIST'
+          ? distView()
+          : props.userType === 'SHOPPER'
+          ? shopperView()
           : loadingView()
       }
       <View style={{...Views.middle,marginTop:20}}>
         {
-          props.isEditing 
-            ? editingView() 
+          props.isEditing
+            ? editingView()
             : <FontPoiret text={name.toUpperCase()} size={large} color={Colors.white}/>
         }
       </View>

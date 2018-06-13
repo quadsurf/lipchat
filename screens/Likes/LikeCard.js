@@ -7,7 +7,7 @@ import {
 } from 'react-native'
 
 // LOCALS
-import { FontPoiret,FontMatilde } from '../../assets/fonts/Fonts'
+import { FontPoiret,FontMatilde } from '../common/fonts'
 import { Views,Colors,Texts } from '../../css/Styles'
 import { getDimensions } from '../../utils/Helpers'
 
@@ -32,7 +32,7 @@ export default (props) => {
           <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
           <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={Views.middle}
           onPress={() => props.onPressClaim(props.like)}>
             <FontMatilde color={Colors.white} text="request this color" size={larger} vspace={20}/>

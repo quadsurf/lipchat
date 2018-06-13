@@ -3,71 +3,76 @@
 import React, { Component } from 'react'
 
 // LIBS
-import { StackNavigator } from 'react-navigation'
+import { createSwitchNavigator,createStackNavigator } from 'react-navigation'
+// import isIPhoneX from 'react-native-is-iphonex'
 import { DotsLoader } from 'react-native-indicator'
 
 // LOCALS
 import { Colors } from '../css/Styles'
 
 // SCREENS
-import AuthState from '../screens/Auth/AuthStateV2'
-import Login from '../screens/Auth/LoginV2'
+import AuthState from '../screens/Auth/AuthState'
+import Login from '../screens/Auth/Login'
 import TabNav from './TabNav'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
+import RemoteData from '../store/Remote'
+import WebView from '../screens/common/WebView'
 
-const ClaimsModal = StackNavigator(
-  {
-    ClaimsModalIndex: { screen:Claims }
-  },
+const ClaimsModal = createStackNavigator(
+  { Claims },
   {
     headerMode: 'none',
-    navigationOptions: {
-      gesturesEnabled: true
-    }
+    navigationOptions: { gesturesEnabled: true }
   }
 )
 
-const AppStack = StackNavigator(
+const WebViewModal = createStackNavigator(
+  { WebView },
   {
-    AppStackIndex: { screen:AuthState },
-    LoggedOut: { screen:Login },
-    LoggedIn: { screen:TabNav },
-    Messages: { screen:Messages }
-  },
-  {
-    initialRouteName: 'AppStackIndex',
-    headerMode: 'none'
+    headerMode: 'none',
+    navigationOptions: { gesturesEnabled: true }
   }
 )
 
-const RootStack = StackNavigator(
+const TabStack = createStackNavigator(
   {
-    AppStack: { screen:AppStack },
-    Claims: { screen:ClaimsModal }
+    TabNav,
+    Messages
+  },
+  { headerMode: 'none' }
+)
+
+const AppStack = createStackNavigator(
+  {
+    Preloader: RemoteData,
+    Tabs: TabStack,
+    Claims: ClaimsModal,
+    WebView: WebViewModal
   },
   {
-    initialRouteName: 'AppStack',
+    initialRouteName: 'Preloader',
     mode: 'modal',
-    headerMode: 'none'
+    headerMode: 'none',
+    navigationOptions: { gesturesEnabled: false },
+  	// transitionConfig: () => {
+  	// 	if (!isIPhoneX) {
+    //     return {
+    //       containerStyle: { marginTop: -20 }
+    //     }
+    //   }
+  	// }
   }
 )
 
-export default class RootNav extends Component {
-  state = {
-    // isConnected: false
+export default createSwitchNavigator(
+  {
+    AuthChecker: AuthState,
+    LoggedOut: Login,
+    LoggedIn: AppStack
+  },
+  {
+    initialRouteName: 'AuthChecker',
+    headerMode: 'none'
   }
-  
-  componentWillMount(){
-    // this.setState({isConnected:this.props.isConnected})
-  }
-  
-  componentDidMount(){
-    // console.log('localStorage on RootNav',this.props.localStorage);
-  }
-
-  render() {
-    return <RootStack/>
-    // screenProps={this.props.localStorage}
-  }
-}
+)

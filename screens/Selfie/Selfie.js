@@ -25,14 +25,14 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 import { tips,distIsLiking } from './../../config/Defaults'
 
 // COMPONENTS
 import ColorSwatch from './ColorSwatch'
-import { Switch } from '../Common'
+import { Switch } from '../common/components'
 import Liker from './Liker'
 
 // CONSTS

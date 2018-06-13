@@ -10,7 +10,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 // LOCALS
 import { Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../../assets/fonts/Fonts'
+import { FontPoiret } from '../common/fonts'
 import { getDimensions } from '../../utils/Helpers'
 
 // CONSTs
@@ -101,9 +101,9 @@ const Message = props => {
     return (
       <View style={{flex:1,marginVertical:10}}>
         <View style={[date1,date2]}>
-          <FontPoiret 
-            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}${level === 'A' && chatType === 'SADVR2ALL' ? ` - To: ${audience}` : ''}`} 
-            size={12} 
+          <FontPoiret
+            text={`${writer.fbkFirstName || ''} ${writer.fbkLastName || ''} - ${moment(updated).fromNow()}${level === 'A' && chatType === 'SADVR2ALL' ? ` - To: ${audience}` : ''}`}
+            size={12}
             color={Colors.transparentWhite}/>
         </View>
         <View style={{flexDirection:'row',justifyContent: position === 'left' ? 'flex-start' : 'flex-end'}}>
@@ -115,7 +115,7 @@ const Message = props => {
             </View> : null
           }
           <View style={[msgStyle1,msgStyle2,position === 'left' ? avatarLeft : avatarRight,{flexDirection:'column'}]}>
-            <Text 
+            <Text
               style={[{fontFamily:'Poiret',fontSize:medium,color: writer.type === 'SHOPPER' ? Colors.blue : Colors.pinkly}]}
               allowFontScaling={false}
               selectable={true}>
