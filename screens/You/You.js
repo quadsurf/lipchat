@@ -18,7 +18,7 @@ import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import Modal from 'react-native-modal'
 import { EvilIcons } from '@expo/vector-icons'
-import { NavigationActions } from 'react-navigation'
+import { NavigationActions,withNavigation } from 'react-navigation'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -874,9 +874,34 @@ class You extends Component {
             DistributorId,
             DistributorBizUri: this.cleanString(DistributorBizUri)
           }
-        }).then( res => {
-          if (res && res.data && res.data.updateDistributor) {
-            this.setState({DistributorBizUri:res.data.updateDistributor.bizUri})
+        }).then( ({ data:{ updateDistributor={} } }) => {
+          if (updateDistributor.bizUri) {
+            this.setState({DistributorBizUri:updateDistributor.bizUri},()=>{
+
+              // ADD X RESETTER FOR LOGO LINK AND TAB.BIO
+              // IS PROPS UPDATED WHEN USER META IS UPDATED
+              // ADD ? THAT SAYS WE WILL USE FBK PROFILE IMAGE IF NO LOGO LINK PROVIDED
+              // ADD ? THAT SAYS TO USE A FREE HOSTING SERVICE FOR LOGO IF NECESSARY
+              // ENSURE THERE IS A FBK PLACEHOLDER IMAGE ON CHAT.js/MESSAGES.JS WHEN NO LOGO LINK PROVIDED
+
+              let size = 50
+              let { fbkUserId,fbkFirstName,fbkLastName,cellPhone } = this.props.user
+
+              let formattedLogoUri = this.props.distributor.logoUri.length > 8
+               ? this.props.distributor.logoUri
+               : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+
+              let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+              let { bizName } = this.props.distributor
+              let formattedBizName = bizName ? bizName : name
+
+              this.props.navigation.navigate('WebView',{
+                formattedBizUri: this.state.DistributorBizUri,
+                formattedLogoUri,
+                formattedBizName,
+                cellPhone
+              })
+            })
           } else {
             this.openError(errText)
           }
@@ -972,7 +997,9 @@ const YouWithData = compose(
   })
 )(You)
 
-export default connect(mapStateToProps,{ updateUser,resetApp })(YouWithData)
+const YouWithDataWithNavigation = withNavigation(YouWithData)
+
+export default connect(mapStateToProps,{ updateUser,resetApp })(YouWithDataWithNavigation)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 // from renderBizName func: onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}
