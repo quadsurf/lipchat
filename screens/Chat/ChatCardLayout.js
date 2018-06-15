@@ -47,12 +47,12 @@ class ChatCardLayout extends Component {
 
   navToMessages(audiences){
     let {
-      chat,userId,chatId,uri,chatTitle,chatType,level,handleClearedChat
+      chat,userId,chatId,uri,chatTitle,chatType,level,handleClearedChat,cellPhone
     } = this.props
     if (this.state.unreadStatus) {
       handleClearedChat(chat)
     }
-    this.props.navigation.navigate('Messages',{userId,chatId,uri,chatTitle,chatType,level,audiences})
+    this.props.navigation.navigate('Messages',{userId,chatId,uri,chatTitle,chatType,level,audiences,cellPhone})
   }
 
   render(){

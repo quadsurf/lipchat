@@ -17,15 +17,15 @@ export const chatsReducer = (state = initialChats,actions) => {
       let chatsWithMessages = []
       let chatsWithoutMessages = []
       chats.forEach(chat => {
-        let enhancedChat = {
+        let chatWithMeta = {
           ...chat,
           unreadStatus: false,
           unreadCount: 0
         }
-        if (enhancedChat.messages.length > 0) {
-          chatsWithMessages.push(enhancedChat)
+        if (chatWithMeta.messages.length > 0) {
+          chatsWithMessages.push(chatWithMeta)
         } else {
-          chatsWithoutMessages.push(enhancedChat)
+          chatsWithoutMessages.push(chatWithMeta)
         }
       })
       chatsWithMessages.sort( (a,b) => {

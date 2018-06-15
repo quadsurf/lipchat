@@ -16,8 +16,9 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 // import { withNavigation } from 'react-navigation'
-import { Entypo,SimpleLineIcons,Ionicons } from '@expo/vector-icons'
+import { Entypo,SimpleLineIcons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
+import call from 'react-native-phone-call'
 import PropTypes from 'prop-types'
 // import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -45,6 +46,7 @@ const debugging = __DEV__ && false
 
 // COMPONENTS
 import Message from './Message'
+import Icon from '../common/Icon'
 
 // @withNavigation
 class Messages extends Component {
@@ -513,8 +515,14 @@ class Messages extends Component {
 
   render(){
     let { chatType } = this.props.navigation.state.params
-    let allowChatType = chatType === 'DMSH2DIST' || chatType === 'DIST2SHPRS'
-    let allowWebView = this.props.userType === 'SHOPPER' && allowChatType
+
+    let allowChatTypeForShoppers = chatType === 'DMSH2DIST' || chatType === 'DIST2SHPRS'
+    let allowWebView = this.props.userType === 'SHOPPER' && allowChatTypeForShoppers
+
+    let { cellPhone } = this.props.navigation.state.params
+    let allowChatTypeForNonShoppers = chatType === 'DMU2ADMIN' || chatType === 'DMSH2DIST'
+    let allowPhoneCall = this.props.userType !== 'SHOPPER' && cellPhone && allowChatTypeForNonShoppers
+
     let size = 50
     let webViewProps
     if (allowWebView) {
@@ -541,15 +549,28 @@ class Messages extends Component {
           </View>
           <TouchableOpacity
             style={{alignItems:'center'}}
-            onPress={() => allowWebView && this.props.navigation.navigate('WebView',webViewProps)}>
+            onPress={() => {
+              allowWebView && this.props.navigation.navigate('WebView',webViewProps)
+              allowPhoneCall && call({number:cellPhone,prompt:false})
+            }}>
             <View style={{width:50,height:50,marginBottom:4}}>
               {
                 allowWebView && (
-                  <Ionicons
+                  <Icon
+                    family="Ionicons"
                     name="ios-information-circle-outline"
-                    size={20}
                     style={{
-                      color:Colors.blue,
+                      position: 'absolute',
+                      top: 5, right: -18
+                    }}/>
+                )
+              }
+              {
+                allowPhoneCall && (
+                  <Icon
+                    family="MaterialIcons"
+                    name="phone"
+                    styles={{
                       position: 'absolute',
                       top: 5, right: -18
                     }}/>

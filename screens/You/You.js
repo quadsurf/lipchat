@@ -175,10 +175,9 @@ class You extends Component {
 
   renderMainContent(){
     let imageWidth = 280
-    let { fbkUserId } = this.props.user
+    let { fbkUserId,type } = this.props.user
+    let shouldRender = type !== 'SADVR'
     let uri = `https://graph.facebook.com/${fbkUserId}/picture?width=${imageWidth}&height=${imageWidth}`
-    // onChangeText={(name) => name.length > 0 ? this.setState({name}) : null}
-    // height: userType === 'SHOPPER' ? 860 : 860,
     return (
         <View style={{flex:1}}>
           <KeyboardAwareScrollView
@@ -190,11 +189,11 @@ class You extends Component {
             enableOnAndroid={true}>
               <Image
                 style={{width:imageWidth,height:imageWidth,borderRadius:.5*imageWidth}} source={{uri}}/>
-              {this.renderName()}
-              {this.renderCellPhone()}
-              {this.renderDistributorFields()}
-              {this.renderCellSubmitModal()}
-              {this.renderUserTypeSubmitModal()}
+              { this.renderName() }
+              { shouldRender && this.renderCellPhone() }
+              { shouldRender && this.renderDistributorFields() }
+              { shouldRender && this.renderCellSubmitModal() }
+              { shouldRender && this.renderUserTypeSubmitModal() }
               <LinkButton text="logout" onPress={() => this.logOut()}/>
               <Text style={{color:Colors.blue,fontSize:10}}>
                 {`v${version}`}

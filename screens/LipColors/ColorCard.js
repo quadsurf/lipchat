@@ -116,7 +116,7 @@ export default (props) => {
       {
         props.userType === 'DIST'
           ? distView()
-          : props.userType === 'SHOPPER'
+          : props.userType === 'SHOPPER' || props.userType === 'SADVR'
           ? shopperView()
           : loadingView()
       }

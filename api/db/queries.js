@@ -215,6 +215,7 @@ query GetChatsForDistributor(
         fbkFirstName
         fbkLastName
         fbkUserId
+        cellPhone
       }
     }
     distributorsx {
@@ -223,6 +224,7 @@ query GetChatsForDistributor(
         fbkFirstName
         fbkLastName
         fbkUserId
+        cellPhone
       }
       logoUri
       status
@@ -268,6 +270,7 @@ query GetChatsForShopper(
         fbkFirstName
         fbkLastName
         fbkUserId
+        cellPhone
       }
       bizName
       logoUri

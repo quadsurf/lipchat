@@ -186,7 +186,8 @@ class Likes extends Component {
 
   renderLikes(){
     let { likes } = this.state
-    if (this.props.userType === 'DIST') {
+    let { userType } = this.props
+    if (userType === 'DIST') {
       return this.renderDistScreen()
     } else {
       if (likes && likes.length > 0) {
@@ -195,6 +196,7 @@ class Likes extends Component {
             key={id}
             like={like}
             onPressClaim={this.onPressClaim}
+            userType={userType}
             rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
         })
       } else {
@@ -243,7 +245,6 @@ const LikesWithData = compose(
   graphql(GetLikesForShopper,{
     name: 'getLikesForShopper',
     options: props => ({
-      // pollInterval: 20000,
       variables: {
         shopperId: { id: props.shopperId }
       }

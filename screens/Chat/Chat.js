@@ -60,7 +60,7 @@ class Chat extends Component {
       newProps.getChatsForDistributor.allChats &&
       newProps.getChatsForDistributor.allChats !== this.props.getChatsForDistributor.allChats
     ) {
-      if (this.props.userType === 'DIST') {
+      if (this.props.userType === 'DIST' || this.props.userType === 'SADVR') {
         this.setChats(newProps.getChatsForDistributor.allChats)
       }
     }
@@ -246,7 +246,7 @@ class Chat extends Component {
   }
 
   renderChats(){
-    let { chats,userType,distributorStatus } = this.props
+    let { chats,userType,distributorStatus,shopperId } = this.props
     if (chats.length > 0) {
       return chats.map( chat => {
         switch(userType){
@@ -263,8 +263,11 @@ class Chat extends Component {
                 return <ChatCard key={chat.id} chat={chat}/>
               }
           case 'SADVR':
+              if (chat.type === 'DMU2ADMIN' && chat.shoppersx[0].id === shopperId) {
+                return null
+              }
               return <ChatCard key={chat.id} chat={chat}/>
-          default: return <ChatCard key={chat.id} chat={chat}/>
+          default: return null
         }
       })
     } else {
@@ -309,7 +312,7 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
-  distributorStatus: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.bool.isRequired,
   userType: PropTypes.string.isRequired,
   hasShoppersDistributor: PropTypes.bool.isRequired,
   screenHeight: PropTypes.number.isRequired
@@ -331,12 +334,8 @@ const ChatWithData = compose(
     name: 'getChatsForDistributor',
     options: props => ({
       variables: {
-        DistributorId: {
-          id: props.distributorId
-        },
-        shopperId: {
-          id: props.shopperId
-        }
+        DistributorId: { id: props.distributorId },
+        shopperId: { id: props.shopperId }
       },
       fetchPolicy: 'network-only'
     })
@@ -344,11 +343,8 @@ const ChatWithData = compose(
   graphql(GetChatsForShopper,{
     name: 'getChatsForShopper',
     options: props => ({
-      variables: {
-        ShopperId: { id: props.shopperId }
-      },
-      fetchPolicy: 'network-only',
-      // pollInterval: 15000,
+      variables: { ShopperId: { id: props.shopperId } },
+      fetchPolicy: 'network-only'
     })
   })
 )(Chat)

@@ -59,6 +59,7 @@ subscription SubToShoppersChats(
           fbkFirstName
           fbkLastName
           fbkUserId
+          cellPhone
         }
         bizName
         logoUri
@@ -135,6 +136,7 @@ subscription(
           fbkFirstName
           fbkLastName
           fbkUserId
+          cellPhone
         }
       }
       distributorsx {
@@ -143,6 +145,7 @@ subscription(
           fbkFirstName
           fbkLastName
           fbkUserId
+          cellPhone
         }
         logoUri
         status

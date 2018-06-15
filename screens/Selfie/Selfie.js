@@ -72,7 +72,7 @@ class Selfie extends Component {
   }
 
   subToLikesInDb(){
-    if (this.props.userType === 'SHOPPER') {
+    if (this.props.userType !== 'DIST') {
       let { shopperId } = this.props
       if (shopperId) {
         this.props.getLikesForShopper.subscribeToMore({
@@ -257,23 +257,23 @@ class Selfie extends Component {
   }
 
   renderColorTest(){
-    if (!debugging) {
+    if (this.props.userType !== 'SADVR') {
       return null
     } else {
       return (
         <View style={{
           position:'absolute',
-          top: 100,
+          top: this.props.isIPhoneX ? 88 : 50,
           left: 5,
-          width: 300,
+          width: 280,
           backgroundColor:Colors.transparentPurple,
           alignItems:'flex-start',
           padding: 12
         }}>
           <Text style={{color:"white"}}>
             last tapped: {this.state.lastTapped || 'none yet'}{"\n"}
-            activeColor: {this.state.activeColor}{"\n"}{"\n"}
-            selectedColors:
+            activeColor: {this.state.activeColor}{"\n"}
+            SELECTED COLORS:
           </Text>
           {
             this.state.selectedColors.map( ({colorId,rgb,name}) => (
@@ -286,7 +286,7 @@ class Selfie extends Component {
           }
           {
             this.state.faces && (
-              <Text style={{color:"white"}}>{JSON.stringify(this.state.faces)}</Text>
+              <Text style={{color:"white",fontSize:8}}>{JSON.stringify(this.state.faces)}</Text>
             )
           }
         </View>
@@ -506,7 +506,7 @@ class Selfie extends Component {
       activeColor,
       selectedColors: [...selectedColors]
     },()=>{
-      debugging && this.lastTapped(color)
+      this.props.userType === 'SADVR' && this.lastTapped(color)
     })
   }
 
@@ -544,7 +544,7 @@ class Selfie extends Component {
       <ColorSwatch
         color={item}
         isSelected={isSelected === -1 ? false : true}
-        doesLike={this.props.userType === 'SHOPPER' ? item.doesLike : false}
+        doesLike={this.props.userType !== 'DIST' ? item.doesLike : false}
         onColorPress={this.onColorPress} />
     )
   }
@@ -635,7 +635,7 @@ class Selfie extends Component {
   }
 
   checkIfLikeExists(color){
-    if (this.props.userType === 'SHOPPER') {
+    if (this.props.userType !== 'DIST') {
       let { likeId,doesLike,colorId } = color
       let { shopperId } = this.props
       if (likeId) {

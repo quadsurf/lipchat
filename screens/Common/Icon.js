@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native'
 
 import PropTypes from 'prop-types'
 
-import { Ionicons,EvilIcons } from '@expo/vector-icons'
+import { Ionicons,EvilIcons,MaterialIcons } from '@expo/vector-icons'
 import { Colors } from '../../css/Styles'
 
 
@@ -14,25 +14,37 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
     {
       switch(family){
         case 'Ionicons':
-          return (
-            <Ionicons
-              name={name}
-              size={size || 20}
-              style={{
-                color: color || Colors.blue,
-                ...styles
-              }}/>
-          )
+            //ios-information-circle-outline
+            return (
+              <Ionicons
+                name={name}
+                size={size || 20}
+                style={{
+                  color: color || Colors.blue,
+                  ...styles
+                }}/>
+            )
+        case 'MaterialIcons':
+            //phone
+            return (
+              <MaterialIcons
+                name={name}
+                size={size || 20}
+                style={{
+                  color: color || Colors.blue,
+                  ...styles
+                }}/>
+            )
         case 'EvilIcons':
-          return (
-            <EvilIcons
-              name={name}
-              size={size || 20}
-              style={{
-                color: color || Colors.blue,
-                ...styles
-              }}/>
-          )
+            return (
+              <EvilIcons
+                name={name}
+                size={size || 20}
+                style={{
+                  color: color || Colors.blue,
+                  ...styles
+                }}/>
+            )
         default: return null
       }
     }
