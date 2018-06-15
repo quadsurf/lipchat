@@ -39,7 +39,7 @@ import {
 } from '../../config/Defaults'
 
 // STORE
-import { updateUser,resetApp } from '../../store/actions'
+import { updateUser,updateDistributor,resetApp } from '../../store/actions'
 
 // COMPONENTS
 import { LinkButton,CardLines,Switch } from '../common/components'
@@ -238,7 +238,7 @@ class You extends Component {
   }
 
   openCellSubmitModal(){
-    let { cellPhone } = this.props.user
+    let cellPhone = this.props.user.cellPhone ? this.props.user.cellPhone : ''
     if (cellPhone.length === 12) {
       let tempCellArray = cellPhone.split('')
       tempCellArray.splice(7,1,' ','-',' ')
@@ -724,9 +724,11 @@ class You extends Component {
           }
         }).then( ({ data: { updateUser={} } }) => {
           if (updateUser.hasOwnProperty('id')) {
-            let { fbkFirstName='',fbkLastName='' } = updateUser
-            this.setState({ name: `${fbkFirstName} ${fbkLastName}` })
-            this.props.updateUser({ fbkFirstName,fbkLastName })
+            let { fbkFirstName,fbkLastName } = updateUser
+            let firstName = fbkFirstName || ''
+            let lastName = fbkLastName || ''
+            this.setState({ name: `${firstName} ${lastName}` })
+            this.props.updateUser({ fbkFirstName:firstName,fbkLastName:lastName })
           } else {
             this.openError(`${errText}-1`)
           }
@@ -759,7 +761,7 @@ class You extends Component {
           cellPhone
         }
       }).then( ({ data: { updateUser={} } }) => {
-        if (updateUser.hasOwnProperty('id')) {
+        if (updateUser.hasOwnProperty('cellPhone')) {
           let { cellPhone } = updateUser
           this.setState({isCellSubmitModalOpen:false},()=>{
             this.setState({
@@ -796,7 +798,7 @@ class You extends Component {
               type: userType
             }
           }).then( res => {
-            //
+            // updated on app state via Preloader subscription
           }).catch( e => {
             this.openError(`${errText}-2`)
           })
@@ -817,9 +819,10 @@ class You extends Component {
           DistributorId,
           DistributorDistId: this.cleanString(DistributorDistId)
         }
-      }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {
-          this.setState({DistributorDistId:res.data.updateDistributor.distId})
+      }).then( ({ data:{ updateDistributor={} } }) => {
+        if (updateDistributor.hasOwnProperty('distId')) {
+          this.setState({DistributorDistId:updateDistributor.distId})
+          this.props.updateDistributor({ ...updateDistributor })
         } else {
           this.openError(errText)
         }
@@ -841,9 +844,10 @@ class You extends Component {
           DistributorId,
           DistributorBizName: this.cleanString(DistributorBizName)
         }
-      }).then( res => {
-        if (res && res.data && res.data.updateDistributor) {
-          this.setState({DistributorBizName:res.data.updateDistributor.bizName})
+      }).then( ({ data:{ updateDistributor={} } }) => {
+        if (updateDistributor.hasOwnProperty('bizName')) {
+          this.setState({DistributorBizName:updateDistributor.bizName})
+          this.props.updateDistributor({ ...updateDistributor })
         } else {
           this.openError(errText)
         }
@@ -861,6 +865,36 @@ class You extends Component {
     return isAllowed
   }
 
+  getWebViewProps(uriType){
+    let size = 50
+    let { fbkUserId,fbkFirstName,fbkLastName } = this.props.user
+
+    let { DistributorBizUri:bizUri,DistributorLogoUri:logoUri,DistributorBizName:bizName } = this.state
+
+    let formattedBizUri = bizUri.length > 8 ? bizUri : null
+
+    let formattedLogoUri = logoUri.length > 8
+     ? logoUri
+     : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+
+    let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+    let formattedBizName = bizName ? bizName : name
+
+    if (uriType === 'logoUri') {
+      formattedBizUri = formattedLogoUri
+    }
+
+    let webViewProps = {
+      formattedBizUri,
+      formattedLogoUri,
+      formattedBizName,
+      uriType,
+      cellPhone: null
+    }
+
+    return webViewProps
+  }
+
   updateDistributorBizUriInDb(){
     let { DistributorBizUri } = this.state
     let DistributorId = this.props.distributor.id
@@ -875,7 +909,7 @@ class You extends Component {
             DistributorBizUri: this.cleanString(DistributorBizUri)
           }
         }).then( ({ data:{ updateDistributor={} } }) => {
-          if (updateDistributor.bizUri) {
+          if (updateDistributor.hasOwnProperty('bizUri')) {
             this.setState({DistributorBizUri:updateDistributor.bizUri},()=>{
 
               // ADD X RESETTER FOR LOGO LINK AND TAB.BIO
@@ -885,23 +919,10 @@ class You extends Component {
               // ADD ? THAT SAYS TO USE A FREE HOSTING SERVICE FOR LOGO IF NECESSARY
               // ENSURE THERE IS A FBK PLACEHOLDER IMAGE ON CHAT.js/MESSAGES.JS WHEN NO LOGO LINK PROVIDED
 
-              let size = 50
-              let { fbkUserId,fbkFirstName,fbkLastName,cellPhone } = this.props.user
+              this.props.navigation.navigate('WebView',this.getWebViewProps('bizUri'))
 
-              let formattedLogoUri = this.props.distributor.logoUri.length > 8
-               ? this.props.distributor.logoUri
-               : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
+              this.props.updateDistributor({ ...updateDistributor })
 
-              let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
-              let { bizName } = this.props.distributor
-              let formattedBizName = bizName ? bizName : name
-
-              this.props.navigation.navigate('WebView',{
-                formattedBizUri: this.state.DistributorBizUri,
-                formattedLogoUri,
-                formattedBizName,
-                cellPhone
-              })
             })
           } else {
             this.openError(errText)
@@ -928,9 +949,12 @@ class You extends Component {
             DistributorId,
             DistributorLogoUri: this.cleanString(DistributorLogoUri)
           }
-        }).then( res => {
-          if (res && res.data && res.data.updateDistributor) {
-            this.setState({DistributorLogoUri:res.data.updateDistributor.logoUri})
+        }).then( ({ data:{ updateDistributor={} } }) => {
+          if (updateDistributor.hasOwnProperty('logoUri')) {
+            this.setState({DistributorLogoUri:updateDistributor.logoUri},()=>{
+              this.props.navigation.navigate('WebView',this.getWebViewProps('logoUri'))
+              this.props.updateDistributor({ ...updateDistributor })
+            })
           } else {
             this.openError(errText)
           }
@@ -1000,7 +1024,7 @@ const YouWithData = compose(
 
 const YouWithDataWithNavigation = withNavigation(YouWithData)
 
-export default connect(mapStateToProps,{ updateUser,resetApp })(YouWithDataWithNavigation)
+export default connect(mapStateToProps,{ updateUser,updateDistributor,resetApp })(YouWithDataWithNavigation)
 
 // refactoring to-dos: centralize button styling, disable submit buttons onPress with spinning loader, error handling, url tester
 // from renderBizName func: onChangeText={(DistributorBizName) => DistributorBizName.length > 0 ? this.setState({DistributorBizName}) : null}

@@ -541,53 +541,60 @@ class Messages extends Component {
     }
     return (
       <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <View style={{width:screen.width,height:80,flexDirection:'row',justifyContent:'space-between'}}>
-          <View style={{justifyContent:'center'}}>
-            <TouchableOpacity onPress={() => this.prepForUnmount()}>
-              <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={{alignItems:'center'}}
-            onPress={() => {
-              allowWebView && this.props.navigation.navigate('WebView',webViewProps)
-              allowPhoneCall && call({number:cellPhone,prompt:false})
-            }}>
-            <View style={{width:50,height:50,marginBottom:4}}>
-              {
-                allowWebView && (
-                  <Icon
-                    family="Ionicons"
-                    name="ios-information-circle-outline"
-                    style={{
-                      position: 'absolute',
-                      top: 5, right: -18
-                    }}/>
-                )
-              }
-              {
-                allowPhoneCall && (
-                  <Icon
-                    family="MaterialIcons"
-                    name="phone"
-                    styles={{
-                      position: 'absolute',
-                      top: 5, right: -18
-                    }}/>
-                )
-              }
-              <Image source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
-            </View>
-            <FontPoiret
-              text={this.props.navigation.state.params.chatTitle}
-              size={Texts.small.fontSize}
-              style={{color:Colors.blue}}/>
-          </TouchableOpacity>
-          <View style={{justifyContent:'center'}}>
-            <TouchableOpacity onPress={this.fetchMoreChats}>
-              <SimpleLineIcons name="cloud-download" size={47} style={{color:Colors.blue,marginRight:14,marginTop:3}}/>
-            </TouchableOpacity>
-          </View>
+        <View
+          style={{
+            width:screen.width,
+            height:80,
+            flexDirection:'row',
+            justifyContent:'space-between'
+          }}>
+              <View style={{justifyContent:'center',flex:1}}>
+                <TouchableOpacity onPress={() => this.prepForUnmount()}>
+                  <Entypo name="chevron-thin-left" size={40} style={{color:Colors.blue,marginLeft:6}}/>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={{alignItems:'center',flex:1}}
+                onPress={() => {
+                  allowWebView && this.props.navigation.navigate('WebView',webViewProps)
+                  allowPhoneCall && call({number:cellPhone,prompt:false})
+                }}>
+                    <View style={{width:50,height:50,marginBottom:4}}>
+                      {
+                        allowWebView && (
+                          <Icon
+                            family="Ionicons"
+                            name="ios-information-circle-outline"
+                            styles={{
+                              position: 'absolute',
+                              top: 5, right: -18
+                            }}/>
+                        )
+                      }
+                      {
+                        allowPhoneCall && (
+                          <Icon
+                            family="MaterialIcons"
+                            name="phone"
+                            styles={{
+                              position: 'absolute',
+                              top: 5, right: -18
+                            }}/>
+                        )
+                      }
+                      <Image
+                        source={{uri:this.props.navigation.state.params.uri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
+                    </View>
+                    <FontPoiret
+                      text={this.props.navigation.state.params.chatTitle}
+                      size={Texts.small.fontSize}
+                      style={{color:Colors.blue}}/>
+              </TouchableOpacity>
+              <View style={{justifyContent:'center',flex:1,alignItems:'flex-end'}}>
+                <TouchableOpacity onPress={this.fetchMoreChats}>
+                  <SimpleLineIcons name="cloud-download" size={47} style={{color:Colors.blue,marginRight:14,marginTop:3}}/>
+                </TouchableOpacity>
+              </View>
         </View>
         {this.renderMainContent()}
         {this.renderModal()}

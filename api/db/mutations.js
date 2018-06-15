@@ -77,7 +77,6 @@ mutation UpdateCellPhone(
     id: $userId,
     cellPhone: $cellPhone
   ){
-    id
     cellPhone
   }
 }`

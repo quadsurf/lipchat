@@ -10,6 +10,12 @@ import { Colors } from '../../css/Styles'
 
 
 const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) => {
+  let style = {
+    color: color || Colors.blue,
+    margin: 0,
+    padding: 0,
+    ...styles
+  }
   let icons = () => {
     {
       switch(family){
@@ -19,10 +25,7 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
               <Ionicons
                 name={name}
                 size={size || 20}
-                style={{
-                  color: color || Colors.blue,
-                  ...styles
-                }}/>
+                style={style}/>
             )
         case 'MaterialIcons':
             //phone
@@ -30,20 +33,14 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
               <MaterialIcons
                 name={name}
                 size={size || 20}
-                style={{
-                  color: color || Colors.blue,
-                  ...styles
-                }}/>
+                style={style}/>
             )
         case 'EvilIcons':
             return (
               <EvilIcons
                 name={name}
                 size={size || 20}
-                style={{
-                  color: color || Colors.blue,
-                  ...styles
-                }}/>
+                style={style}/>
             )
         default: return null
       }

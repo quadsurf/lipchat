@@ -18,6 +18,7 @@ import { FontPoiret } from './fonts'
 
 // COMPs
 import Loading from './Loading'
+import Icon from './Icon'
 
 class BizUriWebView extends Component {
 
@@ -72,7 +73,10 @@ class BizUriWebView extends Component {
   }
 
   render(){
-    let { formattedBizName:bizName,formattedLogoUri:logoUri,cellPhone } = this.props.navigation.state.params
+    let {
+      formattedBizName:bizName,formattedLogoUri:logoUri,cellPhone,uriType
+    } = this.props.navigation.state.params
+    let headerSpace = { width:50,height:50,borderRadius:25,marginTop:6 }
     return (
       <View style={{flex:1,backgroundColor:Colors.bgColor}}>
         <View
@@ -82,7 +86,7 @@ class BizUriWebView extends Component {
             flexDirection:'row',
             justifyContent:'space-between'
           }}>
-            <View style={{justifyContent:'center'}}>
+            <View style={{justifyContent:'center',flex:1}}>
               <TouchableOpacity onPress={() => this.unmountThisModalSafely()}>
                 <EvilIcons
                   name="close"
@@ -90,30 +94,39 @@ class BizUriWebView extends Component {
                   style={{color:Colors.blue,marginLeft:6}}/>
               </TouchableOpacity>
             </View>
-            <View style={{alignItems:'center'}}>
-              <Image source={{uri:logoUri}} style={{width:50,height:50,borderRadius:25,marginTop:6}}/>
-              <FontPoiret
-                text={bizName}
-                size={Texts.small.fontSize}
-                style={{color:Colors.blue}}/>
+            <View style={{alignItems:'center',flex:1}}>
+              {
+                uriType === 'logoUri' ? (
+                  <View style={headerSpace}/>
+                ) : (
+                  <View style={{flex:1,alignItems:'center'}}>
+                    <Image source={{uri:logoUri}} style={headerSpace}/>
+                    <FontPoiret
+                      text={bizName}
+                      size={Texts.small.fontSize}
+                      style={{color:Colors.blue}}/>
+                  </View>
+                )
+              }
             </View>
-            <View style={{justifyContent:'center'}}>
+            <View style={{justifyContent:'center',alignItems:'flex-end',flex:1}}>
               {
                 cellPhone
                  ? (
-                   <TouchableOpacity onPress={() => call({number:cellPhone,prompt:false})}>
-                     <MaterialIcons
-                       name="phone"
-                       size={50}
-                       style={{color:Colors.blue,marginRight:this.margin}}/>
-                   </TouchableOpacity>
+                   <Icon
+                     family="MaterialIcons"
+                     name="phone"
+                     onPressIcon={() => call({number:cellPhone,prompt:false})}
+                     size={40}
+                     styles={{marginRight:this.margin}}/>
+                 ) : uriType === 'bizUri' || uriType === 'logoUri'
+                 ? (
+                   <FontPoiret
+                     text="preview"
+                     size={Texts.large.fontSize}
+                     style={{marginRight:this.margin}}/>
                  ) : (
-                   <View>
-                     <MaterialIcons
-                       name="phone"
-                       size={50}
-                       style={{color:Colors.bgColor,marginRight:this.margin}}/>
-                   </View>
+                   <View style={[headerSpace,{marginRight:this.margin}]}/>
                  )
               }
             </View>

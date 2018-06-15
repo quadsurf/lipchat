@@ -137,7 +137,6 @@ const distributorReducer = (state=initialDistributor,actions) => {
         ...state,
         ...updates
       }
-      console.log('newDistributor update on redux',newDistributor);
       return newDistributor
     default: return state
   }
