@@ -88,10 +88,11 @@ class BizUriWebView extends Component {
           }}>
             <View style={{justifyContent:'center',flex:1}}>
               <TouchableOpacity onPress={() => this.unmountThisModalSafely()}>
-                <EvilIcons
+                <Icon
+                  family="EvilIcons"
                   name="close"
                   size={50}
-                  style={{color:Colors.blue,marginLeft:6}}/>
+                  style={{marginLeft:6}}/>
               </TouchableOpacity>
             </View>
             <View style={{alignItems:'center',flex:1}}>

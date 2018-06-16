@@ -89,7 +89,13 @@ class You extends Component {
       DistributorDistId: this.props.distributor.distId,
       DistributorBizName: this.props.distributor.bizName,
       DistributorBizUri: this.props.distributor.bizUri,
+      bizUriIsEditing: false,
+      bizUriReset: null,
+      bizUriSubmitted: null,
       DistributorLogoUri: this.props.distributor.logoUri,
+      logoUriIsEditing: false,
+      logoUriReset: null,
+      logoUriSubmitted: null,
       findDistributorQueryIsReady: false
     }
     this.makeFindDistributorReadyForQuery = debounce(this.makeFindDistributorReadyForQuery,1000,true)
@@ -181,6 +187,7 @@ class You extends Component {
     return (
         <View style={{flex:1}}>
           <KeyboardAwareScrollView
+            keyboardShouldPersistTaps="always"
             viewIsInsideTabBar={true}
             contentContainerStyle={{
               height: 860,
@@ -288,6 +295,20 @@ class You extends Component {
     let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
     let fieldValue = {flex:5,justifyContent:'center'}
     let { userType } = this.props
+    let deleteUri = (uri) => {
+      let uriProperty = uri === 'bizUri' ? 'DistributorBizUri' : 'DistributorLogoUri'
+      return (
+        <TouchableOpacity
+          onPress={() => this.setState({ [`${uriProperty}`]:'https://' })}
+          style={{
+            flex:1,
+            position: 'absolute',
+            right: -13
+          }}>
+              <Icon family="EvilIcons" name="close-o"/>
+        </TouchableOpacity>
+      )
+    }
     if (userType === 'DIST') {
       return (
         <View style={{width,height:240}}>
@@ -325,16 +346,39 @@ class You extends Component {
                 color={Colors.blue}/>
               <Icon family="EvilIcons" name="question"/>
             </TouchableOpacity>
-            <View style={fieldValue}>{this.renderBizUri()}</View>
+            <View style={[fieldValue,{
+                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
+              }]}>
+              { this.renderBizUri() }
+              {
+                this.state.bizUriIsEditing && deleteUri('bizUri')
+              }
+            </View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}>
-              <FontPoiret
-                text="link to logo"
-                size={medium}
-                color={Colors.blue}/>
+            <TouchableOpacity
+              onPress={() => this.showModal(
+                'prompt',
+                'your logo link',
+                bizLink
+              )}
+              style={[fieldName,{
+                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
+              }]}>
+                <FontPoiret
+                  text="link to logo"
+                  size={medium}
+                  color={Colors.blue}/>
+                <Icon family="EvilIcons" name="question"/>
+            </TouchableOpacity>
+            <View style={[fieldValue,{
+                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
+              }]}>
+              { this.renderLogoUri() }
+              {
+                this.state.logoUriIsEditing && deleteUri('logoUri')
+              }
             </View>
-            <View style={fieldValue}>{this.renderLogoUri()}</View>
           </View>
         </View>
       )
@@ -437,18 +481,42 @@ class You extends Component {
     )
   }
 
+  resetBizUri(){
+    this.showModal('processing')
+    setTimeout(()=>{
+      if (this.state.bizUriSubmitted) {
+        this.setState({
+          bizUriIsEditing:false,
+          bizUriSubmitted:null,
+          bizUriReset:null,
+          isModalOpen: false
+        })
+        this.updateDistributorBizUriInDb()
+      } else {
+        this.setState({
+          DistributorBizUri:this.state.bizUriReset,
+          bizUriIsEditing:false,
+          isModalOpen: false
+        },()=>{
+          this.setState({ bizUriReset:null })
+        })
+      }
+    },2000)
+  }
+
   renderBizUri(){
     return (
       <TextInput value={this.state.DistributorBizUri}
+        onFocus={() => this.setState({ bizUriIsEditing:true,bizUriReset:this.state.DistributorBizUri })}
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
-        style={{...distributorInputStyle,...inputStyleMedium}}
+        style={{...distributorInputStyle,...inputStyleMedium,flex:21}}
         onChangeText={(DistributorBizUri) => DistributorBizUri.length > 7 ? this.setState({
           DistributorBizUri: DistributorBizUri.toLowerCase()
         }) : null}
         keyboardType="default"
-        onBlur={() => this.updateDistributorBizUriInDb()}
-        onSubmitEditing={() => this.updateDistributorBizUriInDb()}
+        onBlur={() => this.resetBizUri()}
+        onSubmitEditing={() => this.setState({ bizUriSubmitted:true })}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={2083}
@@ -456,9 +524,33 @@ class You extends Component {
     )
   }
 
+  resetLogoUri(){
+    this.showModal('processing')
+    setTimeout(()=>{
+      if (this.state.logoUriSubmitted) {
+        this.setState({
+          logoUriIsEditing:false,
+          logoUriSubmitted:null,
+          logoUriReset:null,
+          isModalOpen: false
+        })
+        this.updateDistributorLogoUriInDb()
+      } else {
+        this.setState({
+          DistributorBizUri:this.state.logoUriReset,
+          logoUriIsEditing:false,
+          isModalOpen: false
+        },()=>{
+          this.setState({ logoUriReset:null })
+        })
+      }
+    },2000)
+  }
+
   renderLogoUri(){
     return (
       <TextInput value={this.state.DistributorLogoUri}
+        onFocus={() => this.setState({ logoUriIsEditing:true,logoUriReset:this.state.DistributorLogoUri })}
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium}}
@@ -466,8 +558,8 @@ class You extends Component {
           DistributorLogoUri: DistributorLogoUri.toLowerCase()
         }) : null}
         keyboardType="default"
-        onBlur={() => this.updateDistributorLogoUriInDb()}
-        onSubmitEditing={() => this.updateDistributorLogoUriInDb()}
+        onBlur={() => this.resetLogoUri()}
+        onSubmitEditing={() => this.setState({ logoUriSubmitted:true })}
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={2083}
@@ -861,8 +953,15 @@ class You extends Component {
 
   isLinkAllowed(uri){
     let subString = uri.substring(0,17)
-    let isAllowed = subString === 'https://tap.bio/@' ? true : subString === 'https://linktr.ee' ? true : false
-    return isAllowed
+    switch(subString){
+      case 'https://tap.bio/@':
+        return true
+      case 'https://linktr.ee':
+        return true
+      case 'https://':
+        return true
+      default: return false
+    }
   }
 
   getWebViewProps(uriType){
@@ -919,7 +1018,9 @@ class You extends Component {
               // ADD ? THAT SAYS TO USE A FREE HOSTING SERVICE FOR LOGO IF NECESSARY
               // ENSURE THERE IS A FBK PLACEHOLDER IMAGE ON CHAT.js/MESSAGES.JS WHEN NO LOGO LINK PROVIDED
 
-              this.props.navigation.navigate('WebView',this.getWebViewProps('bizUri'))
+              this.state.DistributorBizUri !== 'https://' && (
+                this.props.navigation.navigate('WebView',this.getWebViewProps('bizUri'))
+              )
 
               this.props.updateDistributor({ ...updateDistributor })
 
@@ -940,6 +1041,7 @@ class You extends Component {
     let { DistributorLogoUri } = this.state
     let DistributorId = this.props.distributor.id
     let errText = 'saving your Logo URL'
+    // IS VALID URI FUNC WORKS YET???
     if (!this.isValidUri(DistributorLogoUri)) {
       this.showModal('error','Profile',logoUriWarning)
     } else {

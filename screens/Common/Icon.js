@@ -36,6 +36,7 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
                 style={style}/>
             )
         case 'EvilIcons':
+            //close
             return (
               <EvilIcons
                 name={name}
