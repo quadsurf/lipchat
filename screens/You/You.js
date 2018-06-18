@@ -35,7 +35,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import {
-  AppName,AccountTypeExplainer,version,bizLink,bizLinkWarning,logoUriWarning
+  AppName,AccountTypeExplainer,version,distIdExplainer,bizLinkExplainer,uriLinkExplainer,bizLinkWarning,logoUriWarning
 } from '../../config/Defaults'
 
 // STORE
@@ -335,16 +335,16 @@ class You extends Component {
               onPress={() => this.showModal(
                 'prompt',
                 'your business link',
-                bizLink
+                bizLinkExplainer
               )}
               style={[fieldName,{
                 flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
               }]}>
-              <FontPoiret
-                text="Tap.Bio or LinkTr.ee"
-                size={small}
-                color={Colors.blue}/>
-              <Icon family="EvilIcons" name="question"/>
+                <FontPoiret
+                  text="Tap.Bio or LinkTr.ee"
+                  size={small}
+                  color={Colors.blue}/>
+                <Icon family="EvilIcons" name="question"/>
             </TouchableOpacity>
             <View style={[fieldValue,{
                 flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
@@ -360,7 +360,7 @@ class You extends Component {
               onPress={() => this.showModal(
                 'prompt',
                 'your logo link',
-                bizLink
+                uriLinkExplainer
               )}
               style={[fieldName,{
                 flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
@@ -512,7 +512,7 @@ class You extends Component {
         placeholderTextColor={Colors.transparentWhite}
         style={{...distributorInputStyle,...inputStyleMedium,flex:21}}
         onChangeText={(DistributorBizUri) => DistributorBizUri.length > 7 ? this.setState({
-          DistributorBizUri: DistributorBizUri.toLowerCase()
+          DistributorBizUri: DistributorBizUri
         }) : null}
         keyboardType="default"
         onBlur={() => this.resetBizUri()}
@@ -553,9 +553,9 @@ class You extends Component {
         onFocus={() => this.setState({ logoUriIsEditing:true,logoUriReset:this.state.DistributorLogoUri })}
         placeholder="add"
         placeholderTextColor={Colors.transparentWhite}
-        style={{...distributorInputStyle,...inputStyleMedium}}
+        style={{...distributorInputStyle,...inputStyleMedium,flex:21}}
         onChangeText={(DistributorLogoUri) => DistributorLogoUri.length > 7 ? this.setState({
-          DistributorLogoUri: DistributorLogoUri.toLowerCase()
+          DistributorLogoUri: DistributorLogoUri
         }) : null}
         keyboardType="default"
         onBlur={() => this.resetLogoUri()}

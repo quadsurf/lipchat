@@ -26,7 +26,9 @@ This screen processes enormous amounts of data in real-time, which causes an inc
 
 IMPORTANT DISCLAIMER: even though these colors were extracted directly from Senegence itself, online representation of a color may not always exactly reflect real-world representation of that same color... please take into consideration that your actual results may vary from what you see in this ${AppName} augmented reality color tester.`
 
-const bizLink = `Let your shoppers experience your brand directly inside our ${AppName} app!
+const distIdExplainer = `This is your Senegence distributor ID that you will need to provide your customers with, in order for them to link their ${AppName} shopper account... to your ${AppName} distributor account. Shoppers will need your distributor id in order to find you on ${AppName} and begin chatting and ordering from you.`
+
+const bizLinkExplainer = `Let your shoppers experience your brand directly inside our ${AppName} app!
 
 TapBio & LinkTree are both free services that let you effortlessly create a micro-website(LinkTree) or mini-app(TapBio). Both automatically host links & images to all your online marketing destinations (instagram, snapchat, facebook, etc).
 
@@ -36,6 +38,16 @@ TapBio takes it a step further by hosting a feed of your instagram, plus it also
 
 Set up your own mini-app today at https://tap.bio or https://linkTr.ee then paste its link here for all your shoppers to see!`
 //to preserve your brand's consistency for your shoppers
+
+const uriLinkExplainer = `Your shoppers will see this logo throughout the app to quickly identify you. Your Facebook profile pic is the default, so if you wish to not show that pic, here is where you can add a replacement pic.
+
+You will need a link to your logo file, which means you will need to have it hosted on a service that provides you with a secure link (secure links begin with " https:// ").
+
+Here are some free services that can help you with that:
+- imgur.com (must use 'direct link')
+- firebase.com (utilizes your gmail account)
+- cloudinary
+- httpsimage.com`
 
 const bizLinkWarning = `Your business link must begin with either 'https://tap.bio/' or 'https://linktr.ee/.`
 
@@ -357,7 +369,7 @@ quadsurf@gmail.com
 Last Edited on 2018-02-10`
 
 export {
-  tips,bizLink,bizLinkWarning,logoUriWarning,
+  tips,distIdExplainer,bizLinkExplainer,uriLinkExplainer,bizLinkWarning,logoUriWarning,
   AppName,terms,method,url,newClaimText,newClaimText2,version,
   notApprovedToAddInventory,AccountTypeExplainer,distIsLiking
 }
