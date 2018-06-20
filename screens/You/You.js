@@ -35,7 +35,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import {
-  AppName,AccountTypeExplainer,version,distIdExplainer,bizLinkExplainer,uriLinkExplainer,bizLinkWarning,logoUriWarning
+  AppName,AccountTypeExplainer,version,distIdExplainer,bizNameExplainer,bizLinkExplainer,uriLinkExplainer,bizLinkWarning,logoUriWarning
 } from '../../config/Defaults'
 
 // STORE
@@ -292,7 +292,8 @@ class You extends Component {
   renderUserTypeForm(){
     let width = screen.width*.8
     let fieldRow = {flexDirection:'row',width,height:60}
-    let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
+    // let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
+    let fieldName = {flex:4,flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}
     let fieldValue = {flex:5,justifyContent:'center'}
     let { userType } = this.props
     let deleteUri = (uri) => {
@@ -313,38 +314,62 @@ class You extends Component {
       return (
         <View style={{width,height:240}}>
           <View style={fieldRow}>
-            <View style={fieldName}>
+            <TouchableOpacity
+              onPress={() => this.showModal(
+                'prompt',
+                'about that distributor id...',
+                distIdExplainer
+              )}
+              style={fieldName}>
               <FontPoiret
                 text="distributor id"
                 size={medium}
                 color={Colors.blue}/>
-            </View>
+              <Icon
+                family="Ionicons"
+                name="ios-information-circle-outline"
+                size={16}
+                styles={{marginLeft:3}}/>
+            </TouchableOpacity>
             <View style={fieldValue}>{this.renderDistId()}</View>
           </View>
           <View style={fieldRow}>
-            <View style={fieldName}>
+            <TouchableOpacity
+              onPress={() => this.showModal(
+                'prompt',
+                'about that business name...',
+                bizNameExplainer
+              )}
+              style={fieldName}>
               <FontPoiret
                 text="business name"
                 size={medium}
                 color={Colors.blue}/>
-            </View>
+              <Icon
+                family="Ionicons"
+                name="ios-information-circle-outline"
+                size={16}
+                styles={{marginLeft:3}}/>
+            </TouchableOpacity>
             <View style={fieldValue}>{this.renderBizName()}</View>
           </View>
           <View style={fieldRow}>
             <TouchableOpacity
               onPress={() => this.showModal(
                 'prompt',
-                'your business link',
+                'about that business link...',
                 bizLinkExplainer
               )}
-              style={[fieldName,{
-                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
-              }]}>
+              style={fieldName}>
                 <FontPoiret
-                  text="Tap.Bio or LinkTr.ee"
-                  size={small}
+                  text="tap.bio/LinkTr.ee"
+                  size={medium}
                   color={Colors.blue}/>
-                <Icon family="EvilIcons" name="question"/>
+                <Icon
+                  family="Ionicons"
+                  name="ios-information-circle-outline"
+                  size={16}
+                  styles={{marginLeft:3}}/>
             </TouchableOpacity>
             <View style={[fieldValue,{
                 flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
@@ -359,17 +384,19 @@ class You extends Component {
             <TouchableOpacity
               onPress={() => this.showModal(
                 'prompt',
-                'your logo link',
+                'about that logo link...',
                 uriLinkExplainer
               )}
-              style={[fieldName,{
-                flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
-              }]}>
+              style={fieldName}>
                 <FontPoiret
                   text="link to logo"
                   size={medium}
                   color={Colors.blue}/>
-                <Icon family="EvilIcons" name="question"/>
+                  <Icon
+                    family="Ionicons"
+                    name="ios-information-circle-outline"
+                    size={16}
+                    styles={{marginLeft:3}}/>
             </TouchableOpacity>
             <View style={[fieldValue,{
                 flexDirection:'row',justifyContent:'flex-start',alignItems:'center'
@@ -690,7 +717,12 @@ class You extends Component {
     let modalWidth = screen.width*.85
     let modalHeight = screen.height*.75
     let button = {
-      width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.transparentWhite
+      width: modalWidth-40,
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 6,
+      backgroundColor: Colors.transparentWhite
     }
     let buttonText = {fontFamily:'Poiret',fontSize:large}
     return (

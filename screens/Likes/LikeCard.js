@@ -29,7 +29,7 @@ export default (props) => {
           alignItems:'center',flexDirection:'row',
           paddingBottom:20
         }}>
-          <FontPoiret text={props.rgb === Colors.purpleText ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
+          <FontPoiret text={props.rgb === Colors.purpleLight ? 'could not load proper color' : ''} size={medium} color={Colors.white}/>
           <FontPoiret text={status === 'CURRENT' ? 'main collection' : status === 'LIMITEDEDITION' ? 'limited edition' : 'discontinued but still around'} size={medium} color={Colors.white}/>
         </View>
         <TouchableOpacity

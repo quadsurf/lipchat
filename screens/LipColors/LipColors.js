@@ -331,7 +331,7 @@ class LipColors extends Component {
 
   render(){
     return(
-      <View style={{...Views.middle,backgroundColor:Colors.purpleText}}>
+      <View style={{...Views.middle,backgroundColor:Colors.purpleLight}}>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

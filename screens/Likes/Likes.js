@@ -197,7 +197,7 @@ class Likes extends Component {
             like={like}
             onPressClaim={this.onPressClaim}
             userType={userType}
-            rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleText}/>
+            rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleLight}/>
         })
       } else {
         return this.renderNoLikes()

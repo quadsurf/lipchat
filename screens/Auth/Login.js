@@ -194,7 +194,7 @@ class Login extends Component {
             borderRadius:4,
             backgroundColor:Colors.purple
           }}
-          underlayColor={Colors.purpleText}
+          underlayColor={Colors.purpleLight}
           onPress={() => this.logIn()}>
           <Text style={{
               color:Colors.bluergba,

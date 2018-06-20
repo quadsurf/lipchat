@@ -2,8 +2,8 @@
 
 const purpleLightest = '#7E82B1'
 const purpleLighter = '#696DA5'
-const purpleLight = '#545997'
-const purpleText = '#6E639E'//6E67A8
+const purpleLight = '#6E639E'
+const purpleText = '#6E639E'
 const purpleLive = '#352976'
 const purple = '#371A85'
 const transparentPurple = 'rgba(55,26,133,0.5)'
@@ -83,3 +83,6 @@ const Texts = {
 }
 
 export {Colors,Views,Texts}
+
+// const purpleLight = '#545997'
+// const purpleText = '#6E67A8'

@@ -18,7 +18,7 @@ import { getDimensions } from '../../utils/Helpers'
 
 export default (props) => {
   let { family,tone,name,rgb,doesLike,finish,status,count,inventoryId } = props.color
-  rgb = rgb ? `rgb(${rgb})` : Colors.purpleText
+  rgb = rgb ? `rgb(${rgb})` : Colors.purpleLight
   let medium = Texts.medium.fontSize
   let large = Texts.large.fontSize
   let larger = Texts.larger.fontSize
@@ -105,7 +105,7 @@ export default (props) => {
         paddingBottom:4,paddingHorizontal:4,bottom:14}}>
       <View style={{flex:1,justifyContent:'space-between',alignItems:'center',flexDirection:'row',paddingBottom:20}}>
         <FontPoiret
-          text={rgb === Colors.purpleText ? 'could not load proper color' : ''}
+          text={rgb === Colors.purpleLight ? 'could not load proper color' : ''}
           size={medium}
           color={Colors.white}/>
         <FontPoiret

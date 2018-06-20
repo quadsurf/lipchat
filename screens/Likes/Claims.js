@@ -233,7 +233,7 @@ class Claims extends Component {
       )
     } else {
       return (
-        <View style={{...Views.middle,backgroundColor:Colors.purpleText}}>
+        <View style={{...Views.middle,backgroundColor:Colors.purpleLight}}>
             <FontPoiret
               text="next"
               size={34}

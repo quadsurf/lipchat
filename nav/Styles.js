@@ -7,7 +7,7 @@ export default {
     flex: 1,
   },
   tabbar: {
-    backgroundColor: Colors.purpleText
+    backgroundColor: Colors.purpleLight
   },
   tab: {
     padding: 0,
