@@ -35,7 +35,8 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
 import { Modals,getDimensions,shortenUrl,clipText } from '../../utils/Helpers'
 import {
-  AppName,AccountTypeExplainer,version,distIdExplainer,bizNameExplainer,bizLinkExplainer,uriLinkExplainer,bizLinkWarning,logoUriWarning
+  AppName,AccountTypeExplainer,version,distIdExplainer,bizNameExplainer,
+  bizUriExplainer,logoUriExplainer,bizUriWarning,logoUriWarning
 } from '../../config/Defaults'
 
 // STORE
@@ -148,20 +149,6 @@ class You extends Component {
         },750)
       })
     },750)
-  }
-
-  isValidUri(url){
-    let el4 = url.split('')[4]
-    let last4 = url.substr(url.length - 4)
-    if (last4 === '.png' || last4 === '.jpg') {
-      if (el4 === 's') {
-        return true
-      } else {
-        return false
-      }
-    } else {
-      return false
-    }
   }
 
   cleanString(str){
@@ -292,7 +279,6 @@ class You extends Component {
   renderUserTypeForm(){
     let width = screen.width*.8
     let fieldRow = {flexDirection:'row',width,height:60}
-    // let fieldName = {flex:4,justifyContent:'center',alignItems:'flex-start'}
     let fieldName = {flex:4,flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}
     let fieldValue = {flex:5,justifyContent:'center'}
     let { userType } = this.props
@@ -358,7 +344,7 @@ class You extends Component {
               onPress={() => this.showModal(
                 'prompt',
                 'about that business link...',
-                bizLinkExplainer
+                bizUriExplainer
               )}
               style={fieldName}>
                 <FontPoiret
@@ -385,7 +371,7 @@ class You extends Component {
               onPress={() => this.showModal(
                 'prompt',
                 'about that logo link...',
-                uriLinkExplainer
+                logoUriExplainer
               )}
               style={fieldName}>
                 <FontPoiret
@@ -508,27 +494,62 @@ class You extends Component {
     )
   }
 
+  isValidBizUri(){
+    let { DistributorBizUri } = this.state
+    let bizUri = this.cleanUri(DistributorBizUri)
+    let subString = bizUri.substr(0,17)
+    switch(subString){
+      case 'https://tap.bio/@':
+        return true
+      case 'https://linktr.ee':
+        return true
+      case 'https://':
+        return true
+      default: return false
+    }
+  }
+
   resetBizUri(){
     this.showModal('processing')
     setTimeout(()=>{
       if (this.state.bizUriSubmitted) {
-        this.setState({
-          bizUriIsEditing:false,
-          bizUriSubmitted:null,
-          bizUriReset:null,
-          isModalOpen: false
-        })
-        this.updateDistributorBizUriInDb()
+        if (!this.isValidBizUri()) {
+          this.restoreBizUri(true)
+        } else {
+          this.setState({
+            bizUriIsEditing: false,
+            bizUriSubmitted: null,
+            bizUriReset: null,
+            isModalOpen: false
+          })
+          this.updateDistributorBizUriInDb()
+        }
       } else {
+        this.restoreBizUri(false)
+      }
+    },2000)
+  }
+
+  restoreBizUri(restoreWithWarning){
+    if (restoreWithWarning) {
+      setTimeout(()=>{
+        this.showModal('error','Profile',bizUriWarning)
         this.setState({
-          DistributorBizUri:this.state.bizUriReset,
-          bizUriIsEditing:false,
-          isModalOpen: false
+          DistributorBizUri: this.state.bizUriReset,
+          bizUriIsEditing: false
         },()=>{
           this.setState({ bizUriReset:null })
         })
-      }
-    },2000)
+      },750)
+    } else {
+      this.setState({
+        DistributorBizUri: this.state.bizUriReset,
+        bizUriIsEditing: false,
+        isModalOpen: false
+      },()=>{
+        this.setState({ bizUriReset:null })
+      })
+    }
   }
 
   renderBizUri(){
@@ -551,27 +572,69 @@ class You extends Component {
     )
   }
 
+  isAllowedExtension(uri){
+    if (uri.length === 8) {
+      return true
+    } else {
+      let last4 = uri.substr(uri.length - 4)
+      let hasValidExtension = last4 === '.png' || last4 === '.jpg' ? true : false
+      return hasValidExtension
+    }
+  }
+
+  isUriSecure(uri){
+    let subString = uri.substr(0,8)
+    let isSsl = subString === 'https://' ? true : false
+    return isSsl
+  }
+
+  isValidLogoUri(){
+    let { DistributorLogoUri:uri } = this.state
+    let isValid = this.isUriSecure(uri) && this.isAllowedExtension(uri) ? true : false
+    return isValid
+  }
+
   resetLogoUri(){
     this.showModal('processing')
     setTimeout(()=>{
       if (this.state.logoUriSubmitted) {
-        this.setState({
-          logoUriIsEditing:false,
-          logoUriSubmitted:null,
-          logoUriReset:null,
-          isModalOpen: false
-        })
-        this.updateDistributorLogoUriInDb()
+        if (!this.isValidLogoUri()) {
+          this.restoreLogoUri(true)
+        } else {
+          this.setState({
+            logoUriIsEditing: false,
+            logoUriSubmitted: null,
+            logoUriReset: null,
+            isModalOpen: false
+          })
+          this.updateDistributorLogoUriInDb()
+        }
       } else {
+        this.restoreLogoUri(false)
+      }
+    },2000)
+  }
+
+  restoreLogoUri(restoreWithWarning){
+    if (restoreWithWarning) {
+      setTimeout(()=>{
+        this.showModal('error','Profile',logoUriWarning)
         this.setState({
-          DistributorBizUri:this.state.logoUriReset,
-          logoUriIsEditing:false,
-          isModalOpen: false
+          DistributorLogoUri: this.state.logoUriReset,
+          logoUriIsEditing: false
         },()=>{
           this.setState({ logoUriReset:null })
         })
-      }
-    },2000)
+      },750)
+    } else {
+      this.setState({
+        DistributorLogoUri: this.state.logoUriReset,
+        logoUriIsEditing: false,
+        isModalOpen: false
+      },()=>{
+        this.setState({ logoUriReset:null })
+      })
+    }
   }
 
   renderLogoUri(){
@@ -983,24 +1046,15 @@ class You extends Component {
     }
   }
 
-  isLinkAllowed(uri){
-    let subString = uri.substring(0,17)
-    switch(subString){
-      case 'https://tap.bio/@':
-        return true
-      case 'https://linktr.ee':
-        return true
-      case 'https://':
-        return true
-      default: return false
-    }
-  }
-
   getWebViewProps(uriType){
     let size = 50
     let { fbkUserId,fbkFirstName,fbkLastName } = this.props.user
 
-    let { DistributorBizUri:bizUri,DistributorLogoUri:logoUri,DistributorBizName:bizName } = this.state
+    let {
+      DistributorBizUri: bizUri,
+      DistributorLogoUri: logoUri,
+      DistributorBizName: bizName
+    } = this.state
 
     let formattedBizUri = bizUri.length > 8 ? bizUri : null
 
@@ -1008,7 +1062,7 @@ class You extends Component {
      ? logoUri
      : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
 
-    let name = `by ${fbkFirstName || ''} ${fbkLastName || ''}`
+    let name = `${fbkFirstName || ''} ${fbkLastName || ''}`
     let formattedBizName = bizName ? bizName : name
 
     if (uriType === 'logoUri') {
@@ -1026,46 +1080,45 @@ class You extends Component {
     return webViewProps
   }
 
+  cleanUri(str){
+    let cleaned = str.trim()
+    let checkForDuplicateProtocol = cleaned.substr(0,16)
+    if (checkForDuplicateProtocol === 'https://https://') {
+      let adjusted = cleaned.substr(8,cleaned.length)
+      return adjusted
+    }
+    return cleaned
+  }
+
   updateDistributorBizUriInDb(){
     let { DistributorBizUri } = this.state
     let DistributorId = this.props.distributor.id
     let errText = 'saving your Business URL'
-    if (!this.isLinkAllowed(DistributorBizUri)) {
-      this.showModal('error','Profile',bizLinkWarning)
-    } else {
-      if (DistributorId && DistributorBizUri) {
-        this.props.updateDistributorBizUri({
-          variables: {
-            DistributorId,
-            DistributorBizUri: this.cleanString(DistributorBizUri)
-          }
-        }).then( ({ data:{ updateDistributor={} } }) => {
-          if (updateDistributor.hasOwnProperty('bizUri')) {
-            this.setState({DistributorBizUri:updateDistributor.bizUri},()=>{
+    if (DistributorId && DistributorBizUri) {
+      this.props.updateDistributorBizUri({
+        variables: {
+          DistributorId,
+          DistributorBizUri: this.cleanUri(DistributorBizUri)
+        }
+      }).then( ({ data:{ updateDistributor={} } }) => {
+        if (updateDistributor.hasOwnProperty('bizUri')) {
+          this.setState({DistributorBizUri:updateDistributor.bizUri},()=>{
 
-              // ADD X RESETTER FOR LOGO LINK AND TAB.BIO
-              // IS PROPS UPDATED WHEN USER META IS UPDATED
-              // HIDE TELEPHONE WITH isTest PROP
-              // ADD ? THAT SAYS WE WILL USE FBK PROFILE IMAGE IF NO LOGO LINK PROVIDED
-              // ADD ? THAT SAYS TO USE A FREE HOSTING SERVICE FOR LOGO IF NECESSARY
-              // ENSURE THERE IS A FBK PLACEHOLDER IMAGE ON CHAT.js/MESSAGES.JS WHEN NO LOGO LINK PROVIDED
+            this.state.DistributorBizUri !== 'https://' && (
+              this.props.navigation.navigate('WebView',this.getWebViewProps('bizUri'))
+            )
 
-              this.state.DistributorBizUri !== 'https://' && (
-                this.props.navigation.navigate('WebView',this.getWebViewProps('bizUri'))
-              )
+            this.props.updateDistributor({ ...updateDistributor })
 
-              this.props.updateDistributor({ ...updateDistributor })
-
-            })
-          } else {
-            this.openError(errText)
-          }
-        }).catch( e => {
+          })
+        } else {
           this.openError(errText)
-        })
-      } else {
+        }
+      }).catch( e => {
         this.openError(errText)
-      }
+      })
+    } else {
+      this.openError(errText)
     }
   }
 
@@ -1073,32 +1126,31 @@ class You extends Component {
     let { DistributorLogoUri } = this.state
     let DistributorId = this.props.distributor.id
     let errText = 'saving your Logo URL'
-    // IS VALID URI FUNC WORKS YET???
-    if (!this.isValidUri(DistributorLogoUri)) {
-      this.showModal('error','Profile',logoUriWarning)
-    } else {
-      if (DistributorId && DistributorLogoUri) {
-        this.props.updateDistributorLogoUri({
-          variables: {
-            DistributorId,
-            DistributorLogoUri: this.cleanString(DistributorLogoUri)
-          }
-        }).then( ({ data:{ updateDistributor={} } }) => {
-          if (updateDistributor.hasOwnProperty('logoUri')) {
-            this.setState({DistributorLogoUri:updateDistributor.logoUri},()=>{
+    if (DistributorId && DistributorLogoUri) {
+      this.props.updateDistributorLogoUri({
+        variables: {
+          DistributorId,
+          DistributorLogoUri: this.cleanUri(DistributorLogoUri)
+        }
+      }).then( ({ data:{ updateDistributor={} } }) => {
+        if (updateDistributor.hasOwnProperty('logoUri')) {
+          this.setState({DistributorLogoUri:updateDistributor.logoUri},()=>{
+
+            this.state.DistributorLogoUri !== 'https://' && (
               this.props.navigation.navigate('WebView',this.getWebViewProps('logoUri'))
-              this.props.updateDistributor({ ...updateDistributor })
-            })
-          } else {
-            this.openError(errText)
-          }
-        }).catch( e => {
-          if (debugging) console.log('Error: ',e.message);
+            )
+
+            this.props.updateDistributor({ ...updateDistributor })
+          })
+        } else {
           this.openError(errText)
-        })
-      } else {
+        }
+      }).catch( e => {
+        if (debugging) console.log('Error: ',e.message);
         this.openError(errText)
-      }
+      })
+    } else {
+      this.openError(errText)
     }
   }
 
