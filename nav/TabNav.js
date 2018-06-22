@@ -377,7 +377,7 @@ class TabNav extends PureComponent<void, *, State> {
   render() {
     return (
       <TabViewAnimated
-        style={[styles.container,this.props.style]}
+        style={styles.container}
         navigationState={this.state}
         renderScene={this.renderScene}
         renderFooter={this.renderFooter}
