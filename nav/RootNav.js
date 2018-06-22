@@ -13,7 +13,7 @@ import { Colors } from '../css/Styles'
 // SCREENS
 import AuthState from '../screens/Auth/AuthState'
 import Login from '../screens/Auth/Login'
-import TabNav from './TabNav'
+import TabNav from './TabNavV2'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
 import RemoteData from '../store/Remote'

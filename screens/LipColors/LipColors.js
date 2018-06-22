@@ -159,7 +159,7 @@ class LipColors extends Component {
   handleReds(){
     this.setState({redsAutoLoadedCount:this.state.redsAutoLoadedCount+1},()=>{
       if (this.state.redsAutoLoadedCount < 2) {
-        this.filterColors('reds')
+        this.filterColors('reds','handleReds')
       }
     })
   }
@@ -187,15 +187,25 @@ class LipColors extends Component {
   }
 
   toggleFamilyOpenState(family){
-    let isOpen = this.state[`${family}IsOpen`]
-    if (!isOpen) {
-      if (this.state[`${family}`].length === 0) {
-        this.filterColors(family,'came from toggler')
+    if (this.state.colors.length > 0) {
+      let isOpen = this.state[`${family}IsOpen`]
+      if (!isOpen) {
+        if (this.state[`${family}`].length === 0) {
+          this.filterColors(family,'toggleFamilyOpenState')
+        } else {
+          this.setState({[`${family}IsOpen`]:!isOpen})
+        }
       } else {
         this.setState({[`${family}IsOpen`]:!isOpen})
       }
     } else {
-      this.setState({[`${family}IsOpen`]:!isOpen})
+      this.showModal(
+        'prompt',
+        'Color Issue Loading Colors',
+        `Apologies, but we could't load these colors.
+
+        Please try reloading this tab.`
+      )
     }
   }
 

@@ -5,7 +5,10 @@ import { TouchableOpacity } from 'react-native'
 
 import PropTypes from 'prop-types'
 
-import { Ionicons,EvilIcons,MaterialIcons } from '@expo/vector-icons'
+import {
+  Ionicons,EvilIcons,MaterialIcons,
+  // Entypo,MaterialCommunityIcons,FontAwesome
+} from '@expo/vector-icons'
 import { Colors } from '../../css/Styles'
 
 
@@ -43,6 +46,30 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
                 size={size || 20}
                 style={style}/>
             )
+        case 'Entypo':
+            return null
+            return (
+              <Entypo
+                name={name}
+                size={size || 20}
+                style={style}/>
+            )
+        case 'MaterialCommunityIcons':
+            return null
+            return (
+              <MaterialCommunityIcons
+                name={name}
+                size={size || 20}
+                style={style}/>
+            )
+        case 'FontAwesome':
+            return null
+            return (
+              <FontAwesome
+                name={name}
+                size={size || 20}
+                style={style}/>
+            )
         default: return null
       }
     }
@@ -68,5 +95,3 @@ Icon.propTypes = {
 }
 
 export default Icon
-
-// "ios-information-circle-outline"

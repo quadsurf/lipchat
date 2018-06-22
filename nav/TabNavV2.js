@@ -1,24 +1,29 @@
 
 
 import React, { PureComponent } from 'react'
-import { Animated, View, Text, StyleSheet } from 'react-native'
+import { Animated,View,Text } from 'react-native'
 
 //LIBS
-import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
+import { connect } from 'react-redux'
 import { TabViewAnimated,TabBar } from 'react-native-tab-view'
+import { Ionicons,Entypo,MaterialCommunityIcons,FontAwesome } from '@expo/vector-icons'
+import { DotsLoader } from 'react-native-indicator'
+import PropTypes from 'prop-types'
 import type { NavigationState } from 'react-native-tab-view/types'
 
 //SCREENS
-import Likes from '../screens/Likes/Likes'
-import Chat from '../screens/Chat/Chat'
-import Selfie from '../screens/Selfie/Selfie'
-import LipColors from '../screens/LipColors/LipColors'
-import You from '../screens/You/You'
+import Likes from '../screens/Likes/Preloader'
+import Chat from '../screens/Chat/Preloader'
+import Selfie from '../screens/Selfie/Preloader'
+import LipColors from '../screens/LipColors/Preloader'
+import You from '../screens/You/Preloader'
 
 //LOCALS
 import { Views,Colors } from '../css/Styles'
-import { FontPoiret } from '../screens/common/fonts'
 import styles from './Styles'
+
+//COMPs
+import Loading from '../screens/common/Loading'
 
 //CONSTs
 const debugging = __DEV__ && false
@@ -34,13 +39,13 @@ type State = NavigationState<Route>;
 class TabNav extends PureComponent<void, *, State> {
 
   state: State = {
-    index: 4,
+    index: 3,
     routes: [
       { key: '0', title: 'FAVORITES', icon: 'star' },
       { key: '1', title: 'CHAT', icon: 'chat' },
       { key: '2', title: 'SELFIE', icon: 'camera' },
       { key: '3',
-        title: this.props.user.type === 'SHOPPER' ? 'COLORS' : 'INVENTORY',
+        title: this.props.userType === 'SHOPPER' ? 'COLORS' : 'INVENTORY',
         icon: 'ios-color-palette' },
       { key: '4', title: 'YOU', icon: 'account' }
     ],
@@ -111,36 +116,31 @@ class TabNav extends PureComponent<void, *, State> {
     }
   }
 
-  renderLabel = ({ route,index }) => {
-    return (
-      <Text style={
-        route.key == this.state.index ? styles.labelActive : styles.labelInactive
-      }>
-        {route.title}
-      </Text>
-    )
-  }
+  renderLabel = ({ route,index }) => (
+    <Text style={
+      route.key == this.state.index ? styles.labelActive : styles.labelInactive
+    }>
+      {route.title}
+    </Text>
+  )
 
-  renderFooter = props => {
-    // let { deviceYearClass:year } = Constants
-    // if (year >= 2018) {
-      return (
-        <TabBar
-          {...props}
-          renderIcon={this.renderIcon}
-          renderBadge={this.renderBadge}
-          renderIndicator={this.renderIndicator}
-          style={styles.tabbar}
-          tabStyle={styles.tab}
-          renderLabel={this.renderLabel}
-        />
-      )
-    // } else {
-    //   return null
-    // }
-  }
+  renderFooter = props => (
+    <TabBar
+      {...props}
+      renderIcon={this.renderIcon}
+      renderBadge={this.renderBadge}
+      renderIndicator={this.renderIndicator}
+      style={styles.tabbar}
+      tabStyle={styles.tab}
+      renderLabel={this.renderLabel}
+      useNativeDriver
+    />
+  )
 
   renderScene = ({ route,focused }) => {
+    if (Math.abs(this.state.index - this.state.routes.indexOf(route)) > 0) {
+      return <Loading/>
+    }
     switch (route.key) {
       case '0':
         return (
@@ -151,24 +151,13 @@ class TabNav extends PureComponent<void, *, State> {
           />
         )
       case '1':
-        if (this.state.notificationsHasShopper && this.state.user2AdminDmExists) {
-          return (
-            <Chat
-              state={this.state}
-              focused={focused}
-              tabRoute={route}
-            />
-          )
-        } else {
-          return (
-            <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-              <DotsLoader
-                size={15}
-                color={Colors.blue}
-                frequency={5000}/>
-            </View>
-          )
-        }
+        return (
+          <Chat
+            state={this.state}
+            focused={focused}
+            tabRoute={route}
+          />
+        )
       case '2':
         return (
           <Selfie
@@ -205,13 +194,35 @@ class TabNav extends PureComponent<void, *, State> {
   render() {
     return (
       <TabViewAnimated
-        style={[styles.container,this.props.style]}
+        style={styles.container}
         navigationState={this.state}
         renderScene={this.renderScene}
         renderFooter={this.renderFooter}
         onIndexChange={this.handleChangeTab}
+        initialLayout={{
+          width: this.props.wWidth,
+          height: this.props.wHeight
+        }}
       />
     )
   }
 
 }
+
+TabNav.propTypes = {
+  userType: PropTypes.string.isRequired,
+  unreadCount: PropTypes.number.isRequired,
+  chats: PropTypes.array.isRequired,
+  wWidth: PropTypes.number.isRequired,
+  wHeight: PropTypes.number.isRequired
+}
+
+const mapStateToProps = state => ({
+  userType: state.user.type,
+  unreadCount: state.unreadCount,
+  chats: state.chats,
+  wWidth: state.settings.screenWidth,
+  wHeight: state.settings.screenHeight
+})
+
+export default connect(mapStateToProps)(TabNav)
