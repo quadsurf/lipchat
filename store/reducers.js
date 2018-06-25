@@ -6,6 +6,7 @@ import {
   SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
   SET_SHOPPER,UPDATE_SHOPPER,
   SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
+  SET_COLORS,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -143,6 +144,16 @@ const distributorReducer = (state=initialDistributor,actions) => {
 }
 
 
+const initialColors = []
+const colorsReducer = (state=initialColors,actions) => {
+  switch(actions.type){
+    case SET_COLORS:
+      return [...actions.colors]
+    default: return state
+  }
+}
+
+
 const initialSettings = {
   screenWidth: 750,
   screenHeight: 1334,
@@ -223,6 +234,7 @@ export {
   tokensReducer,
   userReducer,distributorReducer,shopperReducer,
   shoppersDistributorsReducer,
+  colorsReducer,
   settingsReducer,
   navReducer,
   clientReducer,

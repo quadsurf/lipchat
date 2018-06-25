@@ -6,6 +6,7 @@ import {
   SET_SHOPPER,UPDATE_SHOPPER,
   SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
   SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
+  SET_COLORS,
   SET_SETTINGS,
   SET_ROOTKEY,
   SET_NETWORKCLIENT,
@@ -71,6 +72,11 @@ const updateDistributor = updates => ({
   updates
 })
 
+const setColors = colors => ({
+  type: SET_COLORS,
+  colors
+})
+
 const setSettings = (screen,isIPhoneX) => ({
   type: SET_SETTINGS,
   settings: {
@@ -107,6 +113,7 @@ export {
   setDistributor,updateDistributor,
   setShopper,updateShopper,
   setShoppersDistributors,updateShoppersDistributor,clearShoppersDistributor,
+  setColors,
   setSettings,setSadvrId,
   setRootKey,
   setNetworkClient,

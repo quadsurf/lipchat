@@ -25,6 +25,16 @@ import { AppName } from '../config/Defaults'
 const large = Texts.large.fontSize
 const debugging = __DEV__ && false
 
+const convertRGBStringIntoArrayOfNumbers = rgbString => {
+  let colorCodes = rgbString.split(',')
+  let rgbStringAsArrayOfNumbers = []
+  colorCodes.forEach( colorCode => {
+    rgbStringAsArrayOfNumbers.push(parseInt(colorCode.match(/\d/g).join('')))
+  })
+  if (rgbStringAsArrayOfNumbers.length === 4) rgbStringAsArrayOfNumbers.pop()
+  return rgbStringAsArrayOfNumbers
+}
+
 const getDimensions = () => {
   let { height, width } = Dimensions.get("window")
   let dimensions = {width,height}
@@ -296,6 +306,7 @@ class Modals extends Component {
     )
   }
 }
+
 // ADD REDUX CLEARING ALSO, OR MOVE TO REDUX HANDLING
 const clearIdentifiers = () => {
   AsyncStorage.multiRemove(['fbkToken','gcToken','userId'], (e) => {
@@ -320,5 +331,7 @@ const getGQLerror = e => {
   return messages[0]
 }
 
-export { getDimensions,shortenUrl,clipText,Modals,clearIdentifiers,getGQLerror,err }
-// ${"\n"}${br}${"\n"}
+export {
+  convertRGBStringIntoArrayOfNumbers,getDimensions,shortenUrl,
+  clipText,Modals,clearIdentifiers,getGQLerror,err
+}

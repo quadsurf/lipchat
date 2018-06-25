@@ -22,6 +22,9 @@ import { setSadvrId } from '../store/actions'
 // LOCALS
 import { Views,Colors } from '../css/Styles'
 
+// COMPs
+import Loading from '../screens/common/Loading'
+
 // CONSTS
 const debugging = __DEV__ && false
 const duration = 3000
@@ -116,14 +119,7 @@ class Remote extends Component {
   }
 
   render(){
-    return (
-      <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-        <DotsLoader
-          size={15}
-          color={Colors.blue}
-          frequency={5000}/>
-      </View>
-    )
+    return <Loading/>
   }
 
 }
