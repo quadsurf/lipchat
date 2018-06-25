@@ -7,13 +7,14 @@ import {
   tokensReducer,
   userReducer,shopperReducer,distributorReducer,
   shoppersDistributorsReducer,
+  colorsReducer,
   settingsReducer,
   navReducer,
   clientReducer,
   appResetFunc
 } from './reducers'
 import { chatsReducer,unreadCountReducer } from '../screens/Chat/store/reducers'
-import { colorsReducer } from '../screens/Selfie/store/reducers'
+// import { colorsReducer } from '../screens/Selfie/store/reducers'
 
 const middleware = applyMiddleware(thunk)
 

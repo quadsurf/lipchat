@@ -15,7 +15,7 @@ import PropTypes from 'prop-types'
 
 // STORE
 import { connect } from 'react-redux'
-import { setColors } from './store/actions'
+import { setColors } from '../../store/actions'
 
 // GQL
 import { GetColorsAndInventories } from '../../api/db/queries'

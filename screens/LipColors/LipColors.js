@@ -110,6 +110,15 @@ class LipColors extends Component {
     this.updateColorStateOnFamily(updates,null,'pubsub')
   }
 
+  componentWillMount(){
+    let { colors } = this.props
+    if (colors.length > 0) {
+      this.setState({colors},()=>{
+         this.handleReds()
+      })
+    }
+  }
+
   componentDidMount(){
     this.subToLikesInDb()
   }
