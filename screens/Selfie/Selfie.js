@@ -26,7 +26,7 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
-import { Modals,getDimensions } from '../../utils/Helpers'
+import { convertRGBStringIntoArrayOfNumbers,Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
 import { tips,distIsLiking } from './../../config/Defaults'
 
@@ -294,6 +294,19 @@ class Selfie extends Component {
     }
   }
 
+  renderSwatch({item}){
+    let isSelected = this.state.selectedColors.findIndex(
+      ({ colorId:selectedColorId }) => selectedColorId === item.colorId
+    )
+    return (
+      <ColorSwatch
+        color={item}
+        isSelected={isSelected === -1 ? false : true}
+        doesLike={this.props.userType !== 'DIST' ? item.doesLike : false}
+        onColorPress={this.onColorPress} />
+    )
+  }
+
   renderCamera() {
     return (
       <Camera
@@ -316,7 +329,8 @@ class Selfie extends Component {
               renderItem={this.renderSwatch}
               keyExtractor={({colorId}) => colorId}
               contentContainerStyle={{
-                alignSelf: 'flex-end'
+                alignSelf: 'flex-end',
+                paddingBottom: 60
               }}/>
             <View style={{
               position: 'absolute',
@@ -343,7 +357,7 @@ class Selfie extends Component {
               <Switch
                 checked={this.state.layersMode}
                 onSwitchPress={() => this.toggleLayersMode()}/>
-              <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} />
+              <FontPoiret text="Layers Mode" size={Texts.medium.fontSize} color={Colors.pinkly} />
             </View>
             <TouchableOpacity
               style={{
@@ -434,16 +448,6 @@ class Selfie extends Component {
     return mergedRGBs
   }
 
-  convertRGBStringIntoArrayOfNumbers(rgbString){
-    let colorCodes = rgbString.split(',')
-    let rgbStringAsArrayOfNumbers = []
-    colorCodes.forEach( colorCode => {
-    	rgbStringAsArrayOfNumbers.push(parseInt(colorCode.match(/\d/g).join('')))
-    })
-    if (rgbStringAsArrayOfNumbers.length === 4) rgbStringAsArrayOfNumbers.pop()
-    return rgbStringAsArrayOfNumbers
-  }
-
   async getNewRGB(rgbStringAsArrayOfNumbers,op,selectedColors){
     let newRGB
     if (!rgbStringAsArrayOfNumbers) {
@@ -454,7 +458,7 @@ class Selfie extends Component {
         return activeColor
       } else {
         // help activeColor survive layers mode toggling
-        let arr = await this.convertRGBStringIntoArrayOfNumbers(activeColor)
+        let arr = await convertRGBStringIntoArrayOfNumbers(activeColor)
         return `rgba(${arr[0]},${arr[1]},${arr[2]},${layersModeAlpha})`
       }
     } else {
@@ -536,26 +540,6 @@ class Selfie extends Component {
     }
   }
 
-  renderSwatch({item}){
-    let isSelected = this.state.selectedColors.findIndex(
-      ({ colorId:selectedColorId }) => selectedColorId === item.colorId
-    )
-    return (
-      <ColorSwatch
-        color={item}
-        isSelected={isSelected === -1 ? false : true}
-        doesLike={this.props.userType !== 'DIST' ? item.doesLike : false}
-        onColorPress={this.onColorPress} />
-    )
-  }
-
-  renderSwatches(){
-    let { colors } = this.state
-    if (colors && colors.length > 0) {
-      return colors.map(color => this.renderSwatch(color))
-    }
-  }
-
   render() {
     const cameraScreenContent = this.state.hasCameraPermission
       ? this.renderCamera()
@@ -585,7 +569,7 @@ class Selfie extends Component {
         }) => {
           let { id:likeId=null,doesLike=false } = like
           let { id:inventoryId=null,count=0 } = inventory
-          let rgbs = this.convertRGBStringIntoArrayOfNumbers(rgb)
+          let rgbs = convertRGBStringIntoArrayOfNumbers(rgb)
           colors.push({
             colorId,
             family:family.toLowerCase(),

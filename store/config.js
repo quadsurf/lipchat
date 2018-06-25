@@ -14,7 +14,6 @@ import {
   appResetFunc
 } from './reducers'
 import { chatsReducer,unreadCountReducer } from '../screens/Chat/store/reducers'
-// import { colorsReducer } from '../screens/Selfie/store/reducers'
 
 const middleware = applyMiddleware(thunk)
 

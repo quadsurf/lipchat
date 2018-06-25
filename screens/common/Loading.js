@@ -10,13 +10,13 @@ import MyStatusBar from './StatusBar'
 
 import { DotsLoader } from 'react-native-indicator'
 
-export default () => {
+export default ({ color=null }) => {
   return (
     <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
       <MyStatusBar/>
       <DotsLoader
         size={15}
-        color={Colors.blue}
+        color={color || Colors.blue}
         frequency={5000}/>
     </View>
   )
