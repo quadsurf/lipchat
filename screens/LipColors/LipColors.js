@@ -210,7 +210,7 @@ class LipColors extends Component {
     } else {
       this.showModal(
         'prompt',
-        'Color Issue Loading Colors',
+        'Issue Loading Colors',
         `Apologies, but we could't load these colors.
 
         Please try reloading this tab.`
