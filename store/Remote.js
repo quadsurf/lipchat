@@ -6,26 +6,26 @@ import { View } from 'react-native'
 // LIBS
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
 import { debounce } from 'underscore'
 import { DotsLoader } from 'react-native-indicator'
+import PropTypes from 'prop-types'
 
 // GQL
-import { GetAdminChats } from '../api/db/queries'
+import { GetColorsAndInventories,GetAdminChats } from '../api/db/queries'
 import {
   AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr
 } from '../api/db/mutations'
 
 // STORE
-import { setSadvrId } from '../store/actions'
+import { setColors,setSadvrId } from '../store/actions'
 
-// LOCALS
+// LOCALs
 import { Views,Colors } from '../css/Styles'
 
 // COMPs
 import Loading from '../screens/common/Loading'
 
-// CONSTS
+// CONSTs
 const debugging = __DEV__ && false
 const duration = 3000
 
@@ -75,6 +75,15 @@ class Remote extends Component {
         debugging && console.log('dmChat for Shopper and their distributor exists');
       }
     }
+
+    if (
+      newProps.getColorsAndInventories &&
+      newProps.getColorsAndInventories.allColors &&
+      newProps.getColorsAndInventories.allColors.length > 0
+    ) {
+      this.props.setColors(newProps.getColorsAndInventories.allColors)
+    }
+
   }
 
   addShopperToAppNotificationGroupChatInDb(chatId,shopperId){
@@ -126,15 +135,27 @@ class Remote extends Component {
 
 Remote.propTypes = {
   shopperId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired,
   unreadCount: PropTypes.number
 }
 
 const mapStateToProps = state => ({
   shopperId: state.shopper.id,
+  distributorId: state.distributor.id,
   unreadCount: state.unreadCount
 })
 
 const RemoteWithData = compose(
+  graphql(GetColorsAndInventories,{
+    name: 'getColorsAndInventories',
+    options: props => ({
+      variables: {
+        distributorxId: props.distributorId,
+        shopperxId: props.shopperId
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(GetAdminChats,{
     name: 'getAdminChats',
     options: props => ({
@@ -155,4 +176,4 @@ const RemoteWithData = compose(
   // })
 )(Remote)
 
-export default connect(mapStateToProps,{ setSadvrId })(RemoteWithData)
+export default connect(mapStateToProps,{ setColors,setSadvrId })(RemoteWithData)

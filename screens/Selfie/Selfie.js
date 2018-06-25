@@ -9,16 +9,12 @@ import {
 
 // LIBS
 import { compose,graphql } from 'react-apollo'
+import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
-// STORE
-import { connect } from 'react-redux'
-import { setColors } from '../../store/actions'
-
 // GQL
-import { GetColorsAndInventories } from '../../api/db/queries'
 import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
 import { GetLikesForShopper } from './../../api/db/queries'
 import { SubToLikesForShopper } from './../../api/db/pubsub'
@@ -105,7 +101,10 @@ class Selfie extends Component {
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA)
-    this.setState({ hasCameraPermission: status === 'granted' })
+    this.setState({
+      hasCameraPermission: status === 'granted',
+      colors: this.props.colors
+    })
   }
 
   componentDidMount(){
@@ -330,7 +329,7 @@ class Selfie extends Component {
               keyExtractor={({colorId}) => colorId}
               contentContainerStyle={{
                 alignSelf: 'flex-end',
-                paddingBottom: 60
+                paddingBottom: 62
               }}/>
             <View style={{
               position: 'absolute',
@@ -556,36 +555,6 @@ class Selfie extends Component {
     )
   }
 
-  componentWillReceiveProps(newProps){
-    if (newProps.getColorsAndInventories && newProps.getColorsAndInventories.allColors) {
-      if (newProps.getColorsAndInventories.allColors !== this.state.colors) {
-        let newColors = newProps.getColorsAndInventories.allColors
-        let colors = []
-        newColors.forEach( ({
-          id:colorId,family,finish,name,rgb,
-          status,tone,
-          likesx:[like={}],
-          inventoriesx:[inventory={}]
-        }) => {
-          let { id:likeId=null,doesLike=false } = like
-          let { id:inventoryId=null,count=0 } = inventory
-          let rgbs = convertRGBStringIntoArrayOfNumbers(rgb)
-          colors.push({
-            colorId,
-            family:family.toLowerCase(),
-            finish,name,rgb,rgbs,
-            status,tone,
-            likeId,doesLike,
-            inventoryId,count
-          })
-        })
-        this.setState({colors},()=>{
-          this.props.setColors(this.state.colors)
-        })
-      }
-    }
-  }
-
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
@@ -724,28 +693,18 @@ class Selfie extends Component {
 Selfie.propTypes = {
   userType: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired,
-  isIPhoneX: PropTypes.bool.isRequired
+  isIPhoneX: PropTypes.bool.isRequired,
+  colors: PropTypes.array.isRequired
 }
 
 const mapStateToProps = state => ({
   userType: state.user.type,
   shopperId: state.shopper.id,
-  distributorId: state.distributor.id,
-  isIPhoneX: state.settings.isIPhoneX
+  isIPhoneX: state.settings.isIPhoneX,
+  colors: state.colors
 })
 
 const SelfieWithData = compose(
-  graphql(GetColorsAndInventories,{
-    name: 'getColorsAndInventories',
-    options: props => ({
-      variables: {
-        distributorxId: props.distributorId,
-        shopperxId: props.shopperId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(CreateLike,{
     name: 'createLike'
   }),
@@ -762,4 +721,4 @@ const SelfieWithData = compose(
   })
 )(Selfie)
 
-export default connect(mapStateToProps,{ setColors })(SelfieWithData)
+export default connect(mapStateToProps)(SelfieWithData)

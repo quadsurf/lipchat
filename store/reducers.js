@@ -14,6 +14,9 @@ import {
   SET_SADVRID
 } from './types'
 
+// UTILs
+import { convertRGBStringIntoArrayOfNumbers } from '../utils/Helpers'
+
 
 const initialTokens = {
   gc: '',
@@ -148,7 +151,27 @@ const initialColors = []
 const colorsReducer = (state=initialColors,actions) => {
   switch(actions.type){
     case SET_COLORS:
-      return [...actions.colors]
+      let colors = []
+      let newColors = [...actions.colors]
+      newColors.forEach( ({
+        id:colorId,family,finish,name,rgb,
+        status,tone,
+        likesx:[like={}],
+        inventoriesx:[inventory={}]
+      }) => {
+        let { id:likeId=null,doesLike=false } = like
+        let { id:inventoryId=null,count=0 } = inventory
+        let rgbs = convertRGBStringIntoArrayOfNumbers(rgb)
+        colors.push({
+          colorId,
+          family:family.toLowerCase(),
+          finish,name,rgb,rgbs,
+          status,tone,
+          likeId,doesLike,
+          inventoryId,count
+        })
+      })
+      return colors
     default: return state
   }
 }
