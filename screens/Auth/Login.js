@@ -32,8 +32,11 @@ import { GetSettings } from '../../api/db/queries'
 //STORE
 import { resetApp } from '../../store/actions'
 
-//CONTs
+//CONSTs
 const debugging = __DEV__ && true
+const fbBaseUri = 'https://graph.facebook.com/v'
+const fbUriParams = '/me?fields=id,first_name,last_name,picture,email&access_token='
+//deprecated: friends,verified,gender,age_range
 
 class Login extends Component {
 
@@ -42,14 +45,7 @@ class Login extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    graphVersion: '2.9'
-  }
-
-  constructor(props){
-    super(props)
-    this.fbBaseUri = 'https://graph.facebook.com/v'
-    this.fbUriParams = '/me?fields=id,first_name,last_name,picture,email&access_token='
-    //deprecated: friends,verified,gender,age_range
+    graphVersion: '3.0'
   }
 
   fullScreen() {
@@ -231,7 +227,6 @@ class Login extends Component {
   }
 
   async logIn() {
-    // removed from permissions: ,'user_friends'
     const { type, token:fbkToken } = await Expo.Facebook.logInWithReadPermissionsAsync(
       FBK_APP_ID,
       {
@@ -241,11 +236,9 @@ class Login extends Component {
     )
     if (type === 'success') {
       this.showModal('processing')
-      let fetchUri = `${this.fbBaseUri}${this.state.graphVersion}${this.fbUriParams}${fbkToken}`
-      console.log('fetchUri',fetchUri)
-      const res = await fetch(fetchUri)
+      let fetchUri = `${fbBaseUri}${this.state.graphVersion}${fbUriParams}${fbkToken}`
+      let res = await fetch(fetchUri)
       let fbkUser = await res.json()
-      console.log('fbkUser',fbkUser)
       if (fbkUser) {
         this.getOrCreateUser(fbkUser,fbkToken)
       } else {

@@ -28,7 +28,7 @@ import You from './You'
 
 // CONSTS
 const duration = 3000
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 
 //ENV VARS
 import { PROJECT_ID } from 'react-native-dotenv'

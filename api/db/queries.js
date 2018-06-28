@@ -506,6 +506,7 @@ const GetSettings = gql`
 query {
   allSettings {
     initStatus
+    graph
   }
 }`
 
