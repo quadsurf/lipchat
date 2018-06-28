@@ -12,12 +12,12 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 
 // GQL
-import { GetUserType } from '../../api/db/queries'
+import { GetUserType,CheckIfDistributorHasGroupChat,GetSettings } from '../../api/db/queries'
 import { SubToUserType } from '../../api/db/pubsub'
-import { CheckIfDistributorHasGroupChat } from '../../api/db/queries'
+import { CreateGroupChatForDistributor,UpdateDistributorStatus } from '../../api/db/mutations'
 
 // STORE
-import { updateUser } from '../../store/actions'
+import { updateUser,updateDistributor } from '../../store/actions'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
@@ -36,12 +36,23 @@ import { PROJECT_ID } from 'react-native-dotenv'
 class YouPreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    initStatus: null
   }
 
   constructor(props){
     super(props)
     this.updateUser = debounce(this.updateUser,duration,true)
+  }
+
+  componentWillReceiveProps(newProps){
+    if (
+      newProps.getSettings
+      && newProps.getSettings.allSettings
+      && newProps.getSettings.allSettings.length > 0
+    ) {
+      this.setState({ initStatus:newProps.getSettings.allSettings[0].initStatus })
+    }
   }
 
   componentDidMount(){
@@ -67,14 +78,44 @@ class YouPreloader extends Component {
   updateUser(nextType){
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
-      nextType === 'DIST' && this.checkIfDistributorHasGroupChat()
+      if (nextType === 'DIST') {
+        this.checkIfDistributorHasGroupChatInDb()
+        this.shouldUpdateDistributorStatus()
+      }
       setTimeout(()=>{
         this.setState({reloading:false})
       },duration)
     })
   }
 
-  checkIfDistributorHasGroupChat(){
+  updateDistributorStatusInDb(distributorId,initStatus){
+    if (distributorId) {
+      this.props.updateDistributorStatus({
+        variables: {
+          distributorId: distributorId,
+          status: initStatus
+        }
+      }).then(({ data:{ updateDistributor } }) => {
+        updateDistributor.hasOwnProperty('status') && this.props.updateDistributor({
+          status:updateDistributor.status
+        })
+      }).catch( e => {
+        debugging && console.log('e',e.message)
+      })
+    }
+  }
+
+  shouldUpdateDistributorStatus(){
+    let { distributorId,distributorStatus } = this.props
+    let { initStatus } = this.state
+    if (initStatus !== null) {
+      if (distributorStatus !== initStatus) {
+        this.updateDistributorStatusInDb(distributorId,initStatus)
+      }
+    }
+  }
+
+  checkIfDistributorHasGroupChatInDb(){
     let method = 'post'
     let url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
     let { gcToken,distributorId } = this.props
@@ -147,13 +188,15 @@ class YouPreloader extends Component {
 YouPreloader.propTypes = {
   gcToken: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired
+  distributorId: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.bool.isRequired
 }
 
 const mapStateToProps = state => ({
   gcToken: state.tokens.gc,
   userId: state.user.id,
-  distributorId: state.distributor.id
+  distributorId: state.distributor.id,
+  distributorStatus: state.distributor.status
 })
 
 const YouPreloaderWithData = compose(
@@ -164,7 +207,16 @@ const YouPreloaderWithData = compose(
         UserId: props.userId
       }
     })
+  }),
+  graphql(GetSettings,{
+    name: 'getSettings'
+  }),
+  graphql(CreateGroupChatForDistributor,{
+    name: 'createGroupChatForDistributor'
+  }),
+  graphql(UpdateDistributorStatus,{
+    name: 'updateDistributorStatus'
   })
 )(YouPreloader)
 
-export default connect(mapStateToProps,{ updateUser })(YouPreloaderWithData)
+export default connect(mapStateToProps,{ updateUser,updateDistributor })(YouPreloaderWithData)

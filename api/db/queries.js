@@ -11,16 +11,11 @@ query GetUser(
   ){
     id
     cellPhone
-    fbkAgeMax
-    fbkAgeMin
     fbkEmail
     fbkFirstName
-    fbkFriends
-    fbkGender
     fbkLastName
     fbkPhotoUri
     fbkUserId
-    fbkVerified
     type
     distributorx {
       id
@@ -507,6 +502,13 @@ query(
   }
 }`
 
+const GetSettings = gql`
+query {
+  allSettings {
+    initStatus
+  }
+}`
+
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper
+  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper,GetSettings
 }

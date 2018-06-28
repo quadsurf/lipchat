@@ -103,26 +103,24 @@ class You extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps) {
-      if (
-        newProps.getDistributor
-        && newProps.getDistributor
-        && newProps.getDistributor.Distributor
-      ) {
-        let { DistributorDistId,DistributorBizName,DistributorBizUri,DistributorLogoUri } = this.state
-        let { Distributor } = newProps.getDistributor
-        if (DistributorDistId === null) {
-          this.setState({DistributorDistId:Distributor.distId})
-        }
-        if (DistributorBizName === null) {
-          this.setState({DistributorBizName:Distributor.bizName})
-        }
-        if (DistributorBizUri === null) {
-          this.setState({DistributorBizUri:Distributor.bizUri})
-        }
-        if (DistributorLogoUri === null) {
-          this.setState({DistributorLogoUri:Distributor.logoUri})
-        }
+    if (
+      newProps.getDistributor
+      && newProps.getDistributor
+      && newProps.getDistributor.Distributor
+    ) {
+      let { DistributorDistId,DistributorBizName,DistributorBizUri,DistributorLogoUri } = this.state
+      let { Distributor } = newProps.getDistributor
+      if (DistributorDistId === null) {
+        this.setState({DistributorDistId:Distributor.distId})
+      }
+      if (DistributorBizName === null) {
+        this.setState({DistributorBizName:Distributor.bizName})
+      }
+      if (DistributorBizUri === null) {
+        this.setState({DistributorBizUri:Distributor.bizUri})
+      }
+      if (DistributorLogoUri === null) {
+        this.setState({DistributorLogoUri:Distributor.logoUri})
       }
     }
   }

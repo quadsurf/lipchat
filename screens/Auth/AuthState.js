@@ -31,7 +31,7 @@ class AuthState extends Component {
     this.goTo = debounce(this.goTo,debounceDuration,true)
     this.partitionUser = debounce(this.partitionUser,debounceDuration,true)
   }
-  
+
   componentWillReceiveProps(newProps){
     if (!newProps.getUser.loading) {
       if (
@@ -40,7 +40,7 @@ class AuthState extends Component {
       ) {
         this.partitionUser(newProps.getUser.User)
       } else if (newProps.getUser.error) {
-        debugging && console.log('loggedout7')
+        debugging && console.log('loggedout7',newProps.getUser.error)
         this.goTo('LoggedOut')
       } else {
         debugging && console.log('loggedout8')
@@ -48,27 +48,27 @@ class AuthState extends Component {
       }
     }
   }
-  
+
   partitionUser(user){
     let newUser = { ...user }
-    
+
     let shoppersDistributors = newUser.shopperx.distributorsx
     if (!this.state.isMounted) {
       this.setState({isMounted:true},()=>{
         this.props.setShoppersDistributors(shoppersDistributors)
       })
     }
-    
+
     let shopper = {
       __typename: 'Shopper',
       id: newUser.shopperx.id
     }
     this.props.setShopper(shopper)
     delete newUser.shopperx
-    
+
     this.props.setDistributor(newUser.distributorx)
     delete newUser.distributorx
-    
+
     this.props.updateUser(newUser)
     this.determineAuthStatus()
   }
@@ -78,34 +78,34 @@ class AuthState extends Component {
       let { fbkToken,gcToken } = this.props
       if (fbkToken && gcToken) {
         let tokenStatus = await this.isExpired(fbkToken)
-        if (tokenStatus) {
+        if (tokenStatus.hasOwnProperty('expires_in')) {
           if (tokenStatus.expires_in) {
             // > 259200
             if (tokenStatus.expires_in > 259200) {
-              debugging && console.log('LoggedIn Redirect')
               this.goTo('LoggedIn')
+              debugging && console.log('LoggedIn Redirect')
             } else {
-              debugging && console.log('loggedout1')
               this.goTo('LoggedOut')
+              debugging && console.log('loggedout1')
             }
           } else if (tokenStatus.error) {
+            this.goTo('LoggedOut')
             debugging && console.log('loggedout2')
-            this.goTo('LoggedOut')
           } else {
-            debugging && console.log('loggedout3')
             this.goTo('LoggedOut')
+            debugging && console.log('loggedout3')
           }
         } else {
-          debugging && console.log('loggedout4')
           this.goTo('LoggedOut')
+          debugging && console.log('loggedout4')
         }
       } else {
-        debugging && console.log('loggedout5')
         this.goTo('LoggedOut')
+        debugging && console.log('loggedout5')
       }
     } catch (e) {
-      debugging && console.log('loggedout6')
       this.goTo('LoggedOut')
+      debugging && console.log('loggedout6')
     }
   }
 

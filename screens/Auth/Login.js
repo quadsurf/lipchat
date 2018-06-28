@@ -27,9 +27,13 @@ import { FBK_APP_ID } from 'react-native-dotenv'
 
 //GQL
 import { AuthenticateFacebookUser } from '../../api/db/mutations'
+import { GetSettings } from '../../api/db/queries'
 
 //STORE
 import { resetApp } from '../../store/actions'
+
+//CONTs
+const debugging = __DEV__ && true
 
 class Login extends Component {
 
@@ -37,7 +41,15 @@ class Login extends Component {
     bottomMargin: 60,
     isModalOpen: false,
     modalType: 'processing',
-    modalContent: {}
+    modalContent: {},
+    graphVersion: '2.9'
+  }
+
+  constructor(props){
+    super(props)
+    this.fbBaseUri = 'https://graph.facebook.com/v'
+    this.fbUriParams = '/me?fields=id,first_name,last_name,picture,email&access_token='
+    //deprecated: friends,verified,gender,age_range
   }
 
   fullScreen() {
@@ -45,6 +57,17 @@ class Login extends Component {
       ...Views.middle,
       backgroundColor: Colors.bgColor,
       width: getDimensions().width
+    }
+  }
+
+  componentWillReceiveProps(newProps){
+    if (
+      newProps.getSettings
+      && newProps.getSettings.allSettings
+      && newProps.getSettings.allSettings.length > 0
+    ) {
+      let graphVersion = newProps.getSettings.allSettings[0].graph || this.state.graphVersion
+      this.setState({ graphVersion })
     }
   }
 
@@ -208,17 +231,21 @@ class Login extends Component {
   }
 
   async logIn() {
+    // removed from permissions: ,'user_friends'
     const { type, token:fbkToken } = await Expo.Facebook.logInWithReadPermissionsAsync(
       FBK_APP_ID,
       {
-        permissions: ['public_profile','email','user_friends'],
+        permissions: ['public_profile','email'],
         behavior: 'web'
       }
     )
     if (type === 'success') {
       this.showModal('processing')
-      const res = await fetch(`https://graph.facebook.com/v2.9/me?fields=id,first_name,last_name,age_range,gender,picture,verified,email,friends&access_token=${fbkToken}`)
+      let fetchUri = `${this.fbBaseUri}${this.state.graphVersion}${this.fbUriParams}${fbkToken}`
+      console.log('fetchUri',fetchUri)
+      const res = await fetch(fetchUri)
       let fbkUser = await res.json()
+      console.log('fbkUser',fbkUser)
       if (fbkUser) {
         this.getOrCreateUser(fbkUser,fbkToken)
       } else {
@@ -255,6 +282,7 @@ class Login extends Component {
           this.openError(`${errText}-1`)
         }
       }).catch( e => {
+        debugging && console.log('e',e.message)
         this.openError(`${errText}-2`)
       })
     }
@@ -280,6 +308,9 @@ class Login extends Component {
 const LoginWithData = compose(
   graphql(AuthenticateFacebookUser,{
     name: 'authenticateFacebookUser'
+  }),
+  graphql(GetSettings,{
+    name: 'getSettings'
   })
 )(Login)
 

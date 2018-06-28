@@ -26,16 +26,11 @@ mutation UpdateFbkFriends(
   ){
     id
     cellPhone
-    fbkAgeMax
-    fbkAgeMin
     fbkEmail
     fbkFirstName
-    fbkFriends
-    fbkGender
     fbkLastName
     fbkPhotoUri
     fbkUserId
-    fbkVerified
     type
     distributorx {
       id
@@ -161,6 +156,19 @@ mutation UpdateDistributorLogoUri(
     logoUri: $DistributorLogoUri
   ){
     logoUri
+  }
+}`
+
+const UpdateDistributorStatus = gql`
+mutation (
+  $distributorId: ID!,
+  $status: Boolean!
+){
+  updateDistributor(
+    id: $distributorId,
+    status: $status
+  ){
+    status
   }
 }`
 
@@ -422,5 +430,5 @@ mutation(
 
 export {
   AuthenticateFacebookUser,UpdateFbkFriends,UpdateCellPhone,UpdateName,UpdateUserType,
-  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor,CreateDmChatForShopperAndDistributor,AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
+  UpdateDistributorDistId,UpdateDistributorBizName,UpdateDistributorBizUri,UpdateDistributorLogoUri,UpdateDistributorStatus,ConnectColorToDistributor,UpdateCountOnInventory,CreateLike,UpdateDoesLikeOnLike,LinkShopperToDistributor,DeLinkShopperFromDistributor,CreateChatMessage,UpdateChatMessage,DeleteChatMessage,AddShopperToDistributorsGroupChat,RemoveShopperFromDistributorsGroupChat,TriggerEventOnChat,CreateGroupChatForDistributor,CreateDmChatForShopperAndDistributor,AddShopperToAppNotificationGroupChat,CreateDmChatForShopperAndSadvr,UpdatePushToken
 }
