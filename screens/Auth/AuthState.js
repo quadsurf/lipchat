@@ -20,7 +20,7 @@ import { AppName } from '../../config/Defaults'
 import { GetUser } from '../../api/db/queries'
 
 //CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 const debounceDuration = 750
 
 class AuthState extends Component {

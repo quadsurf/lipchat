@@ -9,6 +9,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
+import { withNavigation } from 'react-navigation'
 
 // GQL
 import { GetUserType,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
@@ -28,10 +29,12 @@ import Likes from './Likes'
 const duration = 3000
 const debugging = __DEV__ && false
 
+@withNavigation
 class LikesPreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    tabIsFocused: null
   }
 
   constructor(props){
@@ -39,6 +42,23 @@ class LikesPreloader extends Component {
     this.updateUser = debounce(this.updateUser,duration,true)
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
   }
+
+  // componentWillMount(){
+  //   this.didFocusSubscription = this.props.navigation.addListener(
+  //     'didFocus',
+  //     ({ action:{ key } }) => {
+  //       if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({tabIsFocused:true})
+  //       console.log('didFocus:',key)
+  //     }
+  //   )
+  //   this.didBlurSubscription = this.props.navigation.addListener(
+  //     'didBlur',
+  //     ({ action:{ key } }) => {
+  //       key !== 'StackRouterRoot' && this.setState({tabIsFocused:false})
+  //       console.log('didBlur:',key)
+  //     }
+  //   )
+  // }
 
   componentDidMount(){
     this.subToUserType()

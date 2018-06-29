@@ -31,12 +31,24 @@ const debugging = __DEV__ && false
 class SelfiePreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    tabIsFocused: this.props.focused
   }
 
   constructor(props){
     super(props)
     this.updateUser = debounce(this.updateUser,duration,true)
+    this.updateTabFocus = debounce(this.updateTabFocus,500,true)
+  }
+
+  componentWillReceiveProps(newProps){
+    if (newProps.hasOwnProperty('focused') && newProps.focused !== this.props.focused) {
+      this.updateTabFocus(newProps.focused)
+    }
+  }
+
+  updateTabFocus(tabIsFocused){
+    this.setState({ tabIsFocused })
   }
 
   componentDidMount(){
@@ -60,12 +72,16 @@ class SelfiePreloader extends Component {
   }
 
   updateUser(nextType){
-    this.setState({reloading:true},()=>{
-      this.props.updateUser({type:nextType})
-      setTimeout(()=>{
-        this.setState({reloading:false})
-      },duration)
-    })
+    let { tabIsFocused } = this.state
+    console.log('tabIsFocused on Selfie',tabIsFocused)
+    if (tabIsFocused) {
+      this.setState({reloading:true},()=>{
+        this.props.updateUser({type:nextType})
+        setTimeout(()=>{
+          this.setState({reloading:false})
+        },duration)
+      })
+    }
   }
 
   render(){

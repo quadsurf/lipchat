@@ -33,7 +33,7 @@ import { GetSettings } from '../../api/db/queries'
 import { resetApp } from '../../store/actions'
 
 //CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 const fbBaseUri = 'https://graph.facebook.com/v'
 const fbUriParams = '/me?fields=id,first_name,last_name,picture,email&access_token='
 //deprecated: friends,verified,gender,age_range

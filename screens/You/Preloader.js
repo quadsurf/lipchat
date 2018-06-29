@@ -28,7 +28,7 @@ import You from './You'
 
 // CONSTS
 const duration = 3000
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 
 //ENV VARS
 import { PROJECT_ID } from 'react-native-dotenv'
@@ -37,12 +37,18 @@ class YouPreloader extends Component {
 
   state = {
     reloading: false,
-    initStatus: null
+    initStatus: null,
+    tabIsFocused: this.props.focused
   }
 
   constructor(props){
     super(props)
     this.updateUser = debounce(this.updateUser,duration,true)
+    this.updateTabFocus = debounce(this.updateTabFocus,500,true)
+  }
+
+  componentWillUnmount(){
+    console.log('tabIsFocused on You at time of unmount',this.props.focused)
   }
 
   componentWillReceiveProps(newProps){
@@ -53,6 +59,13 @@ class YouPreloader extends Component {
     ) {
       this.setState({ initStatus:newProps.getSettings.allSettings[0].initStatus })
     }
+    if (newProps.hasOwnProperty('focused') && newProps.focused !== this.props.focused) {
+      this.updateTabFocus(newProps.focused)
+    }
+  }
+
+  updateTabFocus(tabIsFocused){
+    this.setState({ tabIsFocused })
   }
 
   componentDidMount(){
@@ -76,16 +89,20 @@ class YouPreloader extends Component {
   }
 
   updateUser(nextType){
-    this.setState({reloading:true},()=>{
-      this.props.updateUser({type:nextType})
-      if (nextType === 'DIST') {
-        this.checkIfDistributorHasGroupChatInDb()
-        this.shouldUpdateDistributorStatus()
-      }
-      setTimeout(()=>{
-        this.setState({reloading:false})
-      },duration)
-    })
+    let { tabIsFocused } = this.state
+    console.log('tabIsFocused on Likes',tabIsFocused)
+    if (tabIsFocused) {
+      this.setState({reloading:true},()=>{
+        this.props.updateUser({type:nextType})
+        if (nextType === 'DIST') {
+          this.checkIfDistributorHasGroupChatInDb()
+          this.shouldUpdateDistributorStatus()
+        }
+        setTimeout(()=>{
+          this.setState({reloading:false})
+        },duration)
+      })
+    }
   }
 
   updateDistributorStatusInDb(distributorId,initStatus){

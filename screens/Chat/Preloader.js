@@ -32,7 +32,8 @@ class ChatPreloader extends Component {
 
   state = {
     reloading: false,
-    hasShoppersDistributor: this.props.hasShoppersDistributor
+    hasShoppersDistributor: this.props.hasShoppersDistributor,
+    tabIsFocused: this.props.focused
   }
 
   constructor(props){
@@ -41,12 +42,20 @@ class ChatPreloader extends Component {
     this.updateDistributor = debounce(this.updateDistributor,duration,true)
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
     this.refreshChats = debounce(this.refreshChats,duration,true)
+    this.updateTabFocus = debounce(this.updateTabFocus,500,true)
   }
 
   componentWillReceiveProps(newProps){
     if (newProps.hasShoppersDistributor !== this.state.hasShoppersDistributor) {
       this.refreshChats(newProps.hasShoppersDistributor)
     }
+    if (newProps.hasOwnProperty('focused') && newProps.focused !== this.props.focused) {
+      this.updateTabFocus(newProps.focused)
+    }
+  }
+
+  updateTabFocus(tabIsFocused){
+    this.setState({ tabIsFocused })
   }
 
   refreshChats(hasShoppersDistributor){
@@ -83,16 +92,21 @@ class ChatPreloader extends Component {
   }
 
   updateUser(nextType){
-    this.setState({reloading:true},()=>{
-      this.props.updateUser({type:nextType})
-      setTimeout(()=>{
-        this.setState({reloading:false})
-      },duration)
-    })
+    let { tabIsFocused } = this.state
+    console.log('tabIsFocused on Chat',tabIsFocused)
+    if (tabIsFocused) {
+      this.setState({reloading:true},()=>{
+        this.props.updateUser({type:nextType})
+        setTimeout(()=>{
+          this.setState({reloading:false})
+        },duration)
+      })
+    }
   }
 
   subToDistributorStatus(){
     let { distributorId } = this.props
+    let { tabIsFocused } = this.state
     if (distributorId) {
       this.props.getDistributorStatus.subscribeToMore({
         document: SubToDistributorStatus,
@@ -104,7 +118,7 @@ class ChatPreloader extends Component {
             previousValues:{ status:prevStatus }
           } = subscriptionData.data.Distributor
           if (mutation === 'UPDATED') {
-            nextStatus !== prevStatus && this.updateDistributor(nextStatus)
+            tabIsFocused && nextStatus !== prevStatus && this.updateDistributor(nextStatus)
           }
         }
       })
@@ -122,6 +136,7 @@ class ChatPreloader extends Component {
 
   subToAllDistributorsStatusForShopper(){
     let { shopperId } = this.props
+    let { tabIsFocused } = this.state
     if (shopperId) {
       this.props.getAllDistributorsStatusForShopper.subscribeToMore({
         document: SubToDistributorsForShopper,
@@ -129,7 +144,7 @@ class ChatPreloader extends Component {
         updateQuery: (previous,{subscriptionData}) => {
           let { mutation } = subscriptionData.data.Distributor
           if (mutation === 'UPDATED') {
-            this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
+            tabIsFocused && this.modifyShoppersDistributor(subscriptionData.data.Distributor.node)
           }
         }
       })
