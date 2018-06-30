@@ -37,18 +37,12 @@ class YouPreloader extends Component {
 
   state = {
     reloading: false,
-    initStatus: null,
-    tabIsFocused: this.props.focused
+    initStatus: null
   }
 
   constructor(props){
     super(props)
     this.updateUser = debounce(this.updateUser,duration,true)
-    this.updateTabFocus = debounce(this.updateTabFocus,500,true)
-  }
-
-  componentWillUnmount(){
-    console.log('tabIsFocused on You at time of unmount',this.props.focused)
   }
 
   componentWillReceiveProps(newProps){
@@ -59,13 +53,6 @@ class YouPreloader extends Component {
     ) {
       this.setState({ initStatus:newProps.getSettings.allSettings[0].initStatus })
     }
-    if (newProps.hasOwnProperty('focused') && newProps.focused !== this.props.focused) {
-      this.updateTabFocus(newProps.focused)
-    }
-  }
-
-  updateTabFocus(tabIsFocused){
-    this.setState({ tabIsFocused })
   }
 
   componentDidMount(){
@@ -89,19 +76,25 @@ class YouPreloader extends Component {
   }
 
   updateUser(nextType){
-    let { tabIsFocused } = this.state
-    console.log('tabIsFocused on Likes',tabIsFocused)
-    if (tabIsFocused) {
-      this.setState({reloading:true},()=>{
-        this.props.updateUser({type:nextType})
-        if (nextType === 'DIST') {
-          this.checkIfDistributorHasGroupChatInDb()
-          this.shouldUpdateDistributorStatus()
-        }
-        setTimeout(()=>{
-          this.setState({reloading:false})
-        },duration)
-      })
+    this.setState({reloading:true},()=>{
+      this.props.updateUser({type:nextType})
+      if (nextType === 'DIST') {
+        this.checkIfDistributorHasGroupChatInDb()
+        this.shouldUpdateDistributorStatus()
+      }
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
+  }
+
+  shouldUpdateDistributorStatus(){
+    let { distributorId,distributorStatus } = this.props
+    let { initStatus } = this.state
+    if (initStatus !== null) {
+      if (distributorStatus !== initStatus) {
+        this.updateDistributorStatusInDb(distributorId,initStatus)
+      }
     }
   }
 
@@ -119,16 +112,6 @@ class YouPreloader extends Component {
       }).catch( e => {
         debugging && console.log('e',e.message)
       })
-    }
-  }
-
-  shouldUpdateDistributorStatus(){
-    let { distributorId,distributorStatus } = this.props
-    let { initStatus } = this.state
-    if (initStatus !== null) {
-      if (distributorStatus !== initStatus) {
-        this.updateDistributorStatusInDb(distributorId,initStatus)
-      }
     }
   }
 

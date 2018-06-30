@@ -9,7 +9,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
-import { withNavigation } from 'react-navigation'
+// import { withNavigation } from 'react-navigation'
 
 // GQL
 import { GetUserType,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
@@ -29,12 +29,11 @@ import Likes from './Likes'
 const duration = 3000
 const debugging = __DEV__ && false
 
-@withNavigation
+// @withNavigation
 class LikesPreloader extends Component {
 
   state = {
-    reloading: false,
-    tabIsFocused: null
+    reloading: false
   }
 
   constructor(props){

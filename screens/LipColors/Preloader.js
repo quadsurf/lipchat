@@ -31,25 +31,13 @@ const debugging = __DEV__ && false
 class LipColorsPreloader extends Component {
 
   state = {
-    reloading: false,
-    tabIsFocused: this.props.focused
+    reloading: false
   }
 
   constructor(props){
     super(props)
     this.updateUser = debounce(this.updateUser,duration,true)
     this.updateDistributor = debounce(this.updateDistributor,duration,true)
-    this.updateTabFocus = debounce(this.updateTabFocus,500,true)
-  }
-
-  componentWillReceiveProps(newProps){
-    if (newProps.hasOwnProperty('focused') && newProps.focused !== this.props.focused) {
-      this.updateTabFocus(newProps.focused)
-    }
-  }
-
-  updateTabFocus(tabIsFocused){
-    this.setState({ tabIsFocused })
   }
 
   componentDidMount(){
@@ -74,21 +62,16 @@ class LipColorsPreloader extends Component {
   }
 
   updateUser(nextType){
-    let { tabIsFocused } = this.state
-    console.log('tabIsFocused on LipColors',tabIsFocused)
-    if (tabIsFocused) {
-      this.setState({reloading:true},()=>{
-        this.props.updateUser({type:nextType})
-        setTimeout(()=>{
-          this.setState({reloading:false})
-        },duration)
-      })
-    }
+    this.setState({reloading:true},()=>{
+      this.props.updateUser({type:nextType})
+      setTimeout(()=>{
+        this.setState({reloading:false})
+      },duration)
+    })
   }
 
   subToDistributorStatus(){
     let { distributorId } = this.props
-    let { tabIsFocused } = this.state
     if (distributorId) {
       this.props.getDistributorStatus.subscribeToMore({
         document: SubToDistributorStatus,
@@ -100,7 +83,7 @@ class LipColorsPreloader extends Component {
             previousValues:{ status:prevStatus }
           } = subscriptionData.data.Distributor
           if (mutation === 'UPDATED') {
-            tabIsFocused && nextStatus !== prevStatus && this.updateDistributor(nextStatus)
+            nextStatus !== prevStatus && this.updateDistributor(nextStatus)
           }
         }
       })
