@@ -1,12 +1,10 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
 
 // LIBS
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -17,12 +15,9 @@ import { SubToUserType,SubToDistributorStatus,SubToDistributorsForShopper } from
 // STORE
 import { updateUser,updateDistributor,updateShoppersDistributor } from '../../store/actions'
 
-// LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../common/fonts'
-
 // COMPS
 import Chat from './Chat'
+import Loading from '../common/Loading'
 
 // CONSTS
 const duration = 3000
@@ -83,6 +78,8 @@ class ChatPreloader extends Component {
   }
 
   updateUser(nextType){
+    this.props.updateUser({type:nextType})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
       setTimeout(()=>{
@@ -112,6 +109,8 @@ class ChatPreloader extends Component {
   }
 
   updateDistributor(nextStatus){
+    this.props.updateDistributor({status:nextStatus})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateDistributor({status:nextStatus})
       setTimeout(()=>{
@@ -137,6 +136,8 @@ class ChatPreloader extends Component {
   }
 
   modifyShoppersDistributor(dist){
+    this.props.updateShoppersDistributor(dist)
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateShoppersDistributor(dist)
       setTimeout(()=>{
@@ -147,19 +148,7 @@ class ChatPreloader extends Component {
 
   render(){
     if (this.state.reloading) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret
-            text="reloading chats..."
-            color={Colors.blue}
-            size={Texts.larger.fontSize}
-            style={{marginBottom:30}}/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading text="reloading chats..."/>
     } else {
       return <Chat/>
     }

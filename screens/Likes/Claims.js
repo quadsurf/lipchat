@@ -11,7 +11,7 @@ import {
 } from 'react-native'
 
 //GQL
-import { GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor } from '../../api/db/queries'
+import { CheckIfShopperHasDmChatWithDistributor } from '../../api/db/queries'
 import { CreateChatMessage,TriggerEventOnChat } from '../../api/db/mutations'
 
 //LIBS
@@ -44,7 +44,8 @@ class Claims extends Component {
       isModalOpen: false,
       modalType: 'processing',
       modalContent: {},
-      isVerified: null
+      isVerified: null,
+      newClaimMessage: {}
     }
     this.openClaimConfirmation = debounce(this.openClaimConfirmation,duration,true)
     this.sendClaim = debounce(this.sendClaim,duration,true)
@@ -52,27 +53,22 @@ class Claims extends Component {
     this.closeNavModal = debounce(this.closeNavModal,duration,true)
   }
 
-  componentWillReceiveProps(newProps){
-    if (
-      newProps.getShoppersDistributor
-       && newProps.getShoppersDistributor.Shopper
-       && newProps.getShoppersDistributor.Shopper.distributorsx
-    ) {
-      let { shopperId,sadvrId } = this.props
-      if (newProps.getShoppersDistributor.Shopper.distributorsx.length > 0) {
-        let { status,id } = newProps.getShoppersDistributor.Shopper.distributorsx[0]
-        // DIST EXISTS
-        if (status !== false) {
-          // DIST IS VERIFIED
-          this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,id,true)
-        } else {
-          // DIST IS NOT VERIFIED
-          this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,sadvrId,false)
-        }
+  componentDidMount(){
+    let { shopperId,sadvrId,shoppersDistributor } = this.props
+    console.log('shoppersDistributor on Claims componentDidMount',shoppersDistributor)
+    if (shoppersDistributor.hasOwnProperty('id') && shoppersDistributor.hasOwnProperty('status')) {
+      let { status,id } = shoppersDistributor
+      // DIST EXISTS
+      if (status) {
+        // DIST IS VERIFIED
+        this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,id,true)
       } else {
-        // DIST DOES NOT EXIST
+        // DIST IS NOT VERIFIED
         this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,sadvrId,false)
       }
+    } else {
+      // DIST DOES NOT EXIST
+      this.checkIfShopperHasDmChatWithDistributorInDb(shopperId,sadvrId,false)
     }
   }
 
@@ -152,6 +148,8 @@ class Claims extends Component {
         audience: 'ANY'
       },
       bizName,fbkFirstName,fbkLastName
+    },()=>{
+      console.log('this.state after componentDidMount',this.state)
     })
   }
 
@@ -311,6 +309,7 @@ class Claims extends Component {
 Claims.propTypes = {
   userId: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
+  shoppersDistributor: PropTypes.object.isRequired,
   gcToken: PropTypes.string.isRequired,
   sadvrId: PropTypes.string.isRequired,
   width: PropTypes.number.isRequired,
@@ -320,6 +319,7 @@ Claims.propTypes = {
 const mapStateToProps = state => ({
   userId: state.user.id,
   shopperId: state.shopper.id,
+  shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {},
   gcToken: state.tokens.gc,
   sadvrId: state.settings.sadvrId,
   width: state.settings.screenWidth,
@@ -327,15 +327,6 @@ const mapStateToProps = state => ({
 })
 
 const ClaimsWithData = compose(
-  graphql(GetShoppersDistributor,{
-    name: 'getShoppersDistributor',
-    options: props => ({
-      variables: {
-        shopperId: props.shopperId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(CreateChatMessage,{
     name: 'createChatMessage'
   }),

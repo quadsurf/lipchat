@@ -1,12 +1,10 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
 
 // LIBS
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 // import { withNavigation } from 'react-navigation'
@@ -18,12 +16,9 @@ import { SubToUserType,SubToDistributorsForShopper } from '../../api/db/pubsub'
 // STORE
 import { updateUser,updateShoppersDistributor } from '../../store/actions'
 
-// LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../common/fonts'
-
 // COMPS
 import Likes from './Likes'
+import Loading from '../common/Loading'
 
 // CONSTS
 const duration = 3000
@@ -81,6 +76,8 @@ class LikesPreloader extends Component {
   }
 
   updateUser(nextType){
+    this.props.updateUser({type:nextType})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
       setTimeout(()=>{
@@ -108,6 +105,8 @@ class LikesPreloader extends Component {
   }
 
   modifyShoppersDistributor(dist){
+    this.props.updateShoppersDistributor(dist)
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateShoppersDistributor(dist)
       setTimeout(()=>{
@@ -118,19 +117,7 @@ class LikesPreloader extends Component {
 
   render(){
     if (this.state.reloading) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret
-            text="reloading favorites..."
-            color={Colors.blue}
-            size={Texts.larger.fontSize}
-            style={{marginBottom:30}}/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading text="reloading favorites..."/>
     } else {
       return <Likes/>
     }

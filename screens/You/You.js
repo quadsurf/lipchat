@@ -982,7 +982,10 @@ class You extends Component {
               userId: id,
               type: userType
             }
-          }).then( res => {
+          }).then( () => {
+            setTimeout(()=>{
+              this.setState({ isModalOpen:false })
+            },750)
             // updated on app state via Preloader subscription
           }).catch( e => {
             this.openError(`${errText}-2`)

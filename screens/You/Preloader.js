@@ -1,12 +1,10 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
 
 // LIBS
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -19,12 +17,9 @@ import { CreateGroupChatForDistributor,UpdateDistributorStatus } from '../../api
 // STORE
 import { updateUser,updateDistributor } from '../../store/actions'
 
-// LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../common/fonts'
-
 // COMPS
 import You from './You'
+import Loading from '../common/Loading'
 
 // CONSTS
 const duration = 3000
@@ -76,6 +71,12 @@ class YouPreloader extends Component {
   }
 
   updateUser(nextType){
+    this.props.updateUser({type:nextType})
+    if (nextType === 'DIST') {
+      this.checkIfDistributorHasGroupChatInDb()
+      this.shouldUpdateDistributorStatus()
+    }
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
       if (nextType === 'DIST') {
@@ -165,19 +166,7 @@ class YouPreloader extends Component {
 
   render(){
     if (this.state.reloading) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret
-            text="reloading profile..."
-            color={Colors.blue}
-            size={Texts.larger.fontSize}
-            style={{marginBottom:30}}/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading text="reloading profile..."/>
     } else {
       return <You/>
     }
@@ -188,6 +177,7 @@ class YouPreloader extends Component {
 YouPreloader.propTypes = {
   gcToken: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
+  userType: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
   distributorStatus: PropTypes.bool.isRequired
 }
@@ -195,6 +185,7 @@ YouPreloader.propTypes = {
 const mapStateToProps = state => ({
   gcToken: state.tokens.gc,
   userId: state.user.id,
+  userType: state.user.type,
   distributorId: state.distributor.id,
   distributorStatus: state.distributor.status
 })

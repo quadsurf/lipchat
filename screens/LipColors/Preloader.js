@@ -1,12 +1,10 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
 
 // LIBS
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -17,12 +15,9 @@ import { SubToUserType,SubToDistributorStatus } from '../../api/db/pubsub'
 // STORE
 import { updateUser,updateDistributor } from '../../store/actions'
 
-// LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../common/fonts'
-
 // COMPS
 import LipColors from './LipColors'
+import Loading from '../common/Loading'
 
 // CONSTS
 const duration = 3000
@@ -62,6 +57,8 @@ class LipColorsPreloader extends Component {
   }
 
   updateUser(nextType){
+    this.props.updateUser({type:nextType})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
       setTimeout(()=>{
@@ -91,6 +88,8 @@ class LipColorsPreloader extends Component {
   }
 
   updateDistributor(nextStatus){
+    this.props.updateDistributor({status:nextStatus})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateDistributor({status:nextStatus})
       setTimeout(()=>{
@@ -101,19 +100,7 @@ class LipColorsPreloader extends Component {
 
   render(){
     if (this.state.reloading) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret
-            text="reloading colors..."
-            color={Colors.blue}
-            size={Texts.larger.fontSize}
-            style={{marginBottom:30}}/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading text="reloading colors..."/>
     } else {
       return <LipColors/>
     }

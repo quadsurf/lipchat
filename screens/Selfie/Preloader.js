@@ -1,12 +1,10 @@
 
 
 import React, { Component } from 'react'
-import { View } from 'react-native'
 
 // LIBS
 import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
-import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
@@ -17,12 +15,9 @@ import { SubToUserType } from '../../api/db/pubsub'
 // STORE
 import { updateUser } from '../../store/actions'
 
-// LOCALS
-import { Views,Colors,Texts } from '../../css/Styles'
-import { FontPoiret } from '../common/fonts'
-
 // COMPS
 import Selfie from './Selfie'
+import Loading from '../common/Loading'
 
 // CONSTS
 const duration = 3000
@@ -60,6 +55,8 @@ class SelfiePreloader extends Component {
   }
 
   updateUser(nextType){
+    this.props.updateUser({type:nextType})
+    return // avoiding unmounted component state side effects from inconsistent unsubscribers
     this.setState({reloading:true},()=>{
       this.props.updateUser({type:nextType})
       setTimeout(()=>{
@@ -70,19 +67,7 @@ class SelfiePreloader extends Component {
 
   render(){
     if (this.state.reloading) {
-      return (
-        <View style={{...Views.middle,backgroundColor:Colors.bgColor}}>
-          <FontPoiret
-            text="reloading selfie..."
-            color={Colors.blue}
-            size={Texts.larger.fontSize}
-            style={{marginBottom:30}}/>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
+      return <Loading text="reloading selfie..."/>
     } else {
       return <Selfie/>
     }
