@@ -12,6 +12,14 @@ const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
 const newClaimText2 = 'What are next steps?'
 
+// CHAT LABELS
+const chatLabelDIST2SHPRS = 'Your Shoppers (GroupChat)'
+const dm = '(DM) '
+const gm = '(GroupChat) '
+const support = ' (DM/Support)'
+const news = ' Notifications'
+const fbkId = '100002537512909'
+
 const tips = `We live by this quote:
 
 "Continuous Improvement is better than Delayed Perfection".
@@ -378,6 +386,7 @@ Last Edited on 2018-02-10`
 export {
   tips,distIdExplainer,bizNameExplainer,bizUriExplainer,logoUriExplainer,bizUriWarning,logoUriWarning,
   AppName,terms,method,url,newClaimText,newClaimText2,version,
-  notApprovedToAddInventory,AccountTypeExplainer,distIsLiking
+  notApprovedToAddInventory,AccountTypeExplainer,distIsLiking,
+  chatLabelDIST2SHPRS,dm,gm,support,news,fbkId
 }
 // const fbkPhotoUri = 'https://graph.facebook.com/100000480052014/picture?width=300&height=300'

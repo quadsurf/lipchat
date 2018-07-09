@@ -8,15 +8,10 @@ import PropTypes from 'prop-types'
 
 // LOCALS
 import ChatCardLayout from './ChatCardLayout'
-import { AppName } from '../../config/Defaults'
+import { AppName,chatLabelDIST2SHPRS,dm,gm,support,news,fbkId } from '../../config/Defaults'
 
 // CONSTs
 const size = 90
-const dm = '(DM) '
-const gm = '(GroupChat) '
-const support = ' (DM/Support)'
-const news = ' Notifications'
-const fbkId = '100002537512909'
 
 const ChatCard = props => {
 
@@ -87,7 +82,7 @@ const ChatCard = props => {
           fbkLastName = chattingWith.userx.fbkLastName ? chattingWith.userx.fbkLastName : ''
           name = `${fbkFirstName} ${fbkLastName}`
           uri = logoUri && logoUri.length > 8 ? logoUri : `https://graph.facebook.com/${fbkUserId}/picture?width=${size}&height=${size}`
-          chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName}${news}` : 'Group Chat with Your Shoppers'
+          chatTitle = alias ? alias : chat.type === 'SADVR2ALL' ? `${AppName}${news}` : chatLabelDIST2SHPRS
           cellPhone = chattingWith.userx.cellPhone
         }
       }
