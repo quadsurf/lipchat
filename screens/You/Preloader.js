@@ -21,7 +21,7 @@ import { updateUser,updateDistributor } from '../../store/actions'
 import You from './You'
 import Loading from '../common/Loading'
 
-// CONSTS
+// CONSTs
 const duration = 3000
 const debugging = __DEV__ && false
 
@@ -94,12 +94,12 @@ class YouPreloader extends Component {
     let { initStatus } = this.state
     if (initStatus !== null) {
       if (distributorStatus !== initStatus) {
-        this.updateDistributorStatusInDb(distributorId,initStatus)
+        this.syncDistributorStatusWithInitStatusInDb(distributorId,initStatus)
       }
     }
   }
 
-  updateDistributorStatusInDb(distributorId,initStatus){
+  syncDistributorStatusWithInitStatusInDb(distributorId,initStatus){
     if (distributorId) {
       this.props.updateDistributorStatus({
         variables: {
@@ -168,7 +168,7 @@ class YouPreloader extends Component {
     if (this.state.reloading) {
       return <Loading text="reloading profile..."/>
     } else {
-      return <You/>
+      return <You updateUserTypeInApp={this.updateUser.bind(this)}/>
     }
   }
 

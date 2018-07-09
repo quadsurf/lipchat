@@ -982,11 +982,11 @@ class You extends Component {
               userId: id,
               type: userType
             }
-          }).then( () => {
+          }).then( ({ data:{ updateUser } }) => {
+            updateUser.hasOwnProperty('type') && this.props.updateUserTypeInApp(updateUser.type)
             setTimeout(()=>{
               this.setState({ isModalOpen:false })
-            },750)
-            // updated on app state via Preloader subscription
+            },2000)
           }).catch( e => {
             this.openError(`${errText}-2`)
           })
