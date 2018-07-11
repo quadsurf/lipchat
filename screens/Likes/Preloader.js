@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { compose,graphql } from 'react-apollo'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
-// import { withNavigation } from 'react-navigation'
+import { withNavigation } from 'react-navigation'
 
 // GQL
 import { GetUserType,GetAllDistributorsStatusForShopper } from '../../api/db/queries'
@@ -24,7 +24,7 @@ import Loading from '../common/Loading'
 const duration = 3000
 const debugging = __DEV__ && false
 
-// @withNavigation
+@withNavigation
 class LikesPreloader extends Component {
 
   state = {
@@ -37,22 +37,22 @@ class LikesPreloader extends Component {
     this.modifyShoppersDistributor = debounce(this.modifyShoppersDistributor,duration,true)
   }
 
-  // componentWillMount(){
-  //   this.didFocusSubscription = this.props.navigation.addListener(
-  //     'didFocus',
-  //     ({ action:{ key } }) => {
-  //       if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({tabIsFocused:true})
-  //       console.log('didFocus:',key)
-  //     }
-  //   )
-  //   this.didBlurSubscription = this.props.navigation.addListener(
-  //     'didBlur',
-  //     ({ action:{ key } }) => {
-  //       key !== 'StackRouterRoot' && this.setState({tabIsFocused:false})
-  //       console.log('didBlur:',key)
-  //     }
-  //   )
-  // }
+  componentWillMount(){
+    this.didFocusSubscription = this.props.navigation.addListener(
+      'didFocus',
+      ({ action:{ key } }) => {
+        if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({tabIsFocused:true})
+        console.log('didFocus on Likes:',key)
+      }
+    )
+    this.didBlurSubscription = this.props.navigation.addListener(
+      'didBlur',
+      ({ action:{ key } }) => {
+        key !== 'StackRouterRoot' && this.setState({tabIsFocused:false})
+        console.log('didBlur on Likes:',key)
+      }
+    )
+  }
 
   componentDidMount(){
     this.subToUserType()

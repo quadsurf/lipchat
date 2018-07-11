@@ -41,6 +41,8 @@ const getDimensions = () => {
   return dimensions
 }
 
+const { width } = Dimensions.get("window")
+
 const err = (title='',problem='',message='',br='') => {
   Alert.alert(
     `This ${title} Screen is Misbehaving!`,
@@ -84,6 +86,16 @@ class Modals extends Component {
     super(props)
   }
 
+  state = {
+    isVisible: this.props.isOpen
+  }
+
+  componentWillReceiveProps(newProps){
+    if (newProps.hasOwnProperty('isOpen') && newProps.isOpen !== this.state.isVisible) {
+      this.setState({ isVisible:newProps.isOpen })
+    }
+  }
+
   renderModal(){
     let type = this.props.type ? this.props.type : null
     if (type === 'sending') {
@@ -105,7 +117,7 @@ class Modals extends Component {
           onPress={this.props.close}
           style={{
             ...Views.middleNoFlex,
-            width:.85*getDimensions().width,
+            width:.85*width,
             backgroundColor: Colors.purple,
             borderRadius: 15,
             padding: 20,
@@ -142,7 +154,7 @@ class Modals extends Component {
           onPress={this.props.close}
           style={{
             ...Views.middleNoFlex,
-            width:.85*getDimensions().width,
+            width:.85*width,
             backgroundColor: Colors.purple,
             borderRadius: 15,
             padding: 20,
@@ -179,7 +191,7 @@ class Modals extends Component {
           onPress={this.props.close}
           style={{
             ...Views.middleNoFlex,
-            width:.85*getDimensions().width,
+            width:.85*width,
             backgroundColor: Colors.purple,
             borderRadius: 15,
             padding: 20,
@@ -216,7 +228,7 @@ class Modals extends Component {
           onPress={this.props.close}
           style={{
             ...Views.middleNoFlex,
-            width:.85*getDimensions().width,
+            width:.85*width,
             backgroundColor: Colors.purple,
             borderRadius: 15,
             padding: 20,
@@ -244,8 +256,8 @@ class Modals extends Component {
       )
     } else if (type === 'confirm') {
       let { title,description,onConfirmPress } = this.props.content
-      let modalWidth = getDimensions().width*.85
-      let modalHeight = getDimensions().height*.75
+      let modalWidth = width*.85
+      // let modalHeight = getDimensions().height*.75
       let button = {
         width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.blue,marginTop:18,marginBottom:10
       }
@@ -293,12 +305,18 @@ class Modals extends Component {
     }
   }
 
+  closeModal = () => {
+    this.setState({ isVisible:false })
+  }
+
   render(){
     return (
       <Modal
-        isVisible={this.props.isOpen}
+        isVisible={this.state.isVisible}
         backdropColor={Colors.blue}
-        backdropOpacity={0.7}>
+        backdropOpacity={0.7}
+        onBackdropPress={this.closeModal}
+        useNativeDriver={true}>
           <View style={{...Views.middle}}>
             {this.renderModal()}
           </View>
