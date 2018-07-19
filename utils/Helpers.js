@@ -316,7 +316,8 @@ class Modals extends Component {
         backdropColor={Colors.blue}
         backdropOpacity={0.7}
         onBackdropPress={this.closeModal}
-        useNativeDriver={true}>
+        onBackButtonPress={this.closeModal}
+        useNativeDriver>
           <View style={{...Views.middle}}>
             {this.renderModal()}
           </View>
