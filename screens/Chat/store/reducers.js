@@ -4,6 +4,7 @@ import {
   SET_CHATS,
   MARK_UNREAD,
   MARK_READ,
+  REMOVE_CHAT,
   INCREMENT_UNREAD_COUNT,
   DECREMENT_UNREAD_COUNT
 } from './types'
@@ -38,17 +39,22 @@ export const chatsReducer = (state = initialChats,actions) => {
       return newChats
     case MARK_UNREAD:
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
+      console.log('chatFromState count',chatFromState.unreadCount)
       let unreadChat = {
         ...actions.chat,
         unreadStatus: chatFromState.unreadStatus,
         unreadCount: chatFromState.unreadCount
       }
+      console.log('unreadChat status before',unreadChat.unreadStatus)
+      console.log('unnreadChat count before',unreadChat.unreadCount)
       if (!actions.isSelf) {
           if (actions.isFocused) {
             unreadChat.unreadStatus = true
             unreadChat.unreadCount = ++unreadChat.unreadCount
           }
       }
+      console.log('unreadChat status after',unreadChat.unreadStatus)
+      console.log('unnreadChat count after',unreadChat.unreadCount)
       chats = [...state]
       i = chats.findIndex( chat => chat.id === actions.chat.id )
       if (i !== -1) {
@@ -69,6 +75,13 @@ export const chatsReducer = (state = initialChats,actions) => {
       } else {
         chats.unshift(readChat)
       }
+      return chats
+    case REMOVE_CHAT:
+      chats = [...state.chats]
+      console.log('chat length before removal',chats.length)
+      i = chats.findIndex( chat => chat.id === actions.chatId )
+      i > -1 && chats.splice(i,1)
+      console.log('chat length after removal',chats.length)
       return chats
     default: return state
   }

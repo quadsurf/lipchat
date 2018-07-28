@@ -8,33 +8,17 @@ import {
 } from 'react-native'
 
 // LIBS
-import { compose,graphql } from 'react-apollo'
-import { withNavigation } from 'react-navigation'
-import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // STORE
 import { connect } from 'react-redux'
-import {
-  setChats,
-  handleNewChat
-} from './store/actions'
-
-// GQL
-import {
-  GetChatsForShopper,GetChatsForDistributor
-} from '../../api/db/queries'
-import {
-  SubToShoppersChats,SubToDistributorsChats
-} from '../../api/db/pubsub'
 
 // LOCALS
 import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
-import { Modals,getDimensions } from '../../utils/Helpers'
+import { Modals } from '../../utils/Helpers'
 
 // CONSTs
-const duration = 1000
 const debugging = __DEV__ && false
 
 // COMPONENTS
@@ -47,171 +31,7 @@ class Chat extends Component {
     this.state = {
       isModalOpen: false,
       modalType: 'processing',
-      modalContent: {},
-      isFocused: true
-    }
-    this.setChats = debounce(this.setChats,duration,true)
-    this.updateChatsOnState = debounce(this.updateChatsOnState,duration,true)
-  }
-
-  componentWillReceiveProps(newProps){
-    if (
-      newProps.getChatsForDistributor &&
-      newProps.getChatsForDistributor.allChats &&
-      newProps.getChatsForDistributor.allChats !== this.props.getChatsForDistributor.allChats
-    ) {
-      if (this.props.userType === 'DIST' || this.props.userType === 'SADVR') {
-        this.setChats(newProps.getChatsForDistributor.allChats)
-      }
-    }
-    if (
-      newProps.getChatsForShopper &&
-      newProps.getChatsForShopper.allChats &&
-      newProps.getChatsForShopper.allChats !== this.props.getChatsForShopper.allChats
-    ) {
-      if (this.props.userType === 'SHOPPER') {
-        this.setChats(newProps.getChatsForShopper.allChats)
-      }
-    }
-  }
-
-  setChats(chats){
-    this.props.setChats(chats)
-  }
-
-  updateChatsOnState(chats){
-    this.setState({chats})
-  }
-
-  componentWillMount(){
-    this.didFocusSubscription = this.props.navigation.addListener(
-      'didFocus',
-      ({ action:{ key } }) => {
-        if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({isFocused:true})
-        //debugging &&
-        console.log('didFocus on Chat:',key)
-      }
-    )
-    this.didBlurSubscription = this.props.navigation.addListener(
-      'didBlur',
-      ({ action:{ key } }) => {
-        key !== 'StackRouterRoot' && this.setState({isFocused:false})
-        //debugging &&
-        console.log('didBlur on Chat:',key)
-      }
-    )
-  }
-
-  componentDidMount(){
-    this.subToShoppersChats()
-    this.subToDistributorsChats()
-  }
-
-  componentWillUnmount(){
-    this.didFocusSubscription.remove()
-    this.didBlurSubscription.remove()
-  }
-
-  subToShoppersChats(){
-    let { shopperId } = this.props
-    if (shopperId) {
-      this.props.getChatsForShopper.subscribeToMore({
-        document: SubToShoppersChats,
-        variables: {ShopperId:{"id":shopperId}},
-        updateQuery: (previous, { subscriptionData }) => {
-          let { mutation,node,previousValues } = subscriptionData.data.Chat
-          switch(mutation){
-            case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
-            case 'UPDATED': this.updateChatOnChatList(previousValues,node)
-            case 'DELETED': this.removeChatFromChatList(previousValues,'subToShoppersChats')
-            default: return
-          }
-        },
-        onError: e => {
-          this.openError('retrieving new real-time chats')
-          debugging && console.log('subToShoppersChats error:',e.message)
-        }
-      })
-    }
-  }
-
-  addChatToChatList(chat,cameFrom){
-    let isSelf
-    if (chat.messages.length > 0 && chat.messages[0].writerx.id === this.props.userId) {
-      isSelf = true
-    } else {
-      isSelf = false
-    }
-    this.props.handleNewChat(chat,isSelf,this.state.isFocused)
-    debugging && console.log('addChatToChatList func called')
-    debugging && console.log('args',chat,isSelf,cameFrom)
-  }
-
-  updateChatOnChatList(prevChat,nextChat){
-    let subjectChat = this.props.chats.find( chat => chat.id === nextChat.id)
-    if (!subjectChat) {
-      this.addChatToChatList(nextChat,'updateChatOnChatList with no subjectChat')
-    } else {
-      if (prevChat && nextChat) {
-        if (nextChat.type === 'DIST2SHPRS') {
-          if (this.props.userType === 'SHOPPER') {
-            let shopperExists = subjectChat.shoppersx.find( shopper => shopper.id === this.props.shopperId)
-            if (!shopperExists) {
-              this.removeChatFromChatList(prevChat,'updateChatOnChatList')
-            } else {
-              this.addChatToChatList(nextChat,'updateChatOnChatList, shopper does exist')
-            }
-            debugging && console.log('shopperExists',shopperExists)
-          } else {
-            this.addChatToChatList(nextChat,'updateChatOnChatList, userType is not a shopper')
-          }
-        } else if (nextChat.type === 'SADVR2ALL') {
-            this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (SADVR2ALL)')
-        } else if (prevChat.updater !== nextChat.updater) {
-          this.addChatToChatList(nextChat,'updateChatOnChatList with subjectChat (updater is diff)')
-        }
-      } else {
-        debugging && console.log('no prevChat value')
-      }
-      debugging && console.log('subjectChat on updateChatOnChatList func',subjectChat.id)
-    }
-    debugging && console.log('updateChatOnChatList func called')
-  }
-
-  removeChatFromChatList(prevChat,cameFrom){
-    if (cameFrom === 'updateChatOnChatList' && prevChat && prevChat.id) {
-      let chats = [...this.props.chats]
-      let i = chats.findIndex( chat => {
-        return chat.id === prevChat.id
-      })
-      if (i !== -1) {
-        chats.splice(i,1)
-        this.setState({chats})
-      }
-    }
-    debugging && console.log('removeChatFromChatList func called',cameFrom)
-  }
-
-  subToDistributorsChats(){
-    let { shopperId,distributorId } = this.props
-    if (distributorId) {
-      this.props.getChatsForDistributor.subscribeToMore({
-        document: SubToDistributorsChats,
-        variables: {
-          DistributorId:{"id":distributorId},
-          shopperId:{"id":shopperId}
-        },
-        updateQuery: (previous, { subscriptionData }) => {
-          let { mutation,node,previousValues } = subscriptionData.data.Chat
-          if (mutation === 'UPDATED') {
-            this.updateChatOnChatList(previousValues,node)
-          }
-        },
-        onError: e => {
-          this.openError('retrieving new real-time chats')
-          debugging && console.log('subToDistributorsChats error:',e.message)
-        }
-      })
+      modalContent: {}
     }
   }
 
@@ -248,12 +68,12 @@ class Chat extends Component {
   }
 
   renderChats(){
-    let { chats,userType,distributorStatus,shopperId } = this.props
+    let { chats,userType,distributorStatus,shopperId,hasShoppersDistributor,screenHeight } = this.props
     if (chats.length > 0) {
       return chats.map( chat => {
         switch(userType){
           case 'SHOPPER':
-              if (!this.props.hasShoppersDistributor && chat.type === 'DMSH2DIST') {
+              if (!hasShoppersDistributor && chat.type === 'DMSH2DIST') {
                 return null
               } else {
                 return <ChatCard key={chat.id} chat={chat}/>
@@ -279,7 +99,7 @@ class Chat extends Component {
             text="loading chats..."
             color={Colors.blue}
             size={Texts.larger.fontSize} style={{
-              marginTop: (this.props.screenHeight/3)
+              marginTop: (screenHeight/3)
             }}/>
         </View>
       )
@@ -311,49 +131,20 @@ class Chat extends Component {
 
 Chat.propTypes = {
   chats: PropTypes.array.isRequired,
-  userId: PropTypes.string.isRequired,
-  shopperId: PropTypes.string.isRequired,
-  distributorId: PropTypes.string.isRequired,
-  distributorStatus: PropTypes.bool.isRequired,
   userType: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.bool.isRequired,
+  shopperId: PropTypes.string.isRequired,
   hasShoppersDistributor: PropTypes.bool.isRequired,
   screenHeight: PropTypes.number.isRequired
 }
 
 const mapStateToProps = state => ({
   chats: state.chats,
-  userId: state.user.id,
-  shopperId: state.shopper.id,
-  distributorId: state.distributor.id,
-  distributorStatus: state.distributor.status,
   userType: state.user.type,
+  distributorStatus: state.distributor.status,
+  shopperId: state.shopper.id,
   hasShoppersDistributor: state.shoppersDistributors.length > 0 ? true : false,
   screenHeight: state.settings.screenHeight
 })
 
-const ChatWithData = compose(
-  graphql(GetChatsForDistributor,{
-    name: 'getChatsForDistributor',
-    options: props => ({
-      variables: {
-        DistributorId: { id: props.distributorId },
-        shopperId: { id: props.shopperId }
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(GetChatsForShopper,{
-    name: 'getChatsForShopper',
-    options: props => ({
-      variables: { ShopperId: { id: props.shopperId } },
-      fetchPolicy: 'network-only'
-    })
-  })
-)(Chat)
-
-const ChatWithDataWithNavigation = withNavigation(ChatWithData)
-
-export default connect(mapStateToProps,{
-  setChats,
-  handleNewChat
-})(ChatWithDataWithNavigation)
+export default connect(mapStateToProps)(Chat)

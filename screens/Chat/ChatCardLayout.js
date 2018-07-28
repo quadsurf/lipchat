@@ -40,7 +40,8 @@ class ChatCardLayout extends Component {
   componentWillReceiveProps(newProps){
     if (newProps.thisChat) {
       this.setState({
-        unreadStatus: newProps.thisChat.unreadStatus ? newProps.thisChat.unreadStatus : false
+        unreadStatus: newProps.thisChat.hasOwnProperty('unreadStatus') ? newProps.thisChat.unreadStatus : false
+        // unreadStatus: newProps.thisChat.unreadStatus ? newProps.thisChat.unreadStatus : false
       })
     }
   }
@@ -175,9 +176,7 @@ ChatCardLayout.propTypes = {
 }
 
 const mapStateToProps = (state,props) => {
-  let i = state.chats.findIndex( chat => {
-    return chat.id === props.chatId
-  })
+  let i = state.chats.findIndex( chat => chat.id === props.chatId)
   return {
     thisChat: i > -1 ? state.chats[i] : {}
     // chats: state.chats

@@ -83,14 +83,14 @@ class Messages extends Component {
   }
 
   keyboardDidShow = (e) => {
-    this.flatListRef.scrollToOffset({animated:true,offset:-(e.endCoordinates.height+14)})
+    this.flatListRef.scrollToOffset({animated:true,offset:-(e.endCoordinates.height+24)})
     // this.setState({keyboardHeight:-(e.endCoordinates.height)},()=>{
     //   this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
     // })
   }
 
   keyboardDidHide = () => {
-    this.flatListRef.scrollToOffset({animated:true,offset:-14})
+    this.flatListRef.scrollToOffset({animated:true,offset:-24})
     // this.setState({keyboardHeight:0})
   }
 
@@ -98,6 +98,7 @@ class Messages extends Component {
     if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
       this.setState({messages:newProps.getMessagesForChat.allMessages})
     }
+    newProps.getMessagesForChat.error && console.log(newProps.getMessagesForChat.error)
   }
 
   componentDidMount(){
@@ -149,22 +150,20 @@ class Messages extends Component {
 
   insertNewMessageIntoMessages(newMessage){
     let messages = [...this.state.messages]
-    let i = messages.findIndex( message => {
-      return message.id === newMessage.id
-    })
-    messages[i] = {
-      ...messages[i],
-      ...newMessage
+    let i = messages.findIndex( message => message.id === newMessage.id)
+    if (i !== -1) {
+      messages[i] = {
+        ...messages[i],
+        ...newMessage
+      }
+      this.setState({messages})
     }
-    this.setState({messages})
   }
 
   removeMessageFromMessages(id){
     if (id) {
       let messages = [...this.state.messages]
-      let i = messages.findIndex( message => {
-        return message.id === id
-      })
+      let i = messages.findIndex( message => message.id === id)
       if (i !== -1) {
         messages.splice(i,1)
         this.state.isMounted && this.setState({messages})
@@ -237,7 +236,7 @@ class Messages extends Component {
           this.openError(`${errText}-(1)`)
         }
       }).catch( e => {
-        this.openError(errText)
+        this.openError(`${errText}-(2)`)
         debugging && console.log('(2)',e.message)
       })
     } else {
@@ -250,7 +249,7 @@ class Messages extends Component {
       newMessage: '',
       messageId: null,
       isModalOpen: false
-    },()=>console.log('message cleared'))
+    })
   }
 
   updateChatMessageInDb(){
@@ -416,10 +415,10 @@ class Messages extends Component {
     // onBlur={() => this.createChatMessageInDb()}
   }
 
-  scrollToOffset(){
-    this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
-    // onFocus={() => this.scrollToOffset()}
-  }
+  // scrollToOffset(){
+  //   this.flatListRef.scrollToOffset({animated:true,offset:this.state.keyboardHeight})
+  //   // onFocus={() => this.scrollToOffset()}
+  // }
 
   // ItemSeparatorComponent={this.renderSeparater}
   renderSeparater = () => (
