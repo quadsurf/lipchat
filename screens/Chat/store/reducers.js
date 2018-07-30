@@ -39,22 +39,19 @@ export const chatsReducer = (state = initialChats,actions) => {
       return newChats
     case MARK_UNREAD:
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
-      console.log('chatFromState count',chatFromState.unreadCount)
+      // console.log('chatFromState count',chatFromState.unreadCount)
       let unreadChat = {
         ...actions.chat,
         unreadStatus: chatFromState.unreadStatus,
         unreadCount: chatFromState.unreadCount
       }
-      console.log('unreadChat status before',unreadChat.unreadStatus)
-      console.log('unnreadChat count before',unreadChat.unreadCount)
       if (!actions.isSelf) {
           if (actions.isFocused) {
             unreadChat.unreadStatus = true
             unreadChat.unreadCount = ++unreadChat.unreadCount
           }
       }
-      console.log('unreadChat status after',unreadChat.unreadStatus)
-      console.log('unnreadChat count after',unreadChat.unreadCount)
+      // console.log('unnreadChat count after',unreadChat.unreadCount)
       chats = [...state]
       i = chats.findIndex( chat => chat.id === actions.chat.id )
       if (i !== -1) {

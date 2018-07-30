@@ -16,6 +16,7 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 // import { withNavigation } from 'react-navigation'
+import { debounce } from 'lodash'
 import { Entypo,SimpleLineIcons } from '@expo/vector-icons'
 import { DotsLoader } from 'react-native-indicator'
 import call from 'react-native-phone-call'
@@ -55,7 +56,6 @@ class Messages extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    userId: this.props.navigation.state.params.userId,
     chatId: this.props.navigation.state.params.chatId,
     messages: null,
     newMessage: '',
@@ -68,6 +68,11 @@ class Messages extends Component {
     PENDINGS: false,
     isMounted: false,
     isRefreshing: false
+  }
+
+  constructor(props){
+    super(props)
+    this.insertNewMessageIntoMessages = debounce(this.insertNewMessageIntoMessages,1000,true)
   }
 
   componentWillMount(){
@@ -98,7 +103,8 @@ class Messages extends Component {
     if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
       this.setState({messages:newProps.getMessagesForChat.allMessages})
     }
-    newProps.getMessagesForChat.error && console.log(newProps.getMessagesForChat.error)
+    newProps.getMessagesForChat.error && this.prepForUnmount()
+    // this.openError(`retrieving messages (${newProps.getMessagesForChat.error})`)
   }
 
   componentDidMount(){
@@ -125,18 +131,24 @@ class Messages extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
+          let newMessage = subscriptionData.data.Message.node
+          let isSelf = newMessage.writerx.id === this.props.userId
+          console.log('isSelf',isSelf)
           let { isMounted } = this.state
           if (mutation === 'CREATED' && isMounted) {
+            console.log('created mutation with',newMessage.id)
             this.setState({
               messages: [
-                subscriptionData.data.Message.node,
+                newMessage,
                 ...this.state.messages
               ]
+            },()=>{
+              console.log('this.state.messages after created mutation',this.state.messages)
             })
             debugging && console.log('isMounted for CREATED mutation:',isMounted)
           }
           if (mutation === 'UPDATED' && isMounted) {
-            this.insertNewMessageIntoMessages(subscriptionData.data.Message.node)
+            !isSelf && this.insertNewMessageIntoMessages(newMessage)
             debugging && console.log('isMounted for UPDATED mutation:',isMounted)
           }
           if (mutation === 'DELETED' && isMounted) {
@@ -149,14 +161,19 @@ class Messages extends Component {
   }
 
   insertNewMessageIntoMessages(newMessage){
+    console.log('insertNewMessageIntoMessages func called with',newMessage.id)
     let messages = [...this.state.messages]
+    console.log('messages before',messages[0].text)
     let i = messages.findIndex( message => message.id === newMessage.id)
+    console.log('index',i)
     if (i !== -1) {
       messages[i] = {
         ...messages[i],
         ...newMessage
       }
-      this.setState({messages})
+      this.setState({messages},()=>{
+        console.log('messages after',this.state.messages[0].text)
+      })
     }
   }
 
@@ -221,13 +238,15 @@ class Messages extends Component {
 
   createChatMessageInDb(){
     let errText = 'creating your chat message'
-    if (this.state.chatId && this.state.userId) {
+    let { chatId,audience } = this.state
+    let { userId } = this.props
+    if (chatId && userId) {
       this.props.createChatMessage({
         variables: {
-          ChatId: this.state.chatId,
-          writer: this.state.userId,
+          ChatId: chatId,
+          writer: userId,
           text: 'isTypingNow',
-          audience: this.state.audience
+          audience: audience
         }
       }).then( ({ data: { createMessage={} } }) => {
         if (createMessage.hasOwnProperty('id')) {
@@ -453,6 +472,7 @@ class Messages extends Component {
                 isRefreshing: false
               },()=>{
                 this.flatListRef.scrollToEnd()
+                this.state.messages.forEach( msg => console.log(msg.id))
               })
             } else {
               this.setState({isRefreshing:false})
@@ -475,7 +495,7 @@ class Messages extends Component {
             <Message
               text={item.text}
               sent={item.hasOwnProperty('sent') ? item.sent : null}
-              userId={this.state.userId}
+              userId={this.props.userId}
               writer={item.writerx}
               updated={item.updatedAt}
               level={this.props.navigation.state.params.level}
@@ -605,11 +625,13 @@ class Messages extends Component {
 // <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
 
 Messages.propTypes = {
+  userId: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired,
   shoppersDistributor: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
+  userId: state.user.id,
   userType: state.user.type,
   shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {}
 })

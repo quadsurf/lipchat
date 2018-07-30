@@ -39,11 +39,17 @@ export const decrementUnreadCount = () => ({
   type: DECREMENT_UNREAD_COUNT
 })
 
+export const setMessages = messages => ({
+  type: SET_MESSAGES,
+  messages
+})
+
+export const updateMessage = messageId => ({
+  type: UPDATE_MESSAGE
+})
+
 export const handleNewChat = (chat,isSelf,isFocused) => {
   return (dispatch) => {
-    console.log('handleNewChat chat args')
-    console.log('isSelf',isSelf)
-    console.log('isFocused',isFocused)
     dispatch(markUnread(chat,isSelf,isFocused))
     // if (chat.hasOwnProperty('unreadStatus')) {
     //   dispatch(markUnread(chat,isSelf,isFocused))
