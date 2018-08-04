@@ -5,6 +5,11 @@ import {
   MARK_UNREAD,
   MARK_READ,
   REMOVE_CHAT,
+  SET_MESSAGES,
+  CREATE_MESSAGE,
+  UPDATE_MESSAGE,
+  DELETE_MESSAGE,
+  CLEAR_MESSAGES,
   INCREMENT_UNREAD_COUNT,
   DECREMENT_UNREAD_COUNT
 } from './types'
@@ -96,6 +101,53 @@ export const unreadCountReducer = (state = initialUnreadCount,actions) => {
       newState = state-1
       console.log('decrementUnreadCount called',state,newState)
       return newState
+    default: return state
+  }
+}
+
+const initialMessages = []
+export const messagesReducer = (state=initialMessages,actions) => {
+  let messages,message,i
+  switch(actions.type){
+    case SET_MESSAGES:
+      messages = [
+        ...state,
+        ...actions.messages
+      ]
+      console.log('set messages',messages[0].id)
+      return messages
+    case CREATE_MESSAGE:
+      messages = [
+        actions.message,
+        ...state
+      ]
+      console.log('message created',messages[0].id)
+      return messages
+    case UPDATE_MESSAGE:
+      messages = [...state]
+      message = actions.message
+      i = messages.findIndex( msg => msg.id === message.id )
+      if (i !== -1) {
+        messages[i] = {
+          ...messages[i],
+          ...message
+        }
+      }
+      console.log('message updated',messages[i].id)
+      return messages
+    case DELETE_MESSAGE:
+      messages = [...state]
+      messageId = actions.messageId
+      i = messages.findIndex( message => message.id === messageId )
+      if (i !== -1) {
+        messages.splice(i,1)
+      }
+      console.log('message deleted',messageId)
+      return messages
+    case CLEAR_MESSAGES:
+      messages = []
+      console.log('messages cleared')
+      return messages
     default: return state
   }
 }

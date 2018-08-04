@@ -44,10 +44,16 @@ const textInputStyle = {
 }
 const chatCount = 5
 const debugging = __DEV__ && false
+const duration = 750
 
 // COMPONENTS
 import Message from './Message'
 import Icon from '../common/Icon'
+
+// STORE
+import {
+  setMessages,createMessage,updateMessage,deleteMessage,clearMessages
+} from './store/actions'
 
 // @withNavigation
 class Messages extends Component {
@@ -58,7 +64,7 @@ class Messages extends Component {
     modalContent: {},
     chatId: this.props.navigation.state.params.chatId,
     messages: null,
-    newMessage: '',
+    messageText: '',
     messageId: null,
     keyboardHeight: 0,
     height: 40,
@@ -72,7 +78,10 @@ class Messages extends Component {
 
   constructor(props){
     super(props)
-    this.insertNewMessageIntoMessages = debounce(this.insertNewMessageIntoMessages,1000,true)
+    this.setMessages = debounce(this.setMessages,duration,true)
+    this.createMessage = debounce(this.createMessage,duration,true)
+    this.updateMessage = debounce(this.updateMessage,duration,true)
+    this.deleteMessage = debounce(this.deleteMessage,duration,true)
   }
 
   componentWillMount(){
@@ -100,11 +109,19 @@ class Messages extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
-      this.setState({messages:newProps.getMessagesForChat.allMessages})
-    }
+    newProps.getMessagesForChat.allMessages !== this.props.messages && this.setMessages(
+      newProps.getMessagesForChat.allMessages
+    )
     newProps.getMessagesForChat.error && this.prepForUnmount()
+    return
+    // if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
+    //   this.setState({messages:newProps.getMessagesForChat.allMessages})
+    // }
     // this.openError(`retrieving messages (${newProps.getMessagesForChat.error})`)
+  }
+
+  setMessages(messages){
+    this.props.setMessages(messages)
   }
 
   componentDidMount(){
@@ -136,23 +153,23 @@ class Messages extends Component {
           console.log('isSelf',isSelf)
           let { isMounted } = this.state
           if (mutation === 'CREATED' && isMounted) {
-            console.log('created mutation with',newMessage.id)
-            this.setState({
-              messages: [
-                newMessage,
-                ...this.state.messages
-              ]
-            },()=>{
-              console.log('this.state.messages after created mutation',this.state.messages)
-            })
+            newMessage.hasOwnProperty('id') && this.createMessage(newMessage)
             debugging && console.log('isMounted for CREATED mutation:',isMounted)
+            return
+            // this.setState({
+            //   messages: [
+            //     newMessage,
+            //     ...this.state.messages
+            //   ]
+            // })
           }
           if (mutation === 'UPDATED' && isMounted) {
-            !isSelf && this.insertNewMessageIntoMessages(newMessage)
+            !isSelf && newMessage.hasOwnProperty('id') && this.updateMessage(newMessage)
             debugging && console.log('isMounted for UPDATED mutation:',isMounted)
           }
           if (mutation === 'DELETED' && isMounted) {
-            this.removeMessageFromMessages(subscriptionData.data.Message.previousValues.id)
+            let prevMessage = subscriptionData.data.Message.previousValues
+            prevMessage.hasOwnProperty('id') && this.deleteMessage(prevMessage.id)
             debugging && console.log('isMounted for DELETED mutation:',isMounted)
           }
         }
@@ -160,24 +177,27 @@ class Messages extends Component {
     }
   }
 
-  insertNewMessageIntoMessages(newMessage){
-    console.log('insertNewMessageIntoMessages func called with',newMessage.id)
-    let messages = [...this.state.messages]
-    console.log('messages before',messages[0].text)
-    let i = messages.findIndex( message => message.id === newMessage.id)
-    console.log('index',i)
-    if (i !== -1) {
-      messages[i] = {
-        ...messages[i],
-        ...newMessage
-      }
-      this.setState({messages},()=>{
-        console.log('messages after',this.state.messages[0].text)
-      })
-    }
+  createMessage(message){
+    this.props.createMessage(message)
   }
 
-  removeMessageFromMessages(id){
+  updateMessage(message){
+    this.props.updateMessage(message)
+    return
+    // let messages = [...this.state.messages]
+    // let i = messages.findIndex( message => message.id === newMessage.id)
+    // if (i !== -1) {
+    //   messages[i] = {
+    //     ...messages[i],
+    //     ...newMessage
+    //   }
+    //   this.setState({messages})
+    // }
+  }
+
+  deleteMessage(id){
+    this.props.deleteMessage(id)
+    return
     if (id) {
       let messages = [...this.state.messages]
       let i = messages.findIndex( message => message.id === id)
@@ -220,18 +240,18 @@ class Messages extends Component {
     })
   }
 
-  isTyping(newMessage){
+  isTyping(messageText){
     this.setState((prevState, props) => {
-      if (prevState.newMessage !== newMessage) {
-        if (newMessage.length > 0 && prevState.newMessage.length === 0) {
+      if (prevState.messageText !== messageText) {
+        if (messageText.length > 0 && prevState.messageText.length === 0) {
           this.createChatMessageInDb()
-          return {newMessage}
+          return {messageText}
         }
-        if (newMessage.length === 0 && prevState.newMessage.length > 0) {
+        if (messageText.length === 0 && prevState.messageText.length > 0) {
           this.deleteChatMessageInDb()
-          return {newMessage}
+          return {messageText}
         }
-        return {newMessage}
+        return {messageText}
       }
     })
   }
@@ -265,7 +285,7 @@ class Messages extends Component {
 
   clearMessage(){
     this.state.isMounted && this.setState({
-      newMessage: '',
+      messageText: '',
       messageId: null,
       isModalOpen: false
     })
@@ -273,31 +293,31 @@ class Messages extends Component {
 
   updateChatMessageInDb(){
     let errText = 'sending off your chat message'
-    let { messageId,newMessage='' } = this.state
-    if (messageId && newMessage.length > 0) {
-      this.insertNewMessageIntoMessages({id:messageId,text:newMessage})
+    let { messageId,messageText='' } = this.state
+    if (messageId && messageText.length > 0) {
+      this.updateMessage({id:messageId,text:messageText})
       if (deviceSize === 'tooSmall') {
         this.showModal('processing')
       }
       this.props.updateChatMessage({
         variables: {
           MessageId: messageId,
-          text: newMessage
+          text: messageText
         }
       }).then(({ data: { updateMessage={} } })=>{
         if (updateMessage.hasOwnProperty('text')) {
           this.triggerEventOnChatInDb()
-          if (updateMessage.text === newMessage) {
+          if (updateMessage.text === messageText) {
             this.clearMessage()
           } else {
             this.openError(`${errText}-(1)`)
-            this.insertNewMessageIntoMessages({id:messageId,sent:false})
+            this.updateMessage({id:messageId,sent:false})
             this.clearMessage()
           }
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        this.insertNewMessageIntoMessages({id:messageId,sent:false})
+        this.updateMessage({id:messageId,sent:false})
         this.clearMessage()
         debugging && console.log('(2)',e.message)
       })
@@ -315,10 +335,11 @@ class Messages extends Component {
           MessageId: messageId
         }
       }).then(({ data:{ deleteMessage={} } })=>{
-        if (!deleteMessage.hasOwnProperty('id')) {
+        if (deleteMessage.hasOwnProperty('id')) {
+          this.props.deleteMessage(deleteMessage.id)
+        } else {
           this.openError(`${errText}-(1)`)
           this.clearMessage()
-          // this.setState({messageId:null})
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
@@ -402,11 +423,11 @@ class Messages extends Component {
             {this.renderAudienceButton('un dists','PENDINGS')}
           </View> : null
         }
-        <TextInput value={this.state.newMessage}
+        <TextInput value={this.state.messageText}
           placeholder=" send a chat"
           placeholderTextColor={Colors.transparentWhite}
           style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
-          onChangeText={(newMessage) => this.isTyping(newMessage)}
+          onChangeText={(messageText) => this.isTyping(messageText)}
           keyboardType="default"
           onSubmitEditing={() => this.updateChatMessageInDb()}
           blurOnSubmit={true}
@@ -464,16 +485,20 @@ class Messages extends Component {
               fetchMoreResult.allMessages &&
               fetchMoreResult.allMessages.length > 0
             ) {
-              this.setState({
-                messages: [
-                  ...this.state.messages,
-                  ...fetchMoreResult.allMessages
-                ],
-                isRefreshing: false
-              },()=>{
+              this.props.setChats(fetchMoreResult.allMessages)
+              this.setState({ isRefreshing:false },()=>{
                 this.flatListRef.scrollToEnd()
-                this.state.messages.forEach( msg => console.log(msg.id))
               })
+              // this.setState({
+              //   messages: [
+              //     ...this.state.messages,
+              //     ...fetchMoreResult.allMessages
+              //   ],
+              //   isRefreshing: false
+              // },()=>{
+              //   this.flatListRef.scrollToEnd()
+              //   // this.state.messages.forEach( msg => console.log(msg.id))
+              // })
             } else {
               this.setState({isRefreshing:false})
             }
@@ -486,11 +511,12 @@ class Messages extends Component {
     // this.props.getMessagesForChat.networkStatus === 4
     // refreshing={this.state.isRefreshing}
     // onRefresh={this.fetchMoreChats}
-    if (this.state.messages) {
+    if (this.props.messages.length > 0) {
+      console.log('this.props.messages',this.props.messages[0].id)
       return (
         <FlatList
           inverted
-          data={this.state.messages}
+          data={this.props.messages}
           renderItem={({ item }) => (
             <Message
               text={item.text}
@@ -529,7 +555,10 @@ class Messages extends Component {
   }
 
   prepForUnmount(){
-    this.setState({isMounted:false},()=>this.props.navigation.goBack(null))
+    this.props.clearMessages()
+    setTimeout(()=>{
+      this.setState({isMounted:false},()=>this.props.navigation.goBack(null))
+    },500)
   }
 
   render(){
@@ -627,13 +656,20 @@ class Messages extends Component {
 Messages.propTypes = {
   userId: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired,
-  shoppersDistributor: PropTypes.object.isRequired
+  shoppersDistributor: PropTypes.object.isRequired,
+  messages: PropTypes.array.isRequired,
+  setMessages: PropTypes.func.isRequired,
+  createMessage: PropTypes.func.isRequired,
+  updateMessage: PropTypes.func.isRequired,
+  deleteMessage: PropTypes.func.isRequired,
+  clearMessages: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
   userId: state.user.id,
   userType: state.user.type,
-  shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {}
+  shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {},
+  messages: state.messages
 })
 
 const MessagesWithData = compose(
@@ -671,7 +707,9 @@ const MessagesWithData = compose(
   })
 )(Messages)
 
-export default connect(mapStateToProps)(MessagesWithData)
+export default connect(mapStateToProps,{
+  setMessages,createMessage,updateMessage,deleteMessage,clearMessages
+})(MessagesWithData)
 
 // DONE - add a loader for when it takes too long for mutation to resolve
 // DONE - list of chat convos should not show isTypingNow

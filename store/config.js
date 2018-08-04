@@ -13,7 +13,7 @@ import {
   clientReducer,
   appResetFunc
 } from './reducers'
-import { chatsReducer,unreadCountReducer } from '../screens/Chat/store/reducers'
+import { chatsReducer,unreadCountReducer,messagesReducer } from '../screens/Chat/store/reducers'
 
 const middleware = applyMiddleware(thunk)
 
@@ -31,7 +31,8 @@ export default () => {
       settings: settingsReducer,
       nav: navReducer,
       client: clientReducer,
-      resetApp: appResetFunc
+      resetApp: appResetFunc,
+      messages: messagesReducer
     }),
     middleware
   )

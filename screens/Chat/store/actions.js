@@ -5,6 +5,11 @@ import {
   MARK_UNREAD,
   MARK_READ,
   REMOVE_CHAT,
+  SET_MESSAGES,
+  CREATE_MESSAGE,
+  UPDATE_MESSAGE,
+  DELETE_MESSAGE,
+  CLEAR_MESSAGES,
   INCREMENT_UNREAD_COUNT,
   DECREMENT_UNREAD_COUNT
 } from './types'
@@ -44,8 +49,23 @@ export const setMessages = messages => ({
   messages
 })
 
-export const updateMessage = messageId => ({
-  type: UPDATE_MESSAGE
+export const createMessage = message => ({
+  type: CREATE_MESSAGE,
+  message
+})
+
+export const updateMessage = message => ({
+  type: UPDATE_MESSAGE,
+  message
+})
+
+export const deleteMessage = messageId => ({
+  type: DELETE_MESSAGE,
+  messageId
+})
+
+export const clearMessages = () => ({
+  type: CLEAR_MESSAGES
 })
 
 export const handleNewChat = (chat,isSelf,isFocused) => {
