@@ -110,18 +110,19 @@ export const messagesReducer = (state=initialMessages,actions) => {
   let messages,message,i
   switch(actions.type){
     case SET_MESSAGES:
-      messages = [
-        ...state,
-        ...actions.messages
-      ]
-      console.log('set messages',messages[0].id)
+      messages = [...state]
+      actions.messages.forEach(message=>{
+        i = messages.findIndex( msg => msg.id === message.id )
+        i === -1 && messages.push(message)
+      })
+      console.log('set messages reducer')
       return messages
     case CREATE_MESSAGE:
       messages = [
         actions.message,
         ...state
       ]
-      console.log('message created',messages[0].id)
+      console.log('create message reducer')
       return messages
     case UPDATE_MESSAGE:
       messages = [...state]
@@ -133,7 +134,7 @@ export const messagesReducer = (state=initialMessages,actions) => {
           ...message
         }
       }
-      console.log('message updated',messages[i].id)
+      console.log('update message reducer',messages[i].id)
       return messages
     case DELETE_MESSAGE:
       messages = [...state]
@@ -142,11 +143,11 @@ export const messagesReducer = (state=initialMessages,actions) => {
       if (i !== -1) {
         messages.splice(i,1)
       }
-      console.log('message deleted',messageId)
+      console.log('delete message reducer',messageId)
       return messages
     case CLEAR_MESSAGES:
       messages = []
-      console.log('messages cleared')
+      console.log('clear messages reducer')
       return messages
     default: return state
   }

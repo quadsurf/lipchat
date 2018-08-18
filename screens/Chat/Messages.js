@@ -43,7 +43,7 @@ const textInputStyle = {
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
 const chatCount = 5
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 const duration = 750
 
 // COMPONENTS
@@ -73,7 +73,8 @@ class Messages extends Component {
     APPROVED: false,
     PENDINGS: false,
     isMounted: false,
-    isRefreshing: false
+    isRefreshing: false,
+    setMessagesCount: 0
   }
 
   constructor(props){
@@ -109,11 +110,12 @@ class Messages extends Component {
   }
 
   componentWillReceiveProps(newProps){
-    newProps.getMessagesForChat.allMessages !== this.props.messages && this.setMessages(
+    newProps.getMessagesForChat.allMessages
+    && newProps.getMessagesForChat.allMessages.length !== this.props.messages.length
+    && this.setMessages(
       newProps.getMessagesForChat.allMessages
     )
     newProps.getMessagesForChat.error && this.prepForUnmount()
-    return
     // if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
     //   this.setState({messages:newProps.getMessagesForChat.allMessages})
     // }
@@ -121,7 +123,11 @@ class Messages extends Component {
   }
 
   setMessages(messages){
-    this.props.setMessages(messages)
+    let { setMessagesCount } = this.state
+    this.setState({ setMessagesCount: setMessagesCount+1 },()=>{
+      this.state.setMessagesCount < 2 && this.props.setMessages(messages)
+      console.log('setMessagesCount',this.state.setMessagesCount)
+    })
   }
 
   componentDidMount(){
@@ -323,6 +329,8 @@ class Messages extends Component {
       })
     } else {
       this.openError(`${errText}-(3)`)
+      debugging && console.log('messageId',messageId)
+      debugging && console.log('messageText',messageText)
     }
   }
 
@@ -477,7 +485,7 @@ class Messages extends Component {
     this.setState({isRefreshing:true},()=>{
       this.props.getMessagesForChat.fetchMore({
         variables: {
-          skipCount: this.state.messages.length
+          skipCount: this.props.messages.length
         },
         updateQuery: (prev,{fetchMoreResult}) => {
             if (
@@ -485,7 +493,7 @@ class Messages extends Component {
               fetchMoreResult.allMessages &&
               fetchMoreResult.allMessages.length > 0
             ) {
-              this.props.setChats(fetchMoreResult.allMessages)
+              this.props.setMessages(fetchMoreResult.allMessages)
               this.setState({ isRefreshing:false },()=>{
                 this.flatListRef.scrollToEnd()
               })
@@ -508,42 +516,27 @@ class Messages extends Component {
   }
 
   renderMessageList(){
-    // this.props.getMessagesForChat.networkStatus === 4
-    // refreshing={this.state.isRefreshing}
-    // onRefresh={this.fetchMoreChats}
-    if (this.props.messages.length > 0) {
-      console.log('this.props.messages',this.props.messages[0].id)
-      return (
-        <FlatList
-          inverted
-          data={this.props.messages}
-          renderItem={({ item }) => (
-            <Message
-              text={item.text}
-              sent={item.hasOwnProperty('sent') ? item.sent : null}
-              userId={this.props.userId}
-              writer={item.writerx}
-              updated={item.updatedAt}
-              level={this.props.navigation.state.params.level}
-              chatType={this.props.navigation.state.params.chatType}
-              audience={item.audience}/>
-          )}
-          ref={(ref) => { this.flatListRef = ref }}
-          keyExtractor={item => item.id}
-          ListHeaderComponent={this.renderInputBox}
-          ListEmptyComponent={this.renderNoChats}
-          style={{marginBottom:0}}/>
-      )
-    } else {
-      return (
-        <View style={{...Views.middle}}>
-          <DotsLoader
-            size={15}
-            color={Colors.blue}
-            frequency={5000}/>
-        </View>
-      )
-    }
+    return (
+      <FlatList
+        inverted
+        data={this.props.messages}
+        renderItem={({ item }) => (
+          <Message
+            text={item.text}
+            sent={item.hasOwnProperty('sent') ? item.sent : null}
+            userId={this.props.userId}
+            writer={item.writerx}
+            updated={item.updatedAt}
+            level={this.props.navigation.state.params.level}
+            chatType={this.props.navigation.state.params.chatType}
+            audience={item.audience}/>
+        )}
+        ref={(ref) => { this.flatListRef = ref }}
+        keyExtractor={item => item.id}
+        ListHeaderComponent={this.renderInputBox}
+        ListEmptyComponent={this.renderNoChats}
+        style={{marginBottom:0}}/>
+    )
   }
 // <KeyboardAwareScrollView>
   renderMainContent(){
