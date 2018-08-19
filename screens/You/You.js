@@ -175,8 +175,8 @@ class You extends Component {
             keyboardShouldPersistTaps="always"
             viewIsInsideTabBar={true}
             contentContainerStyle={{
-              height: 860,
-              alignItems:'center',width:screen.width,paddingTop:56,marginBottom:56,paddingHorizontal:screenPadding
+              height: 930,
+              alignItems:'center',width:screen.width,paddingTop:56,marginBottom:126,paddingHorizontal:screenPadding
             }}
             enableOnAndroid={true}>
               <Image
@@ -208,7 +208,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={50}
-        returnKeyType="done"/>
+        returnKeyType="done"
+        underlineColorAndroid="transparent"/>
     )
   }
 
@@ -347,7 +348,7 @@ class You extends Component {
               style={fieldName}>
                 <FontPoiret
                   text="tap.bio/LinkTr.ee"
-                  size={medium}
+                  size={small}
                   color={Colors.blue}/>
                 <Icon
                   family="Ionicons"
@@ -448,7 +449,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={12}
-        returnKeyType="search"/>
+        returnKeyType="search"
+        underlineColorAndroid="transparent"/>
     )
   }
 
@@ -471,7 +473,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={18}
-        returnKeyType="done"/>
+        returnKeyType="done"
+        underlineColorAndroid="transparent"/>
     )
   }
 
@@ -488,7 +491,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={50}
-        returnKeyType="done"/>
+        returnKeyType="done"
+        underlineColorAndroid="transparent"/>
     )
   }
 
@@ -566,7 +570,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={2083}
-        returnKeyType="done"/>
+        returnKeyType="done"
+        underlineColorAndroid="transparent"/>
     )
   }
 
@@ -651,7 +656,8 @@ class You extends Component {
         blurOnSubmit={true}
         autoCorrect={false}
         maxLength={2083}
-        returnKeyType="done"/>
+        returnKeyType="done"
+        underlineColorAndroid="transparent"/>
     )
   }
 

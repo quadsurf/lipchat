@@ -49,9 +49,10 @@ export const setMessages = messages => ({
   messages
 })
 
-export const createMessage = message => ({
+export const createMessage = (message,whichPhone) => ({
   type: CREATE_MESSAGE,
-  message
+  message,
+  whichPhone
 })
 
 export const updateMessage = message => ({

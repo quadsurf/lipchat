@@ -115,14 +115,13 @@ export const messagesReducer = (state=initialMessages,actions) => {
         i = messages.findIndex( msg => msg.id === message.id )
         i === -1 && messages.push(message)
       })
-      console.log('set messages reducer')
       return messages
     case CREATE_MESSAGE:
-      messages = [
-        actions.message,
-        ...state
-      ]
-      console.log('create message reducer')
+      messages = [...state]
+      message = actions.message
+      i = messages.findIndex( msg => msg.id === message.id )
+      i === -1 && messages.unshift(message)
+      console.log(`create msg AFTER reducer ${actions.whichPhone}`,messages[0].id)
       return messages
     case UPDATE_MESSAGE:
       messages = [...state]
@@ -134,7 +133,6 @@ export const messagesReducer = (state=initialMessages,actions) => {
           ...message
         }
       }
-      console.log('update message reducer',messages[i].id)
       return messages
     case DELETE_MESSAGE:
       messages = [...state]
@@ -147,7 +145,6 @@ export const messagesReducer = (state=initialMessages,actions) => {
       return messages
     case CLEAR_MESSAGES:
       messages = []
-      console.log('clear messages reducer')
       return messages
     default: return state
   }

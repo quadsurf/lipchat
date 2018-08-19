@@ -42,8 +42,8 @@ const textInputStyle = {
   fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
   width:screen.width,fontSize:Texts.medium.fontSize,height:32
 }
-const chatCount = 5
-const debugging = __DEV__ && true
+const chatCount = 10
+const debugging = __DEV__ && false
 const duration = 750
 
 // COMPONENTS
@@ -62,7 +62,6 @@ class Messages extends Component {
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
-    chatId: this.props.navigation.state.params.chatId,
     messages: null,
     messageText: '',
     messageId: null,
@@ -74,14 +73,15 @@ class Messages extends Component {
     PENDINGS: false,
     isMounted: false,
     isRefreshing: false,
-    setMessagesCount: 0
+    setMessagesCount: 0,
+    whichPhone: 'neither'
   }
 
   constructor(props){
     super(props)
     this.setMessages = debounce(this.setMessages,duration,true)
-    this.createMessage = debounce(this.createMessage,duration,true)
-    this.updateMessage = debounce(this.updateMessage,duration,true)
+    this.createMessage = debounce(this.createMessage,0,true)
+    this.updateMessage = debounce(this.updateMessage,0,true)
     this.deleteMessage = debounce(this.deleteMessage,duration,true)
   }
 
@@ -89,6 +89,13 @@ class Messages extends Component {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow)
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide)
     this.setState({isMounted:true})
+
+    if (this.props.userId === 'cjc7eqiegegll0181qwvaw3yb') {
+      this.setState({ whichPhone:'shpr' })
+    }
+    if (this.props.userId === 'cjc7e6hbkecj101408yeexye6') {
+      this.setState({ whichPhone:'dist' })
+    }
   }
 
   componentWillUnmount(){
@@ -116,17 +123,12 @@ class Messages extends Component {
       newProps.getMessagesForChat.allMessages
     )
     newProps.getMessagesForChat.error && this.prepForUnmount()
-    // if (newProps.getMessagesForChat.allMessages !== this.state.messages) {
-    //   this.setState({messages:newProps.getMessagesForChat.allMessages})
-    // }
-    // this.openError(`retrieving messages (${newProps.getMessagesForChat.error})`)
   }
 
   setMessages(messages){
     let { setMessagesCount } = this.state
     this.setState({ setMessagesCount: setMessagesCount+1 },()=>{
       this.state.setMessagesCount < 2 && this.props.setMessages(messages)
-      console.log('setMessagesCount',this.state.setMessagesCount)
     })
   }
 
@@ -137,13 +139,13 @@ class Messages extends Component {
   subToMessages(){
     if (
       this.props.navigation &&
-      this.state.chatId
+      this.props.chatId
     ) {
       const { aud1,aud2,aud3,aud4,aud5,aud6,aud7 } = this.props.navigation.state.params.audiences
       this.props.getMessagesForChat.subscribeToMore({
         document: SubToChatsMessages,
         variables: {
-          ChatId:{"id":this.state.chatId},
+          ChatId:{"id":this.props.chatId},
           aud1,
           aud2,
           aud3,
@@ -155,28 +157,23 @@ class Messages extends Component {
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
           let newMessage = subscriptionData.data.Message.node
-          let isSelf = newMessage.writerx.id === this.props.userId
-          console.log('isSelf',isSelf)
-          let { isMounted } = this.state
-          if (mutation === 'CREATED' && isMounted) {
-            newMessage.hasOwnProperty('id') && this.createMessage(newMessage)
-            debugging && console.log('isMounted for CREATED mutation:',isMounted)
-            return
-            // this.setState({
-            //   messages: [
-            //     newMessage,
-            //     ...this.state.messages
-            //   ]
-            // })
-          }
-          if (mutation === 'UPDATED' && isMounted) {
-            !isSelf && newMessage.hasOwnProperty('id') && this.updateMessage(newMessage)
-            debugging && console.log('isMounted for UPDATED mutation:',isMounted)
-          }
-          if (mutation === 'DELETED' && isMounted) {
-            let prevMessage = subscriptionData.data.Message.previousValues
-            prevMessage.hasOwnProperty('id') && this.deleteMessage(prevMessage.id)
-            debugging && console.log('isMounted for DELETED mutation:',isMounted)
+          // console.log(
+          //   `msgId ${newMessage ? newMessage.id : 'noId'} pubsub ${mutation} on ${this.state.whichPhone}'s phone`
+          // )
+          if (this.state.isMounted) {
+              if (newMessage && newMessage.hasOwnProperty('id')) {
+                let isSelf = newMessage.writerx.id === this.props.userId
+                if (mutation === 'CREATED') {
+                  !isSelf && this.createMessage(newMessage)
+                }
+                if (mutation === 'UPDATED') {
+                  !isSelf && this.updateMessage(newMessage)
+                }
+              }
+              if (mutation === 'DELETED') {
+                let prevMessage = subscriptionData.data.Message.previousValues
+                prevMessage.hasOwnProperty('id') && this.deleteMessage(prevMessage.id)
+              }
           }
         }
       })
@@ -184,34 +181,17 @@ class Messages extends Component {
   }
 
   createMessage(message){
-    this.props.createMessage(message)
+    console.log(`create msg BEFORE reducer (${this.state.whichPhone}'s phone)`,message.id)
+    this.props.createMessage(message,`(${this.state.whichPhone}'s phone)`)
   }
 
-  updateMessage(message){
+  updateMessage(message,cameFrom){
+    cameFrom && console.log('error during update: ',cameFrom)
     this.props.updateMessage(message)
-    return
-    // let messages = [...this.state.messages]
-    // let i = messages.findIndex( message => message.id === newMessage.id)
-    // if (i !== -1) {
-    //   messages[i] = {
-    //     ...messages[i],
-    //     ...newMessage
-    //   }
-    //   this.setState({messages})
-    // }
   }
 
   deleteMessage(id){
     this.props.deleteMessage(id)
-    return
-    if (id) {
-      let messages = [...this.state.messages]
-      let i = messages.findIndex( message => message.id === id)
-      if (i !== -1) {
-        messages.splice(i,1)
-        this.state.isMounted && this.setState({messages})
-      }
-    }
   }
 
   showModal(modalType,title,description,message=''){
@@ -264,9 +244,9 @@ class Messages extends Component {
 
   createChatMessageInDb(){
     let errText = 'creating your chat message'
-    let { chatId,audience } = this.state
-    let { userId } = this.props
-    if (chatId && userId) {
+    let { audience } = this.state
+    let { chatId,userId } = this.props
+    if (chatId && userId && audience) {
       this.props.createChatMessage({
         variables: {
           ChatId: chatId,
@@ -276,16 +256,21 @@ class Messages extends Component {
         }
       }).then( ({ data: { createMessage={} } }) => {
         if (createMessage.hasOwnProperty('id')) {
+          this.createMessage(createMessage)
+          this.triggerEventOnChatInDb()
           this.setState({messageId:createMessage.id})
         } else {
           this.openError(`${errText}-(1)`)
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        debugging && console.log('(2)',e.message)
+        console.log('(2)',e.message)
       })
     } else {
-      this.openError(`${errText}-(insufficient args)`)
+      this.openError(`${errText}-(insufficient inputs)`)
+      console.log('audience',audience)
+      console.log('chatId',chatId)
+      console.log('userId',userId)
     }
   }
 
@@ -317,20 +302,20 @@ class Messages extends Component {
             this.clearMessage()
           } else {
             this.openError(`${errText}-(1)`)
-            this.updateMessage({id:messageId,sent:false})
+            this.updateMessage({id:messageId,sent:false},'messageText on comp state did not match DB updated text-(1)')
             this.clearMessage()
           }
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        this.updateMessage({id:messageId,sent:false})
+        this.updateMessage({id:messageId,sent:false},'DB update error -(2)')
         this.clearMessage()
-        debugging && console.log('(2)',e.message)
+        console.log('(2)',e.message)
       })
     } else {
       this.openError(`${errText}-(3)`)
-      debugging && console.log('messageId',messageId)
-      debugging && console.log('messageText',messageText)
+      console.log('messageId',messageId)
+      console.log('messageText',messageText)
     }
   }
 
@@ -352,7 +337,7 @@ class Messages extends Component {
       }).catch( e => {
         this.openError(`${errText}-(2)`)
         this.clearMessage()
-        debugging && console.log('(2)',e.message)
+        console.log('(2)',e.message)
       })
     } else {
       // this.openError(errText)
@@ -362,11 +347,11 @@ class Messages extends Component {
   triggerEventOnChatInDb(){
     this.props.triggerEventOnChat({
       variables: {
-        chatId: this.state.chatId,
+        chatId: this.props.chatId,
         updater: JSON.stringify(new Date())
       }
     }).catch( e => {
-      debugging && console.log('(2)',e.message)
+      console.log('(2)',e.message)
     })
   }
 
@@ -497,16 +482,6 @@ class Messages extends Component {
               this.setState({ isRefreshing:false },()=>{
                 this.flatListRef.scrollToEnd()
               })
-              // this.setState({
-              //   messages: [
-              //     ...this.state.messages,
-              //     ...fetchMoreResult.allMessages
-              //   ],
-              //   isRefreshing: false
-              // },()=>{
-              //   this.flatListRef.scrollToEnd()
-              //   // this.state.messages.forEach( msg => console.log(msg.id))
-              // })
             } else {
               this.setState({isRefreshing:false})
             }
@@ -647,6 +622,7 @@ class Messages extends Component {
 // <EvilIcons name="refresh" size={70} style={{color:Colors.blue,marginRight:4}}/>
 
 Messages.propTypes = {
+  chatId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   userType: PropTypes.string.isRequired,
   shoppersDistributor: PropTypes.object.isRequired,
@@ -658,7 +634,8 @@ Messages.propTypes = {
   clearMessages: PropTypes.func.isRequired
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state,props) => ({
+  chatId: props.navigation.state.params.chatId,
   userId: state.user.id,
   userType: state.user.type,
   shoppersDistributor: state.shoppersDistributors.length > 0 ? state.shoppersDistributors[0] : {},

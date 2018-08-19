@@ -282,6 +282,19 @@ mutation(
   ){
     id
     text
+    audience
+    writerx {
+      id
+      fbkUserId
+      fbkFirstName
+      fbkLastName
+      type
+      distributorx {
+        id
+        bizName
+        logoUri
+      }
+    }
     updatedAt
   }
 }`
