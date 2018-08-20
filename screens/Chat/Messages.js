@@ -37,14 +37,19 @@ import { Modals,getDimensions } from '../../utils/Helpers'
 
 // CONSTs
 const screen = getDimensions()
-const deviceSize = screen.width > 400 ? 'bigEnuf' : 'tooSmall'
+// const deviceSize = screen.width > 400 ? 'bigEnuf' : 'tooSmall'
 const textInputStyle = {
-  fontFamily:'Poiret',backgroundColor:'transparent',color:Colors.blue,
-  width:screen.width,fontSize:Texts.medium.fontSize,height:32
+  fontFamily:'Poiret',
+  backgroundColor:'transparent',
+  color:Colors.blue,
+  width:screen.width,
+  fontSize:Texts.large.fontSize,
+  marginVertical:14,
+  paddingHorizontal:12
 }
 const chatCount = 10
 const debugging = __DEV__ && false
-const duration = 750
+const duration = 750//controls updateChatMessageInDb func TOO!!!
 
 // COMPONENTS
 import Message from './Message'
@@ -66,7 +71,7 @@ class Messages extends Component {
     messageText: '',
     messageId: null,
     keyboardHeight: 0,
-    height: 40,
+    height: 54,
     audience: 'ANY',
     SHOPPERS: false,
     APPROVED: false,
@@ -112,7 +117,7 @@ class Messages extends Component {
   }
 
   keyboardDidHide = () => {
-    this.flatListRef.scrollToOffset({animated:true,offset:-24})
+    // this.flatListRef.scrollToOffset({animated:true,offset:-24})
     // this.setState({keyboardHeight:0})
   }
 
@@ -256,9 +261,9 @@ class Messages extends Component {
         }
       }).then( ({ data: { createMessage={} } }) => {
         if (createMessage.hasOwnProperty('id')) {
+          this.setState({messageId:createMessage.id})
           this.createMessage(createMessage)
           this.triggerEventOnChatInDb()
-          this.setState({messageId:createMessage.id})
         } else {
           this.openError(`${errText}-(1)`)
         }
@@ -279,44 +284,49 @@ class Messages extends Component {
       messageText: '',
       messageId: null,
       isModalOpen: false
+    },()=>{
+      setTimeout(()=>{
+        this.flatListRef.scrollToOffset({animated:true,offset:-24})
+      },500)
     })
   }
 
   updateChatMessageInDb(){
-    let errText = 'sending off your chat message'
-    let { messageId,messageText='' } = this.state
-    if (messageId && messageText.length > 0) {
-      this.updateMessage({id:messageId,text:messageText})
-      if (deviceSize === 'tooSmall') {
-        this.showModal('processing')
-      }
-      this.props.updateChatMessage({
-        variables: {
-          MessageId: messageId,
-          text: messageText
-        }
-      }).then(({ data: { updateMessage={} } })=>{
-        if (updateMessage.hasOwnProperty('text')) {
-          this.triggerEventOnChatInDb()
-          if (updateMessage.text === messageText) {
+    this.showModal('lock')
+    setTimeout(()=>{
+      let errText = 'sending off your chat message'
+      let { messageId,messageText='' } = this.state
+      if (messageId && messageText.length > 0) {
+        // if (deviceSize === 'tooSmall') {
+        //   this.showModal('processing')
+        // }
+        this.props.updateChatMessage({
+          variables: {
+            MessageId: messageId,
+            text: messageText
+          }
+        }).then(({ data: { updateMessage={} } })=>{
+          if (updateMessage.hasOwnProperty('text')) {
+            this.updateMessage(updateMessage)
             this.clearMessage()
+            this.triggerEventOnChatInDb()
           } else {
             this.openError(`${errText}-(1)`)
-            this.updateMessage({id:messageId,sent:false},'messageText on comp state did not match DB updated text-(1)')
+            this.updateMessage({id:messageId,sent:false})
             this.clearMessage()
           }
-        }
-      }).catch( e => {
-        this.openError(`${errText}-(2)`)
-        this.updateMessage({id:messageId,sent:false},'DB update error -(2)')
-        this.clearMessage()
-        console.log('(2)',e.message)
-      })
-    } else {
-      this.openError(`${errText}-(3)`)
-      console.log('messageId',messageId)
-      console.log('messageText',messageText)
-    }
+        }).catch( e => {
+          this.openError(`${errText}-(2)`)
+          this.updateMessage({id:messageId,sent:false},'DB update error -(2)')
+          this.clearMessage()
+          console.log('(2)',e.message)
+        })
+      } else {
+        this.openError(`${errText}-(3)`)
+        console.log('messageId',messageId)
+        console.log('messageText',messageText)
+      }
+    },duration)
   }
 
   deleteChatMessageInDb(){
@@ -419,7 +429,7 @@ class Messages extends Component {
         <TextInput value={this.state.messageText}
           placeholder=" send a chat"
           placeholderTextColor={Colors.transparentWhite}
-          style={{...textInputStyle,height,marginBottom:14,paddingHorizontal:12}}
+          style={{...textInputStyle,height}}
           onChangeText={(messageText) => this.isTyping(messageText)}
           keyboardType="default"
           onSubmitEditing={() => this.updateChatMessageInDb()}

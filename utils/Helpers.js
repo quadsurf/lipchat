@@ -110,6 +110,8 @@ class Modals extends Component {
             frequency={5000}/>
         </View>
       )
+    } else if (type === 'lock') {
+      return <View/>
     } else if (type === 'err') {
       let { title,description } = this.props.content
       return (
