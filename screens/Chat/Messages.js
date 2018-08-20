@@ -91,6 +91,7 @@ class Messages extends Component {
   }
 
   componentWillMount(){
+    this.props.clearMessages()
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow)
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide)
     this.setState({isMounted:true})
@@ -162,9 +163,6 @@ class Messages extends Component {
         updateQuery: (previous, { subscriptionData }) => {
           let mutation = subscriptionData.data.Message.mutation
           let newMessage = subscriptionData.data.Message.node
-          // console.log(
-          //   `msgId ${newMessage ? newMessage.id : 'noId'} pubsub ${mutation} on ${this.state.whichPhone}'s phone`
-          // )
           if (this.state.isMounted) {
               if (newMessage && newMessage.hasOwnProperty('id')) {
                 let isSelf = newMessage.writerx.id === this.props.userId
@@ -186,13 +184,12 @@ class Messages extends Component {
   }
 
   createMessage(message){
-    console.log(`create msg BEFORE reducer (${this.state.whichPhone}'s phone)`,message.id)
     this.props.createMessage(message,`(${this.state.whichPhone}'s phone)`)
   }
 
   updateMessage(message,cameFrom){
-    cameFrom && console.log('error during update: ',cameFrom)
     this.props.updateMessage(message)
+    debugging && cameFrom && console.log('error during update: ',cameFrom)
   }
 
   deleteMessage(id){
@@ -269,13 +266,13 @@ class Messages extends Component {
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        console.log('(2)',e.message)
+        debugging && console.log('(2)',e.message)
       })
     } else {
       this.openError(`${errText}-(insufficient inputs)`)
-      console.log('audience',audience)
-      console.log('chatId',chatId)
-      console.log('userId',userId)
+      debugging && console.log('audience',audience)
+      debugging && console.log('chatId',chatId)
+      debugging && console.log('userId',userId)
     }
   }
 
@@ -319,12 +316,12 @@ class Messages extends Component {
           this.openError(`${errText}-(2)`)
           this.updateMessage({id:messageId,sent:false},'DB update error -(2)')
           this.clearMessage()
-          console.log('(2)',e.message)
+          debugging && console.log('(2)',e.message)
         })
       } else {
         this.openError(`${errText}-(3)`)
-        console.log('messageId',messageId)
-        console.log('messageText',messageText)
+        debugging && console.log('messageId',messageId)
+        debugging && console.log('messageText',messageText)
       }
     },duration)
   }
@@ -347,7 +344,7 @@ class Messages extends Component {
       }).catch( e => {
         this.openError(`${errText}-(2)`)
         this.clearMessage()
-        console.log('(2)',e.message)
+        debugging && console.log('(2)',e.message)
       })
     } else {
       // this.openError(errText)
@@ -361,7 +358,7 @@ class Messages extends Component {
         updater: JSON.stringify(new Date())
       }
     }).catch( e => {
-      console.log('(2)',e.message)
+      debugging && console.log('(2)',e.message)
     })
   }
 
@@ -439,7 +436,8 @@ class Messages extends Component {
           returnKeyType="send"
           onContentSizeChange={(e) => this.setState({height:e.nativeEvent.contentSize.height})}
           multiline={true}
-          ref={input => { this.textInput = input }}/>
+          ref={input => { this.textInput = input }}
+          underlineColorAndroid="transparent"/>
       </View>
     )
   }

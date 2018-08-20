@@ -28,7 +28,8 @@ const debugging = __DEV__ && false
 class LikesPreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    isMounted: true
   }
 
   constructor(props){
@@ -38,20 +39,25 @@ class LikesPreloader extends Component {
   }
 
   componentWillMount(){
+    let { isMounted } = this.state
     this.didFocusSubscription = this.props.navigation.addListener(
       'didFocus',
       ({ action:{ key } }) => {
-        if (key !== 'StackRouterRoot' && !this.state.isFocused) this.setState({tabIsFocused:true})
-        console.log('didFocus on Likes:',key)
+        key !== 'StackRouterRoot' && !this.state.isFocused && isMounted && this.setState({tabIsFocused:true})
+        debugging && console.log('didFocus on Likes:',key)
       }
     )
     this.didBlurSubscription = this.props.navigation.addListener(
       'didBlur',
       ({ action:{ key } }) => {
-        key !== 'StackRouterRoot' && this.setState({tabIsFocused:false})
-        console.log('didBlur on Likes:',key)
+        key !== 'StackRouterRoot' && isMounted && this.setState({tabIsFocused:false})
+        debugging && console.log('didBlur on Likes:',key)
       }
     )
+  }
+
+  componentWillUnmount(){
+    this.setState({ isMounted:false })
   }
 
   componentDidMount(){
