@@ -2,9 +2,11 @@
 
 import {
   SET_CHATS,
+  ADD_CHAT,
+  UPDATE_CHAT,
+  REMOVE_CHAT,
   MARK_UNREAD,
   MARK_READ,
-  REMOVE_CHAT,
   SET_MESSAGES,
   CREATE_MESSAGE,
   UPDATE_MESSAGE,
@@ -42,6 +44,30 @@ export const chatsReducer = (state = initialChats,actions) => {
         ...chatsWithoutMessages
       ]
       return newChats
+    case ADD_CHAT:
+      chats = [
+        actions.chat,
+        ...state
+      ]
+      return chats
+    case UPDATE_CHAT:
+      chats = [...state]
+      let updatedChat = actions.chat
+      i = chats.findIndex( chat => chat.id === updatedChat.id)
+      if (i > -1) {
+        chats.splice(i,1)
+        chats.unshift(updatedChat)
+        return chats
+      } else {
+        return chats
+      }
+    case REMOVE_CHAT:
+      chats = [...state.chats]
+      console.log('chat length before removal',chats.length)
+      i = chats.findIndex( chat => chat.id === actions.chatId )
+      i > -1 && chats.splice(i,1)
+      console.log('chat length after removal',chats.length)
+      return chats
     case MARK_UNREAD:
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
       // console.log('chatFromState count',chatFromState.unreadCount)
@@ -77,13 +103,6 @@ export const chatsReducer = (state = initialChats,actions) => {
       } else {
         chats.unshift(readChat)
       }
-      return chats
-    case REMOVE_CHAT:
-      chats = [...state.chats]
-      console.log('chat length before removal',chats.length)
-      i = chats.findIndex( chat => chat.id === actions.chatId )
-      i > -1 && chats.splice(i,1)
-      console.log('chat length after removal',chats.length)
       return chats
     default: return state
   }

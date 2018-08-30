@@ -25,6 +25,8 @@ import {
 import { setColors,setSadvrId } from './actions'
 import {
   setChats,
+  addChat,
+  updateChat,
   handleNewChat,
   removeChat
 } from '../screens/Chat/store/actions'
@@ -55,7 +57,7 @@ class Remote extends Component {
   }
 
   state = {
-    isFocused: true
+    isFocused: false
   }
 
   // componentWillMount(){
@@ -217,17 +219,18 @@ class Remote extends Component {
   }
 
   addChatToChatList(chat,cameFrom){
-    let isSelf
-    let { userId } = this.props
-    let { isFocused } = this.state
-    if (chat.messages.length > 0 && chat.messages[0].writerx.id === userId) {
-      isSelf = true
-    } else {
-      isSelf = false
-    }
-    this.props.handleNewChat(chat,isSelf,isFocused)
-    debugging && console.log('addChatToChatList func called')
-    debugging && console.log('args',chat,isSelf,cameFrom)
+    this.props.addChat(chat)
+    // let isSelf
+    // let { userId } = this.props
+    // let { isFocused } = this.state
+    // if (chat.messages.length > 0 && chat.messages[0].writerx.id === userId) {
+    //   isSelf = true
+    // } else {
+    //   isSelf = false
+    // }
+    // this.props.handleNewChat(chat,isSelf,isFocused)
+    // debugging && console.log('addChatToChatList func called')
+    // debugging && console.log('args',chat,isSelf,cameFrom)
   }
 
   updateChatOnChatList(prevChat,nextChat){
@@ -236,23 +239,23 @@ class Remote extends Component {
     if (!selectedChat) {
       this.addChatToChatList(nextChat,'updateChatOnChatList with no selectedChat')
     } else {
-      if (prevChat && nextChat) {
+      if (prevChat.hasOwnProperty('id') && nextChat.hasOwnProperty('id')) {
         if (nextChat.type === 'DIST2SHPRS') {
           if (userType === 'SHOPPER') {
             let shopperExists = selectedChat.shoppersx.find( shopper => shopper.id === shopperId)
             if (!shopperExists) {
               this.removeChatFromChatList(prevChat.id)
             } else {
-              this.addChatToChatList(nextChat,'updateChatOnChatList, shopper does exist')
+              this.props.updateChat(nextChat,'updateChatOnChatList, shopper does exist')
             }
             debugging && console.log('shopperExists',shopperExists)
           } else {
-            this.addChatToChatList(nextChat,'updateChatOnChatList, userType is not a shopper')
+            this.props.updateChat(nextChat,'updateChatOnChatList, userType is not a shopper')
           }
         } else if (nextChat.type === 'SADVR2ALL') {
-            this.addChatToChatList(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
+            this.props.updateChat(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
         } else if (prevChat.updater !== nextChat.updater) {
-          this.addChatToChatList(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
+          this.props.updateChat(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
         }
       } else {
         debugging && console.log('no prevChat value')
@@ -278,8 +281,9 @@ class Remote extends Component {
         },
         updateQuery: (previous, { subscriptionData }) => {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
-          if (mutation === 'UPDATED') {
-            this.updateChatOnChatList(previousValues,node)
+          switch(mutation){
+            case 'CREATED': this.addChatToChatList(node,'subToDistributorsChats')
+            case 'UPDATED': this.updateChatOnChatList(previousValues,node)
           }
         },
         onError: e => {
@@ -363,5 +367,5 @@ const RemoteWithData = compose(
 )(Remote)
 
 export default connect(mapStateToProps,{
-  setColors,setSadvrId,setChats,handleNewChat,removeChat
+  setColors,setSadvrId,setChats,addChat,updateChat,handleNewChat,removeChat
 })(RemoteWithData)

@@ -2,9 +2,11 @@
 
 import {
   SET_CHATS,
+  ADD_CHAT,
+  UPDATE_CHAT,
+  REMOVE_CHAT,
   MARK_UNREAD,
   MARK_READ,
-  REMOVE_CHAT,
   SET_MESSAGES,
   CREATE_MESSAGE,
   UPDATE_MESSAGE,
@@ -19,6 +21,21 @@ export const setChats = chats => ({
   chats
 })
 
+export const addChat = chat => ({
+  type: ADD_CHAT,
+  chat
+})
+
+export const updateChat = chat => ({
+  type: UPDATE_CHAT,
+  chat
+})
+
+export const removeChat = chatId => ({
+  type: REMOVE_CHAT,
+  chatId
+})
+
 export const markUnread = (chat,isSelf,isFocused) => ({
   type: MARK_UNREAD,
   chat,
@@ -29,11 +46,6 @@ export const markUnread = (chat,isSelf,isFocused) => ({
 export const markRead = chat => ({
   type: MARK_READ,
   chat
-})
-
-export const removeChat = chatId => ({
-  type: REMOVE_CHAT,
-  chatId
 })
 
 export const incrementUnreadCount = () => ({
