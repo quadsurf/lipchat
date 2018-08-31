@@ -26,9 +26,16 @@ export const addChat = chat => ({
   chat
 })
 
-export const updateChat = chat => ({
+// export const howToUpdateChat = (chat,isSelf,hasMessage) => {
+//   !isSelf && hasMessage && dispatch(markUnread(chat))
+//   dispatch(updateChat(chat))
+// }
+
+export const updateChat = (chat,isSelf,hasMessage) => ({
   type: UPDATE_CHAT,
-  chat
+  chat,
+  isSelf,
+  hasMessage
 })
 
 export const removeChat = chatId => ({

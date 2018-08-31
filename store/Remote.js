@@ -27,7 +27,6 @@ import {
   setChats,
   addChat,
   updateChat,
-  handleNewChat,
   removeChat
 } from '../screens/Chat/store/actions'
 
@@ -38,7 +37,7 @@ import { Views,Colors } from '../css/Styles'
 import Loading from '../screens/common/Loading'
 
 // CONSTs
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 const duration = 3000
 
 class Remote extends Component {
@@ -90,6 +89,7 @@ class Remote extends Component {
     },2000)
     this.subToShoppersChats()
     this.subToDistributorsChats()
+    // this.subToAdminChats()
   }
 
   componentWillReceiveProps(newProps){
@@ -205,8 +205,8 @@ class Remote extends Component {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
-            case 'UPDATED': this.updateChatOnChatList(previousValues,node)
-            // case 'DELETED': this.removeChatFromChatList(previousValues,'subToShoppersChats')
+            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node)
+            // case 'DELETED': this.removeChatFromChatList(previousValues.id,'subToShoppersChats')
             default: return
           }
         },
@@ -233,7 +233,7 @@ class Remote extends Component {
     // debugging && console.log('args',chat,isSelf,cameFrom)
   }
 
-  updateChatOnChatList(prevChat,nextChat){
+  preQualifyChatUpdate(prevChat,nextChat){
     let { chats,userType,shopperId } = this.props
     let selectedChat = chats.find( chat => chat.id === nextChat.id)
     if (!selectedChat) {
@@ -246,16 +246,16 @@ class Remote extends Component {
             if (!shopperExists) {
               this.removeChatFromChatList(prevChat.id)
             } else {
-              this.props.updateChat(nextChat,'updateChatOnChatList, shopper does exist')
+              this.updateChat(nextChat,'updateChatOnChatList, shopper does exist')
             }
             debugging && console.log('shopperExists',shopperExists)
           } else {
-            this.props.updateChat(nextChat,'updateChatOnChatList, userType is not a shopper')
+            this.updateChat(nextChat,'updateChatOnChatList, userType is not a shopper')
           }
         } else if (nextChat.type === 'SADVR2ALL') {
-            this.props.updateChat(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
+            this.updateChat(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
         } else if (prevChat.updater !== nextChat.updater) {
-          this.props.updateChat(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
+          this.updateChat(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
         }
       } else {
         debugging && console.log('no prevChat value')
@@ -265,9 +265,32 @@ class Remote extends Component {
     debugging && console.log('updateChatOnChatList func called')
   }
 
-  removeChatFromChatList(chatId){
+  updateChat(chat,scenario){
+    let isSelf,hasMessage
+    let { userId,updateChat } = this.props
+    // let { isFocused } = this.state
+    if (chat.messages.length > 0) {
+      if (chat.messages[0].writerx.id === userId) {
+        isSelf = true
+      } else {
+        isSelf = false
+      }
+      if (chat.messages[0].text === 'isTypingNow') {
+        hasMessage = false
+      } else {
+        hasMessage = true
+      }
+    } else {
+      isSelf = true
+      hasMessage = false
+    }
+    // this.props.handleNewChat(chat,isSelf,)
+    updateChat(chat,isSelf,hasMessage)
+  }
+
+  removeChatFromChatList(chatId,cameFrom){
     chatId && this.props.removeChat(chatId)
-    debugging && console.log('removeChatFromChatList func called',chatId)
+    debugging && console.log('removeChatFromChatList func called',`${cameFrom}-${chatId}`)
   }
 
   subToDistributorsChats(){
@@ -283,7 +306,9 @@ class Remote extends Component {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToDistributorsChats')
-            case 'UPDATED': this.updateChatOnChatList(previousValues,node)
+            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node)
+            // case 'DELETED': this.removeChatFromChatList(previousValues.id,'subToDistributorsChats')
+            default: return
           }
         },
         onError: e => {
@@ -367,5 +392,5 @@ const RemoteWithData = compose(
 )(Remote)
 
 export default connect(mapStateToProps,{
-  setColors,setSadvrId,setChats,addChat,updateChat,handleNewChat,removeChat
+  setColors,setSadvrId,setChats,addChat,updateChat,removeChat
 })(RemoteWithData)

@@ -48,7 +48,7 @@ const textInputStyle = {
   paddingHorizontal:12
 }
 const chatCount = 10
-const debugging = __DEV__ && false
+const debugging = __DEV__ && true
 const duration = 750//controls updateChatMessageInDb func TOO!!!
 
 // COMPONENTS
@@ -258,7 +258,7 @@ class Messages extends Component {
         }
       }).then( ({ data: { createMessage={} } }) => {
         if (createMessage.hasOwnProperty('id')) {
-          this.setState({messageId:createMessage.id})
+          this.setState({messageId:createMessage.id},()=>console.log('new message id for cState',this.state.messageId))
           this.createMessage(createMessage)
           this.triggerEventOnChatInDb()
         } else {
@@ -266,7 +266,7 @@ class Messages extends Component {
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        debugging && console.log('(2)',e.message)
+        debugging && console.log('(2)',e)
       })
     } else {
       this.openError(`${errText}-(insufficient inputs)`)
@@ -316,7 +316,7 @@ class Messages extends Component {
           this.openError(`${errText}-(2)`)
           this.updateMessage({id:messageId,sent:false},'DB update error -(2)')
           this.clearMessage()
-          debugging && console.log('(2)',e.message)
+          debugging && console.log('(2)',e)
         })
       } else {
         this.openError(`${errText}-(3)`)

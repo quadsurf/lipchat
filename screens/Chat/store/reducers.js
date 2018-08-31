@@ -52,9 +52,17 @@ export const chatsReducer = (state = initialChats,actions) => {
       return chats
     case UPDATE_CHAT:
       chats = [...state]
-      let updatedChat = actions.chat
-      i = chats.findIndex( chat => chat.id === updatedChat.id)
+      let { chat:{ id:chatId },isSelf,hasMessage } = actions
+      i = chats.findIndex( chat => chat.id === chatId)
       if (i > -1) {
+        let updatedChat = {
+          ...chats[i],
+          ...actions.chat
+        }
+        if (!isSelf && hasMessage) {
+          updatedChat.unreadStatus = true
+          updatedChat.unreadCount = ++chats[i].unreadCount
+        }
         chats.splice(i,1)
         chats.unshift(updatedChat)
         return chats
@@ -62,7 +70,7 @@ export const chatsReducer = (state = initialChats,actions) => {
         return chats
       }
     case REMOVE_CHAT:
-      chats = [...state.chats]
+      chats = [...state]
       console.log('chat length before removal',chats.length)
       i = chats.findIndex( chat => chat.id === actions.chatId )
       i > -1 && chats.splice(i,1)
