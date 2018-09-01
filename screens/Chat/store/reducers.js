@@ -45,6 +45,7 @@ export const chatsReducer = (state = initialChats,actions) => {
       ]
       return newChats
     case ADD_CHAT:
+      // add conditional addition logic
       chats = [
         actions.chat,
         ...state
@@ -71,10 +72,8 @@ export const chatsReducer = (state = initialChats,actions) => {
       }
     case REMOVE_CHAT:
       chats = [...state]
-      console.log('chat length before removal',chats.length)
       i = chats.findIndex( chat => chat.id === actions.chatId )
       i > -1 && chats.splice(i,1)
-      console.log('chat length after removal',chats.length)
       return chats
     case MARK_UNREAD:
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
@@ -99,19 +98,18 @@ export const chatsReducer = (state = initialChats,actions) => {
       chats.unshift(unreadChat)
       return chats
     case MARK_READ:
-      let readChat = {
-        ...actions.chat,
-        unreadStatus: false,
-        unreadCount: 0
-      }
       chats = [...state]
-      i = chats.findIndex( chat => readChat.id === chat.id)
-      if (i !== -1) {
-        chats.splice(i,1,readChat)
+      i = chats.findIndex( chat => chat.id === actions.chatId)
+      if (i > -1) {
+        chats[i] = {
+          ...chats[i],
+          unreadStatus: false,
+          unreadCount: 0
+        }
+        return chats
       } else {
-        chats.unshift(readChat)
+        return chats
       }
-      return chats
     default: return state
   }
 }

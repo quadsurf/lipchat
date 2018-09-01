@@ -50,9 +50,9 @@ export const markUnread = (chat,isSelf,isFocused) => ({
   isFocused
 })
 
-export const markRead = chat => ({
+export const markRead = chatId => ({
   type: MARK_READ,
-  chat
+  chatId
 })
 
 export const incrementUnreadCount = () => ({

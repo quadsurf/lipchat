@@ -37,7 +37,7 @@ import { Views,Colors } from '../css/Styles'
 import Loading from '../screens/common/Loading'
 
 // CONSTs
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 const duration = 3000
 
 class Remote extends Component {
@@ -56,7 +56,9 @@ class Remote extends Component {
   }
 
   state = {
-    isFocused: false
+    isFocused: false,
+    setShprChatsCount: 0,
+    setDistChatsCount: 0
   }
 
   // componentWillMount(){
@@ -134,7 +136,11 @@ class Remote extends Component {
       newProps.getChatsForDistributor.allChats !== this.props.getChatsForDistributor.allChats
     ) {
       if (this.props.userType === 'DIST' || this.props.userType === 'SADVR') {
-        this.setChats(newProps.getChatsForDistributor.allChats)
+        this.setState({ setShprChatsCount: ++this.state.setShprChatsCount },()=>{
+          if (this.state.setShprChatsCount < 2) {
+            this.setChats(newProps.getChatsForDistributor.allChats)
+          }
+        })
       }
     }
 
@@ -144,7 +150,11 @@ class Remote extends Component {
       newProps.getChatsForShopper.allChats !== this.props.getChatsForShopper.allChats
     ) {
       if (this.props.userType === 'SHOPPER') {
-        this.setChats(newProps.getChatsForShopper.allChats)
+        this.setState({ setDistChatsCount: ++this.state.setDistChatsCount },()=>{
+          if (this.state.setDistChatsCount < 2) {
+            this.setChats(newProps.getChatsForShopper.allChats)
+          }
+        })
       }
     }
 
@@ -219,18 +229,8 @@ class Remote extends Component {
   }
 
   addChatToChatList(chat,cameFrom){
+    console.log('addChat func called')
     this.props.addChat(chat)
-    // let isSelf
-    // let { userId } = this.props
-    // let { isFocused } = this.state
-    // if (chat.messages.length > 0 && chat.messages[0].writerx.id === userId) {
-    //   isSelf = true
-    // } else {
-    //   isSelf = false
-    // }
-    // this.props.handleNewChat(chat,isSelf,isFocused)
-    // debugging && console.log('addChatToChatList func called')
-    // debugging && console.log('args',chat,isSelf,cameFrom)
   }
 
   preQualifyChatUpdate(prevChat,nextChat){

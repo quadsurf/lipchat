@@ -14,7 +14,7 @@ import PropTypes from 'prop-types'
 
 //STORE
 import { connect } from 'react-redux'
-import { handleClearedChat } from './store/actions'
+import { markRead } from './store/actions'
 
 // LOCALS
 import { FontPoiret } from '../common/fonts'
@@ -48,10 +48,10 @@ class ChatCardLayout extends Component {
 
   navToMessages(audiences){
     let {
-      chat,chatId,uri,chatTitle,chatType,level,handleClearedChat,cellPhone
+      chatId,uri,chatTitle,chatType,level,markRead,cellPhone
     } = this.props
     if (this.state.unreadStatus) {
-      handleClearedChat(chat)
+      markRead(chatId)
     }
     this.props.navigation.navigate('Messages',{chatId,uri,chatTitle,chatType,level,audiences,cellPhone})
   }
@@ -183,4 +183,4 @@ const mapStateToProps = (state,props) => {
   }
 }
 
-export default connect(mapStateToProps,{ handleClearedChat })(ChatCardLayout)
+export default connect(mapStateToProps,{ markRead })(ChatCardLayout)

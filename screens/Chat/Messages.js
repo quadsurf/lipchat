@@ -48,7 +48,7 @@ const textInputStyle = {
   paddingHorizontal:12
 }
 const chatCount = 10
-const debugging = __DEV__ && true
+const debugging = __DEV__ && false
 const duration = 750//controls updateChatMessageInDb func TOO!!!
 
 // COMPONENTS
@@ -57,7 +57,7 @@ import Icon from '../common/Icon'
 
 // STORE
 import {
-  setMessages,createMessage,updateMessage,deleteMessage,clearMessages
+  setMessages,createMessage,updateMessage,deleteMessage,clearMessages,markRead
 } from './store/actions'
 
 // @withNavigation
@@ -258,7 +258,7 @@ class Messages extends Component {
         }
       }).then( ({ data: { createMessage={} } }) => {
         if (createMessage.hasOwnProperty('id')) {
-          this.setState({messageId:createMessage.id},()=>console.log('new message id for cState',this.state.messageId))
+          this.setState({messageId:createMessage.id})
           this.createMessage(createMessage)
           this.triggerEventOnChatInDb()
         } else {
@@ -266,7 +266,7 @@ class Messages extends Component {
         }
       }).catch( e => {
         this.openError(`${errText}-(2)`)
-        debugging && console.log('(2)',e)
+        console.log('(2)',e)
       })
     } else {
       this.openError(`${errText}-(insufficient inputs)`)
@@ -532,6 +532,7 @@ class Messages extends Component {
 
   prepForUnmount(){
     this.props.clearMessages()
+    this.props.markRead(this.props.chatId)
     setTimeout(()=>{
       this.setState({isMounted:false},()=>this.props.navigation.goBack(null))
     },500)
@@ -639,7 +640,8 @@ Messages.propTypes = {
   createMessage: PropTypes.func.isRequired,
   updateMessage: PropTypes.func.isRequired,
   deleteMessage: PropTypes.func.isRequired,
-  clearMessages: PropTypes.func.isRequired
+  clearMessages: PropTypes.func.isRequired,
+  markRead: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state,props) => ({
@@ -686,7 +688,7 @@ const MessagesWithData = compose(
 )(Messages)
 
 export default connect(mapStateToProps,{
-  setMessages,createMessage,updateMessage,deleteMessage,clearMessages
+  setMessages,createMessage,updateMessage,deleteMessage,clearMessages,markRead
 })(MessagesWithData)
 
 // DONE - add a loader for when it takes too long for mutation to resolve
