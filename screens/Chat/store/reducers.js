@@ -45,11 +45,10 @@ export const chatsReducer = (state = initialChats,actions) => {
       ]
       return newChats
     case ADD_CHAT:
-      // add conditional addition logic
-      chats = [
-        actions.chat,
-        ...state
-      ]
+      chats = [...state]
+      let { chat } = actions
+      i = chats.findIndex( el => el.id === chat.id )
+      i === -1 && chats.unshift(chat)
       return chats
     case UPDATE_CHAT:
       chats = [...state]

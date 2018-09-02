@@ -101,12 +101,8 @@ class Remote extends Component {
     ) {
       let adminChats = newProps.getAdminChats.allChats
       let { shopperId } = this.props
-      let groupChat = adminChats.find( chat => {
-        return chat.type === 'SADVR2ALL'
-      })
-      let dmChat = adminChats.find( chat => {
-        return chat.type === 'DMU2ADMIN'
-      })
+      let groupChat = adminChats.find( chat => chat.type === 'SADVR2ALL' )
+      let dmChat = adminChats.find( chat => chat.type === 'DMU2ADMIN' )
 
       this.addShopperToAppNotificationGroupChatInDb(groupChat.id,shopperId)
 
@@ -115,10 +111,10 @@ class Remote extends Component {
       this.setSadvrId(distributorId)
 
       if (!dmChat) {
-        debugging && console.log('no dmChat for Shopper and their distributor... therefore creating');
         this.createDmChatForShopperAndSadvrInDb(shopperId,distributorId)
+        debugging && console.log('no dmChat for Shopper and their distributor... therefore creating')
       } else {
-        debugging && console.log('dmChat for Shopper and their distributor exists');
+        debugging && console.log('dmChat for Shopper and their distributor exists')
       }
     }
 
@@ -178,7 +174,7 @@ class Remote extends Component {
         debugging && console.log('addShopperToAppNotificationGroupChat in DB failed',e.message)
       })
     } else {
-      debugging && console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation');
+      debugging && console.log('insufficient inputs to run addShopperToAppNotificationGroupChat mutation')
     }
   }
 
@@ -187,21 +183,21 @@ class Remote extends Component {
   }
 
   createDmChatForShopperAndSadvrInDb(shopperId,distributorId){
-    debugging && console.log('createDmChatForShopperAndDistributor func called');
+    debugging && console.log('createDmChatForShopperAndDistributor func called')
     if (shopperId && distributorId) {
       this.props.createDmChatForShopperAndSadvr({
         variables: { shopperId,distributorId }
       }).then( res => {
         if (res.data.createChat) {
-          debugging && console.log('received res from createDmChatForShopperAndDistributor mutation');
+          debugging && console.log('received res from createDmChatForShopperAndDistributor mutation')
         } else {
-          debugging && console.log('failed to receive res from createDmChatForShopperAndDistributor mutation');
+          debugging && console.log('failed to receive res from createDmChatForShopperAndDistributor mutation')
         }
       }).catch( e => {
-        debugging && console.log('failed to process createDmChatForShopperAndDistributor mutation',e.message);
+        debugging && console.log('failed to process createDmChatForShopperAndDistributor mutation',e.message)
       })
     } else {
-      debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation');
+      debugging && console.log('insufficient inputs to run createDmChatForShopperAndDistributor mutation')
     }
   }
 
