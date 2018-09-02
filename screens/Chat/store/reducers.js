@@ -76,8 +76,8 @@ export const chatsReducer = (state = initialChats,actions) => {
       i > -1 && chats.splice(i,1)
       return chats
     case MARK_UNREAD:
+      // deprecated
       let chatFromState = state.find( chat => chat.id === actions.chat.id )
-      // console.log('chatFromState count',chatFromState.unreadCount)
       let unreadChat = {
         ...actions.chat,
         unreadStatus: chatFromState.unreadStatus,

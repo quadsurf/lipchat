@@ -276,13 +276,13 @@ class Messages extends Component {
     }
   }
 
-  clearMessage(){
+  clearMessage(avoidScroll){
     this.state.isMounted && this.setState({
       messageText: '',
       messageId: null,
       isModalOpen: false
     },()=>{
-      setTimeout(()=>{
+      !avoidScroll && setTimeout(()=>{
         this.flatListRef.scrollToOffset({animated:true,offset:-24})
       },500)
     })
@@ -336,6 +336,8 @@ class Messages extends Component {
         }
       }).then(({ data:{ deleteMessage={} } })=>{
         if (deleteMessage.hasOwnProperty('id')) {
+          this.triggerEventOnChatInDb()
+          this.clearMessage(true)
           this.props.deleteMessage(deleteMessage.id)
         } else {
           this.openError(`${errText}-(1)`)

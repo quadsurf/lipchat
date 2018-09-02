@@ -205,6 +205,7 @@ class Remote extends Component {
     }
   }
 
+  // ADD subToAdminChats
   subToShoppersChats(){
     let { shopperId } = this.props
     if (shopperId) {
