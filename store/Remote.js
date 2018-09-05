@@ -59,19 +59,7 @@ class Remote extends Component {
     isFocused: false,
     setShprChatsCount: 0,
     setDistChatsCount: 0,
-    whichPhone: 'neither'
-  }
-
-  componentWillMount(){
-    if (this.props.userId === 'cjc7eqiegegll0181qwvaw3yb') {
-      this.setState({ whichPhone:'shpr' })
-    }
-    if (this.props.userId === 'cjc7e6hbkecj101408yeexye6') {
-      this.setState({ whichPhone:'dist' })
-    }
-    if (this.props.userId === 'cjc7dasmue8o90128jkpzeqhe') {
-      this.setState({ whichPhone:'admin' })
-    }
+    // whichPhone: 'neither'
   }
 
   // componentWillMount(){
