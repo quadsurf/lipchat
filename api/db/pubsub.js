@@ -71,6 +71,8 @@ subscription SubToShoppersChats(
       messages(
         last:1
       ){
+        id
+        audience
         text
         updatedAt
         writerx {
@@ -156,6 +158,8 @@ subscription(
       messages(
         last:1
       ){
+        id
+        audience
         text
         updatedAt
         writerx {

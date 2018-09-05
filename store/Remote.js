@@ -58,7 +58,20 @@ class Remote extends Component {
   state = {
     isFocused: false,
     setShprChatsCount: 0,
-    setDistChatsCount: 0
+    setDistChatsCount: 0,
+    whichPhone: 'neither'
+  }
+
+  componentWillMount(){
+    if (this.props.userId === 'cjc7eqiegegll0181qwvaw3yb') {
+      this.setState({ whichPhone:'shpr' })
+    }
+    if (this.props.userId === 'cjc7e6hbkecj101408yeexye6') {
+      this.setState({ whichPhone:'dist' })
+    }
+    if (this.props.userId === 'cjc7dasmue8o90128jkpzeqhe') {
+      this.setState({ whichPhone:'admin' })
+    }
   }
 
   // componentWillMount(){
@@ -201,7 +214,6 @@ class Remote extends Component {
     }
   }
 
-  // ADD subToAdminChats
   subToShoppersChats(){
     let { shopperId } = this.props
     if (shopperId) {
@@ -212,7 +224,7 @@ class Remote extends Component {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToShoppersChats')
-            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node)
+            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node);
             // case 'DELETED': this.removeChatFromChatList(previousValues.id,'subToShoppersChats')
             default: return
           }
@@ -226,7 +238,6 @@ class Remote extends Component {
   }
 
   addChatToChatList(chat,cameFrom){
-    console.log('addChat func called')
     this.props.addChat(chat)
   }
 
@@ -250,9 +261,9 @@ class Remote extends Component {
             this.updateChat(nextChat,'updateChatOnChatList, userType is not a shopper')
           }
         } else if (nextChat.type === 'SADVR2ALL') {
-            this.updateChat(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
+            this.throttleUpdateChat(nextChat,'updateChatOnChatList with selectedChat (SADVR2ALL)')
         } else if (prevChat.updater !== nextChat.updater) {
-          this.updateChat(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
+          this.throttleUpdateChat(nextChat,'updateChatOnChatList with selectedChat (updater is diff)')
         }
       } else {
         debugging && console.log('no prevChat value')
@@ -262,27 +273,72 @@ class Remote extends Component {
     debugging && console.log('updateChatOnChatList func called')
   }
 
+  throttleUpdateChat(nextChat,scenario){
+    nextChat.hasOwnProperty('shoppersx')
+    && nextChat.shoppersx.length > 0
+    && nextChat.shoppersx[0].hasOwnProperty('userx')
+    && this.updateChat(nextChat,scenario)
+  }
+
+  qualifyAudience(audience){
+    let { userType,distributorStatus } = this.props
+    if (audience === 'ANY') {
+      return true
+    }
+    if (audience === 'SHOPPERS') {
+      let canView = userType === 'SHOPPER' ? true : false
+      return canView
+    }
+    if (audience === 'APPROVED') {
+      let canView = userType === 'DIST' && distributorStatus ? true : false
+      return canView
+    }
+    if (audience === 'PENDINGS') {
+      let canView = userType === 'DIST' && !distributorStatus ? true : false
+      return canView
+    }
+    if (audience === 'SHPSDSTS') {
+      return true
+    }
+    if (audience === 'SHPSAPPS') {
+      let canView = userType === 'DIST' && distributorStatus ? true : userType === 'SHOPPER' ? true : false
+      return canView
+    }
+    if (audience === 'SHPSPNDS') {
+      let canView = userType === 'DIST' && !distributorStatus ? true : userType === 'SHOPPER' ? true : false
+      return canView
+    }
+    if (audience === 'APPSPNDS') {
+      let canView = userType === 'DIST' ? true : false
+      return canView
+    }
+    return false
+  }
+
   updateChat(chat,scenario){
-    let isSelf,hasMessage
-    let { userId,updateChat } = this.props
+    let isSelf,hasMessage,canViewIt
+    let { userId,updateChat,userType,distributorStatus } = this.props
     // let { isFocused } = this.state
     if (chat.messages.length > 0) {
-      if (chat.messages[0].writerx.id === userId) {
+      let msg = chat.messages[0]
+      if (msg.writerx.id === userId) {
         isSelf = true
       } else {
         isSelf = false
       }
-      if (chat.messages[0].text === 'isTypingNow') {
+      if (msg.text === 'isTypingNow') {
         hasMessage = false
       } else {
         hasMessage = true
       }
+      let canView = this.qualifyAudience(msg.audience)
+      canViewIt = userType === 'SADVR' ? true : canView
+      canViewIt && updateChat(chat,isSelf,hasMessage)
     } else {
-      isSelf = true
-      hasMessage = false
+      // isSelf = true
+      // hasMessage = false
+      // updateChat(chat,isSelf,hasMessage)
     }
-    // this.props.handleNewChat(chat,isSelf,)
-    updateChat(chat,isSelf,hasMessage)
   }
 
   removeChatFromChatList(chatId,cameFrom){
@@ -303,7 +359,7 @@ class Remote extends Component {
           let { mutation,node,previousValues } = subscriptionData.data.Chat
           switch(mutation){
             case 'CREATED': this.addChatToChatList(node,'subToDistributorsChats')
-            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node)
+            case 'UPDATED': this.preQualifyChatUpdate(previousValues,node);
             // case 'DELETED': this.removeChatFromChatList(previousValues.id,'subToDistributorsChats')
             default: return
           }
@@ -327,6 +383,7 @@ Remote.propTypes = {
   userType: PropTypes.string.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
+  distributorStatus: PropTypes.bool.isRequired,
   userId: PropTypes.string.isRequired,
   unreadCount: PropTypes.number
 }
@@ -336,6 +393,7 @@ const mapStateToProps = state => ({
   userType: state.user.type,
   shopperId: state.shopper.id,
   distributorId: state.distributor.id,
+  distributorStatus: state.distributor.status,
   userId: state.user.id,
   unreadCount: state.unreadCount
 })

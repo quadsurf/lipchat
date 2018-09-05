@@ -78,8 +78,7 @@ class Messages extends Component {
     PENDINGS: false,
     isMounted: false,
     isRefreshing: false,
-    setMessagesCount: 0,
-    whichPhone: 'neither'
+    setMessagesCount: 0
   }
 
   constructor(props){
@@ -95,13 +94,6 @@ class Messages extends Component {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.keyboardDidShow)
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide)
     this.setState({isMounted:true})
-
-    if (this.props.userId === 'cjc7eqiegegll0181qwvaw3yb') {
-      this.setState({ whichPhone:'shpr' })
-    }
-    if (this.props.userId === 'cjc7e6hbkecj101408yeexye6') {
-      this.setState({ whichPhone:'dist' })
-    }
   }
 
   componentWillUnmount(){
@@ -184,7 +176,7 @@ class Messages extends Component {
   }
 
   createMessage(message){
-    this.props.createMessage(message,`(${this.state.whichPhone}'s phone)`)
+    this.props.createMessage(message)
   }
 
   updateMessage(message,cameFrom){
