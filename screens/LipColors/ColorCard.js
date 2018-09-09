@@ -61,7 +61,7 @@ export default (props) => {
   let shopperView = () => {
     return (
       <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
-        <TouchableOpacity onPress={() => props.onLikePress(props.color)}>
+        <TouchableOpacity onPress={() => props.onLikePress(props.color)} style={{height:55}}>
           <Ionicons
             name={doesLike === true ? 'ios-heart' : 'ios-heart-outline'}
             size={60} color={Colors.white}/>
