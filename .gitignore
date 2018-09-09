@@ -10,6 +10,7 @@ node_modules/**/*
 # NODE
 npm-debug.*
 yarn-error.log
+yarn.lock
 
 # SECRET
 .env.production
