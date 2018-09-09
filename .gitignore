@@ -13,3 +13,6 @@ yarn-error.log
 
 # SECRET
 .env.production
+
+# XCODE
+ios/Pods/*
