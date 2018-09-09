@@ -55,7 +55,6 @@ class Claims extends Component {
 
   componentDidMount(){
     let { shopperId,sadvrId,shoppersDistributor } = this.props
-    console.log('shoppersDistributor on Claims componentDidMount',shoppersDistributor)
     if (shoppersDistributor.hasOwnProperty('id') && shoppersDistributor.hasOwnProperty('status')) {
       let { status,id } = shoppersDistributor
       // DIST EXISTS
@@ -148,8 +147,6 @@ class Claims extends Component {
         audience: 'ANY'
       },
       bizName,fbkFirstName,fbkLastName
-    },()=>{
-      console.log('this.state after componentDidMount',this.state)
     })
   }
 
