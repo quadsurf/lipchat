@@ -42,6 +42,9 @@ target 'lipchat' do
   pod 'glog',
     :podspec => "../node_modules/react-native/third-party-podspecs/glog.podspec",
     :inhibit_warnings => true
+  pod 'EXFaceDetector',
+    :path => "../node_modules/expo-face-detector/ios",
+    :inhibit_warnings => true
 
 
   post_install do |installer|
