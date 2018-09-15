@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "expo": "^26.0.0",
+    "expo-face-detector": "^1.0.1",
     "moment": "^2.20.1",
     "prop-types": "^15.6.1",
     "react": "16.3.0-alpha.1",
