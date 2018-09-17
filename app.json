@@ -22,7 +22,10 @@
     },
     "scheme": "lipchat",
     "packagerOpts": {
-      "assetExts": ["ttf","mp4"]
+      "assetExts": [
+        "ttf",
+        "mp4"
+      ]
     },
     "ios": {
       "buildNumber": "1.11.15",
@@ -39,7 +42,9 @@
         "tabletImage": "./assets/images/splashTransparent.png"
       },
       "isRemoteJSEnabled": true,
-      "loadJSInBackgroundExperimental": true
+      "loadJSInBackgroundExperimental": true,
+      "publishBundlePath": "ios/lipchat/Supporting/shell-app.bundle",
+      "publishManifestPath": "ios/lipchat/Supporting/shell-app-manifest.json"
     },
     "android": {
       "versionCode": 11115,
@@ -54,10 +59,17 @@
         "xhdpi": "./assets/images/splashTransparent.png",
         "xxhdpi": "./assets/images/splashTransparent.png",
         "xxxhdpi": "./assets/images/splashTransparent.png"
-      }
+      },
+      "publishBundlePath": "android/app/src/main/assets/shell-app.bundle",
+      "publishManifestPath": "android/app/src/main/assets/shell-app-manifest.json"
     },
     "facebookAppId": "438344266552679",
     "facebookDisplayName": "LipChat",
-    "facebookScheme": "fb438344266552679"
+    "facebookScheme": "fb438344266552679",
+    "isDetached": true,
+    "detach": {
+      "iosExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/ios-v2.7.8-sdk29.0.0-02bd60c8-f134-4f5e-b5c0-1898ffb57231.tar.gz",
+      "androidExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/android-v2.7.2-sdk29.0.0-54e8f46d-36a6-460f-b0f9-e1043f28b215.tar.gz"
+    }
   }
 }
