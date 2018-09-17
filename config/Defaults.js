@@ -20,7 +20,9 @@ const support = ' (DM/Support)'
 const news = ' Notifications'
 const fbkId = '100002537512909'
 
-const tips = `We live by this quote:
+const tips = `IMPORTANT: select and deselect colors with your face off the screen (in other words, angle the selfie camera away from your face when tapping colors), otherwise the app experience will slow down, stall, or even crash. We are working on optimizing this.
+
+We live by this quote:
 
 "Continuous Improvement is better than Delayed Perfection".
 

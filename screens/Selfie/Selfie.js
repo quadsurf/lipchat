@@ -209,11 +209,15 @@ class Selfie extends Component {
         </Svg>
       )
     }
-    return (
-      <View key={`landmarks-${face.faceID}`}>
-        {renderLips(face)}
-      </View>
-    )
+    if (face.hasOwnProperty('mouthPosition')) {
+      return (
+        <View key={`landmarks-${face.faceID}`}>
+          {renderLips(face)}
+        </View>
+      )
+    } else {
+      return null
+    }
   }
 
   renderLandmarks() {
@@ -306,6 +310,9 @@ class Selfie extends Component {
     )
   }
 
+  // faceDetectionLandmarks={FaceDetector.Constants.Landmarks.all}
+  // faceDetectionMode={FaceDetector.Constants.Mode.fast}
+
   renderCamera() {
     return (
       <Camera
@@ -317,8 +324,11 @@ class Selfie extends Component {
         zoom={0}
         whiteBalance="auto"
         ratio="16:9"
-        faceDetectionLandmarks={FaceDetector.Constants.Landmarks.all}
-        faceDetectionMode={FaceDetector.Constants.Mode.fast}
+        faceDetectorSettings={{
+          mode: FaceDetector.Constants.Mode.fast,
+          detectLandmarks: FaceDetector.Constants.Landmarks.all,
+          runClassifications: FaceDetector.Constants.Mode.none
+        }}
         onFacesDetected={this.onFacesDetected}
         onFaceDetectionError={this.onFaceDetectionError}
         focusDepth={0}>
