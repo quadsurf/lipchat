@@ -53,6 +53,8 @@ target 'lipchat' do
     :path => "../node_modules/expo-image-loader-interface/ios"
   pod 'EXFaceDetectorInterface',
     :path => "../node_modules/expo-face-detector-interface/ios"
+  pod 'EXFaceDetector',
+    :path => "../node_modules/expo-face-detector/ios"
   pod 'EXBarCodeScannerInterface',
     :path => "../node_modules/expo-barcode-scanner-interface/ios"
   pod 'EXBarCodeScanner',
@@ -102,7 +104,7 @@ target 'lipchat' do
       target.native_target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'EX_DETACHED=1'
-        
+
         # needed for GoogleMaps 2.x
         config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= []
         config.build_settings['FRAMEWORK_SEARCH_PATHS'] << '${PODS_ROOT}/GoogleMaps/Base/Frameworks'
