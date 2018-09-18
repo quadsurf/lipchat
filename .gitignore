@@ -17,3 +17,5 @@ yarn.lock
 
 # EXPO DETACHMENT
 ios/Pods
+ios/Podfile.lock
+android
