@@ -4,9 +4,9 @@
 import { PROJECT_ID } from 'react-native-dotenv'
 
 const AppName = 'LipChat'
-const appStoreBuild = Expo.Constants.manifest.version
-const jsOTA = Expo.Constants.manifest.ios.buildNumber
-const version = `${appStoreBuild}.${jsOTA}`
+const appStoreBuild = Expo.Constants.manifest.ios.buildNumber
+const jsOTA = ''
+const version = `${appStoreBuild}${jsOTA}`
 const method = 'post'
 const url = `https://api.graph.cool/simple/v1/${PROJECT_ID}`
 const newClaimText = 'I am interested in purchasing'
