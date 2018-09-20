@@ -24,7 +24,7 @@ const tips = `We live by this quote:
 
 "Continuous Improvement is better than Delayed Perfection".
 
-While the colors you select attempt to follow your lips and match the shape of your lips, we realize it's not yet perfect. In this current version, ${AppName}'s lip tracking capability estimates lip shape and location. We apologize for this, but please know that we are close to finishing a new version that will be accurate, precise, and will use some nice reflective lighting to simulate more real-world appearance of lip colors/shades on your lips.
+While the colors you select attempt to follow your lips and match the shape of your lips, we realize it's not yet perfect. We apologize for this, but please know that we are close to finishing a new version that will accurately follow and match your lips (just like Snapchat does), and it'll use some nice reflective lighting to simulate more real-world appearance of colors & shades on your lips.
 
 IMPORTANT DISCLAIMER: even though these colors were extracted directly from the Senegence website, online representation of a color may not always exactly reflect real-world representation of that same color... please take into consideration that your actual results may vary from what you see in this ${AppName} augmented reality color tester.`
 
