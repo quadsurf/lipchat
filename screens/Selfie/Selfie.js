@@ -29,6 +29,7 @@ import { tips,distIsLiking } from './../../config/Defaults'
 // COMPONENTS
 import ColorSwatch from './ColorSwatch'
 import { Switch } from '../common/components'
+import Icon from '../common/Icon'
 import Liker from './Liker'
 
 // CONSTS
@@ -372,25 +373,25 @@ class Selfie extends Component {
               style={{
               position:'absolute',
               top:(screenHeight/2)-36,
-              left:5,borderRadius:24,
+              width:40,height:40,
+              left:5,borderRadius:20,
               backgroundColor: Colors.transparentPurple,
-              alignItems: 'center',
-              paddingHorizontal: 12,
-              paddingVertical: 14
+              justifyContent: 'center',
+              alignItems: 'center'
               }}
               onPress={() => this.showModal(
                 'prompt',
                 'A Better Experience',
                 tips
               )}>
-              <FontPoiret text="Tips" size={Texts.medium.fontSize} />
+                <Icon family="Entypo" name="warning" size={16}/>
             </TouchableOpacity>
             {this.renderColorTest()}
             {this.renderModal()}
       </Camera>
     )
   }
-
+// <FontPoiret text="Tips" size={Texts.medium.fontSize} />
   getLayeredRGB(rgbs,rgbNumbers,op){
     // rgbs is rgbStringAsArrayOfNumbers
     // rgbNumbers is rgbs of selectedColors

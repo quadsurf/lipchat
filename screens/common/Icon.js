@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native'
 import PropTypes from 'prop-types'
 
 import {
-  Ionicons,EvilIcons,MaterialIcons,
+  Ionicons,EvilIcons,MaterialIcons,Entypo
   // Entypo,MaterialCommunityIcons,FontAwesome
 } from '@expo/vector-icons'
 import { Colors } from '../../css/Styles'
@@ -47,7 +47,6 @@ const Icon = ({ onPressIcon=null,family,name,size=null,color=null,styles={} }) =
                 style={style}/>
             )
         case 'Entypo':
-            return null
             return (
               <Entypo
                 name={name}
