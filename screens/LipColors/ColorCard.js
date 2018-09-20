@@ -31,18 +31,21 @@ export default (props) => {
         </TouchableOpacity>
       )
     } else {
+      let height = 85
       return (
         <View style={{
           flex:1,alignItems:'center',justifyContent:'space-around',flexDirection:'row',marginTop:20
         }}>
           <TouchableOpacity
-            style={{marginRight:20}}
+            style={{marginRight:20,height,justifyContent:'center'}}
             onPress={() => props.onMinusPress(props.color,'-')}>
               <Ionicons
                 name="ios-remove-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
           </TouchableOpacity>
-          <FontMatilde text={count} size={100} color={Colors.white}/>
-          <TouchableOpacity style={{marginLeft:20}}
+          <View style={{height,justifyContent:'center'}}>
+            <FontMatilde text={count} size={100} color={Colors.white}/>
+          </View>
+          <TouchableOpacity style={{marginLeft:20,height,justifyContent:'center'}}
             onPress={() => props.onAddPress(props.color,'+')}>
               <Ionicons
                 name="ios-add-circle-outline" size={45} color={Colors.white} style={{marginHorizontal:20,marginBottom:12}}/>
