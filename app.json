@@ -28,7 +28,7 @@
       ]
     },
     "ios": {
-      "buildNumber": "6",
+      "buildNumber": "7",
       "bundleIdentifier": "com.quadsurf.lipchat",
       "icon": "./assets/icons/icon.png",
       "supportsTablet": true,

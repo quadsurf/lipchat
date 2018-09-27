@@ -384,7 +384,7 @@ class Selfie extends Component {
                 'A Better Experience',
                 tips
               )}>
-                <Icon family="Entypo" name="warning" size={16}/>
+                <Icon family="Entypo" name="info" size={16}/>
             </TouchableOpacity>
             {this.renderColorTest()}
             {this.renderModal()}

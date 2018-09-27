@@ -441,7 +441,7 @@ class You extends Component {
         value={this.state.ShoppersDistId}
         placeholder="add (optional)"
         placeholderTextColor={Colors.transparentWhite}
-        style={{...distributorInputStyle,...inputStyleMedium}}
+        style={{...distributorInputStyle,...inputStyleMedium,width:(screen.width*0.32)}}
         onChangeText={(ShoppersDistId) => this.setState({ShoppersDistId:ShoppersDistId.trim()})}
         keyboardType="default"
         onBlur={() => this.makeFindDistributorReadyForQuery()}
@@ -736,7 +736,7 @@ class You extends Component {
           padding: 20,
           maxHeight: 400
         }}>
-            <View style={{...Views.middle,height:50,paddingVertical:30}}>
+            <View style={{justifyContent:'flex-start',paddingVertical:15}}>
               <FontPoiret text={this.state.tempCell || '( _ _ _ ) _ _ _ - _ _ _ _'} size={30}/>
             </View>
             <View style={{flexDirection:'row'}}>
