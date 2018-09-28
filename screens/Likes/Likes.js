@@ -180,8 +180,8 @@ class Likes extends Component {
     </View>
   )
 
-  onPressClaim(like){
-    this.props.navigation.navigate('Claims',{like})
+  onPressClaim(like,rgb){
+    this.props.navigation.navigate('Claims',{like,rgb})
   }
 
   renderLikes(){
@@ -197,7 +197,7 @@ class Likes extends Component {
             like={like}
             onPressClaim={this.onPressClaim}
             userType={userType}
-            rgb={like.rgb ? `rgb(${like.rgb})` : Colors.purpleLight}/>
+            rgb={like.rgb ? `rgb(${like.rgb})` : '#000000'}/>
         })
       } else {
         return this.renderNoLikes()

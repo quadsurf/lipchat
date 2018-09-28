@@ -294,7 +294,7 @@ class Claims extends Component {
 
   render(){
     return(
-      <View style={{flex:1,backgroundColor:Colors.pinkly}}>
+      <View style={{flex:1,backgroundColor:this.props.navigation.state.params.rgb}}>
         {this.renderMainContent()}
         {this.renderModal()}
       </View>

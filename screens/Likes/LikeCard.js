@@ -34,7 +34,7 @@ export default (props) => {
         </View>
         <TouchableOpacity
           style={Views.middle}
-          onPress={() => props.userType === 'SHOPPER' && props.onPressClaim(props.like)}>
+          onPress={() => props.userType === 'SHOPPER' && props.onPressClaim(props.like,props.rgb)}>
             <FontMatilde color={Colors.white} text="request this color" size={larger} vspace={20}/>
         </TouchableOpacity>
         <View style={{...Views.middle,marginTop:20}}>
