@@ -48,8 +48,16 @@ subscription SubToShoppersChats(
       updatedAt
       updater
       type
-      shoppersx {
+      shoppersx(
+        first:1
+      ){
         id
+        userx {
+          fbkFirstName
+          fbkLastName
+          fbkUserId
+          cellPhone
+        }
       }
       distributorsx(
         first:1
