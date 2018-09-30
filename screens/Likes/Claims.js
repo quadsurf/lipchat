@@ -192,7 +192,7 @@ class Claims extends Component {
             variables: { ChatId,text,writer,audience }
           }).then( res => {
             if (res && res.data && res.data.createMessage) {
-              this.triggerEventOnChatInDb(claim.chatId)
+              this.triggerEventOnChatInDb(ChatId)
             } else {
               this.openError(errText)
             }

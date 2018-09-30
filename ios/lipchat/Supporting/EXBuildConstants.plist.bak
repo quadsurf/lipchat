@@ -14,6 +14,6 @@
 	<key>STANDALONE_CONTEXT_TYPE</key>
 	<string>user</string>
 	<key>developmentUrl</key>
-	<string>lipchat://192.168.0.6:80</string>
+	<string>lipchat://192.168.0.6:19000</string>
 </dict>
 </plist>
