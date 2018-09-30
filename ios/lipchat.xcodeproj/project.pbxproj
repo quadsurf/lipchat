@@ -19,6 +19,8 @@
 		B5DB04801F3A684600E91581 /* shell-app-manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B5DB047E1F3A684600E91581 /* shell-app-manifest.json */; };
 		B5DB04811F3A684600E91581 /* shell-app.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B5DB047F1F3A684600E91581 /* shell-app.bundle */; };
 		EBB8117C1BFA0514F79CAF74 /* libPods-lipchat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C4A88D15726AD99E8A257BC7 /* libPods-lipchat.a */; };
+		F4D16ECE21610A1100803258 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D16ECD21610A1100803258 /* StoreKit.framework */; };
+		F4D16ED021610A2C00803258 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D16ECF21610A2C00803258 /* GameKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,9 @@
 		B5DB047E1F3A684600E91581 /* shell-app-manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "shell-app-manifest.json"; sourceTree = "<group>"; };
 		B5DB047F1F3A684600E91581 /* shell-app.bundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "shell-app.bundle"; sourceTree = "<group>"; };
 		C4A88D15726AD99E8A257BC7 /* libPods-lipchat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-lipchat.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4D16ECC216109F900803258 /* lipchat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = lipchat.entitlements; sourceTree = "<group>"; };
+		F4D16ECD21610A1100803258 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		F4D16ECF21610A2C00803258 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,7 +51,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4D16ED021610A2C00803258 /* GameKit.framework in Frameworks */,
 				EBB8117C1BFA0514F79CAF74 /* libPods-lipchat.a in Frameworks */,
+				F4D16ECE21610A1100803258 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +63,8 @@
 		1A42804E64B7E9E0AB8B6799 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4D16ECF21610A2C00803258 /* GameKit.framework */,
+				F4D16ECD21610A1100803258 /* StoreKit.framework */,
 				C4A88D15726AD99E8A257BC7 /* libPods-lipchat.a */,
 			);
 			name = Frameworks;
@@ -91,6 +100,7 @@
 		B56386431DB9693800A0598C /* lipchat */ = {
 			isa = PBXGroup;
 			children = (
+				F4D16ECC216109F900803258 /* lipchat.entitlements */,
 				B56386471DB9693800A0598C /* AppDelegate.h */,
 				B56386481DB9693800A0598C /* AppDelegate.m */,
 				B56386501DB9693800A0598C /* Assets.xcassets */,
@@ -154,6 +164,17 @@
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 5H2ZS9QMC6;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.GameCenter = {
+								enabled = 1;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -422,13 +443,15 @@
 			baseConfigurationReference = 2C1548D9E4CB1AEFA5CCAE6D /* Pods-lipchat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = lipchat/lipchat.entitlements;
 				DEVELOPMENT_TEAM = 5H2ZS9QMC6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/lipchat/Supporting/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.quadsurf.lipchat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -437,13 +460,15 @@
 			baseConfigurationReference = A47FE4D7F70906B7DC8CE39B /* Pods-lipchat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = lipchat/lipchat.entitlements;
 				DEVELOPMENT_TEAM = 5H2ZS9QMC6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/lipchat/Supporting/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.quadsurf.lipchat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
