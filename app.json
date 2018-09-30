@@ -5,7 +5,7 @@
     "slug": "lips",
     "privacy": "unlisted",
     "sdkVersion": "30.0.0",
-    "version": "1.12",
+    "version": "1.13",
     "orientation": "portrait",
     "primaryColor": "#371A85",
     "icon": "./assets/icons/icon.png",
@@ -28,7 +28,7 @@
       ]
     },
     "ios": {
-      "buildNumber": "9",
+      "buildNumber": "0",
       "bundleIdentifier": "com.quadsurf.lipchat",
       "icon": "./assets/icons/icon.png",
       "supportsTablet": true,
