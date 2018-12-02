@@ -68,24 +68,28 @@ class LipColorsGuest extends Component {
     this.checkIfLikeExists = debounce(this.checkIfLikeExists.bind(this),duration,true)
   }
 
-  componentWillMount(){
-    let { colors } = this.props
-    if (colors.length > 0) {
-      this.setState({colors},()=>{
-         this.handleReds()
-      })
-    }
+  // componentWillMount(){
+  //   let { colors } = this.props
+  //   if (colors.length > 0) {
+  //     this.setState({colors},()=>{
+  //        this.handleReds()
+  //     })
+  //   }
+  // }
+
+  componentDidMount(){
+    this.handleReds()
   }
 
-  componentWillReceiveProps(newProps){
-    if (newProps.colors !== this.props.colors) {
-      if (newProps.colors !== this.state.colors) {
-        this.setState({colors:newProps.colors},()=>{
-          this.handleReds()
-        })
-      }
-    }
-  }
+  // componentWillReceiveProps(newProps){
+  //   if (newProps.colors !== this.props.colors) {
+  //     if (newProps.colors !== this.state.colors) {
+  //       this.setState({colors:newProps.colors},()=>{
+  //         this.handleReds()
+  //       })
+  //     }
+  //   }
+  // }
 
   showModal(modalType,title,description,message=''){
     if (modalType && title) {
@@ -128,8 +132,7 @@ class LipColorsGuest extends Component {
   }
 
   filterColors(fam,cameFrom){
-    let { colors=[] } = this.state
-    let filteredColors = colors.filter(({family}) => family === fam)
+    let filteredColors = this.props.colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
       this.toggleFamilyOpenState(fam)
     })
@@ -146,7 +149,9 @@ class LipColorsGuest extends Component {
   }
 
   toggleFamilyOpenState(family){
-    if (this.state.colors.length > 0) {
+    console.log(this.props.colors)
+    return
+    if (this.props.colors.length > 0) {
       let isOpen = this.state[`${family}IsOpen`]
       if (!isOpen) {
         if (this.state[`${family}`].length === 0) {
@@ -178,7 +183,7 @@ class LipColorsGuest extends Component {
     )
   }
 
-  renderColors(){
+  renderMainContent(){
     let { screenWidth:width } = this.props.settings
     let {
       redsIsOpen,
@@ -302,7 +307,7 @@ class LipColorsGuest extends Component {
   render(){
     return(
       <View style={{...Views.middle,backgroundColor:Colors.purpleLight}}>
-        {this.renderColors()}
+        {this.renderMainContent()}
         {this.renderModal()}
       </View>
     )
@@ -324,13 +329,13 @@ const mapStateToProps = state => ({
   settings: state.settings
 })
 
-const LipColorsGuestWithData = compose(
-  graphql(GetColors,{
-    name: 'colors',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  })
-)(LipColorsGuest)
+// const LipColorsGuestWithData = compose(
+//   graphql(GetColors,{
+//     name: 'colors',
+//     options: () => ({
+//       fetchPolicy: 'network-only'
+//     })
+//   })
+// )(LipColorsGuest)
 
-export default connect(mapStateToProps)(LipColorsGuestWithData)
+export default connect(mapStateToProps)(LipColorsGuest)
