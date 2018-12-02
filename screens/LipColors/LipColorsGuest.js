@@ -128,7 +128,8 @@ class LipColorsGuest extends Component {
   }
 
   filterColors(fam,cameFrom){
-    let filteredColors = this.state.colors.filter(({family}) => family === fam)
+    let { colors=[] } = this.state
+    let filteredColors = colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
       this.toggleFamilyOpenState(fam)
     })

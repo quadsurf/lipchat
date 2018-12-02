@@ -34,7 +34,7 @@ type Route = {
 
 type State = NavigationState<Route>;
 
-class TabNav extends PureComponent<void, *, State> {
+class TabNavGuest extends PureComponent<void, *, State> {
 
   state: State = {
     index: 1,
@@ -144,6 +144,7 @@ class TabNav extends PureComponent<void, *, State> {
   }
 
   render() {
+    let { screenWidth:width,screenHeight:height } = this.props.settings
     return (
       <TabViewAnimated
         style={styles.container}
@@ -151,24 +152,19 @@ class TabNav extends PureComponent<void, *, State> {
         renderScene={this.renderScene}
         renderFooter={this.renderFooter}
         onIndexChange={this.handleChangeTab}
-        initialLayout={{
-          width: this.props.wWidth,
-          height: this.props.wHeight
-        }}
+        initialLayout={{width,height}}
       />
     )
   }
 
 }
 
-TabNav.propTypes = {
-  wWidth: PropTypes.number.isRequired,
-  wHeight: PropTypes.number.isRequired
+TabNavGuest.propTypes = {
+  settings: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
-  wWidth: state.settings.screenWidth,
-  wHeight: state.settings.screenHeight
+  settings: state.settings
 })
 
-export default connect(mapStateToProps)(TabNav)
+export default connect(mapStateToProps)(TabNavGuest)

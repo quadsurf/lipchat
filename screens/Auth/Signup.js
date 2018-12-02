@@ -40,7 +40,8 @@ class Signup extends Component {
             name="ray-start-end"
             size={30}
             color={Colors.transparentWhite}
-            style={{marginVertical:24}}/>
+            style={{marginVertical:24}}
+            onPress={() => this.navBack()}/>
           <FontPoiret text="In order to keep you in" size={Texts.large.fontSize}/>
           <FontPoiret text="compliance, this is not a" size={Texts.large.fontSize}/>
           <FontPoiret text="shopping cart ordering system," size={Texts.large.fontSize}/>

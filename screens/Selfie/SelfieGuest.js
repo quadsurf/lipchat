@@ -39,6 +39,9 @@ const singleCoatAlpha = 0.6
 const shortUIdebounce = 500
 const longUIdebounce = 2000
 
+// STORE
+import { setColors } from '../../store/actions'
+
 class Selfie extends Component {
 
   constructor(props){
@@ -73,17 +76,23 @@ class Selfie extends Component {
       })
     }
     const { status } = await Permissions.askAsync(Permissions.CAMERA)
-    this.setState({
-      hasCameraPermission: status === 'granted',
-      colors: this.props.colors
-    })
+    this.setState({ hasCameraPermission: status === 'granted' })
   }
 
   componentWillReceiveProps(newProps){
-    if (newProps.colors !== this.props.colors) {
-      if (newProps.colors !== this.state.colors) {
-        this.setState({colors:newProps.colors},()=>{
-
+    if (newProps.getColors.allColors !== this.props.colors) {
+      if (newProps.getColors.allColors !== this.state.colors) {
+        this.setState({colors:newProps.getColors.allColors},()=>{
+          console.log('componentWillReceiveProps',this.state.colors[0])
+          let newColors = []
+          this.state.colors.forEach( color => {
+            newColors.push({
+              ...color,
+              likesx: [],
+              inventoriesx: []
+            })
+          })
+          setColors(newColors)
         })
       }
     }
@@ -564,7 +573,7 @@ class Selfie extends Component {
   }
 
   checkIfLikeExists(){
-
+    console.log('checkIfLikeExists func called')
   }
 
   renderNoPermissions() {
@@ -593,11 +602,11 @@ const mapStateToProps = state => ({
 
 const SelfieWithData = compose(
   graphql(GetColors,{
-    name: 'colors',
+    name: 'getColors',
     options: () => ({
       fetchPolicy: 'network-only'
     })
   })
 )(Selfie)
 
-export default connect(mapStateToProps)(SelfieWithData)
+export default connect(mapStateToProps,{setColors})(SelfieWithData)

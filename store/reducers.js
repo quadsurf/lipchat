@@ -151,6 +151,7 @@ const initialColors = []
 const colorsReducer = (state=initialColors,actions) => {
   switch(actions.type){
     case SET_COLORS:
+      console.log('redux reducer called')
       let colors = []
       let newColors = [...actions.colors]
       newColors.forEach( ({
@@ -171,6 +172,7 @@ const colorsReducer = (state=initialColors,actions) => {
           inventoryId,count
         })
       })
+      console.log('redux reducer called')
       return colors
     default: return state
   }

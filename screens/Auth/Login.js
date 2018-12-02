@@ -15,11 +15,12 @@ import {
 import { compose,graphql } from 'react-apollo'
 import { connect } from 'react-redux'
 import Swiper from 'react-native-swiper'
+import PropTypes from 'prop-types'
 
 //LOCALS
 import { Colors,Views,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
-import { getDimensions,Modals } from '../../utils/Helpers'
+import { Modals } from '../../utils/Helpers'
 import { terms } from '../../config/Defaults'
 
 //ENV VARS
@@ -36,12 +37,12 @@ import { resetApp } from '../../store/actions'
 const debugging = __DEV__ && false
 const fbBaseUri = 'https://graph.facebook.com/v'
 const fbUriParams = '/me?fields=id,first_name,last_name,picture,email&access_token='
+const marginBottom = 60
 //deprecated: friends,verified,gender,age_range
 
 class Login extends Component {
 
   state = {
-    bottomMargin: 60,
     isModalOpen: false,
     modalType: 'processing',
     modalContent: {},
@@ -52,7 +53,7 @@ class Login extends Component {
     return {
       ...Views.middle,
       backgroundColor: Colors.bgColor,
-      width: getDimensions().width
+      width: this.props.settings.screenWidth
     }
   }
 
@@ -127,20 +128,21 @@ class Login extends Component {
   }
 
   renderSwipeScreens(){
+    let { screenWidth:width,screenHeight:height } = this.props.settings
     return (
       <Swiper
         loop={false}
         showsPagination={true}
         index={0}
         activeDotColor={Colors.pinkly}
-        height={getDimensions().height}
-        width={getDimensions().width}
+        height={height}
+        width={width}
         >
         <View style={{...Views.middle}}>
           <ImageBackground
             source={require('../../assets/images/splash.jpg')}
-            style={{width:getDimensions().width,height:getDimensions().height}}>
-            <View style={{...Views.bottomCenter,marginBottom:this.state.bottomMargin}}>
+            style={{width,height}}>
+            <View style={{...Views.bottomCenter,marginBottom}}>
               <FontPoiret text="Find Your Sexy" size={48} underline={true} />
               <FontPoiret text="overlay lip colors" size={32} />
               <FontPoiret text="onto your selfie" size={32} />
@@ -150,10 +152,11 @@ class Login extends Component {
         <View style={{...Views.middle}}>
           <ImageBackground
             source={require('../../assets/images/water-proof.jpg')}
-            style={{width:getDimensions().width,height:getDimensions().height}}>
+            style={{width,height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="waterproof" size={68} />
               {this.renderButton('guest')}
+              {this.renderButton('fb')}
               {this.renderTermsPrivacy()}
             </View>
           </ImageBackground>
@@ -161,7 +164,7 @@ class Login extends Component {
         <View style={{...Views.middle}}>
           <ImageBackground
             source={require('../../assets/images/kiss-proof.jpg')}
-            style={{width:getDimensions().width,height:getDimensions().height}}>
+            style={{width,height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="kissproof" />
               {this.renderButton('fb')}
@@ -172,7 +175,7 @@ class Login extends Component {
         <View style={{...Views.middle}}>
           <ImageBackground
             source={require('../../assets/images/smudge-proof.jpg')}
-            style={{width:getDimensions().width,height:getDimensions().height}}>
+            style={{width,height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="smudgeproof" size={57} />
               {this.renderButton('fb')}
@@ -183,7 +186,7 @@ class Login extends Component {
         <View style={{...Views.middle}}>
           <ImageBackground
             source={require('../../assets/images/cruelty-free.jpg')}
-            style={{width:getDimensions().width,height:getDimensions().height}}>
+            style={{width,height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="cruelty-free," size={63} />
               <FontPoiret text="lead-free," size={64} />
@@ -201,10 +204,10 @@ class Login extends Component {
   renderButton(mode){
     return (
       <View style={{
-          width:getDimensions().width,
+          width:this.props.settings.screenWidth,
           height:60,
           ...Views.middleNoFlex,
-          marginBottom:this.state.bottomMargin
+          marginBottom: mode === 'fb' ? marginBottom : 0
         }}>
         <TouchableHighlight
           style={{
@@ -220,7 +223,7 @@ class Login extends Component {
               ...Texts.medium
             }}>
             {
-              mode === 'fb' ? 'login with facebook' : 'browse as guester'
+              mode === 'fb' ? 'login with facebook' : 'browse as guest'
             }
           </Text>
         </TouchableHighlight>
@@ -304,6 +307,14 @@ class Login extends Component {
 
 }
 
+Login.propTypes = {
+  settings: PropTypes.object.isRequired
+}
+
+const mapStateToProps = state => ({
+  settings: state.settings
+})
+
 const LoginWithData = compose(
   graphql(AuthenticateFacebookUser,{
     name: 'authenticateFacebookUser'
@@ -313,4 +324,4 @@ const LoginWithData = compose(
   })
 )(Login)
 
-export default connect(null,{ resetApp })(LoginWithData)
+export default connect(mapStateToProps,{ resetApp })(LoginWithData)
