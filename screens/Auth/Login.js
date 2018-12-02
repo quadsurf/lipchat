@@ -153,7 +153,7 @@ class Login extends Component {
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="waterproof" size={68} />
-              {this.renderFacebookButton()}
+              {this.renderButton('guest')}
               {this.renderTermsPrivacy()}
             </View>
           </ImageBackground>
@@ -164,7 +164,7 @@ class Login extends Component {
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="kissproof" />
-              {this.renderFacebookButton()}
+              {this.renderButton('fb')}
               {this.renderTermsPrivacy()}
             </View>
           </ImageBackground>
@@ -175,7 +175,7 @@ class Login extends Component {
             style={{width:getDimensions().width,height:getDimensions().height}}>
             <View style={{...Views.bottomCenter}}>
               <FontPoiret text="smudgeproof" size={57} />
-              {this.renderFacebookButton()}
+              {this.renderButton('fb')}
               {this.renderTermsPrivacy()}
             </View>
           </ImageBackground>
@@ -189,7 +189,7 @@ class Login extends Component {
               <FontPoiret text="lead-free," size={64} />
               <FontPoiret text="vegan..." size={64} />
               <FontPoiret text="nuff said!" size={64} />
-              {this.renderFacebookButton()}
+              {this.renderButton('fb')}
               {this.renderTermsPrivacy()}
             </View>
           </ImageBackground>
@@ -198,7 +198,7 @@ class Login extends Component {
     )
   }
 
-  renderFacebookButton(){
+  renderButton(mode){
     return (
       <View style={{
           width:getDimensions().width,
@@ -214,12 +214,14 @@ class Login extends Component {
             backgroundColor:Colors.purple
           }}
           underlayColor={Colors.purpleLight}
-          onPress={() => this.logIn()}>
+          onPress={() => mode === 'fb' ? this.logIn() : this.guest()}>
           <Text style={{
               color:Colors.bluergba,
               ...Texts.medium
             }}>
-            login with facebook
+            {
+              mode === 'fb' ? 'login with facebook' : 'browse as guester'
+            }
           </Text>
         </TouchableHighlight>
       </View>
@@ -247,6 +249,10 @@ class Login extends Component {
     } else if (type === 'cancel') {
       this.showModal('error','Intro',"Why would you do that? Tisk, tisk! A valid and verified Facebook account is needed.")
     }
+  }
+
+  guest(){
+    this.props.navigation.navigate('Guest')
   }
 
   getOrCreateUser(facebookUser,fbkToken){

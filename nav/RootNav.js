@@ -14,6 +14,7 @@ import { Colors } from '../css/Styles'
 import AuthState from '../screens/Auth/AuthState'
 import Login from '../screens/Auth/Login'
 import TabNav from './TabNav'
+import TabNavGuest from './TabNavGuest'
 import Messages from '../screens/Chat/Messages'
 import Claims from '../screens/Likes/Claims'
 import RemoteData from '../store/Remote'
@@ -65,10 +66,20 @@ const AppStack = createStackNavigator(
   }
 )
 
+const LoggedOutStack = createStackNavigator(
+  {
+    Explainers: Login,
+    Guest: TabNavGuest
+  },{
+    initialRouteName: 'Explainers',
+    headerMode: 'none'
+  }
+)
+
 export default createSwitchNavigator(
   {
     AuthChecker: AuthState,
-    LoggedOut: Login,
+    LoggedOut: LoggedOutStack,
     LoggedIn: AppStack
   },
   {

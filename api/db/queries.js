@@ -48,8 +48,12 @@ query GetUser(
 }`
 
 const GetColors = gql`
-query GetColors{
-  allColors{
+query{
+  allColors(
+    filter: {
+      status_not: DISCONTINUED
+    }
+  ){
     id
     family
     finish
@@ -511,5 +515,5 @@ query {
 }`
 
 export {
-  GetUser,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper,GetSettings
+  GetUser,GetColors,GetColorsAndInventories,GetUserType,GetDistributor,FindDistributor,CheckForDistributorOnShopper,GetChatsForShopper,GetChatsForDistributor,GetDistributorStatus,GetAllDistributorsStatusForShopper,GetMessagesForChat,CheckIfDistributorHasGroupChat,GetShoppersDistributor,CheckIfShopperHasDmChatWithDistributor,GetAdminChats,GetLikesForShopper,GetSettings
 }
