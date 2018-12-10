@@ -63,7 +63,7 @@ class Signup extends Component {
           <FontPoiret text="favorite colors" size={Texts.medium.fontSize}/>
           <FontPoiret text="link to your distributor" size={Texts.medium.fontSize}/>
           <FontPoiret text="chat with your distributor 1-on-1" size={Texts.medium.fontSize}/>
-          <FontPoiret text="chat with your distributor's group chat" size={Texts.medium.fontSize}/>
+          <FontPoiret text="chat in your distributor's group chat" size={Texts.medium.fontSize}/>
           <FontPoiret text="claim/reserve colors from distributor's inventory" size={Texts.medium.fontSize}/>
           { this.renderSeparator() }
           <FontPoiret text="DISTRIBUTORS" size={Texts.larger.fontSize}/>
