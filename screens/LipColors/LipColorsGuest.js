@@ -126,12 +126,14 @@ class LipColorsGuest extends Component {
   handleReds(){
     this.setState({redsAutoLoadedCount:this.state.redsAutoLoadedCount+1},()=>{
       if (this.state.redsAutoLoadedCount < 2) {
+        console.log('about to call filterColors func')
         this.filterColors('reds','handleReds')
       }
     })
   }
 
   filterColors(fam,cameFrom){
+    console.log('colors on props',this.props.colors[0])
     let filteredColors = this.props.colors.filter(({family}) => family === fam)
     this.setState({[`${fam}`]:filteredColors},()=>{
       this.toggleFamilyOpenState(fam)
@@ -149,8 +151,8 @@ class LipColorsGuest extends Component {
   }
 
   toggleFamilyOpenState(family){
-    console.log(this.props.colors)
-    return
+    // console.log(this.props.colors)
+    // return
     if (this.props.colors.length > 0) {
       let isOpen = this.state[`${family}IsOpen`]
       if (!isOpen) {

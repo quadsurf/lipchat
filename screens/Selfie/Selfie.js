@@ -109,7 +109,7 @@ class Selfie extends Component {
   }
 
   componentDidMount(){
-    this.subToLikesInDb()
+    this.props.authenticated && this.subToLikesInDb()
   }
 
   onFacesDetected = ({ faces }) => this.setState({ faces })
@@ -253,8 +253,12 @@ class Selfie extends Component {
   }
 
   renderLikers(colors){
-    if (colors && colors.length > 0) {
-      return colors.map( color => this.renderLiker(color) )
+    if (this.props.authenticated) {
+      if (colors && colors.length > 0) {
+        return colors.map( color => this.renderLiker(color) )
+      } else {
+        return <View/>
+      }
     } else {
       return <View/>
     }

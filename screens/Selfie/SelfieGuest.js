@@ -83,7 +83,6 @@ class Selfie extends Component {
     if (newProps.getColors.allColors !== this.props.colors) {
       if (newProps.getColors.allColors !== this.state.colors) {
         this.setState({colors:newProps.getColors.allColors},()=>{
-          console.log('componentWillReceiveProps',this.state.colors[0])
           let newColors = []
           this.state.colors.forEach( color => {
             newColors.push({
@@ -92,7 +91,7 @@ class Selfie extends Component {
               inventoriesx: []
             })
           })
-          setColors(newColors)
+          this.props.setColors(newColors)
         })
       }
     }

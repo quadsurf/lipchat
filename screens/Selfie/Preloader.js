@@ -9,11 +9,11 @@ import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
 
 // GQL
-import { GetUserType } from '../../api/db/queries'
+import { GetColorsAndInventories,GetUserType } from '../../api/db/queries'
 import { SubToUserType } from '../../api/db/pubsub'
 
 // STORE
-import { updateUser } from '../../store/actions'
+import { setColors,updateUser } from '../../store/actions'
 
 // COMPS
 import Selfie from './Selfie'
@@ -26,7 +26,8 @@ const debugging = __DEV__ && false
 class SelfiePreloader extends Component {
 
   state = {
-    reloading: false
+    reloading: false,
+    colorsLoaded: false
   }
 
   constructor(props){
@@ -35,22 +36,30 @@ class SelfiePreloader extends Component {
   }
 
   componentDidMount(){
-    this.subToUserType()
+    this.props.userId && this.subToUserType()
   }
 
   subToUserType(){
-    let { userId } = this.props
-    if (userId) {
-      this.props.getUserType.subscribeToMore({
-        document: SubToUserType,
-        variables: { UserId: userId },
-        updateQuery: (previous,{ subscriptionData }) => {
-          let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
-          if (mutation === 'UPDATED') {
-            nextType !== prevType && this.updateUser(nextType)
-          }
+    this.props.getUserType.subscribeToMore({
+      document: SubToUserType,
+      variables: { UserId: this.props.userId },
+      updateQuery: (previous,{ subscriptionData }) => {
+        let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
+        if (mutation === 'UPDATED') {
+          nextType !== prevType && this.updateUser(nextType)
         }
-      })
+      }
+    })
+  }
+
+  componentWillReceiveProps(newProps){
+    if (
+      newProps.getColorsAndInventories &&
+      newProps.getColorsAndInventories.allColors &&
+      newProps.getColorsAndInventories.allColors.length > 0
+    ) {
+      this.props.setColors(newProps.getColorsAndInventories.allColors)
+      this.setState({ colorsLoaded:true })
     }
   }
 
@@ -66,24 +75,43 @@ class SelfiePreloader extends Component {
   }
 
   render(){
-    if (this.state.reloading) {
+    let { reloading,colorsLoaded } = this.state
+    if (reloading) {
       return <Loading text="reloading selfie..."/>
     } else {
-      return <Selfie/>
+      if (colorsLoaded) {
+        return <Selfie authenticated={this.props.userId ? true : false}/>
+      } else {
+        return <Loading text="loading colors..."/>
+      }
     }
   }
 
 }
 
 SelfiePreloader.propTypes = {
-  userId: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,
+  shopperId: PropTypes.string.isRequired,
+  distributorId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = state => ({
-  userId: state.user.id
+  userId: state.user.id,
+  shopperId: state.shopper.id,
+  distributorId: state.distributor.id
 })
 
 const SelfiePreloaderWithData = compose(
+  graphql(GetColorsAndInventories,{
+    name: 'getColorsAndInventories',
+    options: props => ({
+      variables: {
+        distributorxId: props.distributorId,
+        shopperxId: props.shopperId
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
   graphql(GetUserType,{
     name: 'getUserType',
     options: props => ({
@@ -94,4 +122,4 @@ const SelfiePreloaderWithData = compose(
   })
 )(SelfiePreloader)
 
-export default connect(mapStateToProps,{ updateUser })(SelfiePreloaderWithData)
+export default connect(mapStateToProps,{ setColors,updateUser })(SelfiePreloaderWithData)

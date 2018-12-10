@@ -39,7 +39,7 @@ const tokensReducer = (state=initialTokens,actions) => {
 }
 
 
-const initialUser = { id:'',type:null }
+const initialUser = { id:'',type:'SHOPPER' }
 const userReducer = (state=initialUser,actions) => {
   let newUser
   switch(actions.type){
@@ -117,7 +117,7 @@ const shoppersDistributorsReducer = (state=initialShoppersDistributors,actions) 
 
 
 const initialDistributor = {
-  id: null,
+  id: '',
   status: null,
   level: null,
   distId: null,
@@ -151,7 +151,6 @@ const initialColors = []
 const colorsReducer = (state=initialColors,actions) => {
   switch(actions.type){
     case SET_COLORS:
-      console.log('redux reducer called')
       let colors = []
       let newColors = [...actions.colors]
       newColors.forEach( ({
@@ -172,7 +171,6 @@ const colorsReducer = (state=initialColors,actions) => {
           inventoryId,count
         })
       })
-      console.log('redux reducer called')
       return colors
     default: return state
   }

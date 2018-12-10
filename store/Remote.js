@@ -22,7 +22,7 @@ import {
 } from '../api/db/pubsub'
 
 // STORE
-import { setColors,setSadvrId } from './actions'
+import { setSadvrId } from './actions'
 import {
   setChats,
   addChat,
@@ -117,14 +117,6 @@ class Remote extends Component {
       } else {
         debugging && console.log('dmChat for Shopper and their distributor exists')
       }
-    }
-
-    if (
-      newProps.getColorsAndInventories &&
-      newProps.getColorsAndInventories.allColors &&
-      newProps.getColorsAndInventories.allColors.length > 0
-    ) {
-      this.props.setColors(newProps.getColorsAndInventories.allColors)
     }
 
     if (
@@ -387,16 +379,6 @@ const mapStateToProps = state => ({
 })
 
 const RemoteWithData = compose(
-  graphql(GetColorsAndInventories,{
-    name: 'getColorsAndInventories',
-    options: props => ({
-      variables: {
-        distributorxId: props.distributorId,
-        shopperxId: props.shopperId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(GetAdminChats,{
     name: 'getAdminChats',
     options: props => ({
@@ -435,5 +417,5 @@ const RemoteWithData = compose(
 )(Remote)
 
 export default connect(mapStateToProps,{
-  setColors,setSadvrId,setChats,addChat,updateChat,removeChat
+  setSadvrId,setChats,addChat,updateChat,removeChat
 })(RemoteWithData)
