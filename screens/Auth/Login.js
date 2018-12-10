@@ -31,7 +31,7 @@ import { AuthenticateFacebookUser } from '../../api/db/mutations'
 import { GetSettings } from '../../api/db/queries'
 
 //STORE
-import { resetApp } from '../../store/actions'
+import { clearUser,clearShopper,clearDistributor,resetApp } from '../../store/actions'
 
 //CONSTs
 const debugging = __DEV__ && false
@@ -55,6 +55,12 @@ class Login extends Component {
       backgroundColor: Colors.bgColor,
       width: this.props.settings.screenWidth
     }
+  }
+
+  componentDidMount(){
+    this.props.clearUser()
+    this.props.clearShopper()
+    this.props.clearDistributor()
   }
 
   componentWillReceiveProps(newProps){
@@ -308,7 +314,11 @@ class Login extends Component {
 }
 
 Login.propTypes = {
-  settings: PropTypes.object.isRequired
+  settings: PropTypes.object.isRequired,
+  clearUser: PropTypes.func.isRequired,
+  clearShopper: PropTypes.func.isRequired,
+  clearDistributor: PropTypes.func.isRequired,
+  resetApp: PropTypes.func.isRequired
 }
 
 const mapStateToProps = state => ({
@@ -324,4 +334,6 @@ const LoginWithData = compose(
   })
 )(Login)
 
-export default connect(mapStateToProps,{ resetApp })(LoginWithData)
+export default connect(mapStateToProps,{
+  clearUser,clearShopper,clearDistributor,resetApp
+})(LoginWithData)

@@ -53,6 +53,7 @@ class SelfiePreloader extends Component {
   }
 
   componentWillReceiveProps(newProps){
+    console.log(newProps.getColorsAndInventories)
     if (
       newProps.getColorsAndInventories &&
       newProps.getColorsAndInventories.allColors &&

@@ -3,8 +3,8 @@
 import {
   SET_TOKENS,CLEAR_TOKENS,
   SET_USER,UPDATE_USER,CLEAR_USER,
-  SET_SHOPPER,UPDATE_SHOPPER,
-  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
+  SET_SHOPPER,UPDATE_SHOPPER,CLEAR_SHOPPER,
+  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,CLEAR_DISTRIBUTOR,
   SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
   SET_COLORS,
   SET_SETTINGS,
@@ -47,6 +47,8 @@ const updateShopper = updates => ({
   updates
 })
 
+const clearShopper = () => ({ type: CLEAR_SHOPPER })
+
 const setShoppersDistributors = shoppersDistributors => ({
   type: SET_SHOPPERS_DISTRIBUTORS,
   shoppersDistributors
@@ -71,6 +73,8 @@ const updateDistributor = updates => ({
   type: UPDATE_DISTRIBUTOR,
   updates
 })
+
+const clearDistributor = () => ({ type: CLEAR_DISTRIBUTOR })
 
 const setColors = colors => ({
   type: SET_COLORS,
@@ -110,8 +114,8 @@ const setSadvrId = sadvrId => ({
 export {
   setTokens,clearTokens,
   setAuthUser,updateUser,clearUser,
-  setDistributor,updateDistributor,
-  setShopper,updateShopper,
+  setDistributor,updateDistributor,clearDistributor,
+  setShopper,updateShopper,clearShopper,
   setShoppersDistributors,updateShoppersDistributor,clearShoppersDistributor,
   setColors,
   setSettings,setSadvrId,

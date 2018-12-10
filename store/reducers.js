@@ -3,8 +3,8 @@
 import {
   SET_TOKENS,CLEAR_TOKENS,
   SET_USER,UPDATE_USER,CLEAR_USER,
-  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,
-  SET_SHOPPER,UPDATE_SHOPPER,
+  SET_DISTRIBUTOR,UPDATE_DISTRIBUTOR,CLEAR_DISTRIBUTOR,
+  SET_SHOPPER,UPDATE_SHOPPER,CLEAR_SHOPPER,
   SET_SHOPPERS_DISTRIBUTORS,UPDATE_SHOPPERS_DISTRIBUTOR,CLEAR_SHOPPERS_DISTRIBUTOR,
   SET_COLORS,
   SET_SETTINGS,
@@ -82,6 +82,8 @@ const shopperReducer = (state=initialShopper,actions) => {
         ...updates
       }
       return newShopper
+    case CLEAR_SHOPPER:
+      return initialShopper
     default: return state
   }
 }
@@ -142,6 +144,8 @@ const distributorReducer = (state=initialDistributor,actions) => {
         ...updates
       }
       return newDistributor
+    case CLEAR_DISTRIBUTOR:
+      return initialDistributor
     default: return state
   }
 }
