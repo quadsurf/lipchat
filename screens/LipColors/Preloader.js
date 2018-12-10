@@ -36,24 +36,21 @@ class LipColorsPreloader extends Component {
   }
 
   componentDidMount(){
-    this.subToUserType()
-    this.subToDistributorStatus()
+    this.props.userId && this.subToUserType(this.props.userId)
+    this.props.distributorId && this.subToDistributorStatus(this.props.distributorId)
   }
 
-  subToUserType(){
-    let { userId } = this.props
-    if (userId) {
-      this.props.getUserType.subscribeToMore({
-        document: SubToUserType,
-        variables: { UserId: userId },
-        updateQuery: (previous,{ subscriptionData }) => {
-          let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
-          if (mutation === 'UPDATED') {
-            nextType !== prevType && this.updateUser(nextType)
-          }
+  subToUserType(id){
+    this.props.getUserType.subscribeToMore({
+      document: SubToUserType,
+      variables: { UserId: id },
+      updateQuery: (previous,{ subscriptionData }) => {
+        let { mutation,node:{ type:nextType },previousValues:{ type:prevType } } = subscriptionData.data.User
+        if (mutation === 'UPDATED') {
+          nextType !== prevType && this.updateUser(nextType)
         }
-      })
-    }
+      }
+    })
   }
 
   updateUser(nextType){
@@ -67,24 +64,21 @@ class LipColorsPreloader extends Component {
     })
   }
 
-  subToDistributorStatus(){
-    let { distributorId } = this.props
-    if (distributorId) {
-      this.props.getDistributorStatus.subscribeToMore({
-        document: SubToDistributorStatus,
-        variables: { DistributorId: distributorId },
-        updateQuery: (previous,{ subscriptionData }) => {
-          let {
-            mutation,
-            node:{ status:nextStatus },
-            previousValues:{ status:prevStatus }
-          } = subscriptionData.data.Distributor
-          if (mutation === 'UPDATED') {
-            nextStatus !== prevStatus && this.updateDistributor(nextStatus)
-          }
+  subToDistributorStatus(id){
+    this.props.getDistributorStatus.subscribeToMore({
+      document: SubToDistributorStatus,
+      variables: { DistributorId: id },
+      updateQuery: (previous,{ subscriptionData }) => {
+        let {
+          mutation,
+          node:{ status:nextStatus },
+          previousValues:{ status:prevStatus }
+        } = subscriptionData.data.Distributor
+        if (mutation === 'UPDATED') {
+          nextStatus !== prevStatus && this.updateDistributor(nextStatus)
         }
-      })
-    }
+      }
+    })
   }
 
   updateDistributor(nextStatus){
@@ -102,7 +96,7 @@ class LipColorsPreloader extends Component {
     if (this.state.reloading) {
       return <Loading text="reloading colors..."/>
     } else {
-      return <LipColors/>
+      return <LipColors authenticated={this.props.userId ? true : false}/>
     }
   }
 

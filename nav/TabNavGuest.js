@@ -14,7 +14,7 @@ import type { NavigationState } from 'react-native-tab-view/types'
 //SCREENS
 import Signup from '../screens/Auth/Signup'
 import Selfie from '../screens/Selfie/Preloader'
-import LipColors from '../screens/LipColors/LipColorsGuest'
+import LipColors from '../screens/LipColors/Preloader'
 
 //LOCALS
 import { Views,Colors } from '../css/Styles'

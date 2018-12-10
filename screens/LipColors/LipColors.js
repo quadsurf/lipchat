@@ -78,6 +78,7 @@ class LipColors extends Component {
     this.checkIsEditingMode = this.checkIsEditingMode.bind(this)
     this.checkIfInventoryExists = debounce(this.checkIfInventoryExists.bind(this),networkDebounce,true)
     this.cancelInventoryUpdater = debounce(this.cancelInventoryUpdater.bind(this),shortUIdebounce,true)
+    this.registrationPrompt = this.registrationPrompt.bind(this)
   }
 
   subToLikesInDb(){
@@ -120,7 +121,7 @@ class LipColors extends Component {
   }
 
   componentDidMount(){
-    this.subToLikesInDb()
+    this.props.authenticated && this.subToLikesInDb()
   }
 
   componentWillReceiveProps(newProps){
@@ -186,13 +187,21 @@ class LipColors extends Component {
         key={color.colorId}
         color={color}
         userType={this.props.userType}
-        onLikePress={this.checkIfLikeExists}
+        onLikePress={this.props.authenticated ? this.checkIfLikeExists : this.registrationPrompt}
         isEditing={this.state[`isEditing-${color.colorId}`]}
         onMinusPress={this.checkIsEditingMode}
         onAddPress={this.checkIsEditingMode}
         onCancelPress={this.cancelInventoryUpdater}
         onUpdatePress={this.checkIfInventoryExists}/>
     })
+  }
+
+  registrationPrompt(){
+    this.showModal(
+      'prompt',
+      'Lets Get You Signed Up',
+      `An account is needed to save colors along with many other benefits as well.`
+    )
   }
 
   toggleFamilyOpenState(family){
@@ -562,7 +571,7 @@ LipColors.propTypes = {
   colors: PropTypes.array.isRequired,
   shopperId: PropTypes.string.isRequired,
   distributorId: PropTypes.string.isRequired,
-  distributorStatus: PropTypes.bool.isRequired,
+  distributorStatus: PropTypes.bool,
   userType: PropTypes.string.isRequired
 }
 
