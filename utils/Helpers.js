@@ -257,13 +257,13 @@ class Modals extends Component {
         </View>
       )
     } else if (type === 'confirm') {
-      let { title,description,onConfirmPress } = this.props.content
+      let { title,description,onConfirmPress,buttonText } = this.props.content
       let modalWidth = width*.85
       // let modalHeight = getDimensions().height*.75
       let button = {
         width:modalWidth-40,height:50,justifyContent:'center',alignItems:'center',borderRadius:6,backgroundColor:Colors.blue,marginTop:18,marginBottom:10
       }
-      let buttonText = {fontFamily:'Poiret',fontSize:large}
+      let buttonTextStyle = {fontFamily:'Poiret',fontSize:large}
       return (
         <View
           onPress={this.props.close}
@@ -285,7 +285,11 @@ class Modals extends Component {
           <TouchableHighlight
             onPress={onConfirmPress}
             underlayColor={Colors.pinkly} style={{...button}}>
-            <Text style={{...buttonText,color:Colors.purple}}>confirm</Text>
+            <Text style={{...buttonTextStyle,color:Colors.purple}}>
+              {
+                buttonText ? buttonText : 'confirm'
+              }
+            </Text>
           </TouchableHighlight>
           <TouchableHighlight
             style={{

@@ -71,6 +71,13 @@ When customers use augmented reality to virtually test on new lip colors, they'r
 const distIsLiking = 'Liking colors is reserved for Shoppers only.'
 const notApprovedToAddInventory = `Inventory Management is a feature reserved for verified Distributors. Please get verified so you can begin taking advantage of this feature!`
 
+const registrationPrompt = `Let's Get You Signed Up`
+const registrationPromptSelfie = `FOR SHOPPERS: An account is needed to save your favorite colors and then book those colors from your Distributor.`
+const registrationPromptColors = `${registrationPromptSelfie}
+
+FOR DISTRIBUTORS: An account is needed for this screen to help automate your inventory tracking.`
+const exitDemoButtonText = `exit demo to sign up`
+
 const terms = `${AppName} PRIVACY POLICY
 
 This privacy policy has been compiled to better serve those who are concerned with how their 'Personally Identifiable Information' (PII) is being used online. PII, as described in US privacy law and information security, is information that can be used on its own or with other information to identify, contact, or locate a single person, or to identify an individual in context. Please read our privacy policy carefully to get a clear understanding of how we collect, use, protect or otherwise handle your Personally Identifiable Information in accordance with ${AppName}.
@@ -380,7 +387,7 @@ Last Edited on 2018-02-10`
 
 export {
   tips,distIdExplainer,bizNameExplainer,bizUriExplainer,logoUriExplainer,bizUriWarning,logoUriWarning,
-  AppName,terms,method,url,newClaimText,newClaimText2,version,
+  AppName,registrationPrompt,registrationPromptSelfie,registrationPromptColors,exitDemoButtonText,terms,method,url,newClaimText,newClaimText2,version,
   notApprovedToAddInventory,AccountTypeExplainer,distIsLiking,
   chatLabelDIST2SHPRS,dm,gm,support,news,fbkId
 }

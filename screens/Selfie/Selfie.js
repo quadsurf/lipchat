@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
+import { withNavigation } from 'react-navigation'
 
 // GQL
 import { CreateLike,UpdateDoesLikeOnLike } from '../../api/db/mutations'
@@ -24,7 +25,7 @@ import { Views,Colors,Texts } from '../../css/Styles'
 import { FontPoiret } from '../common/fonts'
 import { convertRGBStringIntoArrayOfNumbers,Modals,getDimensions } from '../../utils/Helpers'
 import styles from './Styles'
-import { tips,distIsLiking } from './../../config/Defaults'
+import { tips,distIsLiking,registrationPrompt,registrationPromptSelfie,exitDemoButtonText } from './../../config/Defaults'
 
 // COMPONENTS
 import ColorSwatch from './ColorSwatch'
@@ -42,6 +43,7 @@ const singleCoatAlpha = 0.6
 const shortUIdebounce = 500
 const longUIdebounce = 2000
 
+@withNavigation
 class Selfie extends Component {
 
   constructor(props){
@@ -66,6 +68,8 @@ class Selfie extends Component {
     this.onColorPress = debounce(this.onColorPress.bind(this),shortUIdebounce,true)
     this.toggleLayersMode = debounce(this.toggleLayersMode,longUIdebounce,true)
     this.renderSwatch = this.renderSwatch.bind(this)
+    this.registrationPrompt = this.registrationPrompt.bind(this)
+    this.goBack = this.goBack.bind(this)
   }
 
   subToLikesInDb(){
@@ -248,20 +252,30 @@ class Selfie extends Component {
       <Liker
         key={color.colorId}
         color={color}
-        onLikePress={this.checkIfLikeExists}/>
+        onLikePress={this.props.authenticated ? this.checkIfLikeExists : this.registrationPrompt}/>
     )
   }
 
   renderLikers(colors){
-    if (this.props.authenticated) {
-      if (colors && colors.length > 0) {
-        return colors.map( color => this.renderLiker(color) )
-      } else {
-        return <View/>
-      }
+    if (colors && colors.length > 0) {
+      return colors.map( color => this.renderLiker(color) )
     } else {
       return <View/>
     }
+  }
+
+  registrationPrompt(){
+    this.showModal(
+      'confirm',
+      registrationPrompt,
+      registrationPromptSelfie,'',
+      this.goBack,
+      exitDemoButtonText
+    )
+  }
+
+  goBack(){
+    this.props.navigation.goBack()
   }
 
   renderColorTest(){
@@ -570,10 +584,10 @@ class Selfie extends Component {
     )
   }
 
-  showModal(modalType,title,description,message=''){
+  showModal(modalType,title,description,message='',onConfirmPress,buttonText){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
-        title,description,message
+        title,description,message,onConfirmPress,buttonText
       }},()=>{
         this.setState({isModalOpen:true})
       })

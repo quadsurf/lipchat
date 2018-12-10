@@ -13,6 +13,7 @@ import { compose,graphql } from 'react-apollo'
 import { DotsLoader } from 'react-native-indicator'
 import { debounce } from 'underscore'
 import PropTypes from 'prop-types'
+import { withNavigation } from 'react-navigation'
 
 // STORE
 import { connect } from 'react-redux'
@@ -28,7 +29,7 @@ import { SubToLikesForShopper } from './../../api/db/pubsub'
 // LOCALS
 import { Views,Colors } from '../../css/Styles'
 import { Modals,getDimensions } from '../../utils/Helpers'
-import { notApprovedToAddInventory } from '../../config/Defaults'
+import { notApprovedToAddInventory,registrationPrompt,registrationPromptColors,exitDemoButtonText } from '../../config/Defaults'
 
 // COMPONENTS
 import ColorCard from './ColorCard'
@@ -42,6 +43,7 @@ const longUIdebounce = 3000
 const networkDebounce = 4000
 const debugging = __DEV__ && false
 
+@withNavigation
 class LipColors extends Component {
 
   constructor(props){
@@ -79,6 +81,7 @@ class LipColors extends Component {
     this.checkIfInventoryExists = debounce(this.checkIfInventoryExists.bind(this),networkDebounce,true)
     this.cancelInventoryUpdater = debounce(this.cancelInventoryUpdater.bind(this),shortUIdebounce,true)
     this.registrationPrompt = this.registrationPrompt.bind(this)
+    this.goBack = this.goBack.bind(this)
   }
 
   subToLikesInDb(){
@@ -134,10 +137,10 @@ class LipColors extends Component {
     }
   }
 
-  showModal(modalType,title,description,message=''){
+  showModal(modalType,title,description,message='',onConfirmPress,buttonText){
     if (modalType && title) {
       this.setState({modalType,modalContent:{
-        title,description,message
+        title,description,message,onConfirmPress,buttonText
       }},()=>{
         this.setState({isModalOpen:true})
       })
@@ -198,10 +201,16 @@ class LipColors extends Component {
 
   registrationPrompt(){
     this.showModal(
-      'prompt',
-      'Lets Get You Signed Up',
-      `An account is needed to save colors along with many other benefits as well.`
+      'confirm',
+      registrationPrompt,
+      registrationPromptColors,'',
+      this.goBack,
+      exitDemoButtonText
     )
+  }
+
+  goBack(){
+    this.props.navigation.goBack()
   }
 
   toggleFamilyOpenState(family){
